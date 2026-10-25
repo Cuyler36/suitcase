@@ -193,9 +193,9 @@ void Data_c::clear() {
 }
 
 
-typedef char CheckSize[sizeof(Data_c) == 0x647C0 ? 1 : -1];
-typedef char CheckItems[offsetof(Data_c, mPlayerItems) == 0x1E004 ? 1 : -1];
-typedef char CheckAnimal[offsetof(Data_c, mOutgoingAnimal) == 0x59060 ? 1 : -1];
-typedef char CheckPlayer[offsetof(Data_c, mPlayer) == 0x5C0A0 ? 1 : -1];
-typedef char CheckOutcome[offsetof(Data_c, mJinxOutcome) == 0x64760 ? 1 : -1];
+STATIC_ASSERT_WII(CheckSize, sizeof(Data_c) == 0x647C0);
+STATIC_ASSERT_WII(CheckItems, offsetof(Data_c, mPlayerItems) == 0x1E004);
+STATIC_ASSERT_WII(CheckAnimal, offsetof(Data_c, mOutgoingAnimal) == 0x59060);
+STATIC_ASSERT_WII(CheckPlayer, offsetof(Data_c, mPlayer) == 0x5C0A0);
+STATIC_ASSERT_WII(CheckOutcome, offsetof(Data_c, mJinxOutcome) == 0x64760);
 } // namespace dTravelData

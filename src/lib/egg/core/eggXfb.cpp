@@ -15,7 +15,7 @@ void Xfb::init(u16 width, u16 height, Heap *heap) {
         heap = Heap::getCurrentHeap();
     }
 
-    mBuffer = new (heap, 32) u8[bufferSize];
+    mBuffer = EGG_NEW_ARRAY_ARGS(u8, bufferSize, heap, 32);
 
     mPrev = NULL;
     mNext = NULL;

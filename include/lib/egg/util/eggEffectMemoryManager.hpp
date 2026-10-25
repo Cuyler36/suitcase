@@ -2,12 +2,16 @@
 #include <stddef.h>
 
 // Inline placement new, as in the NW4R headers this is derived from (EGG's own is out of line).
+#if TARGET_PC
+#include <new> // the host provides placement new
+#else
 inline void *operator new(size_t, void *ptr) {
     return ptr;
 }
 inline void *operator new[](size_t, void *ptr) {
     return ptr;
 }
+#endif
 
 #include <lib/egg/util/eggExEffect.hpp>
 #include <nw4r/ef.h>

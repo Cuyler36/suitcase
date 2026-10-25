@@ -2690,6 +2690,20 @@ BOOL dAcPlayer_c::moveToTarget() {
     mVec3_c total = mTargetPos - _205C;
     f32 totalDistSq = total.x * total.x + total.z * total.z;
     mVec3_c moved = mPos - _205C;
+#if TARGET_PC
+    // The same logic without the goto into the scope of rest (rejected by MSVC/clang)
+    if (totalDistSq > moved.x * moved.x + moved.z * moved.z) {
+        mVec3_c rest = mTargetPos - mPos;
+        f32 restDistSq = rest.x * rest.x + rest.z * rest.z;
+        if (!(mSpeedF * mSpeedF > restDistSq)) {
+            return FALSE;
+        }
+    }
+    mPos = mTargetPos;
+    mTargetSpeed = 0.0f;
+    mSpeedF = 0.0f;
+    return TRUE;
+#else
     if (totalDistSq <= moved.x * moved.x + moved.z * moved.z) {
         goto arrived;
     }
@@ -2705,6 +2719,7 @@ BOOL dAcPlayer_c::moveToTarget() {
         }
     }
     return FALSE;
+#endif
 }
 
 // .text 0x2447C

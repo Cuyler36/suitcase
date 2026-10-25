@@ -78,17 +78,17 @@ void dNetMgr_c::setup(DWCUserData *userData, DWCFriendData *friends,
         mUserDataSrc = userData;
         mFriendNum = friendNum;
         mMemberNum = memberNum;
-        mFriends = new (dHeap::netSoHeap_p, 4) DWCFriendData[friendNum];
-        mSendBufs = new (dHeap::netSoHeap_p, 4) dNetFriend::SendBuf_c[memberNum];
-        mRecvBufs = new (dHeap::netSoHeap_p, 4) u8 *[memberNum - 1];
+        mFriends = EGG_NEW_ARRAY_ARGS(DWCFriendData, friendNum, dHeap::netSoHeap_p, 4);
+        mSendBufs = EGG_NEW_ARRAY_ARGS(dNetFriend::SendBuf_c, memberNum, dHeap::netSoHeap_p, 4);
+        mRecvBufs = EGG_NEW_ARRAY_ARGS(u8 *, memberNum - 1, dHeap::netSoHeap_p, 4);
         if (bufs != NULL) {
             for (int i = 0; i < memberNum - 1; i++) {
                 mRecvBufs[i] = bufs[i];
             }
             mRecvBufSize = bufSize;
         }
-        mSendCounts = new (dHeap::netSoHeap_p, 4) int[memberNum];
-        mSendCountMax = new (dHeap::netSoHeap_p, 4) int[memberNum];
+        mSendCounts = EGG_NEW_ARRAY_ARGS(int, memberNum, dHeap::netSoHeap_p, 4);
+        mSendCountMax = EGG_NEW_ARRAY_ARGS(int, memberNum, dHeap::netSoHeap_p, 4);
         for (int i = 0; i < memberNum; i++) {
             mSendCounts[i] = 0;
             mSendCountMax[i] = 0;
@@ -99,16 +99,16 @@ void dNetMgr_c::setup(DWCUserData *userData, DWCFriendData *friends,
 
 void dNetMgr_c::cleanup() {
     if (mState > NET_MGR_STATE_NONE) {
-        delete[] mSendCounts;
+        EGG_DELETE_ARRAY(mSendCounts);
         mSendCounts = NULL;
-        delete[] mSendCountMax;
+        EGG_DELETE_ARRAY(mSendCountMax);
         mSendCountMax = NULL;
-        delete[] mRecvBufs;
+        EGG_DELETE_ARRAY(mRecvBufs);
         mRecvBufs = NULL;
         mRecvBufSize = 0;
-        delete[] mSendBufs;
+        EGG_DELETE_ARRAY(mSendBufs);
         mSendBufs = NULL;
-        delete[] mFriends;
+        EGG_DELETE_ARRAY(mFriends);
         mFriends = NULL;
         mState = NET_MGR_STATE_NONE;
         g_netDwc.cleanup();

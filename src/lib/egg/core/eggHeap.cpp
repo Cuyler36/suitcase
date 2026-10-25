@@ -215,6 +215,79 @@ Heap *Heap::becomeCurrentHeapWithoutLock() {
 
 } // namespace EGG
 
+#if TARGET_PC
+#include <stdlib.h>
+
+// Before the heaps exist, or when one is full, allocations fall back to the host (as in Dusklight)
+static void *FallbackAlloc(size_t size, size_t align, bool log) {
+    if (log) {
+        EGG::Heap *heap = EGG::Heap::getCurrentHeap();
+        OSReport("[NEW] EGG::Heap (%s) full! Falling back to malloc for size %u\n",
+                 heap != NULL && heap->getName() != NULL ? heap->getName() : "<null>", (unsigned)size);
+    }
+    if (align < alignof(max_align_t)) {
+        align = alignof(max_align_t);
+    }
+#if defined(_WIN32)
+    // Always _aligned_malloc, so operator delete can tell which free to use
+    return _aligned_malloc(size, align);
+#else
+    // aligned_alloc requires the size to be a multiple of the alignment
+    return aligned_alloc(align, (size + align - 1) & ~(align - 1));
+#endif
+}
+
+static size_t AbsAlign(int align) {
+    return align < 0 ? -align : align;
+}
+
+void *operator new(size_t size, EGG::HeapToken) noexcept {
+    if (EGG::Heap::getCurrentHeap() == NULL) {
+        return FallbackAlloc(size, 0, false);
+    }
+    // The Wii's default of 4 is too small for 64-bit pointers and SIMD types
+    void *mem = EGG::Heap::alloc(size, alignof(max_align_t), NULL);
+    return mem != NULL ? mem : FallbackAlloc(size, 0, true);
+}
+void *operator new(size_t size, EGG::HeapToken, int align) noexcept {
+    void *mem = EGG::Heap::alloc(size, align, NULL);
+    return mem != NULL ? mem : FallbackAlloc(size, AbsAlign(align), true);
+}
+void *operator new(size_t size, EGG::HeapToken, EGG::Heap *heap, int align) noexcept {
+    void *mem = EGG::Heap::alloc(size, align, heap);
+    return mem != NULL ? mem : FallbackAlloc(size, AbsAlign(align), true);
+}
+void *operator new[](size_t, EGG::HeapToken) noexcept {
+    OSPanic(__FILE__, __LINE__, "Allocate arrays with EGG_NEW_ARRAY");
+    return NULL;
+}
+void *operator new[](size_t, EGG::HeapToken, int) noexcept {
+    OSPanic(__FILE__, __LINE__, "Allocate arrays with EGG_NEW_ARRAY_ARGS");
+    return NULL;
+}
+void *operator new[](size_t, EGG::HeapToken, EGG::Heap *, int) noexcept {
+    OSPanic(__FILE__, __LINE__, "Allocate arrays with EGG_NEW_ARRAY_ARGS");
+    return NULL;
+}
+void operator delete(void *p, EGG::HeapToken) noexcept {
+    if (p == NULL) {
+        return;
+    }
+    EGG::Heap *heap = EGG::Heap::findContainHeap(p);
+    if (heap == NULL) {
+#if defined(_WIN32)
+        _aligned_free(p);
+#else
+        free(p);
+#endif
+        return;
+    }
+    EGG::Heap::free(p, heap);
+}
+void operator delete[](void *p, EGG::HeapToken) noexcept {
+    operator delete(p, EGG::HeapToken::Dummy);
+}
+#else
 void *operator new(size_t size) {
     return EGG::Heap::alloc(size, 4, NULL);
 }
@@ -239,3 +312,4 @@ void operator delete(void *p) {
 void operator delete[](void *p) {
     EGG::Heap::free(p, NULL);
 }
+#endif

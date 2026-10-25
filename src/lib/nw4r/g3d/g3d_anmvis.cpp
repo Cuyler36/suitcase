@@ -261,7 +261,7 @@ void AnmObjVisNode::G3dProc(u32 task, u32 param, void* pInfo) {
  * AnmObjVisOR
  *
  ******************************************************************************/
-AnmObjVisOR* AnmObjVisOR::Construct(MEMAllocator* pAllocator, u32* pSize,
+AnmObjVisOR* AnmObjVisOR::Construct(MEMAllocator* pAllocator, size_t* pSize,
                                     ResMdl mdl) {
     if (!mdl.IsValid()) {
         return NULL;
@@ -315,7 +315,7 @@ bool AnmObjVisOR::GetResult(u32 idx) {
  * AnmObjVisRes
  *
  ******************************************************************************/
-AnmObjVisRes* AnmObjVisRes::Construct(MEMAllocator* pAllocator, u32* pSize,
+AnmObjVisRes* AnmObjVisRes::Construct(MEMAllocator* pAllocator, size_t* pSize,
                                       ResAnmVis vis, ResMdl mdl) {
     if (!vis.IsValid() || !mdl.IsValid()) {
         return NULL;

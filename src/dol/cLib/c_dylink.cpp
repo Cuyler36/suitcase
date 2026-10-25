@@ -123,7 +123,7 @@ DynamicModuleControl::~DynamicModuleControl() {}
 // 802AA50C
 void DynamicModuleControl::initialize(EGG::ExpHeap *heap) {
     sDylinkHeap = heap;
-    sDvdFile = new(heap, 4) EGG::DvdFile();
+    sDvdFile = EGG_NEW_ARGS(heap, 4) EGG::DvdFile();
     sAllocBytes = sizeof(EGG::DvdFile);
 }
 

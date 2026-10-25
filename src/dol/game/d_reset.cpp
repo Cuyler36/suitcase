@@ -72,7 +72,7 @@ static inline bool isAllIdle() {
 
 // 8010693C
 void Manage_c::CreateInstance(EGG::Heap *heap) {
-    sInstance = new (heap, 4) Manage_c(heap);
+    sInstance = EGG_NEW_ARGS(heap, 4) Manage_c(heap);
 }
 
 // 80106988
@@ -110,7 +110,7 @@ Manage_c::Manage_c(EGG::Heap *heap) {
 
 // 80106A24
 void Manage_c::Configure() {
-    mpFader = new (mpHeap, 4) EGG::ColorFader(0.0f, 0.0f, mVideo::m_video->mRenderModeObj.fbWidth,
+    mpFader = EGG_NEW_ARGS(mpHeap, 4) EGG::ColorFader(0.0f, 0.0f, mVideo::m_video->mRenderModeObj.fbWidth,
                                               mVideo::m_video->mRenderModeObj.efbHeight, l_fadeColor,
                                               EGG::Fader::HIDDEN);
     SetResetCallback();

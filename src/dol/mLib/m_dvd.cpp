@@ -63,7 +63,7 @@ void *MyThread_c::run() {
 void create(int priority, EGG::Heap *commandHeap, EGG::Heap *archiveHeap, const GXColor *perfColor) {
     g_commandHeap = commandHeap;
     g_archiveHeap = archiveHeap;
-    g_thread = new MyThread_c(priority);
+    g_thread = EGG_NEW MyThread_c(priority);
     OSThread *thread = g_thread->getOSThread();
     g_dvdThread = thread;
     if (mHeap::g_assertHeap != nullptr) {

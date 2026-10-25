@@ -38,6 +38,16 @@ inline void OSInitFastCast() {
     // clang-format on
 }
 
+#ifndef __MWERKS__
+// psq_st through a fast-cast GQR: truncated toward zero and saturated to [lo, hi] (NaN becomes 0)
+static inline f32 __OSQuantizeClamp(f32 value, f32 lo, f32 hi) {
+    if (!(value == value)) {
+        return 0.0f;
+    }
+    return value < lo ? lo : (value > hi ? hi : value);
+}
+#endif
+
 /*** TO F32 ***/
 
 static inline void OSSetGQR6(register u32 type, register u32 scale) {
@@ -63,6 +73,8 @@ static inline f32 __OSu8tof32(register const u8* arg) {
     // clang-format off
 #ifdef __MWERKS__
     asm { psq_l ret, 0(arg), 1, 2 }
+#else
+    ret = (f32)*arg;
 #endif
     // clang-format on
     return ret;
@@ -77,6 +89,8 @@ static inline f32 __OSu16tof32(register const u16* arg) {
     // clang-format off
 #ifdef __MWERKS__
     asm { psq_l ret, 0(arg), 1, 3 }
+#else
+    ret = (f32)*arg;
 #endif
     // clang-format on
     return ret;
@@ -97,9 +111,12 @@ static inline u8 __OSf32tou8(register f32 arg) {
     asm {
         psq_st arg, 0(ptr), 1, 2
     }
-#endif
     // clang-format on
     r = *(u8*)ptr;
+#else
+    (void)ptr;
+    r = (u8)__OSQuantizeClamp(arg, 0.0f, 255.0f);
+#endif
     return r;
 }
 
@@ -114,9 +131,12 @@ static inline u16 __OSf32tou16(register f32 arg) {
     // clang-format off
 #ifdef __MWERKS__
     asm { psq_st arg, 0(ptr), 1, 3 }
-#endif
     // clang-format on
     r = *(u16*)ptr;
+#else
+    (void)ptr;
+    r = (u16)__OSQuantizeClamp(arg, 0.0f, 65535.0f);
+#endif
     return r;
 }
 
@@ -129,6 +149,8 @@ static inline f32 __OSs16tof32(register const s16* arg) {
     // clang-format off
 #ifdef __MWERKS__
     asm { psq_l ret, 0(arg), 1, 5 }
+#else
+    ret = (f32)*arg;
 #endif
     // clang-format on
     return ret;
@@ -145,9 +167,12 @@ static inline s16 __OSf32tos16(register f32 arg) {
     // clang-format off
 #ifdef __MWERKS__
     asm { psq_st arg, 0(ptr), 1, 5 }
-#endif
     // clang-format on
     r = *(s16*)ptr;
+#else
+    (void)ptr;
+    r = (s16)__OSQuantizeClamp(arg, -32768.0f, 32767.0f);
+#endif
     return r;
 }
 

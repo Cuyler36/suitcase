@@ -41,9 +41,9 @@ VERSIONS = [
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "mode",
-    choices=["configure", "progress"],
+    choices=["configure", "progress", "pc"],
     default="configure",
-    help="script mode (default: configure)",
+    help="script mode (default: configure; pc: export units for the PC port)",
     nargs="?",
 )
 parser.add_argument(
@@ -692,7 +692,6 @@ cflags_nw4r_base = [
     "-DNW4R_LIB_BUILD",
     "-DNDEBUG=1",
     "-enc SJIS",
-    "-i include/lib/nw4r",
 ]
 cflags_nw4r = [
     *cflags_nw4r_base,
@@ -4087,5 +4086,10 @@ if args.mode == "configure":
 elif args.mode == "progress":
     # Print progress information
     calculate_progress(config)
+elif args.mode == "pc":
+    # Export this version's units for the PC port's CMake build
+    from tools.pc_sources import generate_pc_sources
+
+    print(generate_pc_sources(config, version_num))
 else:
     sys.exit("Unknown mode: " + args.mode)

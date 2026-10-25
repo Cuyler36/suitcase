@@ -86,12 +86,20 @@ Emitter *Effect::CreateEmitter(EmitterResource *pResource, u8 drawWeight,
 
     Emitter *pEmitter = mManagerES->GetMemoryManager()->AllocEmitter();
     if (pEmitter == NULL) {
+#if TARGET_PC
+        return NULL; // false is no longer a null pointer constant
+#else
         return false;
+#endif
     }
 
     if (!pEmitter->Initialize(this, pResource, drawWeight)) {
         mManagerES->GetMemoryManager()->FreeEmitter(pEmitter);
+#if TARGET_PC
+        return NULL;
+#else
         return false;
+#endif
     }
 
     mActivityList.ToActive(pEmitter);

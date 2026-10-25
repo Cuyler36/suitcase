@@ -41,7 +41,12 @@ private:
     }
 
     template <typename T> void StepStrm(int offset) {
+#if TARGET_PC
+        // CW accepts assigning to the cast
+        mCharStrm = static_cast<const T*>(mCharStrm) + offset;
+#else
         static_cast<const T*>(mCharStrm) += offset;
+#endif
     }
 
 private:

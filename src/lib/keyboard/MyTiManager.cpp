@@ -682,13 +682,24 @@ void AppearMemoState::calc() {
     switch (type) {
     case Manager::CT_Letter:
     case Manager::CT_PhotoLetter:
+#if TARGET_PC
+        f32 inputFormY;
+        inputFormY =
+#else
         f32 inputFormY =
+#endif
             util::hermiteInterporation(mfCounter, 0.0f, sInputFormAnmY.start,
                                        0.0f, 30.0f, sInputFormAnmY.end, 0.0f);
         InputForm()->getLayout()->GetRootPane()->SetTranslate(
             nw4r::math::VEC2(0.0f, inputFormY));
         InputForm()->getLayout()->GetRootPane()->SetAlpha(0xFF);
-        extend::memo::InputForm *form = InputForm();
+#if TARGET_PC
+        extend::memo::InputForm *form;
+        form =
+#else
+        extend::memo::InputForm *form =
+#endif
+            InputForm();
         form->setScroll(
             util::hermiteInterporation(mfCounter, 0.0f, form->getScrollFrom(),
                                        0.0f, 30.0f, form->getScrollTo(), 0.0f));
@@ -967,7 +978,12 @@ void DisappearMemoState::calc() {
     switch (type) {
     case Manager::CT_Letter:
     case Manager::CT_PhotoLetter:
+#if TARGET_PC
+        f32 inputFormY;
+        inputFormY =
+#else
         f32 inputFormY =
+#endif
             util::hermiteInterporation(mfCounter, 0.0f, sInputFormAnmY.end,
                                        0.0f, 30.0f, sInputFormAnmY.start, 0.0f);
         InputForm()->getLayout()->GetRootPane()->SetTranslate(

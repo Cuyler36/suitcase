@@ -1,12 +1,13 @@
 #include <nw4r/g3d.h>
 #include <nw4r/ut.h>
+#include <lib/egg/core/eggNew.h>
 
 namespace nw4r {
 namespace g3d {
 
 NW4R_G3D_RTTI_DEF(ScnMdlSimple);
 
-ScnMdlSimple* ScnMdlSimple::Construct(MEMAllocator* pAllocator, u32* pSize,
+ScnMdlSimple* ScnMdlSimple::Construct(MEMAllocator* pAllocator, size_t* pSize,
                                       ResMdl mdl, int numView) {
     if (!mdl.IsValid()) {
         return NULL;
@@ -327,7 +328,7 @@ bool ScnMdlSimple::GetScnObjOption(u32 option, u32* pValue) const {
 }
 
 bool ScnMdlSimple::GetScnMtxPos(math::MTX34* pMtx, ScnObjMtxType type,
-                                u32 idx) const {
+                                size_t idx) const {
     if (pMtx != NULL) {
         ResNode node = GetResMdl().GetResNode(idx);
 
@@ -852,7 +853,7 @@ ScnMdlSimple::ScnMdlSimple(MEMAllocator* pAllocator, ResMdl mdl,
 ScnMdlSimple::~ScnMdlSimple() {
     switch (mCwcbDeleteOption) {
     case TRUE: {
-        delete mpCalcWorldCallback;
+        EGG_DELETE(mpCalcWorldCallback);
         break;
     }
     }

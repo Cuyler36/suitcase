@@ -1174,15 +1174,15 @@ dObjChat_c::~dObjChat_c() {
 dObjChat::Balloon_c::~Balloon_c() {
 }
 
-typedef char RequestSizeCheck[sizeof(dObjChat::Request_c) == 0xD8 ? 1 : -1];
-typedef char BalloonSizeCheck[sizeof(dObjChat::Balloon_c) == 0x24C ? 1 : -1];
-typedef char ChatSizeCheck[sizeof(dObjChat_c) == 0xA6C ? 1 : -1];
-typedef char
-    RequestFlagsCheck[offsetof(dObjChat::Request_c, mFlags) == 0xD2 ? 1 : -1];
-typedef char BalloonPosCheck[offsetof(dObjChat::Balloon_c, mTargetPos) == 0x214
-                                 ? 1
-                                 : -1];
-typedef char
-    BalloonFlagsCheck[offsetof(dObjChat::Balloon_c, mFlags) == 0x24A ? 1 : -1];
-typedef char
-    ChatBalloonsCheck[offsetof(dObjChat_c, mBalloons) == 0x138 ? 1 : -1];
+STATIC_ASSERT_WII(RequestSizeCheck, sizeof(dObjChat::Request_c) == 0xD8);
+STATIC_ASSERT_WII(BalloonSizeCheck, sizeof(dObjChat::Balloon_c) == 0x24C);
+STATIC_ASSERT_WII(ChatSizeCheck, sizeof(dObjChat_c) == 0xA6C);
+STATIC_ASSERT_WII(RequestFlagsCheck,
+                  offsetof(dObjChat::Request_c, mFlags) == 0xD2);
+STATIC_ASSERT_WII(BalloonPosCheck,
+                  offsetof(dObjChat::Balloon_c, mTargetPos) == 0x214);
+
+STATIC_ASSERT_WII(BalloonFlagsCheck,
+                  offsetof(dObjChat::Balloon_c, mFlags) == 0x24A);
+STATIC_ASSERT_WII(ChatBalloonsCheck,
+                  offsetof(dObjChat_c, mBalloons) == 0x138);

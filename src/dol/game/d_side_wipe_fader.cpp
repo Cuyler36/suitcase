@@ -5,6 +5,7 @@
 #include <game/game/d_wipe_fader.hpp>
 #include <revolution/mtx.h>
 #include <lib/nw4r/g3d/g3d_state.h>
+#include <lib/egg/core/eggNew.h>
 
 static dShutterFader_c *sShutterFader; // 8074E828
 
@@ -39,7 +40,7 @@ void drawShutterFader() {
 
 // 80160C14
 BOOL createShutterFader() {
-    sShutterFader = new dShutterFader_c();
+    sShutterFader = EGG_NEW dShutterFader_c();
     if (sShutterFader == NULL) {
         return FALSE;
     }

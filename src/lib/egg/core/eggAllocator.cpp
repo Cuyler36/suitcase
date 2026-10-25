@@ -9,7 +9,11 @@ Allocator::Allocator(Heap *heap, long align) : mpHeap(heap), mAlign(align) {
 
 Allocator::~Allocator() {}
 
+#if TARGET_PC
+void *Allocator::alloc(size_t size) {
+#else
 void *Allocator::alloc(unsigned long size) {
+#endif
     return Heap::alloc(size, mAlign, mpHeap);
 }
 

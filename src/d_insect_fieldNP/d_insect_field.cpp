@@ -113,8 +113,8 @@ void *dInsectField_c_classInit() {
 // 0x108
 void heapList_c::create(ulong size, EGG::Heap *parent, int num,
                         const char *name) {
-    mHeaps = new (parent, 4) EGG::FrmHeap *[num];
-    mUsed = new (parent, 4) u8[num];
+    mHeaps = EGG_NEW_ARRAY_ARGS(EGG::FrmHeap *, num, parent, 4);
+    mUsed = EGG_NEW_ARRAY_ARGS(u8, num, parent, 4);
     mNum = num;
     for (u32 i = 0; i < mNum; i++) {
         mHeaps[i] =
@@ -131,8 +131,8 @@ void heapList_c::destroy() {
             mHeaps[i] = NULL;
         }
     }
-    delete[] mHeaps;
-    delete[] mUsed;
+    EGG_DELETE_ARRAY(mHeaps);
+    EGG_DELETE_ARRAY(mUsed);
 }
 
 } // namespace dInsectField
@@ -187,7 +187,7 @@ int dInsectField_c::create() {
         int w = dField::getInfo(FD_ID_CURRENT)->getBlockW();
         int h = dField::getInfo(FD_ID_CURRENT)->getBlockH();
         for (int i = 0; i < INSECT_FIELD_SEARCH_NUM; i++) {
-            mSearch[i] = new (heap, 4) dFdBkSearchCand_c(w, h);
+            mSearch[i] = EGG_NEW_ARGS(heap, 4) dFdBkSearchCand_c(w, h);
             mSearch[i]->setAll();
             mSearch[i]->removeBorder();
         }
@@ -302,7 +302,7 @@ int dInsectField_c::doDelete() {
     }
     for (int i = 0; i < INSECT_FIELD_SEARCH_NUM; i++) {
         if (mSearch[i] != NULL) {
-            delete mSearch[i];
+            EGG_DELETE(mSearch[i]);
             mSearch[i] = NULL;
         }
     }

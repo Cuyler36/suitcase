@@ -467,7 +467,7 @@ BOOL Mng_c::loadRes() {
 
 void Mng_c::createManager() {
     EGG::Heap *heap = mHeap::setCurrentHeap(mAllocator.mpHeap);
-    mpManager = new myManager_c(&mAllocator, &mResLoader.mResAcc, &mEvent);
+    mpManager = EGG_NEW myManager_c(&mAllocator, &mResLoader.mResAcc, &mEvent);
     mHeap::setCurrentHeap(heap);
 }
 
@@ -616,7 +616,7 @@ BOOL Mng_c::remove(int mode) {
         }
         mpManager->getKBDListenerRoot()->remove(&mListener);
         EGG::Heap *heap = mHeap::setCurrentHeap(mAllocator.mpHeap);
-        delete mpManager;
+        EGG_DELETE(mpManager);
         mHeap::setCurrentHeap(heap);
         mpManager = NULL;
         mAllocator.destroyHeap();

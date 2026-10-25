@@ -351,7 +351,7 @@ BOOL dScBootStatic_c::create() {
     }
     mState = STATE_SHOW;
 #if VERSION == VERSION_RUUE01_00 || VERSION == VERSION_RUUE01_01
-    mpFader = new (-4)
+    mpFader = EGG_NEW_ARGS(-4)
         EGG::ColorFader(0.0f, 0.0f, mVideo::m_video->mRenderModeObj.fbWidth,
                         mVideo::m_video->mRenderModeObj.efbHeight,
                         nw4r::ut::Color(0x000000FF), EGG::Fader::HIDDEN);

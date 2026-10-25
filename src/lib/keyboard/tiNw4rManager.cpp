@@ -3,6 +3,7 @@
 #include <lib/textinput/tiUtil.h>
 
 #include <new>
+#include <lib/egg/core/eggNew.h>
 
 namespace textinput {
 namespace nw4rmanager {
@@ -457,10 +458,10 @@ void AnmPane::destroy(MEMAllocator *allocator) {
              anim = static_cast<Anim *>(nw4r::ut::List_GetFirst(&mAnms))) {
             mpPane->UnbindAnimation(anim->mpAnimTransform, true);
             List_Remove(&mAnms, anim);
-            delete anim;
+            EGG_DELETE(anim);
         }
 
-        delete this;
+        EGG_DELETE(this);
     }
 }
 } // namespace nw4rmanager

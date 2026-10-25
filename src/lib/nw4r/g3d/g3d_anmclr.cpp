@@ -248,7 +248,7 @@ void AnmObjMatClrNode::G3dProc(u32 task, u32 param, void* pInfo) {
  *
  ******************************************************************************/
 AnmObjMatClrOverride* AnmObjMatClrOverride::Construct(MEMAllocator* pAllocator,
-                                                      u32* pSize, ResMdl mdl,
+                                                      size_t* pSize, ResMdl mdl,
                                                       int numChildren) {
     if (!mdl.IsValid()) {
         return NULL;
@@ -314,7 +314,7 @@ const ClrAnmResult* AnmObjMatClrOverride::GetResult(ClrAnmResult* pResult,
  *
  ******************************************************************************/
 AnmObjMatClrRes* AnmObjMatClrRes::Construct(MEMAllocator* pAllocator,
-                                            u32* pSize, ResAnmClr clr,
+                                            size_t* pSize, ResAnmClr clr,
                                             ResMdl mdl, bool cache) {
     if (!clr.IsValid() || !mdl.IsValid()) {
         return NULL;

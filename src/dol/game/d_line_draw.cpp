@@ -23,7 +23,7 @@ BOOL dLineDrawProc_c::destroy() {
         mHeap = NULL;
     }
     if (mLines != NULL) {
-        delete[] mLines;
+        EGG_DELETE_ARRAY(mLines);
         mLines = NULL;
     }
     return TRUE;
@@ -112,12 +112,12 @@ void dLineDrawProc_c::draw(BOOL opa) {
 // after its first user, so an unused function that destroys a dLineDrawProc_c
 // stood here; the link strips it. Its original body is unknown.
 void dLineDrawProc_deleteWitness(dLineDrawProc_c *proc) {
-    delete proc;
+    EGG_DELETE(proc);
 }
 
 // 800CDBB0
 BOOL dLineDrawProc_c::create(EGG::Heap *heap, u32 lineMax) {
-    mLines = new (heap, 4) line_c[lineMax];
+    mLines = EGG_NEW_ARRAY_ARGS(line_c, lineMax, heap, 4);
     mLineMax = lineMax;
     if (mHeap == NULL) {
         mHeap = mHeap::createFrmHeap(0x1400, heap, "dLineDrawProc_c::::m_frmHeap_p : ライン表示ヒープ", 0x20, mHeap::OPT_NONE);

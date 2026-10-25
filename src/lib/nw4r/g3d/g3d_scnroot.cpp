@@ -14,9 +14,9 @@ NW4R_G3D_RTTI_DEF(ScnRoot);
  * ScnRoot
  *
  ******************************************************************************/
-ScnRoot* ScnRoot::Construct(MEMAllocator* pAllocator, u32* pSize,
-                            u32 maxChildren, u32 maxScnObj, u32 numLightObj,
-                            u32 numLightSet) {
+ScnRoot* ScnRoot::Construct(MEMAllocator* pAllocator, size_t* pSize,
+                            size_t maxChildren, size_t maxScnObj, size_t numLightObj,
+                            size_t numLightSet) {
     ScnRoot* pScnRoot = NULL;
     u32 scnRootSize = sizeof(ScnRoot);
     u32 scnObjGatherSize = sizeof(ScnObjGather);

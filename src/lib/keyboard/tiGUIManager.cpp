@@ -4,6 +4,7 @@
 #include <revolution/gx.h>
 
 #include <new>
+#include <lib/egg/core/eggNew.h>
 
 namespace textinput {
 namespace gui {
@@ -89,7 +90,7 @@ GUIManager::~GUIManager() {
         if (mpAllocator) {
             MEMFreeToAllocator(mpAllocator, p);
         } else {
-            delete p;
+            EGG_DELETE(p);
         }
         p = static_cast<IDToComponent *>(nw4r::ut::List_GetFirst(&mComponents));
     }
@@ -111,7 +112,7 @@ void GUIManager::addComponent(GUIComponent *component) {
         IDToComponent *p = new (buf) IDToComponent(id, component);
         nw4r::ut::List_Append(&mComponents, p);
     } else {
-        IDToComponent *p = new IDToComponent(id, component);
+        IDToComponent *p = EGG_NEW IDToComponent(id, component);
         nw4r::ut::List_Append(&mComponents, p);
     }
 }
@@ -222,8 +223,8 @@ PaneManager::~PaneManager() {
             MEMFreeToAllocator(mpAllocator, p->mpComponent);
             MEMFreeToAllocator(mpAllocator, p);
         } else {
-            delete p->mpComponent;
-            delete p;
+            EGG_DELETE(p->mpComponent);
+            EGG_DELETE(p);
         }
         p = static_cast<PaneToComponent *>(nw4r::ut::List_GetFirst(&mPaneComponents));
     }
@@ -252,8 +253,8 @@ void PaneManager::addPane_(nw4r::lyt::Pane *pane) {
         component = new (comBuf) PaneComponent(mIDCounter);
         toComponent = new (buf) PaneToComponent(pane, component);
     } else {
-        component = new PaneComponent(mIDCounter);
-        toComponent = new PaneToComponent(pane, component);
+        component = EGG_NEW PaneComponent(mIDCounter);
+        toComponent = EGG_NEW PaneToComponent(pane, component);
     }
 
     nw4r::ut::List_Append(&mPaneComponents, toComponent);

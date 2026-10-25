@@ -5,11 +5,20 @@
 
 typedef signed char s8;
 typedef signed short s16;
+#if TARGET_PC
+// 32-bit on every host and identical to include/types.h (see there)
+typedef signed int s32;
+#else
 typedef signed long s32;
+#endif
 typedef signed long long s64;
 typedef unsigned char u8;
 typedef unsigned short u16;
+#if TARGET_PC
+typedef unsigned int u32;
+#else
 typedef unsigned long u32;
+#endif
 typedef unsigned long long u64;
 
 typedef volatile u8 vu8;
@@ -48,13 +57,23 @@ typedef volatile uBOOL vuBOOL;
 #endif  // __cplusplus
 #endif
 
+#if TARGET_PC && !defined(__GNUC__) && !defined(__clang__)
+// MSVC: trailing alignment/packing attributes have no equivalent (as in Dusklight). Nothing
+// built for PC uses PACKED.
+#define ATTRIBUTE_ALIGN(num)
+#else
 #define ATTRIBUTE_ALIGN(num) __attribute__((aligned(num)))
+#endif
 
 #define DEFAULT_ALIGN 32
 
 #define ALIGN32 ATTRIBUTE_ALIGN(DEFAULT_ALIGN)
 #define ALIGN64 ATTRIBUTE_ALIGN(64)
 
+#if TARGET_PC && !defined(__GNUC__) && !defined(__clang__)
+#define PACKED
+#else
 #define PACKED __attribute__((packed))
+#endif
 
 #endif  // REVOLUTION_TYPES_H

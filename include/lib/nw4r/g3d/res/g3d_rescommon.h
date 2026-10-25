@@ -365,13 +365,13 @@ void ResWriteXFCmd(u8* pPtr, u16 addr, ulong value);
  *
  ******************************************************************************/
 inline GXColor GetRGBA(u8 r, u8 g, u8 b, u8 a) {
-    return (GXColor){r, g, b, a};
+    return COMPOUND_LITERAL(GXColor){r, g, b, a};
 }
 inline GXColorS10 GetRGBAS10(s16 r, s16 g, s16 b, s16 a) {
-    return (GXColorS10){r, g, b, a};
+    return COMPOUND_LITERAL(GXColorS10){r, g, b, a};
 }
 inline GXColorS10 GetRGBAS10(const nw4r::ut::Color &col) {
-    return (GXColorS10){col.r, col.g, col.b, col.a};
+    return COMPOUND_LITERAL(GXColorS10){col.r, col.g, col.b, col.a};
 }
 
 } // namespace detail

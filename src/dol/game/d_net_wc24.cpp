@@ -938,8 +938,8 @@ BOOL dNetWc24_c::download(int task, DownloadCallback callback) {
 // registration.
 dNetWc24_c g_wc24;
 
-typedef char CheckWc24Size[sizeof(dNetWc24_c) == 0x438 ? 1 : -1];
-typedef char CheckWc24Id[offsetof(dNetWc24_c, mUserId) == 0x400 ? 1 : -1];
-typedef char CheckMessageSize[sizeof(Message_c) == 0x20 ? 1 : -1];
+STATIC_ASSERT_WII(CheckWc24Size, sizeof(dNetWc24_c) == 0x438);
+STATIC_ASSERT_WII(CheckWc24Id, offsetof(dNetWc24_c, mUserId) == 0x400);
+STATIC_ASSERT_WII(CheckMessageSize, sizeof(Message_c) == 0x20);
 
 } // namespace dNetWc24

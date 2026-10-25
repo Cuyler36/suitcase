@@ -35,7 +35,7 @@ EGG::FogManager *l_fogMgr_p;
 } // namespace internal
 
 bool create(EGG::Heap *heap, ulong maxChildren, ulong maxScnObj, ulong numLightObj, ulong numLightSet) {
-    internal::l_allocator_p = new (heap, 4) mAllocator_c();
+    internal::l_allocator_p = EGG_NEW_ARGS(heap, 4) mAllocator_c();
     internal::l_allocator_p->attach(heap, 0x20);
 
     nw4r::g3d::G3dInit(true);
@@ -49,7 +49,7 @@ bool create(EGG::Heap *heap, ulong maxChildren, ulong maxScnObj, ulong numLightO
 }
 
 bool createFogMgr(EGG::Heap *heap, int numFog) {
-    internal::l_fogMgr_p = new (heap, 4) EGG::FogManager(numFog);
+    internal::l_fogMgr_p = EGG_NEW_ARGS(heap, 4) EGG::FogManager(numFog);
     if (internal::l_fogMgr_p == nullptr) {
         removeFogMgr();
         return false;
@@ -59,7 +59,7 @@ bool createFogMgr(EGG::Heap *heap, int numFog) {
 
 void removeFogMgr() {
     if (internal::l_fogMgr_p != nullptr) {
-        delete internal::l_fogMgr_p;
+        EGG_DELETE(internal::l_fogMgr_p);
         internal::l_fogMgr_p = nullptr;
     }
 }

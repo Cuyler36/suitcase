@@ -371,7 +371,13 @@ void dAcPlayer_c::executePitfallFall() {
             if (_22A4[7] != 0) {
                 _22A4[7]--;
             }
-            bool atTarget = cLib::chasePosXZ(&mPos, mTargetPos, _21D0[0]);
+#if TARGET_PC
+            bool atTarget;
+            atTarget =
+#else
+            bool atTarget =
+#endif
+                cLib::chasePosXZ(&mPos, mTargetPos, _21D0[0]);
             if (atTarget && _22A4[7] == 0) {
                 setAnmNoMorph(HMN_ANM_PITFALL_FALL2, m3d::FORWARD_ONCE);
                 startSound(SE_otoshiana_hamaru);
@@ -403,7 +409,13 @@ void dAcPlayer_c::executePitfallFall() {
             if (_22A4[7] != 0) {
                 _22A4[7]--;
             }
-            bool atTarget = cLib::chasePosXZ(&mPos, mTargetPos, _21D0[0]);
+#if TARGET_PC
+            bool atTarget;
+            atTarget =
+#else
+            bool atTarget =
+#endif
+                cLib::chasePosXZ(&mPos, mTargetPos, _21D0[0]);
             if (atTarget && _22A4[7] == 0) {
                 setAnmNoMorph(HMN_ANM_PITFALL_FALL2, m3d::FORWARD_ONCE);
                 startSound(SE_otoshiana_hamaru);
@@ -1863,7 +1875,7 @@ void dAcPlayer_c::watchReleasedCatch(BOOL insect) {
             mVec3_c pos(actor->mPos);
             lookAt(&pos, 0x7F, 0x7F);
             static_cast<dInsFldBase_c *>(mInsectLink.mpInsect)
-                ->setHeldScale(&mVec3_c(1.0f, 1.0f, 1.0f));
+                ->setHeldScale(TEMP_ADDR(mVec3_c(1.0f, 1.0f, 1.0f)));
         } else if (mPlayerNo == dNet::getMyNo()) {
             setState(dPlayerMgr::STATE_IDLE);
         }
@@ -1872,7 +1884,7 @@ void dAcPlayer_c::watchReleasedCatch(BOOL insect) {
         if (fish != NULL) {
             mVec3_c pos(fish->mPos);
             lookAt(&pos, 0x7F, 0x7F);
-            mFishLink.mFish->setHeldScale(&mVec3_c(1.0f, 1.0f, 1.0f));
+            mFishLink.mFish->setHeldScale(TEMP_ADDR(mVec3_c(1.0f, 1.0f, 1.0f)));
         } else if (mPlayerNo == dNet::getMyNo()) {
             setState(dPlayerMgr::STATE_IDLE);
         }
@@ -1962,7 +1974,7 @@ void dAcPlayer_c::executePickUp() {
             _21D0[0] = mItemPos.xzDistTo(mMdlCallback.mHandPos) / frames;
         } else if (frame > grabFrame && frame <= holdFrame) {
             cLib::chasePos(&mItemPos, mMdlCallback.mHandPos, _21D0[0]);
-            setFgObjItem(mActionItem.mId, &mItemPos, &mVec3_c(1.0f, 1.0f, 1.0f));
+            setFgObjItem(mActionItem.mId, &mItemPos, TEMP_ADDR(mVec3_c(1.0f, 1.0f, 1.0f)));
         } else if (frame > holdFrame && frame < endFrame) {
             f32 s = 1.0f - 0.056f * (frame - holdFrame);
             if (s < 0.0f) {
@@ -3209,14 +3221,14 @@ void dAcPlayer_c::executePickUpUnitItemMine() {
             if (mTaskKind == FG_MNG_KIND_PICK_UP) {
                 takeFieldItem(FALSE);
             }
-            setFgObjItem(mActionItem.mId, &mItemPos, &mVec3_c(s, s, s));
+            setFgObjItem(mActionItem.mId, &mItemPos, TEMP_ADDR(mVec3_c(s, s, s)));
         } else if (frame > 12.0f && frame < 20.0f) {
             cLib::chasePosXZ(&mItemPos, mShowPos, _21D0[0]);
             sLib::chase(&mItemPos.y, mShowPos.y, _21D0[1]);
-            setFgObjItem(mActionItem.mId, &mItemPos, &mVec3_c(s, s, s));
+            setFgObjItem(mActionItem.mId, &mItemPos, TEMP_ADDR(mVec3_c(s, s, s)));
         } else if (frame >= 20.0f && frame < 51.0f) {
             setItemPosToHand();
-            setFgObjItem(mActionItem.mId, &mItemPos, &mVec3_c(s, s, s));
+            setFgObjItem(mActionItem.mId, &mItemPos, TEMP_ADDR(mVec3_c(s, s, s)));
         }
     } else {
         if (mAnm.isStop()) {
@@ -3225,10 +3237,10 @@ void dAcPlayer_c::executePickUpUnitItemMine() {
             if (mTaskKind == FG_MNG_KIND_PICK_UP) {
                 takeFieldItem(FALSE);
             }
-            setFgObjItem(mActionItem.mId, &mItemPos, &mVec3_c(1.0f, 1.0f, 1.0f));
+            setFgObjItem(mActionItem.mId, &mItemPos, TEMP_ADDR(mVec3_c(1.0f, 1.0f, 1.0f)));
         } else if (frame > 17.0f && frame < 27.0f) {
             cLib::chasePos(&mItemPos, mMdlCallback.mHandPos, _21D0[0]);
-            setFgObjItem(mActionItem.mId, &mItemPos, &mVec3_c(1.0f, 1.0f, 1.0f));
+            setFgObjItem(mActionItem.mId, &mItemPos, TEMP_ADDR(mVec3_c(1.0f, 1.0f, 1.0f)));
         } else if (frame >= 27.0f && frame < 45.0f) {
             f32 s = 1.0f - 0.056f * (frame - 27.0f);
             if (s < 0.0f) {

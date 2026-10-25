@@ -102,7 +102,7 @@ protected:
  ******************************************************************************/
 class AnmObjVisOR : public AnmObjVisNode {
 public:
-    static AnmObjVisOR* Construct(MEMAllocator* pAllocator, ulong* pSize,
+    static AnmObjVisOR* Construct(MEMAllocator* pAllocator, size_t* pSize,
                                   ResMdl mdl);
 
     AnmObjVisOR(MEMAllocator* pAllocator, u16* pBindingBuf, int numBinding)

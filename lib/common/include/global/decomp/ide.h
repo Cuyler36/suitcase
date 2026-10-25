@@ -1,7 +1,12 @@
 #ifndef GLOBAL_HEADERS_DECOMP_SHUT_UP_IDE_H
 #define GLOBAL_HEADERS_DECOMP_SHUT_UP_IDE_H
 
-#ifndef __MWERKS__
+#if TARGET_PC
+
+// The PC port really compiles this code: keep attributes and use the host intrinsics
+#include <cw_compat.h>
+
+#elif !defined(__MWERKS__)
 
 #define asm
 #define register

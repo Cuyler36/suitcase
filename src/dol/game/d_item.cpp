@@ -1477,14 +1477,21 @@ resLoader_c::~resLoader_c() {
 // 800C3BFC
 BOOL resLoader_c::loadFromMemory(const void *src, u32 size, void *heap) {
     // EGG::Heap::alloc(size, 0x20)
+#if !TARGET_PC
     struct heap_c {
         virtual void v0();
         virtual void v1();
         virtual void v2();
         virtual void *alloc(u32 size, int align);
     };
+#endif
     if (src != NULL) {
+#if TARGET_PC
+        // heap_c stands in for EGG::Heap (alloc is its fourth virtual); call it directly
+        mpData = static_cast<EGG::Heap *>(heap)->alloc(size, 0x20);
+#else
         mpData = static_cast<heap_c *>(heap)->alloc(size, 0x20);
+#endif
         if (mpData != NULL) {
             mpHeap = heap;
             memcpy(mpData, src, size);

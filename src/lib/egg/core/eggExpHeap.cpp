@@ -1,8 +1,12 @@
 #include <lib/egg/core/eggExpHeap.h>
 
+#if TARGET_PC
+#include <new> // the host provides placement new
+#else
 inline void *operator new(unsigned long, void *p) {
     return p;
 }
+#endif
 
 namespace EGG {
 

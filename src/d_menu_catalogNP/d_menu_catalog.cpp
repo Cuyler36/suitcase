@@ -980,7 +980,7 @@ void dMenuCatalog_c::updatePreview() {
             break;
         }
         default:
-            dFtrm_c::getCurrent()->create(&dItem::Item(mItem));
+            dFtrm_c::getCurrent()->create(TEMP_ADDR(dItem::Item(mItem)));
             break;
         }
     }

@@ -97,14 +97,14 @@ u32 _8074E524; // Unreferenced four-byte storage; original purpose is unknown.
 static void *sWorkerStack;
 static u8 sDownloadedAddress[MAC_ADDRESS_SIZE];
 
-typedef char CheckApplicationSize[sizeof(Application_c) == 0x19C ? 1 : -1];
-typedef char CheckConnectionSize[sizeof(Connection_c) == 0x1C ? 1 : -1];
+STATIC_ASSERT_WII(CheckApplicationSize, sizeof(Application_c) == 0x19C);
+STATIC_ASSERT_WII(CheckConnectionSize, sizeof(Connection_c) == 0x1C);
 #if VERSION == VERSION_RUUK01_01
-typedef char CheckConnectionConfig[sizeof(ConnectionConfig) == 0x1C8 ? 1 : -1];
+STATIC_ASSERT_WII(CheckConnectionConfig, sizeof(ConnectionConfig) == 0x1C8);
 #else
-typedef char CheckConnectionConfig[sizeof(ConnectionConfig) == 0x1D8 ? 1 : -1];
+STATIC_ASSERT_WII(CheckConnectionConfig, sizeof(ConnectionConfig) == 0x1D8);
 #endif
-typedef char CheckApplicationConfig[sizeof(ApplicationConfig) == 0x22C ? 1 : -1];
+STATIC_ASSERT_WII(CheckApplicationConfig, sizeof(ApplicationConfig) == 0x22C);
 
 // 800E3E20
 void *openConnection(void *) {

@@ -255,7 +255,7 @@ void AnmObjShpNode::G3dProc(u32 task, u32 param, void* pInfo) {
  * AnmObjShpBlend
  *
  ******************************************************************************/
-AnmObjShpBlend* AnmObjShpBlend::Construct(MEMAllocator* pAllocator, u32* pSize,
+AnmObjShpBlend* AnmObjShpBlend::Construct(MEMAllocator* pAllocator, size_t* pSize,
                                           ResMdl mdl, int numChildren) {
     if (!mdl.IsValid()) {
         return NULL;
@@ -410,7 +410,7 @@ f32 AnmObjShpBlend::GetWeight(int idx) const {
  * AnmObjShpRes
  *
  ******************************************************************************/
-AnmObjShpRes* AnmObjShpRes::Construct(MEMAllocator* pAllocator, u32* pSize,
+AnmObjShpRes* AnmObjShpRes::Construct(MEMAllocator* pAllocator, size_t* pSize,
                                       ResAnmShp shp, ResMdl mdl, bool cache) {
     if (!shp.IsValid() || !mdl.IsValid()) {
         return NULL;

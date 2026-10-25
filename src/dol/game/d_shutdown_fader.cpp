@@ -8,6 +8,7 @@
 #include <private/gx.h>
 #include <revolution/mtx.h>
 #include <revolution/sc.h>
+#include <lib/egg/core/eggNew.h>
 
 // 8015FDF0
 dShutdownFader_c::dShutdownFader_c(mColor col, mFaderBase_c::EStatus status) : mFaderBase_c(col, status) {
@@ -150,7 +151,7 @@ void draw() {
 
 // 80160348
 BOOL create() {
-    sFader = new dShutdownFader_c(mColor(0), mFaderBase_c::HIDDEN);
+    sFader = EGG_NEW dShutdownFader_c(mColor(0), mFaderBase_c::HIDDEN);
     if (sFader == NULL) {
         return FALSE;
     }

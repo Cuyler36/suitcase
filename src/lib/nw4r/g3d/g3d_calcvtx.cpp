@@ -4,6 +4,19 @@
 namespace nw4r {
 namespace g3d {
 
+#if TARGET_PC
+// psq_st through a u8 GQR: saturate to [0, 255], truncate toward zero
+static u8 QuantizeU8(f32 value) {
+    if (value >= 255.0f) {
+        return 255;
+    }
+    if (!(value > 0.0f)) {
+        return 0;
+    }
+    return static_cast<u8>(value);
+}
+#endif
+
 void CalcVtx(ResMdl mdl, AnmObjShp* pAnmShp, ResVtxPosData** ppVtxPosTable,
              ResVtxNrmData** ppVtxNrmTable, ResVtxClrData** ppVtxClrTable) {
 
@@ -74,6 +87,28 @@ void CalcVtx(ResMdl mdl, AnmObjShp* pAnmShp, ResVtxPosData** ppVtxPosTable,
 
             const KeyShape* const pKeyEnd = keyShape + numKeyShape;
 
+#if TARGET_PC
+            // psq_l of (x, y) and (z, 1.0f), ps_mul by the first weight, then ps_madd of each key:
+            // the weighted sum of the key shapes
+            for (; pVtxPosBuf < pVtxPosBufEnd; pVtxPosBuf++) {
+                KeyShape& rFirst = keyShape[0];
+                f32 x = rFirst.pVtx->x * rFirst.weight;
+                f32 y = rFirst.pVtx->y * rFirst.weight;
+                f32 z = rFirst.pVtx->z * rFirst.weight;
+                rFirst.pVtx++;
+
+                for (KeyShape* pKey = &keyShape[1]; pKey < pKeyEnd; pKey++) {
+                    x = pKey->pVtx->x * pKey->weight + x;
+                    y = pKey->pVtx->y * pKey->weight + y;
+                    z = pKey->pVtx->z * pKey->weight + z;
+                    pKey->pVtx++;
+                }
+
+                pVtxPosBuf->x = x;
+                pVtxPosBuf->y = y;
+                pVtxPosBuf->z = z;
+            }
+#else
             for (; pVtxPosBuf < pVtxPosBufEnd; pVtxPosBuf++) {
                 register f32 xy, z_;
 
@@ -118,6 +153,7 @@ void CalcVtx(ResMdl mdl, AnmObjShp* pAnmShp, ResVtxPosData** ppVtxPosTable,
                     psq_st z_, VEC3.z(pDst), 1, 0
                 )
             }
+#endif
 
             DC::StoreRange(vtxPos.GetData(), numVtx * sizeof(math::VEC3));
         }
@@ -173,6 +209,28 @@ void CalcVtx(ResMdl mdl, AnmObjShp* pAnmShp, ResVtxPosData** ppVtxPosTable,
 
             const KeyShape* const pKeyEnd = keyShape + numKeyShape;
 
+#if TARGET_PC
+            // psq_l of (x, y) and (z, 1.0f), ps_mul by the first weight, then ps_madd of each key:
+            // the weighted sum of the key shapes
+            for (; pVtxNrmBuf < pVtxNrmBufEnd; pVtxNrmBuf++) {
+                KeyShape& rFirst = keyShape[0];
+                f32 x = rFirst.pVtx->x * rFirst.weight;
+                f32 y = rFirst.pVtx->y * rFirst.weight;
+                f32 z = rFirst.pVtx->z * rFirst.weight;
+                rFirst.pVtx++;
+
+                for (KeyShape* pKey = &keyShape[1]; pKey < pKeyEnd; pKey++) {
+                    x = pKey->pVtx->x * pKey->weight + x;
+                    y = pKey->pVtx->y * pKey->weight + y;
+                    z = pKey->pVtx->z * pKey->weight + z;
+                    pKey->pVtx++;
+                }
+
+                pVtxNrmBuf->x = x;
+                pVtxNrmBuf->y = y;
+                pVtxNrmBuf->z = z;
+            }
+#else
             for (; pVtxNrmBuf < pVtxNrmBufEnd; pVtxNrmBuf++) {
                 register f32 xy, z_;
 
@@ -217,6 +275,7 @@ void CalcVtx(ResMdl mdl, AnmObjShp* pAnmShp, ResVtxPosData** ppVtxPosTable,
                     psq_st z_, VEC3.z(pDst), 1, 0
                 )
             }
+#endif
 
             DC::StoreRange(vtxNrm.GetData(), numVtx * sizeof(math::VEC3));
         }
@@ -272,6 +331,30 @@ void CalcVtx(ResMdl mdl, AnmObjShp* pAnmShp, ResVtxPosData** ppVtxPosTable,
 
             const KeyShape* const pKeyEnd = keyShape + numKeyShape;
 
+#if TARGET_PC
+            // The same through GQR2 (u8, scale 0): loads convert from u8, stores saturate to u8
+            for (; pVtxClrBuf < pVtxClrBufEnd; pVtxClrBuf++) {
+                KeyShape& rFirst = keyShape[0];
+                f32 r = rFirst.pVtx->r * rFirst.weight;
+                f32 g = rFirst.pVtx->g * rFirst.weight;
+                f32 b = rFirst.pVtx->b * rFirst.weight;
+                f32 a = rFirst.pVtx->a * rFirst.weight;
+                rFirst.pVtx++;
+
+                for (KeyShape* pKey = &keyShape[1]; pKey < pKeyEnd; pKey++) {
+                    r = pKey->pVtx->r * pKey->weight + r;
+                    g = pKey->pVtx->g * pKey->weight + g;
+                    b = pKey->pVtx->b * pKey->weight + b;
+                    a = pKey->pVtx->a * pKey->weight + a;
+                    pKey->pVtx++;
+                }
+
+                pVtxClrBuf->r = QuantizeU8(r);
+                pVtxClrBuf->g = QuantizeU8(g);
+                pVtxClrBuf->b = QuantizeU8(b);
+                pVtxClrBuf->a = QuantizeU8(a);
+            }
+#else
             for (; pVtxClrBuf < pVtxClrBufEnd; pVtxClrBuf++) {
                 register f32 rg, ba;
 
@@ -316,6 +399,7 @@ void CalcVtx(ResMdl mdl, AnmObjShp* pAnmShp, ResVtxPosData** ppVtxPosTable,
                     psq_st ba, Color.b(pDst), 0, 2
                 )
             }
+#endif
 
             DC::StoreRange(vtxClr.GetData(), numVtx * sizeof(ut::Color));
         }

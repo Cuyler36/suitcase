@@ -33,7 +33,7 @@ static inline f32 clampAlpha(f32 alpha) {
 
 // 8017D89C
 void dHomeButton_c::create(EGG::Heap *heap) {
-    sInstance = new (heap, 4) dHomeButton_c(heap);
+    sInstance = EGG_NEW_ARGS(heap, 4) dHomeButton_c(heap);
 }
 
 // 8017D8E8
@@ -65,7 +65,7 @@ dHomeButton_c::dHomeButton_c(EGG::Heap *heap) : mHeap(heap) {
     setConfigName();
     setIconName();
     setSoundName();
-    mSoundBuf = new (heap, 0x20) u8[HBM_SOUND_MEM_SIZE];
+    mSoundBuf = EGG_NEW_ARRAY_ARGS(u8, HBM_SOUND_MEM_SIZE, heap, 0x20);
 }
 
 // 8017DA00
@@ -187,7 +187,7 @@ void dHomeButton_c::initDataInfo() {
     mDataInfo.spkSeBuf = NULL;
     mDataInfo.msgBuf = NULL;
     mDataInfo.configBuf = NULL;
-    mDataInfo.mem = new (mHeap, 4) u8[HBM_MEM_SIZE];
+    mDataInfo.mem = EGG_NEW_ARRAY_ARGS(u8, HBM_MEM_SIZE, mHeap, 4);
     mDataInfo.memSize = HBM_MEM_SIZE;
     mDataInfo.pAllocator = NULL;
     mDataInfo.sound_callback = NULL;

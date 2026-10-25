@@ -1275,7 +1275,7 @@ nw4r::g3d::ResMdl daFTR_c::getResMdl() {
 // 0x3C9C
 BOOL daFTR_c::createModel() {
     nw4r::g3d::ResMdl mdl = getResMdl();
-    u32 size;
+    size_t size;
     mMdl.create(mdl, &mAllocator, 0, 1, &size);
     mSwitchNode.init(mdl, TRUE);
     mNodeCallBack.mHourNode = m3d::getNodeID(mdl, "kh_j");

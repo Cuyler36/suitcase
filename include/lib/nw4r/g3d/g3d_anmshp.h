@@ -101,7 +101,7 @@ protected:
  *
  ******************************************************************************/
 class AnmObjShpBlend : public AnmObjShpNode {
-    static AnmObjShpBlend* Construct(MEMAllocator* pAllocator, ulong* pSize,
+    static AnmObjShpBlend* Construct(MEMAllocator* pAllocator, size_t* pSize,
                                      ResMdl mdl, int numChildren);
 
     AnmObjShpBlend(MEMAllocator* pAllocator, u16* pBindingBuf, int numBinding,
@@ -129,7 +129,7 @@ private:
  ******************************************************************************/
 class AnmObjShpRes : public AnmObjShp, protected FrameCtrl {
 public:
-    static AnmObjShpRes* Construct(MEMAllocator* pAllocator, ulong* pSize,
+    static AnmObjShpRes* Construct(MEMAllocator* pAllocator, size_t* pSize,
                                    ResAnmShp shp, ResMdl mdl, bool cache);
 
     AnmObjShpRes(MEMAllocator* pAllocator, ResAnmShp shp, u16* pBindingBuf,

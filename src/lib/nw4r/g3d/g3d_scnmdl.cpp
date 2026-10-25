@@ -130,7 +130,7 @@ ResMatTevColor ScnMdl::CopiedMatAccess::GetResMatTevColor() {
     return ResMatTevColor(NULL);
 }
 
-ScnMdl::CopiedMatAccess::CopiedMatAccess(ScnMdl* pScnMdl, u32 id)
+ScnMdl::CopiedMatAccess::CopiedMatAccess(ScnMdl* pScnMdl, size_t id)
     : mTexObj(NULL),
       mTlutObj(NULL),
       mTexSrt(NULL),
@@ -292,8 +292,8 @@ ScnMdl::CopiedVisAccess::CopiedVisAccess(ScnMdl* pScnMdl, u32 id) {
  * ScnMdl
  *
  ******************************************************************************/
-ScnMdl* ScnMdl::Construct(MEMAllocator* pAllocator, u32* pSize, ResMdl mdl,
-                          u32 bufferOption, int numView) {
+ScnMdl* ScnMdl::Construct(MEMAllocator* pAllocator, size_t* pSize, ResMdl mdl,
+                          size_t bufferOption, int numView) {
 
     if (!mdl.IsValid()) {
         return NULL;

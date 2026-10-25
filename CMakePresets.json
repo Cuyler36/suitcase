@@ -1,0 +1,91 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "debug",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDebugDLL"
+      }
+    },
+    {
+      "name": "relwithdebinfo",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDLL"
+      }
+    },
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/pc/${presetName}",
+      "cacheVariables": {
+        "CF_VERSION": "RUUE01_00"
+      }
+    },
+    {
+      "name": "linux-default",
+      "inherits": "base",
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Linux" }
+    },
+    { "name": "linux-default-debug", "inherits": ["debug", "linux-default"] },
+    { "name": "linux-default-relwithdebinfo", "inherits": ["relwithdebinfo", "linux-default"] },
+    {
+      "name": "linux-clang",
+      "inherits": "linux-default",
+      "cacheVariables": { "CMAKE_C_COMPILER": "clang", "CMAKE_CXX_COMPILER": "clang++" }
+    },
+    { "name": "linux-clang-debug", "inherits": ["debug", "linux-clang"] },
+    { "name": "linux-clang-relwithdebinfo", "inherits": ["relwithdebinfo", "linux-clang"] },
+    {
+      "name": "macos-default",
+      "inherits": "base",
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Darwin" }
+    },
+    { "name": "macos-default-debug", "inherits": ["debug", "macos-default"] },
+    { "name": "macos-default-relwithdebinfo", "inherits": ["relwithdebinfo", "macos-default"] },
+    {
+      "name": "windows-msvc",
+      "inherits": "base",
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows" },
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl",
+        "CMAKE_CXX_COMPILER": "cl",
+        "CMAKE_DISABLE_FIND_PACKAGE_PkgConfig": { "type": "BOOL", "value": true }
+      }
+    },
+    { "name": "windows-msvc-debug", "inherits": ["debug", "windows-msvc"] },
+    { "name": "windows-msvc-relwithdebinfo", "inherits": ["relwithdebinfo", "windows-msvc"] },
+    {
+      "name": "windows-clang",
+      "inherits": "windows-msvc",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang-cl",
+        "CMAKE_CXX_COMPILER": "clang-cl",
+        "CMAKE_LINKER": "lld-link"
+      }
+    },
+    { "name": "windows-clang-debug", "inherits": ["debug", "windows-clang"] },
+    { "name": "windows-clang-relwithdebinfo", "inherits": ["relwithdebinfo", "windows-clang"] }
+  ],
+  "buildPresets": [
+    { "name": "linux-default-debug", "configurePreset": "linux-default-debug" },
+    { "name": "linux-default-relwithdebinfo", "configurePreset": "linux-default-relwithdebinfo" },
+    { "name": "linux-clang-debug", "configurePreset": "linux-clang-debug" },
+    { "name": "linux-clang-relwithdebinfo", "configurePreset": "linux-clang-relwithdebinfo" },
+    { "name": "macos-default-debug", "configurePreset": "macos-default-debug" },
+    { "name": "macos-default-relwithdebinfo", "configurePreset": "macos-default-relwithdebinfo" },
+    { "name": "windows-msvc-debug", "configurePreset": "windows-msvc-debug" },
+    { "name": "windows-msvc-relwithdebinfo", "configurePreset": "windows-msvc-relwithdebinfo" },
+    { "name": "windows-clang-debug", "configurePreset": "windows-clang-debug" },
+    { "name": "windows-clang-relwithdebinfo", "configurePreset": "windows-clang-relwithdebinfo" }
+  ]
+}

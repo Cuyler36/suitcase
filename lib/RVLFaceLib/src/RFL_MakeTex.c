@@ -18,6 +18,9 @@
 #include <revolution/os.h>
 
 #include <math.h>
+#if TARGET_PC && !defined(M_PI)
+#define M_PI 3.141592653589793f // MSL's math.h value
+#endif
 
 #define TRANS_X_BASE 0.88961464f
 #define TRANS_Y_BASE 0.9276675f
@@ -671,7 +674,12 @@ void RFLiSetFaceParts(const RFLiCharInfo* pCharInfo, RFLiFaceData* pFace, RFLi_M
     static const f32 UNIT_ANGLE = (360.0f / 32.0f);
 
     static const f32 UNIT_TRANS_X_EYE = TRANS_X_BASE;
+#if TARGET_PC
+    // C needs a constant expression here (CW accepts the const object)
+    static const f32 UNIT_TRANS_X_MOLE = 2.0f * TRANS_X_BASE;
+#else
     static const f32 UNIT_TRANS_X_MOLE = 2.0f * UNIT_TRANS_X_EYE;
+#endif
     static const f32 UNIT_TRANS_Y = 1.1600001f * TRANS_Y_BASE;
 
     static const f32 UNIT_SCALE = 0.4f;

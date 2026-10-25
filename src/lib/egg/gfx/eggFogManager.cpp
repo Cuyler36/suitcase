@@ -1,5 +1,6 @@
 // EGG::FogManager. .text 80447798..80447BE8
 #include <lib/egg/gfxe/eggFogManager.h>
+#include <lib/egg/core/eggNew.h>
 
 namespace EGG {
 
@@ -9,9 +10,9 @@ const char *IBinary<FogManager>::GetBinaryType() {
 }
 
 FogManager::FogManager(unsigned short count) : mFlags(0), mCount(count), mCount2(count) {
-    mFog = new Fog *[count];
+    mFog = EGG_NEW_ARRAY(Fog *, count);
     for (int i = 0; i < mCount; i++) {
-        mFog[i] = new Fog();
+        mFog[i] = EGG_NEW Fog();
     }
 }
 

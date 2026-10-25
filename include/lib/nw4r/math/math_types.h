@@ -312,7 +312,46 @@ VEC3* VEC3Maximize(VEC3* pOut, const VEC3* pA, const VEC3* pB);
 VEC3* VEC3Minimize(VEC3* pOut, const VEC3* pA, const VEC3* pB);
 VEC3* VEC3TransformNormal(VEC3* pOut, const MTX34* pMtx, const VEC3* pVec);
 
-#ifndef __INTELLISENSE__
+#if TARGET_PC
+// C versions of the paired-single functions below. Sums keep the hardware's order of operations.
+inline VEC3* VEC3Add(VEC3* pOut, const VEC3* pA, const VEC3* pB) {
+    pOut->x = pA->x + pB->x;
+    pOut->y = pA->y + pB->y;
+    pOut->z = pA->z + pB->z;
+    return pOut;
+}
+
+inline f32 VEC3Dot(const VEC3* pA, const VEC3* pB) {
+    // ps_madd (x + yz products), then ps_sum0 adds the z product
+    return (pA->x * pB->x + pA->y * pB->y) + pA->z * pB->z;
+}
+
+inline f32 VEC3LenSq(const VEC3* pVec) {
+    // ps_madd pairs z^2 with x^2, then ps_sum0 adds y^2
+    return (pVec->x * pVec->x + pVec->z * pVec->z) + pVec->y * pVec->y;
+}
+
+inline VEC3* VEC3Lerp(VEC3* pOut, const VEC3* pVec1, const VEC3* pVec2, f32 t) {
+    pOut->x = (pVec2->x - pVec1->x) * t + pVec1->x;
+    pOut->y = (pVec2->y - pVec1->y) * t + pVec1->y;
+    pOut->z = (pVec2->z - pVec1->z) * t + pVec1->z;
+    return pOut;
+}
+
+inline VEC3* VEC3Scale(VEC3* pOut, const VEC3* pIn, f32 scale) {
+    pOut->x = pIn->x * scale;
+    pOut->y = pIn->y * scale;
+    pOut->z = pIn->z * scale;
+    return pOut;
+}
+
+inline VEC3* VEC3Sub(VEC3* pOut, const VEC3* pA, const VEC3* pB) {
+    pOut->x = pA->x - pB->x;
+    pOut->y = pA->y - pB->y;
+    pOut->z = pA->z - pB->z;
+    return pOut;
+}
+#elif !defined(__INTELLISENSE__)
 inline VEC3* VEC3Add(register VEC3* pOut, register const VEC3* pA,
                      register const VEC3* pB) {
 #ifdef NW4R_LIB_BUILD

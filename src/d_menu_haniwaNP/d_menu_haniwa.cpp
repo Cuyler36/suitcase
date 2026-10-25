@@ -723,7 +723,7 @@ u16 dMenuHaniwa_c::getNthItem(int n) {
 void dMenuHaniwa_c::updatePreview() {
     if (dScene::isSceneAttr(dScene::getCurrentScene(),
                             dScene::SCENE_ATTR_ROOM)) {
-        dFtrm_c::getCurrent()->create(&dItem::Item(mItem));
+        dFtrm_c::getCurrent()->create(TEMP_ADDR(dItem::Item(mItem)));
     }
 }
 

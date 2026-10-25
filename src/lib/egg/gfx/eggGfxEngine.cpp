@@ -6,7 +6,7 @@
 namespace EGG {
 
 GfxEngine::Configuration::Configuration()
-    : m_00(640), m_02(528), mColor((GXColor){0, 0, 0, 0}), mPixelFmt(GX_PF_RGB8_Z24), m_0C(32), m_0E(256),
+    : m_00(640), m_02(528), mColor(COMPOUND_LITERAL(GXColor){0, 0, 0, 0}), mPixelFmt(GX_PF_RGB8_Z24), m_0C(32), m_0E(256),
       mBufferSize(0), m_14(608), m_16(832), m_18(0) {
     if (BaseSystem::mConfigData->getVideo() != NULL) {
         m_00 = BaseSystem::mConfigData->getVideo()->pRenderMode->fbWidth;

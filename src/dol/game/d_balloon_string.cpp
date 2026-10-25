@@ -417,7 +417,7 @@ void dBalloonString_c::destroy() {
 
 // 80068108
 dBalloonString_c *dBalloonString_c::create(EGG::Heap *heap) {
-    dBalloonString_c *balloon = new (heap, 4) dBalloonString_c();
+    dBalloonString_c *balloon = EGG_NEW_ARGS(heap, 4) dBalloonString_c();
     balloon->mAllocator.attach(heap, 4);
     balloon->createProc();
     return balloon;

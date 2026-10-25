@@ -10,7 +10,7 @@ GraphicsFifo *GraphicsFifo::create(ulong size, Heap *heap) {
         heap = Heap::getCurrentHeap();
     }
 
-    sGraphicsFifo = new (heap, 4) GraphicsFifo(size, heap);
+    sGraphicsFifo = EGG_NEW_ARGS(heap, 4) GraphicsFifo(size, heap);
     return sGraphicsFifo;
 }
 

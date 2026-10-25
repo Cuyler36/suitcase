@@ -109,7 +109,7 @@ BOOL initialize(EGG::Heap *heap, int effects, int emitters, int managers,
                 int particles, int creators, int groups) {
     if (initialize(heap, effects, emitters, managers, particles, creators, groups) == FALSE) return FALSE;
     for (int i = 0; i < creators; i++) {
-        Creator *creator = new (heap, 4) Creator(i);
+        Creator *creator = EGG_NEW_ARGS(heap, 4) Creator(i);
         EGG::EffectManager::sEffectManager->setCreator(creator, i);
     }
     return TRUE;

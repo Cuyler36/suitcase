@@ -1,9 +1,23 @@
 #include <nw4r/g3d.h>
 
+#if TARGET_PC
+#include <string.h>
+#endif
+
 namespace nw4r {
 namespace g3d {
 namespace detail {
 
+#if TARGET_PC
+// lfd/stfd and psq_st of a zero pair move 8 bytes at a time; whole 32-byte blocks only
+void Copy32ByteBlocks(void* pDst, const void* pSrc, u32 size) {
+    memcpy(pDst, pSrc, size & ~31u);
+}
+
+void ZeroMemory32ByteBlocks(void* pDst, u32 size) {
+    memset(pDst, 0, size & ~31u);
+}
+#else
 void Copy32ByteBlocks(register void* pDst, register const void* pSrc,
                       register u32 size) {
     register f32 work0, work1, work2, work3;
@@ -42,6 +56,7 @@ void ZeroMemory32ByteBlocks(register void* pDst, register u32 size) {
         pDst = static_cast<u8*>(pDst) + 32;
     }
 }
+#endif
 
 } // namespace detail
 } // namespace g3d

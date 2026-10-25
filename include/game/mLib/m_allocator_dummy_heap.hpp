@@ -19,7 +19,7 @@ public:
     virtual size_t getAllocatableSize(long) { return 0; } // 802AE7E0
     virtual size_t adjust() { return 0; } // 802AE7D8
 
-    static void *AllocatorAllocForDummyHeap(MEMAllocator *, size_t); // 802AE4F0
+    static void *AllocatorAllocForDummyHeap(MEMAllocator *, u32); // 802AE4F0
     static void AllocatorFreeForDummyHeap(MEMAllocator *, void *); // 802AE4F8
     static mAllocatorDummyHeap_c *getInstance(); // 802AE560
 

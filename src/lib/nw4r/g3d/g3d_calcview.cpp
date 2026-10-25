@@ -18,6 +18,114 @@ using nw4r::math::VEC3;
 
 const f32 norm_epsilon = 1e-18f;
 
+#if TARGET_PC
+// C versions of the paired-single code below. The ps0/ps1 lanes of the inverse's cofactors keep the
+// hardware's operand order.
+
+// Column 1 of the inverse of the upper 3x3 of pParentModel, as (a, b, c), plus the determinant
+// test. Returns false if the parent is singular (|det| < norm_epsilon; NaN is not singular).
+inline bool GetInvParentColumnY(const math::MTX34* pParentModel, f32* pA, f32* pB, f32* pC,
+                                f32* pC1) {
+    const MTX34& p = *pParentModel;
+    f32 t11_0 = p._01 * p._12 - p._11 * p._02;
+    f32 t13_0 = p._11 * p._22 - p._21 * p._12;
+    f32 t12_0 = p._21 * p._02 - p._01 * p._22;
+    f32 t12_1 = p._22 * p._00 - p._02 * p._20;
+    f32 det = p._20 * t11_0 + (p._10 * t12_0 + p._00 * t13_0);
+    f32 t9_0 = p._01 * p._20 - p._00 * p._21;
+    f32 t9_1 = p._02 - p._22; // the ps1 lane of that ps_msub (paired with constant 1.0 lanes)
+    if (std::fabs(det) < norm_epsilon) {
+        return false;
+    }
+    f32 inv = 1.0f / det; // fres refined by one Newton step
+    *pA = t12_0 * inv;
+    *pB = t12_1 * inv;
+    *pC = t9_0 * inv;
+    *pC1 = t9_1 * inv;
+    return true;
+}
+
+void GetModelLocalAxisY2(math::VEC3* pVec, const math::MTX34* pModel,
+                         const math::MTX34* pParentModel) {
+    const MTX34& m = *pModel;
+    f32 a, b, c, c1;
+    if (!GetInvParentColumnY(pParentModel, &a, &b, &c, &c1)) {
+        pVec->x = 0.0f;
+        pVec->y = 0.0f;
+        pVec->z = 0.0f;
+        return;
+    }
+    f32 x = m._02 * c + (m._01 * b + m._00 * a);
+    f32 y = m._12 * c + (m._11 * b + m._10 * a);
+    pVec->z = 0.0f;
+    pVec->x = x;
+    pVec->y = y;
+}
+
+void GetModelLocalAxisY3(math::VEC3* pVec, const math::MTX34* pModel,
+                         const math::MTX34* pParentModel) {
+    const MTX34& m = *pModel;
+    f32 a, b, c, c1;
+    if (!GetInvParentColumnY(pParentModel, &a, &b, &c, &c1)) {
+        pVec->x = 0.0f;
+        pVec->y = 0.0f;
+        pVec->z = 0.0f;
+        return;
+    }
+    f32 x = m._02 * c + (m._01 * b + m._00 * a);
+    f32 y = m._12 * c + (m._11 * b + m._10 * a);
+    // As the original: z multiplies (_20, _21) by f9 (c and its ps1 lane), not by (a, b)
+    f32 z = m._22 * c + (m._20 * c + m._21 * c1);
+    pVec->x = x;
+    pVec->y = y;
+    pVec->z = z;
+}
+
+inline void SetMdlViewMtxSR(math::MTX34* pViewPos, const math::VEC3& rRY, f32 s) {
+    f32 xs = rRY.x * s;
+    f32 ys = rRY.y * s;
+    pViewPos->_00 = ys;
+    pViewPos->_01 = xs;
+    pViewPos->_10 = -xs;
+    pViewPos->_11 = ys;
+    pViewPos->_02 = 0.0f;
+    pViewPos->_12 = 0.0f;
+    pViewPos->_20 = 0.0f;
+    pViewPos->_21 = 0.0f;
+    pViewPos->_22 = s;
+}
+
+inline void SetMdlViewMtxSR(math::MTX34* pViewPos, const math::VEC3& rRY, f32 sx, f32 sy,
+                            f32 sz) {
+    f32 x = rRY.x;
+    f32 y = rRY.y;
+    pViewPos->_00 = y * sx;
+    pViewPos->_01 = x * sy;
+    pViewPos->_10 = -x * sx;
+    pViewPos->_11 = y * sy;
+    pViewPos->_02 = 0.0f;
+    pViewPos->_12 = 0.0f;
+    pViewPos->_20 = 0.0f;
+    pViewPos->_21 = 0.0f;
+    pViewPos->_22 = sz;
+}
+
+inline void SetMdlViewMtxSR(math::MTX34* pViewPos, const math::VEC3& rRX, const math::VEC3& rRY,
+                            const math::VEC3& rRZ, f32 sx, f32 sy, f32 sz) {
+    f32 xx = rRX.x * sx, xy = rRX.y * sx, xz = rRX.z * sx;
+    f32 yx = rRY.x * sy, yy = rRY.y * sy, yz = rRY.z * sy;
+    f32 zx = rRZ.x * sz, zy = rRZ.y * sz, zz = rRZ.z * sz;
+    pViewPos->_00 = xx;
+    pViewPos->_01 = yx;
+    pViewPos->_10 = xy;
+    pViewPos->_11 = yy;
+    pViewPos->_02 = zx;
+    pViewPos->_12 = zy;
+    pViewPos->_20 = xz;
+    pViewPos->_21 = yz;
+    pViewPos->_22 = zz;
+}
+#else
 asm void GetModelLocalAxisY2(register math::VEC3* pVec,
                              register const math::MTX34* pModel,
                              register const math::MTX34* pParentModel) {
@@ -223,6 +331,7 @@ inline void SetMdlViewMtxSR(register math::MTX34* pViewPos,
         stfs       work0, MTX34._22(pViewPos)
     )
 }
+#endif
 
 } // namespace
 

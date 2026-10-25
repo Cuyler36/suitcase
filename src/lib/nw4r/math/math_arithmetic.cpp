@@ -57,6 +57,12 @@ f32 FLog(f32 x) {
 
 } // namespace detail
 
+#if TARGET_PC
+// frsqrte refined by one Newton-Raphson step: the exact reciprocal square root
+f32 FrSqrt(f32 x) {
+    return 1.0f / std::sqrt(x);
+}
+#else
 f32 FrSqrt(register f32 x) {
     register f32 rsqrt;
     register f32 c_half = 0.5f, c_three = 3.0f;
@@ -76,6 +82,7 @@ f32 FrSqrt(register f32 x) {
 
     return work1;
 }
+#endif
 
 namespace {
 

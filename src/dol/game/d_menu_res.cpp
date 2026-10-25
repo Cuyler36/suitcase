@@ -334,7 +334,7 @@ void create() {
     EGG::ExpHeap *heap = dHeap::menuDylHeap_p;
     EGG::Heap *prevHeap = mHeap::setCurrentHeap(heap);
     for (i = 0; i < MENU_RES_NUM; i++) {
-        l_module[i] = new DynamicModuleControl(l_resName[i], heap);
+        l_module[i] = EGG_NEW DynamicModuleControl(l_resName[i], heap);
         l_refCount[i] = 0;
     }
     l_dirty = FALSE;
@@ -352,7 +352,7 @@ BOOL destroy() {
     EGG::Heap *prevHeap = mHeap::setCurrentHeap(dHeap::menuDylHeap_p);
     for (i = 0; i < MENU_RES_NUM; i++) {
         if (l_module[i] != nullptr) {
-            delete l_module[i];
+            EGG_DELETE(l_module[i]);
             l_module[i] = nullptr;
         }
     }

@@ -41,6 +41,17 @@ inline f32 U16_0ToF32(const u16* pPtr) {
  * Convert from S16
  *
  ******************************************************************************/
+#if TARGET_PC
+// psq_l through GQR7 (S16, scale 8): fixed point S7.8
+inline f32 S7_8ToF32(const s16* pPtr) {
+    return *pPtr * (1.0f / 256.0f);
+}
+
+// psq_l through GQR6 (S16, scale 5): fixed point S10.5
+inline f32 S10_5ToF32(const s16* pPtr) {
+    return *pPtr * (1.0f / 32.0f);
+}
+#else
 inline f32 S7_8ToF32(register const s16* pPtr) {
     register f32 f;
 
@@ -64,6 +75,7 @@ inline f32 S10_5ToF32(register const s16* pPtr) {
 
     return f;
 }
+#endif
 
 /******************************************************************************
  *
@@ -76,6 +88,19 @@ inline u8 F32ToU8_0(f32 f) {
     return x;
 }
 
+#if TARGET_PC
+// psq_st through GQR6 (S16, scale 5): scale by 2^5, saturate to s16, truncate toward zero
+inline s16 F32ToS10_5(f32 f) {
+    f32 scaled = f * 32.0f;
+    if (scaled >= 32767.0f) {
+        return 32767;
+    }
+    if (scaled <= -32768.0f) {
+        return -32768;
+    }
+    return static_cast<s16>(scaled);
+}
+#else
 inline s16 F32ToS10_5(register f32 f) {
     s16 x;
     register s16* pPtr = &x;
@@ -88,6 +113,7 @@ inline s16 F32ToS10_5(register f32 f) {
 
     return x;
 }
+#endif
 
 /******************************************************************************
  *

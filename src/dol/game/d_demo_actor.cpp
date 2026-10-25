@@ -2,7 +2,7 @@
 #include <game/game/d_demo_actor.hpp>
 #include <game/game/d_msg_rcpt.hpp>
 
-typedef char dDemoActorSizeCheck[sizeof(dDemoActor_c) == 0xBC ? 1 : -1];
+STATIC_ASSERT_WII(dDemoActorSizeCheck, sizeof(dDemoActor_c) == 0xBC);
 
 // Shared RTTI at 804A061C/804A062C/807498C8 is emitted earlier in the link
 // and remains in its existing data owner.

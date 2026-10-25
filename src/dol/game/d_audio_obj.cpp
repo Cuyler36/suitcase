@@ -276,18 +276,18 @@ dSndTv_c::~dSndTv_c() { clear(); }
 // 800115BC: channel 0..10 selects the programme; other values select weather.
 bool dSndTv_c::create(EGG::Heap *heap, u32 channel) {
     switch (channel) {
-    case TV_PROGRAM_STORM: mObj = new (heap, 4) SoundTv_00_storm; break;
-    case TV_PROGRAM_COLOR: mObj = new (heap, 4) SoundTv_01_color; break;
-    case TV_PROGRAM_NEWS: mObj = new (heap, 4) SoundTv_02_news; break;
-    case TV_PROGRAM_DRAMA: mObj = new (heap, 4) SoundTv_03_drama; break;
-    case TV_PROGRAM_SONG: mObj = new (heap, 4) SoundTv_04_song; break;
-    case TV_PROGRAM_QUIZ: mObj = new (heap, 4) SoundTv_05_quiz; break;
-    case TV_PROGRAM_TRAVEL: mObj = new (heap, 4) SoundTv_06_travel; break;
-    case TV_PROGRAM_HERO: mObj = new (heap, 4) SoundTv_07_hero; break;
-    case TV_PROGRAM_VARIETY: mObj = new (heap, 4) SoundTv_08_variety; break;
-    case TV_PROGRAM_MOVIE: mObj = new (heap, 4) SoundTv_09_movie; break;
-    case TV_PROGRAM_SOCCER: mObj = new (heap, 4) SoundTv_10_soccer; break;
-    default: mObj = new (heap, 4) SoundTv_255_weather; break;
+    case TV_PROGRAM_STORM: mObj = EGG_NEW_ARGS(heap, 4) SoundTv_00_storm; break;
+    case TV_PROGRAM_COLOR: mObj = EGG_NEW_ARGS(heap, 4) SoundTv_01_color; break;
+    case TV_PROGRAM_NEWS: mObj = EGG_NEW_ARGS(heap, 4) SoundTv_02_news; break;
+    case TV_PROGRAM_DRAMA: mObj = EGG_NEW_ARGS(heap, 4) SoundTv_03_drama; break;
+    case TV_PROGRAM_SONG: mObj = EGG_NEW_ARGS(heap, 4) SoundTv_04_song; break;
+    case TV_PROGRAM_QUIZ: mObj = EGG_NEW_ARGS(heap, 4) SoundTv_05_quiz; break;
+    case TV_PROGRAM_TRAVEL: mObj = EGG_NEW_ARGS(heap, 4) SoundTv_06_travel; break;
+    case TV_PROGRAM_HERO: mObj = EGG_NEW_ARGS(heap, 4) SoundTv_07_hero; break;
+    case TV_PROGRAM_VARIETY: mObj = EGG_NEW_ARGS(heap, 4) SoundTv_08_variety; break;
+    case TV_PROGRAM_MOVIE: mObj = EGG_NEW_ARGS(heap, 4) SoundTv_09_movie; break;
+    case TV_PROGRAM_SOCCER: mObj = EGG_NEW_ARGS(heap, 4) SoundTv_10_soccer; break;
+    default: mObj = EGG_NEW_ARGS(heap, 4) SoundTv_255_weather; break;
     }
     mOn = 0;
     mStarted = 0;
@@ -298,7 +298,7 @@ bool dSndTv_c::create(EGG::Heap *heap, u32 channel) {
 // 80011B3C
 void dSndTv_c::clear() {
     if (mObj != NULL) {
-        delete mObj;
+        EGG_DELETE(mObj);
         mObj = NULL;
     }
     mStarted = 0;

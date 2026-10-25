@@ -65,7 +65,7 @@ void Window_c::getPocketName(dScript::Word_c *word, int pocket) {
         dString::loadString(word, 0x6E, "sys_2D/SYS_2D_menu");
         break;
     default:
-        word->copy(&dItem::name_c(player->mPockets[pocket]), 0);
+        word->copy(TEMP_ADDR(dItem::name_c(player->mPockets[pocket])), 0);
         break;
     }
 }

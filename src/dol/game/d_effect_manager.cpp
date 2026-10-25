@@ -332,7 +332,7 @@ void dEffect::setTexturePalette(const char *name, u16 *palette) {
 // 800888A8
 dEffectManager_c::DrawProc_c *
 dEffectManager_c::DrawProc_c::create(int group, EGG::Heap *heap) {
-    DrawProc_c *proc = new (heap, 4) DrawProc_c(group);
+    DrawProc_c *proc = EGG_NEW_ARGS(heap, 4) DrawProc_c(group);
     proc->mAllocator.attach(heap, 4);
     proc->m3d::proc_c::create(NULL, NULL);
     return proc;

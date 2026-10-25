@@ -32,7 +32,7 @@ static void (BlackWait_c::*const l_stepProc[])() = {
 
 // 800805BC
 void BlackWait_c::create(EGG::Heap *heap) {
-    sInstance = new (heap, 4) BlackWait_c(heap);
+    sInstance = EGG_NEW_ARGS(heap, 4) BlackWait_c(heap);
 }
 
 // 80080608

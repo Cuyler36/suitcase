@@ -234,11 +234,11 @@ BOOL dNetWus_c::inquire(const u64 *keys, int num, int validTerm, u8 *results) {
     if (createRequest(sInquiryUrl) == FALSE) {
         return FALSE;
     }
-    char *ids = new (dHeap::netWc24Heap_p,
-                     4) char[MAX_INQUIRY_IDS * (WII_ID_LENGTH + 1)];
+    char *ids = EGG_NEW_ARRAY_ARGS(char, MAX_INQUIRY_IDS * (WII_ID_LENGTH + 1),
+                                   dHeap::netWc24Heap_p, 4);
     if (ids == NULL) {
         destroyRequest();
-        delete[] ids;
+        EGG_DELETE_ARRAY(ids);
         return FALSE;
     }
     ids[0] = 0;
@@ -263,11 +263,11 @@ BOOL dNetWus_c::inquire(const u64 *keys, int num, int validTerm, u8 *results) {
     error |= NHTTPAddPostDataAscii(mRequest, sValidTermField, term);
     if (error != 0) {
         destroyRequest();
-        delete[] ids;
+        EGG_DELETE_ARRAY(ids);
         return FALSE;
     }
     if (sendRequest() == FALSE) {
-        delete[] ids;
+        EGG_DELETE_ARRAY(ids);
         return FALSE;
     }
     BOOL success = FALSE;
@@ -291,11 +291,11 @@ BOOL dNetWus_c::inquire(const u64 *keys, int num, int validTerm, u8 *results) {
         }
     }
     destroyRequest();
-    delete[] ids;
+    EGG_DELETE_ARRAY(ids);
     return success;
 }
 
 // 800EB96C: compiler-generated initialization of sHeapMutex.
 } // namespace dNetWus
 
-typedef char WusSizeCheck[sizeof(dNetWus::dNetWus_c) == 0xC ? 1 : -1];
+STATIC_ASSERT_WII(WusSizeCheck, sizeof(dNetWus::dNetWus_c) == 0xC);

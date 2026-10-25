@@ -152,6 +152,11 @@ public:
     ResNode GetResNode(const ResName name) const;
     ResNode GetResNode(int idx) const;
     ResNode GetResNode(ulong idx) const;
+#if TARGET_PC
+    ResNode GetResNode(size_t idx) const {
+        return GetResNode(static_cast<ulong>(idx));
+    }
+#endif
     ulong GetResNodeNumEntries() const;
 
     ResVtxPos GetResVtxPos(const ResName name) const;
@@ -182,12 +187,23 @@ public:
     ResMat GetResMat(const char* pName) const;
     ResMat GetResMat(const ResName name) const;
     ResMat GetResMat(int idx) const;
-    ResMat GetResMat(size_t idx) const;
+    ResMat GetResMat(ulong idx) const;
+#if TARGET_PC
+    // size_t is 64-bit on PC, so it matches neither the int nor the ulong overload
+    ResMat GetResMat(size_t idx) const {
+        return GetResMat(static_cast<ulong>(idx));
+    }
+#endif
     ulong GetResMatNumEntries() const;
 
     ResShp GetResShp(const char* pName) const;
     ResShp GetResShp(int idx) const;
     ResShp GetResShp(ulong idx) const;
+#if TARGET_PC
+    ResShp GetResShp(size_t idx) const {
+        return GetResShp(static_cast<ulong>(idx));
+    }
+#endif
     ulong GetResShpNumEntries() const;
 
     ResTexPlttInfoOffset GetResTexPlttInfoOffsetFromTexName(int idx) const;

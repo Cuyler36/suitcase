@@ -422,7 +422,13 @@ void daTicketCounter_c::onAnswer(int arg) {
         switch (answer) {
         case ANSWER_BUY:
             price = mPrice;
-            BOOL enough = player->getPocketMoney() >= price;
+#if TARGET_PC
+            BOOL enough;
+            enough =
+#else
+            BOOL enough =
+#endif
+                player->getPocketMoney() >= price;
             if (!enough) {
                 ctrl->setNextMsgCode(MSG_NO_MONEY);
             } else if (!player->isFlag0(PRIVATE_FLAG0_THEATER_SEEN)) {

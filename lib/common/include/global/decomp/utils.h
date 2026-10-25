@@ -5,7 +5,18 @@
 #define noexcept throw()
 #endif
 
+#if TARGET_PC
+// Same as include/types.h
+#ifndef DECL_WEAK
+#if defined(__GNUC__) || defined(__clang__)
+#define DECL_WEAK __attribute__((weak))
+#else
+#define DECL_WEAK
+#endif
+#endif
+#else
 #define DECL_WEAK __declspec(weak)
+#endif
 
 #define __CONCAT(x, y) x##y
 #define CONCAT(x, y) __CONCAT(x, y)
@@ -34,7 +45,14 @@
 
 /* Macros for Matching */
 
-#ifndef NON_MATCHING
+#if TARGET_PC
+// Matching hacks compile out on PC (MSVC also rejects GNU named variadic macros)
+#define NO_INLINE
+#define DECOMP_FORCE_ACTIVE(module, ...)
+#define DECOMP_FORCE_STRING(module, str)
+#define DECOMP_FORCE_LITERAL(module, ...)
+#define DECOMP_FORCE_DTOR(module, cls)
+#elif !defined(NON_MATCHING)
 
 #define NO_INLINE __attribute__((never_inline))
 

@@ -240,7 +240,11 @@ public:
     }
 
     mVec3_c getEyePos() { return mVec3_c(mCamera.mPos); }
+#if TARGET_PC
+    mVec3_c getTargetPos() { return mVec3_c(mCamera.mAt); }
+#else
     mVec3_c getTargetPos() __attribute__((noinline)) { return mVec3_c(mCamera.mAt); }
+#endif
     mAng getYaw() { return mCurrent.mYaw; }
     mAng getCurveAngle() { return mCurveAngle; }
     cafe_c *getCafe() { return &mWork.mCafe; }

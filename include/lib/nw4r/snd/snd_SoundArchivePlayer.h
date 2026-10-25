@@ -144,10 +144,13 @@ class SoundArchivePlayer : public detail::DisposeCallback,
                    u32 blockSize) {
         return LoadGroup(static_cast<u32>(id), pAllocatable, blockSize);
     }
+#if !TARGET_PC
+    // u32 is unsigned int on PC, which makes this the u32 overload (and a self-call)
     bool LoadGroup(unsigned int id, SoundMemoryAllocatable *pAllocatable,
                    u32 blockSize) {
         return LoadGroup(static_cast<u32>(id), pAllocatable, blockSize);
     }
+#endif
 
     bool IsLoadedGroup(u32 groupId) const;
 

@@ -413,119 +413,119 @@ f32 dEnvironment_c::sFlashSpeed = 0.08f;
 dSTR::light_c dSubLightRoom_c::sLight;
 
 dLight::AbstractLight_c *dEnvironment_c::createSunLight(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4) dSunLight_c();
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4) dSunLight_c();
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createMoonLight(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4) dMoonLight_c();
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4) dMoonLight_c();
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createSubLightRoom(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4) dSubLightRoom_c();
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4) dSubLightRoom_c();
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createSubLightField(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4) dSubLightField_c();
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4) dSubLightField_c();
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createEnvAmbLight(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4) dEnvAmbLight_c();
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4) dEnvAmbLight_c();
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createFixAmbLight(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4)
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4)
         dFixAmbLight_c((dFixAmbLight_c::Data_c *)data);
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createFixAmbSwitchLight(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4)
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4)
         dFixAmbSwitchLight_c((dFixAmbSwitchLight_c::Data_c *)data);
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createCheckPAmbLight(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4)
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4)
         dCheckPAmbLight_c((dFixAmbLight_c::Data_c *)data);
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createBusAmbLight(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4)
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4)
         dBusAmbLight_c((dFixAmbLight_c::Data_c *)data);
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createFixFarLight(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4)
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4)
         dFixFarLight_c((dFixFarLight_c::Data_c *)data);
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createFixFarSwitchLight(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4)
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4)
         dFixFarSwitchLight_c((dFixFarSwitchLight_c::Data_c *)data);
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createFixFarSwitch2Light(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4)
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4)
         dFixFarSwitch2Light_c((dFixFarSwitch2Light_c::Data_c *)data);
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createFixSpotLight(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4)
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4)
         dFixSpotLight_c((dFixSpotLight_c::Data_c *)data);
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createFixSpotSwitchLight(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4)
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4)
         dFixSpotSwitchLight_c((dFixSpotSwitchLight_c::Data_c *)data);
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createFixSpotTheaterLight(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4)
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4)
         dFixSpotTheaterLight_c((dFixSpotLight_c::Data_c *)data);
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createResetCenterLight(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4)
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4)
         dResetCenterLight_c((dResetCenterLight_c::Data_c *)data);
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createCheckPLight(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4)
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4)
         dCheckPLight_c((dFixFarLight_c::Data_c *)data);
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createBusLight(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4)
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4)
         dBusLight_c((dFixFarLight_c::Data_c *)data);
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createBusTunnelLight(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4)
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4)
         dBusTunnelLight_c((dBusTunnelLight_c::Data_c *)data);
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createEffectLight(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4) dEffectLight_c();
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4) dEffectLight_c();
 }
 
 dLight::AbstractLight_c *
 dEnvironment_c::createPlayerFollowSpotLight(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4) dPlayerFollowSpotLight_c();
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4) dPlayerFollowSpotLight_c();
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createSunLightRmIns(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4) dSunLightRmIns_c();
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4) dSunLightRmIns_c();
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createMoonLightRmIns(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4) dMoonLightRmIns_c();
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4) dMoonLightRmIns_c();
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createBookLight(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4)
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4)
         dBookLight_c((dFixFarLight_c::Data_c *)data);
 }
 
 dLight::AbstractLight_c *dEnvironment_c::createBookAmbLight(void *data) {
-    return new (dHeap::EnvLightHeap_p, 4)
+    return EGG_NEW_ARGS(dHeap::EnvLightHeap_p, 4)
         dBookAmbLight_c((dFixAmbLight_c::Data_c *)data);
 }
 

@@ -5,9 +5,9 @@ namespace g3d {
 
 NW4R_G3D_RTTI_DEF(ScnProc);
 
-ScnProc* ScnProc::Construct(MEMAllocator* pAllocator, u32* pSize,
+ScnProc* ScnProc::Construct(MEMAllocator* pAllocator, size_t* pSize,
                             DrawProc pProc, bool opa, bool xlu,
-                            u32 userDataSize) {
+                            size_t userDataSize) {
     ScnProc* pScnProc = NULL;
     u32 scnProcSize = sizeof(ScnProc);
 

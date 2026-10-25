@@ -105,6 +105,46 @@ inline void DrawBillboardStrategy::DispParticle_Normal(
     } else {
         math::VEC3 pos[4];
 
+#if TARGET_PC
+        // The paired-single block below: the particle position transformed by vm (row sums
+        // in the order (m_2 * z + m_0 * x) + (m_3 + m_1 * y)), then the four quad corners.
+        const math::VEC3 &rPtcl = particle->mParameter.mPosition;
+        f32 posx = (vm->_02 * rPtcl.z + vm->_00 * rPtcl.x) + (vm->_03 + vm->_01 * rPtcl.y);
+        f32 posy = (vm->_12 * rPtcl.z + vm->_10 * rPtcl.x) + (vm->_13 + vm->_11 * rPtcl.y);
+        f32 posz = (vm->_22 * rPtcl.z + vm->_20 * rPtcl.x) + (vm->_23 + vm->_21 * rPtcl.y);
+
+        f32 vxrc = vx * rc;
+        f32 vxrs = vx * rs;
+        f32 vyrs = vy * rs;
+        f32 mvyrc = -(vy * rc);
+
+        // ps_nmsub: -(s * p - p)
+        f32 exp0 = -(sx * pivot->x - pivot->x);
+        f32 exp1 = -(sy * pivot->y - pivot->y);
+
+        f32 p0x = vyrs * exp1 + (vxrc * exp0 + posx);
+        f32 p0y = mvyrc * exp1 + (vxrs * exp0 + posy);
+
+        f32 vxrcsx = vxrc * sx;
+        f32 vxrssx = vxrs * sx;
+        f32 vyrssy = vyrs * sy;
+        f32 mvyrcsy = mvyrc * sy;
+
+        f32 d1x = vxrcsx + vyrssy;
+        f32 d1y = vxrssx + mvyrcsy;
+        f32 d0x = vxrcsx + -vyrssy;
+        f32 d0y = vxrssx + -mvyrcsy;
+
+        pos[0].x = p0x - d0x;
+        pos[0].y = p0y - d0y;
+        pos[1].x = p0x - d1x;
+        pos[1].y = p0y - d1y;
+        pos[2].x = p0x + d0x;
+        pos[2].y = p0y + d0y;
+        pos[3].x = p0x + d1x;
+        pos[3].y = p0y + d1y;
+        pos[0].z = pos[1].z = pos[2].z = pos[3].z = posz;
+#else
         register f32 *ptclpos = &particle->mParameter.mPosition.x;
         register f32 *ptr = &pos[0].x;
 
@@ -177,6 +217,7 @@ inline void DrawBillboardStrategy::DispParticle_Normal(
             psq_st     r, 36(ptr), 0, 0
         }
         // clang-format on
+#endif
 
         GXBegin(GX_QUADS, GX_VTXFMT0, 4);
         {

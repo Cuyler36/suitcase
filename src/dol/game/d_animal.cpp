@@ -4580,7 +4580,13 @@ u32 dAnimal_c::checkFtrRequest(const dItem::Item *item, int mode, int value) {
     u32 ret = 4;
     switch (mode) {
     case QUEST_MATCH_FTR_CATEGORY:
-        int category = getCategoryQ5(*item);
+#if TARGET_PC
+        int category;
+        category =
+#else
+        int category =
+#endif
+            getCategoryQ5(*item);
         if (category == value) {
             if (findFtr(item) == -1) {
                 ret = 0;

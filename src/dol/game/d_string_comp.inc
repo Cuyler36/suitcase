@@ -5,4 +5,4 @@
 // TODO: fix the weak function order; this .inc is a hack (see d_string.cpp).
 
 // 8016B820
-__declspec(weak) dString::Comp_c::~Comp_c() {}
+DECL_WEAK dString::Comp_c::~Comp_c() {}

@@ -16,7 +16,7 @@ EffectManager *EffectManager::createInstance(int creators, int groups,
         if (heap == NULL) {
             heap = Heap::getCurrentHeap();
         }
-        sEffectManager = new (heap, 4) EffectManager(creators, groups, heap);
+        sEffectManager = EGG_NEW_ARGS(heap, 4) EffectManager(creators, groups, heap);
     }
     return sEffectManager;
 }
@@ -31,7 +31,7 @@ int EffectManager::initialize(Configuration &config) {
                                              mTotalGroupNum);
     mMemory = Heap::alloc(size, 32, config.heap);
 
-    MemoryManager *memoryManager = new (config.heap, 4)
+    MemoryManager *memoryManager = EGG_NEW_ARGS(config.heap, 4)
         MemoryManager(mMemory, size, config.effects, config.emitters,
                       config.managers, config.particles);
 
@@ -99,7 +99,7 @@ EffectManager::EffectManager(int creators, int groups, Heap *heap)
     mTotalGroupNum = creators << getGroupBits();
     strcpy(mDummyTexName, "dummy_tex");
     mDummyTexName[0x1F] = '\0';
-    mCreators = new (heap, 4) EffectCreator *[mCreatorNum];
+    mCreators = EGG_NEW_ARRAY_ARGS(EffectCreator *, mCreatorNum, heap, 4);
     for (int i = 0; i < mCreatorNum; i++) {
         mCreators[i] = NULL;
     }

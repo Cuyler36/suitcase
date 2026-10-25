@@ -40,7 +40,7 @@ int dPaper_c::remove() {
     }
     if (mpLayout != NULL) {
         EGG::Heap *heap = mHeap::setCurrentHeap(m2d::getAllocator()->mpHeap);
-        delete mpLayout;
+        EGG_DELETE(mpLayout);
         mpLayout = NULL;
         mHeap::setCurrentHeap(heap);
     }
@@ -528,7 +528,7 @@ void dPaper_c::create() {
     char name[0x30];
     if (mpLayout == NULL) {
         EGG::Heap *heap = mHeap::setCurrentHeap(m2d::getAllocator()->mpHeap);
-        mpLayout = new m2d::SimpleEx_c;
+        mpLayout = EGG_NEW m2d::SimpleEx_c;
         mHeap::setCurrentHeap(heap);
     }
     sprintf(name, l_layoutName, mPaper);

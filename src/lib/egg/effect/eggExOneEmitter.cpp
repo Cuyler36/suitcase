@@ -88,6 +88,9 @@ void ExOneEmitter::reset() {
 
 } // namespace EGG
 
+#if TARGET_PC
+#include <string.h> // the host strlen; the inline copy below only exists for matching
+#else
 extern "C" inline size_t strlen(const char *str) {
     size_t length = -1;
     const unsigned char *p = reinterpret_cast<const unsigned char *>(str) - 1;
@@ -96,6 +99,7 @@ extern "C" inline size_t strlen(const char *str) {
     } while (*++p);
     return length;
 }
+#endif
 
 // The original string caller was stripped. This witness retains its inline
 // copies in order; the caller's historical name and body are not recovered.

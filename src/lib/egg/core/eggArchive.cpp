@@ -58,9 +58,9 @@ void Archive::removeList(Archive *archive) {
 Archive *Archive::mount(void *arcStart, Heap *heap, int alignment) {
     Archive *archive = findArchive(arcStart);
     if (archive == NULL) {
-        archive = new (heap, alignment) Archive();
+        archive = EGG_NEW_ARGS(heap, alignment) Archive();
         if (!archive->initHandle(arcStart, 1)) {
-            delete archive;
+            EGG_DELETE(archive);
             archive = NULL;
         }
     } else {
@@ -72,7 +72,7 @@ Archive *Archive::mount(void *arcStart, Heap *heap, int alignment) {
 void Archive::unmount() {
     if (mRefCount != 0 && --mRefCount == 0) {
         mStatus = 0;
-        delete this;
+        EGG_DELETE(this);
     }
 }
 

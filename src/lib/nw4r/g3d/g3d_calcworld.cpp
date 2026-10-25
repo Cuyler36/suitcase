@@ -1,5 +1,9 @@
 #include <nw4r/g3d.h>
 
+#if TARGET_PC
+#include <string.h>
+#endif
+
 namespace nw4r {
 namespace g3d {
 
@@ -198,6 +202,35 @@ void CalcSkinning(math::MTX34* pModelMtxArray, u32* pModelMtxAttribArray,
 
             pByteCode += sizeof(ResByteCodeData::WeightParams);
 
+#if TARGET_PC
+            // ps_madds0 of each blend matrix scaled by its weight, summed into the target
+            f32 sum[3 * 4] = {};
+
+            for (u32 i = 0; i < numBlendMtx; i++) {
+                u32 mtxID =
+                    (pWeightEntry->mtxIdHi << 8) + pWeightEntry->mtxIdLo;
+
+                u32 iraito = pWeightEntry->fWeight0 << 24 |
+                             pWeightEntry->fWeight1 << 16 |
+                             pWeightEntry->fWeight2 << 8 |
+                             pWeightEntry->fWeight3;
+
+                f32 R;
+                memcpy(&R, &iraito, sizeof(R));
+
+                const math::MTX34* pT = &pSkinMtxArray[mtxID];
+                for (int j = 0; j < 3 * 4; j++) {
+                    sum[j] = pT->a[j] * R + sum[j];
+                }
+
+                pModelMtxAttribArray[targetMtxID] &=
+                    pModelMtxAttribArray[mtxID];
+
+                pByteCode += sizeof(ResByteCodeData::WeightEntry);
+            }
+
+            memcpy(pModelMtxArray[targetMtxID].a, sum, sizeof(sum));
+#else
             register f32 M00, M02;
             register f32 M10, M12;
             register f32 M20, M22;
@@ -262,6 +295,7 @@ void CalcSkinning(math::MTX34* pModelMtxArray, u32* pModelMtxAttribArray,
                 psq_st M20, MTX34._20(pTargetMtx), 0, 0
                 psq_st M22, MTX34._22(pTargetMtx), 0, 0
             )
+#endif
 
         } else /* Assume EVPMTX */ {
             u32 mtxID = (pEvpMtxCmd->mtxIdHi << 8) + pEvpMtxCmd->mtxIdLo;

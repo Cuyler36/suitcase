@@ -8,6 +8,9 @@
 #include <internal/RFLi_Debug.h>
 
 #include <string.h>
+#if TARGET_PC
+#include <stddef.h> // offsetof (MSL provided it implicitly)
+#endif
 
 #define RFL_CTRL_IDENTIFIER 'RNCD'
 

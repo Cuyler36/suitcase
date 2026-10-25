@@ -6,7 +6,7 @@ mAllocatorDummyHeap_c *mAllocatorDummyHeap_c::m_instance;
 MEMiHeapHead *mAllocatorDummyHeap_c::m_heapHead;
 
 // 802AE4F0
-void *mAllocatorDummyHeap_c::AllocatorAllocForDummyHeap(MEMAllocator *, size_t) {
+void *mAllocatorDummyHeap_c::AllocatorAllocForDummyHeap(MEMAllocator *, u32) {
     return nullptr;
 }
 
@@ -62,7 +62,7 @@ void mAllocator_c::free(void *ptr) {
 
 // 802AE664
 void mAllocator_c::init(EGG::Heap *heap) {
-    new(heap, 4) mAllocatorDummyHeap_c();
+    EGG_NEW_ARGS(heap, 4) mAllocatorDummyHeap_c();
 }
 
 // 802AE69C

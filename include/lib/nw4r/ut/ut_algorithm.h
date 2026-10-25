@@ -1,6 +1,9 @@
 #ifndef NW4R_UT_ALGORITHM_H
 #define NW4R_UT_ALGORITHM_H
 #include <nw4r/types_nw4r.h>
+#ifndef __MWERKS__
+#include <cmath>
+#endif
 
 namespace nw4r {
 namespace ut {
@@ -28,6 +31,7 @@ template <typename T> inline T Abs(T x) {
     return x < 0 ? static_cast<T>(-x) : static_cast<T>(x);
 }
 
+#ifdef __MWERKS__
 template <> f32 inline Abs(register f32 x) {
     register f32 ax;
 
@@ -39,6 +43,9 @@ template <> f32 inline Abs(register f32 x) {
 
     return ax;
 }
+#else
+template <> f32 inline Abs(f32 x) { return std::fabsf(x); }
+#endif
 
 /******************************************************************************
  *

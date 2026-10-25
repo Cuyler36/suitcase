@@ -266,7 +266,7 @@ void dEvFishing_c::setup() {
             return;
         }
         // The address of the returned temporary (a named copy adds a copy).
-        int idx = pickAnimal(&mCursor.get());
+        int idx = pickAnimal(TEMP_ADDR(mCursor.get()));
         dAnimal_c *animal = getTownAnimal(idx);
         tryNpcEntry(animal, mStart.get(), TRUE);
     }

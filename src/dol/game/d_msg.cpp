@@ -43,7 +43,7 @@
 #include <game/game/d_msg_rcpt.hpp> // last: see above
 #include <game/snd/snd_id.hpp>
 
-typedef char dMsgRcptSizeCheck[sizeof(dMsg::Rcpt_c) == 0x64 ? 1 : -1];
+STATIC_ASSERT_WII(dMsgRcptSizeCheck, sizeof(dMsg::Rcpt_c) == 0x64);
 
 // ---- 8019C414..8019EC88: RndJump_c, Seq_c (text output, tag dispatch) ----
 

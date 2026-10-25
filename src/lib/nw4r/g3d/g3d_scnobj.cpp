@@ -2,6 +2,7 @@
 #include <nw4r/math.h>
 
 #include <algorithm>
+#include <lib/egg/core/eggNew.h>
 
 namespace nw4r {
 namespace g3d {
@@ -75,7 +76,7 @@ ScnObj::~ScnObj() {
 
     switch (mCallbackDeleteOption) {
     case TRUE: {
-        delete mpFuncObjExec;
+        EGG_DELETE(mpFuncObjExec);
         break;
     }
     }

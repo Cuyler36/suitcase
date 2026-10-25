@@ -91,7 +91,7 @@ void CoreController::stopMotor() {
 }
 
 void CoreController::createRumbleMgr(u8 overlap_num) {
-    mRumbleMgr = new ControllerRumbleMgr();
+    mRumbleMgr = EGG_NEW ControllerRumbleMgr();
     mRumbleMgr->createUnit(overlap_num, this);
 }
 
@@ -284,7 +284,7 @@ CoreControllerMgr::T__Disposer::~T__Disposer() {
 
 CoreControllerMgr *CoreControllerMgr::createInstance() {
     if (sInstance == NULL) {
-        sInstance = new CoreControllerMgr();
+        sInstance = EGG_NEW CoreControllerMgr();
         T__Disposer::sStaticDisposer = &sInstance->mDisposer;
     }
     return sInstance;
@@ -346,7 +346,7 @@ CoreControllerMgr::CoreControllerMgr() {
         ExpHeap *heap = ExpHeap::create(
             sWPADWorkSize, BaseSystem::mConfigData->mRootHeapMem2, 0);
         heap->setName("EGG::CoreControllerMgr");
-        sAllocator = new Allocator(heap, 32);
+        sAllocator = EGG_NEW Allocator(heap, 32);
         WPADRegisterAllocator(alloc, free);
     }
 
@@ -367,7 +367,7 @@ CoreControllerMgr::CoreControllerMgr() {
         if (sCoreControllerFactory != NULL) {
             mControllers(i) = sCoreControllerFactory();
         } else {
-            mControllers(i) = new CoreController();
+            mControllers(i) = EGG_NEW CoreController();
         }
     }
 
@@ -521,7 +521,7 @@ ControllerRumbleMgr::ControllerRumbleMgr() : mController(NULL) {
 void ControllerRumbleMgr::createUnit(u8 overlap_num,
                                      CoreController *controller) {
     for (u8 i = 0; i < overlap_num; i++) {
-        nw4r::ut::List_Append(&mStoppedUnitList, new ControllerRumbleUnit());
+        nw4r::ut::List_Append(&mStoppedUnitList, EGG_NEW ControllerRumbleUnit());
     }
 
     mController = controller;

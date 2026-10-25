@@ -163,7 +163,11 @@ static inline f32 tanAng(const mAng &ang) {
     f32 c = ang.cos();
     f32 s = ang.sin();
     if (isZero(c)) {
+#if TARGET_PC
+        return s > 0.0f ? INFINITY : -INFINITY; // MSVC rejects the constant 1/0
+#else
         return s > 0.0f ? 1.0f / 0.0f : -1.0f / 0.0f;
+#endif
     }
     return s / c;
 }

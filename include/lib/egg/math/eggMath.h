@@ -1,5 +1,6 @@
 #pragma once
 
+#include <types.h>
 #include <math.h>
 
 namespace EGG {

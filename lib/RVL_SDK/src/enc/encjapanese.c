@@ -120,7 +120,7 @@ static int ENCiGetJisStateFromUnicode(ENCJISState* mbState, const u16* src);
 static void ENCiConvertSjisKanji3(u8* dst, u8 src1, u8 src2);
 
 #if 0 // not linked in City Folk
-__declspec(weak) const u16 enc_tbl_jp_mbtowc[] = {
+DECL_WEAK const u16 enc_tbl_jp_mbtowc[] = {
     L'\u3000', L'\u3001', L'\u3002', L'\uFF0C',
     L'\uFF0E', L'\u30FB', L'\uFF1A', L'\uFF1B',
     L'\uFF1F', L'\uFF01', L'\u309B', L'\u309C',
@@ -2474,7 +2474,7 @@ __declspec(weak) const u16 enc_tbl_jp_mbtowc[] = {
 };
 #endif
 
-__declspec(weak) const u8 enc_tbl_jp_wctomb[] = {
+DECL_WEAK const u8 enc_tbl_jp_wctomb[] = {
     0x22, 0x81, 0xCD, 0x25, 0x84, 0x9F, 0x30, 0x81,
     0x40, 0x4E, 0x88, 0xEA, 0x4F, 0xFA, 0x6B, 0x51,
     0x8B, 0x56, 0x52, 0x93, 0x81, 0x53, 0xFA, 0x89,
@@ -5260,7 +5260,7 @@ __declspec(weak) const u8 enc_tbl_jp_wctomb[] = {
     0x78
 };
 
-__declspec(weak) const u16 enc_offset_jp[] = {
+DECL_WEAK const u16 enc_offset_jp[] = {
       27,   57,   86,  117,  143,  171,  204,  233,
      263,  299,  331,  363,  389,  420,  450,  482,
      513,  545,  577,  610,  645,  678,  712,  741,
@@ -5314,7 +5314,7 @@ static const u8 kana_array[] = {
     0x25, 0x73, 0x21, 0x2B, 0x21, 0x2C
 };
 
-__declspec(weak) BOOL enc_tbl_jp_loaded = TRUE;
+DECL_WEAK BOOL enc_tbl_jp_loaded = TRUE;
 
 #if 0 // not linked in City Folk
 DEFINE_PUBLIC_ENC_TRAMPOLINE_TO_UTF16(Sjis)

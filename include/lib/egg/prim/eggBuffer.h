@@ -13,7 +13,7 @@ template <typename T> class TBuffer {
 
     virtual ~TBuffer() {
         if (mBuffer != NULL) {
-            delete[] mBuffer;
+            EGG_DELETE_ARRAY(mBuffer);
             mBuffer = NULL;
         }
     }
@@ -59,9 +59,9 @@ template <typename T> void TBuffer<T>::errRangeOver() const {
 template <typename T> void TBuffer<T>::allocate(int size, int align) {
     mSize = size;
     if (align != 0) {
-        mBuffer = new T[mSize];
+        mBuffer = EGG_NEW_ARRAY(T, mSize);
     } else {
-        mBuffer = new T[mSize];
+        mBuffer = EGG_NEW_ARRAY(T, mSize);
     }
     flush();
     onAllocate(NULL);
@@ -73,9 +73,9 @@ template <typename T> void TBuffer<T>::allocate(int size, Heap *heap, int align)
         heap = Heap::getCurrentHeap();
     }
     if (align != 0) {
-        mBuffer = new (heap, 4) T[mSize];
+        mBuffer = EGG_NEW_ARRAY_ARGS(T, mSize, heap, 4);
     } else {
-        mBuffer = new (heap, 4) T[mSize];
+        mBuffer = EGG_NEW_ARRAY_ARGS(T, mSize, heap, 4);
     }
     flush();
     onAllocate(heap);

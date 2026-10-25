@@ -513,7 +513,7 @@ void DrawGX::CreateDisplayList(Heap *pHeap) {
 
         u32 size = GXEndDisplayList();
         s_DL[i].mLen = size;
-        u8 *data = new (pHeap, 0x20) u8[size];
+        u8 *data = EGG_NEW_ARRAY_ARGS(u8, size, pHeap, 0x20);
         s_DL[i].mpList = data;
         for (int j = 0; j < size; j++) {
             data[j] = tmpDisplayList[j];

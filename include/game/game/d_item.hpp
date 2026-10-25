@@ -1013,9 +1013,9 @@ struct BITM {
 }; // sizeof = 0x18C
 
 #ifdef __MWERKS__ // wchar_t is 16-bit on MWCC
-typedef char BitmSizeCheck[sizeof(BITM) == 0x18C ? 1 : -1];
+STATIC_ASSERT_WII(BitmSizeCheck, sizeof(BITM) == 0x18C);
 #endif
-typedef char BinHeaderSizeCheck[sizeof(BinHeader) == 0x20 ? 1 : -1];
+STATIC_ASSERT_WII(BinHeaderSizeCheck, sizeof(BinHeader) == 0x20);
 
 // Base-ID to item-index map plus per-kind index ranges.
 // Global at 8059AD98; built from item.bin and the downloadable items.

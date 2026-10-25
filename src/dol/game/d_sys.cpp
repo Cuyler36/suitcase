@@ -323,13 +323,13 @@ template <> void EGG::TSystem<>::Configuration::initialize() {
     GraphicsFifo::create(mGraphicsFifoSize, nullptr);
     mHeap::createAssertHeap(mRootHeapMem1);
 
-    mpVideo = new EGG::Video(mRenderMode, nullptr);
-    mpXfbMgr = new EGG::XfbManager();
+    mpVideo = EGG_NEW EGG::Video(mRenderMode, nullptr);
+    mpXfbMgr = EGG_NEW EGG::XfbManager();
     for (int i = 0; i < 2; i++) {
-        mpXfbMgr->attach(new Xfb(mRootHeapMem2));
+        mpXfbMgr->attach(EGG_NEW Xfb(mRootHeapMem2));
     }
 
-    mpDisplay = new EGG::AsyncDisplay(1);
+    mpDisplay = EGG_NEW EGG::AsyncDisplay(1);
 #if VERSION == VERSION_RUUP01_00 || VERSION == VERSION_RUUP01_01
     if (Video::getTickPerVRetrace(0) != Video::getTickPerVRetrace()) {
         mpDisplay->startSyncNTSC();
@@ -350,7 +350,7 @@ template <> void EGG::TSystem<>::Configuration::initialize() {
     EGG::DrawGX::Initialize(NULL);
 
     Thread::initialize();
-    mThread = new Thread(OSGetCurrentThread(), 4);
+    mThread = EGG_NEW Thread(OSGetCurrentThread(), 4);
 
     DvdFile::initialize();
 

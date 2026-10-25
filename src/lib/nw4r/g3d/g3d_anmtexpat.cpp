@@ -250,7 +250,7 @@ void AnmObjTexPatNode::G3dProc(u32 task, u32 param, void* pInfo) {
  *
  ******************************************************************************/
 AnmObjTexPatOverride* AnmObjTexPatOverride::Construct(MEMAllocator* pAllocator,
-                                                      u32* pSize, ResMdl mdl,
+                                                      size_t* pSize, ResMdl mdl,
                                                       int numChildren) {
     if (!mdl.IsValid()) {
         return NULL;
@@ -317,7 +317,7 @@ const TexPatAnmResult* AnmObjTexPatOverride::GetResult(TexPatAnmResult* pResult,
  *
  ******************************************************************************/
 AnmObjTexPatRes* AnmObjTexPatRes::Construct(MEMAllocator* pAllocator,
-                                            u32* pSize, ResAnmTexPat pat,
+                                            size_t* pSize, ResAnmTexPat pat,
                                             ResMdl mdl, bool cache) {
     if (!pat.IsValid() || !mdl.IsValid()) {
         return NULL;

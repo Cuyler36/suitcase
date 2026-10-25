@@ -9,7 +9,17 @@ struct ArcTanSample {
     f32 atan_delta; // at 0x4
 };
 
+#if TARGET_PC
+// The table is defined in namespace detail below; CW resolves this declaration to it
+} // namespace
+namespace detail {
 extern const ArcTanSample sArcTanTbl[];
+} // namespace detail
+namespace {
+using detail::sArcTanTbl;
+#else
+extern const ArcTanSample sArcTanTbl[];
+#endif
 
 f32 AtanFIdx_(f32 x) {
     x *= 32.0f;
@@ -56,6 +66,24 @@ f32 CosFIdx(f32 fidx) {
     return cos;
 }
 
+#if TARGET_PC
+void SinCosFIdx(f32* pSin, f32* pCos, f32 fidx) {
+    f32 value = FAbs(fidx);
+    while (value > 65536.0f) {
+        value -= 65536.0f;
+    }
+
+    // psq_st through GQR3 (u16): truncated, saturating at 65535
+    u32 whole = value >= 65535.0f ? 65535 : static_cast<u32>(value);
+    f32 frac = value - static_cast<f32>(whole);
+
+    // ps_madds0 computes sin and cos together: sample + delta * frac
+    const detail::SinCosSample& rSample = detail::gSinCosTbl[whole & 255];
+    *pCos = rSample.cos_delta * frac + rSample.cos_val;
+    f32 sin = rSample.sin_delta * frac + rSample.sin_val;
+    *pSin = fidx >= 0.0f ? sin : -sin;
+}
+#else
 void SinCosFIdx(register f32* pSin, register f32* pCos, register f32 fidx) {
     register f32 value = FAbs(fidx);
     register f32 range = 65536.0f;
@@ -93,6 +121,7 @@ void SinCosFIdx(register f32* pSin, register f32* pCos, register f32 fidx) {
     }
     // clang-format on
 }
+#endif
 
 f32 AtanFIdx(f32 x) {
     if (x >= 0.0f) {

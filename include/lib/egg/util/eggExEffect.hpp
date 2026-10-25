@@ -41,7 +41,7 @@ class ExEmitter : public nw4r::ef::Emitter {
 
     /* 0x154 */ u32 mFlags;
 };
-typedef char ExEmitterSizeCheck[sizeof(ExEmitter) == 0x158 ? 1 : -1];
+STATIC_ASSERT_WII(ExEmitterSizeCheck, sizeof(ExEmitter) == 0x158);
 
 // RTTI: EGG::ExParticle (size 0xE4). Empty hook at 0x18, as in ExEffect.
 class ExParticle : public nw4r::ef::Particle {

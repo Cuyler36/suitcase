@@ -11,13 +11,16 @@
  *
  ******************************************************************************/
 
+// The PC port really compiles with clang/MSVC, so it never takes the parser fallbacks below
+// (they blank out attributes, intrinsics and va_start).
+
 // Detect Visual Studio Intellisense
-#if defined(__INTELLISENSE__)
+#if defined(__INTELLISENSE__) && !TARGET_PC
 #define COMPAT_INTELLISENSE
 #endif
 
 // Detect Clangd
-#if defined(__clang__)
+#if defined(__clang__) && !TARGET_PC
 #define COMPAT_CLANGD
 #endif
 
@@ -54,6 +57,22 @@
 
 // Hide flexible arrays
 #define FLEXIBLE_ARRAY(NAME) NAME[0]
+
+#elif TARGET_PC
+
+// No inline assembly on PC: ASM/ASM_VOLATILE are left undefined so a missing C fallback
+// (#ifdef __MWERKS__ ... #else) fails to compile instead of silently doing nothing.
+
+#ifdef __cplusplus
+#define DECLTYPE(x) decltype(x)
+#else
+#define DECLTYPE(x) __typeof__(x)
+#endif
+
+// Memory-mapped symbols do not exist on PC
+#define DECL_ADDRESS(...)
+
+#define FLEXIBLE_ARRAY(NAME) NAME[]
 
 #else
 
@@ -157,6 +176,11 @@
 #define __strcpy(...)
 #define __stwbrx(...)
 #define __sync(...)
+
+#elif TARGET_PC
+
+// Real host implementations
+#include <cw_compat.h>
 
 #endif
 

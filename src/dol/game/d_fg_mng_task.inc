@@ -982,7 +982,13 @@ BOOL dFgMngReq_c::proc(dFgMngPlayerState_c *st) {
         }
         break;
     case FG_MNG_KIND_WATER:
-        u32 p = st->mPlayer;
+#if TARGET_PC
+        u32 p;
+        p =
+#else
+        u32 p =
+#endif
+            st->mPlayer;
         fgMngWaterAround(p, st->mPos);
         ok = TRUE;
         break;

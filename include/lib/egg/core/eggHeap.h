@@ -138,6 +138,10 @@ protected:
 
 } // namespace EGG
 
+// On PC the global heap operators take an EGG::HeapToken (eggNew.h)
+#include <lib/egg/core/eggNew.h>
+
+#if !TARGET_PC
 void *operator new(size_t);
 void *operator new(size_t, void *);
 void *operator new(size_t, int);
@@ -146,3 +150,4 @@ void *operator new[](size_t);
 void *operator new[](size_t, EGG::Heap *, int);
 void operator delete(void *);
 void operator delete[](void *);
+#endif

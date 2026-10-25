@@ -262,7 +262,13 @@ void Manage_c::executeTransfer() {
         }
         break;
     case TRANSFER_CHECK_CRC:
-        u32 crc = sCrc::calcCRC32(mBuffer, mTransferSize, -1, -1);
+#if TARGET_PC
+        u32 crc;
+        crc =
+#else
+        u32 crc =
+#endif
+            sCrc::calcCRC32(mBuffer, mTransferSize, -1, -1);
         if (crc == mChecksum) {
             __stwbrx(COMMAND_ACK, &command, 0);
             if (mConnection.send(&command, 4, onSend) == FALSE) {
@@ -586,10 +592,10 @@ BOOL Manage_c::finish() {
     }
     return FALSE;
 }
-typedef char CheckManagerSize[sizeof(Manage_c) == 0x1EC ? 1 : -1];
-typedef char CheckApplicationSize[sizeof(dNetDsDownload::Application_c) == 0x19C
-                                      ? 1
-                                      : -1];
-typedef char
-    CheckConnectionSize[sizeof(dNetDsDownload::Connection_c) == 0x1C ? 1 : -1];
+STATIC_ASSERT_WII(CheckManagerSize, sizeof(Manage_c) == 0x1EC);
+STATIC_ASSERT_WII(CheckApplicationSize,
+                  sizeof(dNetDsDownload::Application_c) == 0x19C);
+
+STATIC_ASSERT_WII(CheckConnectionSize,
+                  sizeof(dNetDsDownload::Connection_c) == 0x1C);
 } // namespace dDsDl

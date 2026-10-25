@@ -1602,6 +1602,9 @@ void dAcNpcSpTanukiBase_c::talk_c::onMessageEnd(int kind) {
         switch (mMessageCode) {
         case DRAMA_MSG_BACK_TO_WORK:
         case DRAMA_MSG_BACK_TO_WORK_2:
+#if TARGET_PC
+        { // MSVC also rejects jumping past the static below
+#endif
             // A copy of the label in this function's .data (not merged with
             // getMsgInfo's literal).
             static char label[] = "npc_SP/NPC_tanukichi";
@@ -1609,6 +1612,9 @@ void dAcNpcSpTanukiBase_c::talk_c::onMessageEnd(int kind) {
             getController()->setNextMsgCode(MSG_MENU);
             mpOwner->mDrama = 0;
             break;
+#if TARGET_PC
+        }
+#endif
         case DRAMA_MSG_TOLD:
         case DRAMA_MSG_TOLD_2:
             dPlayerMgr::Mgr_c::getCurrentPlayer()->setFlag0(

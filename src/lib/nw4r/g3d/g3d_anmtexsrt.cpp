@@ -252,7 +252,7 @@ void AnmObjTexSrtNode::G3dProc(u32 task, u32 param, void* pInfo) {
  *
  ******************************************************************************/
 AnmObjTexSrtOverride* AnmObjTexSrtOverride::Construct(MEMAllocator* pAllocator,
-                                                      u32* pSize, ResMdl mdl,
+                                                      size_t* pSize, ResMdl mdl,
                                                       int numChildren) {
     if (!mdl.IsValid()) {
         return NULL;
@@ -318,7 +318,7 @@ const TexSrtAnmResult* AnmObjTexSrtOverride::GetResult(TexSrtAnmResult* pResult,
  *
  ******************************************************************************/
 AnmObjTexSrtRes* AnmObjTexSrtRes::Construct(MEMAllocator* pAllocator,
-                                            u32* pSize, ResAnmTexSrt srt,
+                                            size_t* pSize, ResAnmTexSrt srt,
                                             ResMdl mdl, bool cache) {
     if (!srt.IsValid() || !mdl.IsValid()) {
         return NULL;

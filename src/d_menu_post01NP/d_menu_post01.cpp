@@ -270,7 +270,7 @@ int dMenuPost01_c::hitSlot(bool setOffset) {
     }
     mVec2_c pos = dObjCursor_c::getPos();
     int slot =
-        m2d::hitButton(&mVec2_c(pos), &mLyt, SLOT_BOX, SLOT_BACK, -1, -1, 1.0f);
+        m2d::hitButton(TEMP_ADDR(mVec2_c(pos)), &mLyt, SLOT_BOX, SLOT_BACK, -1, -1, 1.0f);
     if (slot != -1) {
         if (setOffset && isBox(slot)) {
             mVec2_c ofs = getSlotPos(slot, 0.0f, 0.0f);
@@ -279,7 +279,7 @@ int dMenuPost01_c::hitSlot(bool setOffset) {
         }
         return slot;
     }
-    slot = mLtrWin.hitLetter(&mVec2_c(pos), setOffset, 1.0f);
+    slot = mLtrWin.hitLetter(TEMP_ADDR(mVec2_c(pos)), setOffset, 1.0f);
     if (slot != -1) {
         return slot;
     }

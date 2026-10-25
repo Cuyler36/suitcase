@@ -516,7 +516,13 @@ void recvSwitch(const void *data) {
     case 1:
         applySwitch(packet->mScene, packet->mX, packet->mZ, packet->mLayer, packet->mSw, packet->mOn,
                     packet->mMusic, packet->mArg, packet->mParam);
-        switchPacket_c relay = *packet;
+#if TARGET_PC
+        switchPacket_c relay;
+        relay =
+#else
+        switchPacket_c relay =
+#endif
+            *packet;
         relay.mRelay = 0;
         dNet::beginPacket();
         dNet::addPacket(&relay, sizeof(relay));
@@ -579,7 +585,13 @@ void recvRoomFlag(const void *data) {
     switch (packet->mRelay) {
     case 1:
         setRoomFlag(scene, on);
-        roomFlagPacket_c relay = *packet;
+#if TARGET_PC
+        roomFlagPacket_c relay;
+        relay =
+#else
+        roomFlagPacket_c relay =
+#endif
+            *packet;
         relay.mRelay = 0;
         dNet::beginPacket();
         dNet::addPacket(&relay, sizeof(relay));

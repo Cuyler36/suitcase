@@ -331,7 +331,7 @@ void AnmObjChrNode::G3dProc(u32 task, u32 param, void* pInfo) {
  * AnmObjChrBlend
  *
  ******************************************************************************/
-AnmObjChrBlend* AnmObjChrBlend::Construct(MEMAllocator* pAllocator, u32* pSize,
+AnmObjChrBlend* AnmObjChrBlend::Construct(MEMAllocator* pAllocator, size_t* pSize,
                                           ResMdl mdl, int numChildren) {
     if (!mdl.IsValid()) {
         return NULL;
@@ -551,7 +551,7 @@ f32 AnmObjChrBlend::GetWeight(int idx) const {
  * AnmObjChrRes
  *
  ******************************************************************************/
-AnmObjChrRes* AnmObjChrRes::Construct(MEMAllocator* pAllocator, u32* pSize,
+AnmObjChrRes* AnmObjChrRes::Construct(MEMAllocator* pAllocator, size_t* pSize,
                                       ResAnmChr chr, ResMdl mdl, bool cache) {
     if (!chr.IsValid() || !mdl.IsValid()) {
         return NULL;

@@ -238,7 +238,13 @@ BOOL dMenuMap_c::pushSlot(int slot) {
         playSeModeChange();
         return TRUE;
     case SLOT_FACILITY_BUTTON:
-        BOOL facility = isFlag(FLAG_FACILITY);
+#if TARGET_PC
+        BOOL facility;
+        facility =
+#else
+        BOOL facility =
+#endif
+            isFlag(FLAG_FACILITY);
         if (facility == TRUE) {
             return FALSE;
         }

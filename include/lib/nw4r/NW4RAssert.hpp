@@ -162,8 +162,14 @@
 
 namespace nw4r { namespace db
 {
+#if TARGET_PC && !defined(__GNUC__) && !defined(__clang__)
+	// MSVC has no weak declarations
+	extern void Panic(char const *file, int line, char const *msg, ...);
+	extern void Warning(char const *file, int line, char const *msg, ...);
+#else
 	__attribute__((weak)) extern void Panic(char const *file, int line, char const *msg, ...);
 	__attribute__((weak)) extern void Warning(char const *file, int line, char const *msg, ...);
+#endif
 }} // namespace nw4r::db
 
 // clang-format on

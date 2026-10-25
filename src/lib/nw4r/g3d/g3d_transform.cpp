@@ -12,6 +12,119 @@ using nw4r::math::VEC3;
 
 const f32 det_epsilon = 1e-36f;
 
+#if TARGET_PC
+namespace {
+
+// The 3x3 cofactors and determinant shared by the three functions below, in the order and with the
+// operand order of the paired-single code (ps0/ps1 lanes are named _0/_1).
+struct Cofactors {
+    f32 t13_0, t13_1; // m11*m22 - m21*m12, m12*m20 - m22*m10
+    f32 t12_0, t12_1; // m21*m02 - m01*m22, m22*m00 - m02*m20
+    f32 t11_0, t11_1; // m01*m12 - m11*m02, m02*m10 - m12*m00
+    f32 t10, t9, t8;  // m10*m21 - m11*m20, m01*m20 - m00*m21, m00*m11 - m01*m10
+    f32 det;
+};
+
+Cofactors CalcCofactors(const MTX34 *pW) {
+    Cofactors c;
+    c.t11_0 = pW->_01 * pW->_12 - pW->_11 * pW->_02;
+    c.t11_1 = pW->_02 * pW->_10 - pW->_12 * pW->_00;
+    c.t13_0 = pW->_11 * pW->_22 - pW->_21 * pW->_12;
+    c.t13_1 = pW->_12 * pW->_20 - pW->_22 * pW->_10;
+    c.t12_0 = pW->_21 * pW->_02 - pW->_01 * pW->_22;
+    c.t12_1 = pW->_22 * pW->_00 - pW->_02 * pW->_20;
+    c.det = pW->_20 * c.t11_0 + (pW->_10 * c.t12_0 + pW->_00 * c.t13_0);
+    c.t10 = pW->_10 * pW->_21 - pW->_11 * pW->_20;
+    c.t9 = pW->_01 * pW->_20 - pW->_00 * pW->_21;
+    c.t8 = pW->_00 * pW->_11 - pW->_01 * pW->_10;
+    return c;
+}
+
+// ps_cmpo0 + bge: a NaN determinant takes the invert path, as on hardware
+bool IsSingular(f32 det) {
+    return std::fabs(det) < det_epsilon;
+}
+
+} // namespace
+
+// Inverse-transpose of the upper 3x3 of pW
+bool CalcViewNrmMtx(math::MTX33 *pOut, const math::MTX34 *pW) {
+    Cofactors c = CalcCofactors(pW);
+    if (IsSingular(c.det)) {
+        MTX33 copy;
+        copy._00 = pW->_00; copy._01 = pW->_01; copy._02 = pW->_02;
+        copy._10 = pW->_10; copy._11 = pW->_11; copy._12 = pW->_12;
+        copy._20 = pW->_20; copy._21 = pW->_21; copy._22 = pW->_22;
+        *pOut = copy;
+        return false;
+    }
+
+    f32 inv = 1.0f / c.det; // fres refined by one Newton step
+    pOut->_00 = c.t13_0 * inv;
+    pOut->_01 = c.t13_1 * inv;
+    pOut->_10 = c.t12_0 * inv;
+    pOut->_11 = c.t12_1 * inv;
+    pOut->_20 = c.t11_0 * inv;
+    pOut->_21 = c.t11_1 * inv;
+    pOut->_02 = c.t10 * inv;
+    pOut->_12 = c.t9 * inv;
+    pOut->_22 = c.t8 * inv;
+    return true;
+}
+
+// As CalcViewNrmMtx, into a 3x4 matrix with a zero translation
+bool CalcViewTexMtx(math::MTX34 *pOut, const math::MTX34 *pW) {
+    Cofactors c = CalcCofactors(pW);
+    if (IsSingular(c.det)) {
+        if (pOut != pW) {
+            pOut->_00 = pW->_00; pOut->_01 = pW->_01; pOut->_02 = pW->_02; pOut->_03 = 0.0f;
+            pOut->_10 = pW->_10; pOut->_11 = pW->_11; pOut->_12 = pW->_12; pOut->_13 = 0.0f;
+            pOut->_20 = pW->_20; pOut->_21 = pW->_21; pOut->_22 = pW->_22; pOut->_23 = 0.0f;
+        }
+        return false;
+    }
+
+    f32 inv = 1.0f / c.det;
+    pOut->_03 = 0.0f;
+    pOut->_13 = 0.0f;
+    pOut->_23 = 0.0f;
+    pOut->_00 = c.t13_0 * inv;
+    pOut->_01 = c.t13_1 * inv;
+    pOut->_10 = c.t12_0 * inv;
+    pOut->_11 = c.t12_1 * inv;
+    pOut->_20 = c.t11_0 * inv;
+    pOut->_21 = c.t11_1 * inv;
+    pOut->_02 = c.t10 * inv;
+    pOut->_12 = c.t9 * inv;
+    pOut->_22 = c.t8 * inv;
+    return true;
+}
+
+// Inverse of the affine matrix pW; pOut is left untouched if pW is singular
+bool CalcInvWorldMtx(math::MTX34 *pOut, const math::MTX34 *pW) {
+    Cofactors c = CalcCofactors(pW);
+    if (IsSingular(c.det)) {
+        return false;
+    }
+
+    f32 inv = 1.0f / c.det;
+    f32 w03 = pW->_03;
+    f32 w13 = pW->_13;
+    f32 w23 = pW->_23;
+
+    f32 i00 = c.t13_0 * inv, i01 = c.t12_0 * inv, i02 = c.t11_0 * inv;
+    f32 i10 = c.t13_1 * inv, i11 = c.t12_1 * inv, i12 = c.t11_1 * inv;
+    f32 i20 = c.t10 * inv, i21 = c.t9 * inv, i22 = c.t8 * inv;
+
+    pOut->_00 = i00; pOut->_01 = i01; pOut->_02 = i02;
+    pOut->_03 = -(i02 * w23 + (i01 * w13 + i00 * w03));
+    pOut->_10 = i10; pOut->_11 = i11; pOut->_12 = i12;
+    pOut->_13 = -(i12 * w23 + (i11 * w13 + i10 * w03));
+    pOut->_20 = i20; pOut->_21 = i21; pOut->_22 = i22;
+    pOut->_23 = -(i22 * w23 + (i21 * w13 + i20 * w03));
+    return true;
+}
+#else
 // clang-format off
 asm bool CalcViewNrmMtx(register math::MTX33 *pOut, const register math::MTX34 *pW) {
     nofralloc
@@ -219,6 +332,7 @@ _lbl_80442D68:
 }
 
 // clang-format on
+#endif
 
 } // namespace detail
 } // namespace g3d

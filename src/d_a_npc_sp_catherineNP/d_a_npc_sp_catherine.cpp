@@ -818,8 +818,20 @@ void dAcNpcSpCatherine_c::talk_c::onMessageEnd(int kind) {
         mOnRequestEnd = &talk_c::askHair;
         break;
     case MSG_NOT_SURE:
-        dSaveTown_c *town = dSaveData_c::getTown();
-        u8 hair = dPlayerMgr::Mgr_c::getCurrentPlayer()->mHair;
+#if TARGET_PC
+        dSaveTown_c *town;
+        town =
+#else
+        dSaveTown_c *town =
+#endif
+            dSaveData_c::getTown();
+#if TARGET_PC
+        u8 hair;
+        hair =
+#else
+        u8 hair =
+#endif
+            dPlayerMgr::Mgr_c::getCurrentPlayer()->mHair;
         if (hair != town->mShops.mCatherine.getTopCategory(mHairGender)) {
             mpController->setNextMsgCode(MSG_TRENDY);
         } else if (dPlayerMgr::Mgr_c::getCurrentPlayer()->mHair !=

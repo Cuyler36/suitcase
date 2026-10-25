@@ -323,7 +323,7 @@ void dShadow_c::drawTexture(const dShadow::Texture_c *shadow, mColor color) {
         f32 (*uv)[2] = texCoords;
         for (mVec3_c *p = vertices; p < vertices + vertexCount; ++p, ++uv) {
             mVec3_c curved;
-            dWorld::curvePosition(&curved, &mVec3_c(*p));
+            dWorld::curvePosition(&curved, TEMP_ADDR(mVec3_c(*p)));
             dShadow::writePosition(fifo, curved.x, curved.y, curved.z);
             dShadow::writeTexCoord(fifo, (*uv)[0], (*uv)[1]);
         }
@@ -465,7 +465,7 @@ dShadow_hostIO_c::~dShadow_hostIO_c() {}
 // 801C8990
 dShadow_c::~dShadow_c() {}
 
-#define SHADOW_CHECK(name, condition) typedef char name[(condition) ? 1 : -1]
+#define SHADOW_CHECK(name, condition) STATIC_ASSERT_WII(name, condition)
 SHADOW_CHECK(roundSize, sizeof(dShadow::Round_c) == 0x1C);
 SHADOW_CHECK(textureSize, sizeof(dShadow::Texture_c) == 0x24);
 SHADOW_CHECK(projectionSize, sizeof(dShadow::Projection_s) == 0x14);

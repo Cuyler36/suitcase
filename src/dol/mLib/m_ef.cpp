@@ -93,7 +93,7 @@ BOOL initialize(EGG::Heap *heap, int effects, int emitters, int managers, int pa
     config.particles = particles;
     EGG::EffectManager::sEffectManager->initialize(config);
     EGG::EffectResource::initialize();
-    l_resource = new (heap, 4) EGG::EffectResource(NULL, NULL);
+    l_resource = EGG_NEW_ARGS(heap, 4) EGG::EffectResource(NULL, NULL);
     return TRUE;
 }
 
@@ -129,7 +129,7 @@ static void executeCallbacks() {
             ++next;
             if (!it->mHandle.IsAlive()) {
                 l_callbacks.remove(it);
-                delete it;
+                EGG_DELETE(it);
             } else it->execute();
             it = next;
         }
@@ -216,14 +216,14 @@ bool effect_c::createEffect(const char *name, ulong creator, const mMtx_c *mtx) 
 // 802B80F4
 BOOL effect_c::createEffect(const char *name, ulong creator, const mMtx_c *mtx,
                           void (*callback)(nw4r::ef::Particle *, u32), u32 arg) {
-    effectCB_c *entry = new (l_callbackHeap, 4) effectCB_c(callback, arg);
+    effectCB_c *entry = EGG_NEW_ARGS(l_callbackHeap, 4) effectCB_c(callback, arg);
     if (entry != NULL) {
         if (createEffect(name, creator, mtx)) {
             static_cast<nw4r::ef::HandleBase &>(entry->mHandle) = mHandle;
             l_callbacks.pushBack(entry);
             return TRUE;
         }
-        delete entry;
+        EGG_DELETE(entry);
         return FALSE;
     }
     return FALSE;
@@ -233,14 +233,14 @@ BOOL effect_c::createEffect(const char *name, ulong creator, const mMtx_c *mtx,
 bool effect_c::createEffect(const char *name, ulong creator, const mVec3_c *pos,
                           const mAng3_c *angle, const mVec3_c *scale,
                           void (*callback)(nw4r::ef::Particle *, u32), u32 arg) {
-    effectCB_c *entry = new (l_callbackHeap, 4) effectCB_c(callback, arg);
+    effectCB_c *entry = EGG_NEW_ARGS(l_callbackHeap, 4) effectCB_c(callback, arg);
     if (entry != NULL) {
         if (createEffect(name, creator, pos, angle, scale)) {
             static_cast<nw4r::ef::HandleBase &>(entry->mHandle) = mHandle;
             l_callbacks.pushBack(entry);
             return true;
         }
-        delete entry;
+        EGG_DELETE(entry);
         return false;
     }
     return false;

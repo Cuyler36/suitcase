@@ -981,7 +981,7 @@ void dSvAuc_c::pickDLItem() {
         const dSvAucItem_c *item = getItemConst(i);
         found = FALSE;
         if (dItem::isRealItemId(item->mItem.mId)) {
-            s32 slot = dl->getSlot(&dItem::Item(item->mItem.mId));
+            s32 slot = dl->getSlot(TEMP_ADDR(dItem::Item(item->mItem.mId)));
             if (slot != -1) {
                 found = TRUE;
             }

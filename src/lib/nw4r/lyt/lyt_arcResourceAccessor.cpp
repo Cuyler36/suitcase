@@ -3,6 +3,9 @@
 #include <revolution/arc.h>
 
 #include <cstring>
+#if TARGET_PC
+#include <extras.h>
+#endif
 
 /******************************************************************************
  *
@@ -28,7 +31,11 @@ s32 FindNameResource(ARCHandle* pArcHandle, const char* resName) {
                 break;
             }
         } else {
+#if TARGET_PC
+            if (stricmp(resName, dirEntry.name) == 0) { // not in std (extras.h)
+#else
             if (std::stricmp(resName, dirEntry.name) == 0) {
+#endif
                 entryNum = dirEntry.entryNum;
                 break;
             }
@@ -40,7 +47,7 @@ s32 FindNameResource(ARCHandle* pArcHandle, const char* resName) {
 }
 
 void* GetResourceSub(ARCHandle* pArcHandle, const char* resRootDir, ulong resType,
-                     const char* name, ulong* pSize) {
+                     const char* name, size_t* pSize) {
 
     s32 entryNum = -1;
 
@@ -146,7 +153,7 @@ void* ArcResourceAccessor::Detach() {
 }
 
 void* ArcResourceAccessor::GetResource(ulong resType, const char* name,
-                                       ulong* pSize) {
+                                       size_t* pSize) {
     return GetResourceSub(&mArcHandle, mResRootDir, resType, name, pSize);
 }
 
@@ -204,7 +211,7 @@ void MultiArcResourceAccessor::DetachAll() {
 }
 
 void* MultiArcResourceAccessor::GetResource(ulong resType, const char* name,
-                                            ulong* pSize) {
+                                            size_t* pSize) {
     for (ArcResourceLinkList::Iterator it = mArcList.GetBeginIter();
          it != mArcList.GetEndIter(); it++) {
         ARCHandle* pArcHandle = it->GetArcHandle();

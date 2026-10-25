@@ -5,6 +5,7 @@
 #include <game/game/d_wipe_fader.hpp>
 #include <game/mLib/m_color_fader.hpp>
 #include <game/mLib/m_fader.hpp>
+#include <lib/egg/core/eggNew.h>
 
 namespace dFader {
 
@@ -34,16 +35,16 @@ int getInType() {
 
 // 8008B930
 BOOL create() {
-    sColorFader = new mColorFader_c(mColor(0, 0, 0, 0x80), mFaderBase_c::OPAQUE);
+    sColorFader = EGG_NEW mColorFader_c(mColor(0, 0, 0, 0x80), mFaderBase_c::OPAQUE);
     if (sColorFader == NULL) {
         return FALSE;
     }
-    sWipeFader = new dWipeFader_c(mColor(0, 0, 0, 0xFF), mFaderBase_c::OPAQUE);
+    sWipeFader = EGG_NEW dWipeFader_c(mColor(0, 0, 0, 0xFF), mFaderBase_c::OPAQUE);
     if (sWipeFader == NULL) {
         return FALSE;
     }
     sWipeFader->init();
-    sSideWipeFader = new dSideWipeFader_c(mColor(0, 0, 0, 0xFF), mFaderBase_c::OPAQUE);
+    sSideWipeFader = EGG_NEW dSideWipeFader_c(mColor(0, 0, 0, 0xFF), mFaderBase_c::OPAQUE);
     if (sSideWipeFader == NULL) {
         return FALSE;
     }

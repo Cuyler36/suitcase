@@ -304,7 +304,7 @@ BOOL initDMC(int profNum, const DynamicNameTable_c *table, int tableNum,
         mHeap::OPT_NONE);
     EGG::Heap *prevHeap = mHeap::setCurrentHeap(cCc_frmHeap);
     DMC_num = profNum;
-    DMC = new DynamicModuleControlBase *[profNum];
+    DMC = EGG_NEW_ARRAY(DynamicModuleControlBase *, profNum);
     DynamicNameTable = table;
     DynamicNameTableNum = tableNum;
     for (int i = 0; i < DynamicNameTableNum; i++) {
@@ -319,7 +319,7 @@ BOOL initDMC(int profNum, const DynamicNameTable_c *table, int tableNum,
             }
             if (DMC[entry->mProfName] == NULL) {
                 DMC[entry->mProfName] =
-                    new DynamicModuleControl(entry->mName, NULL);
+                    EGG_NEW DynamicModuleControl(entry->mName, NULL);
             }
         }
     }

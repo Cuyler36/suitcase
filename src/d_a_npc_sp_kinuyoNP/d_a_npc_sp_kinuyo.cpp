@@ -840,6 +840,9 @@ void dAcNpcSpKinuyo_c::talk_c::onMessageEnd(int kind) {
         case DRAMA_MSG_BACK_TO_WORK_2:
         case DRAMA_MSG_BACK_TO_WORK_3:
         case DRAMA_MSG_BACK_TO_WORK_4:
+#if TARGET_PC
+        { // MSVC also rejects jumping past the static below
+#endif
             // A copy of the label in this function's .data (not merged with
             // getMsgInfo's literal).
             static char label[] = "npc_SP/NPC_kinuyo";
@@ -847,6 +850,9 @@ void dAcNpcSpKinuyo_c::talk_c::onMessageEnd(int kind) {
             getController()->setNextMsgCode(MSG_MENU_AGAIN);
             mpOwner->mDrama = 0;
             break;
+#if TARGET_PC
+        }
+#endif
         case DRAMA_MSG_TOLD:
         case DRAMA_MSG_TOLD_2:
         case DRAMA_MSG_TOLD_3:

@@ -1,5 +1,6 @@
 #include <nw4r/math.h>
 
+#if !TARGET_PC
 #define FSEL_MAX(_fx, _fy)                                                     \
     fx = (_fx);                                                                \
     fy = (_fy);                                                                \
@@ -11,10 +12,20 @@
     fy = (_fy);                                                                \
     dt = fy - fx;                                                              \
     ASM ( fsel work, dt, fx, fy )
+#endif
 
 namespace nw4r {
 namespace math {
 
+#if TARGET_PC
+// fsel on fx - fy: the first operand unless the difference is negative (or NaN)
+VEC3* VEC3Maximize(VEC3* pOut, const VEC3* pA, const VEC3* pB) {
+    pOut->x = pA->x - pB->x >= 0.0f ? pA->x : pB->x;
+    pOut->y = pA->y - pB->y >= 0.0f ? pA->y : pB->y;
+    pOut->z = pA->z - pB->z >= 0.0f ? pA->z : pB->z;
+    return pOut;
+}
+#else
 VEC3* VEC3Maximize(VEC3* pOut, const VEC3* pA, const VEC3* pB) {
     register f32 fx, fy;
     register f32 dt, work;
@@ -30,7 +41,16 @@ VEC3* VEC3Maximize(VEC3* pOut, const VEC3* pA, const VEC3* pB) {
 
     return pOut;
 }
+#endif
 
+#if TARGET_PC
+VEC3* VEC3Minimize(VEC3* pOut, const VEC3* pA, const VEC3* pB) {
+    pOut->x = pB->x - pA->x >= 0.0f ? pA->x : pB->x;
+    pOut->y = pB->y - pA->y >= 0.0f ? pA->y : pB->y;
+    pOut->z = pB->z - pA->z >= 0.0f ? pA->z : pB->z;
+    return pOut;
+}
+#else
 VEC3* VEC3Minimize(VEC3* pOut, const VEC3* pA, const VEC3* pB) {
     register f32 fx, fy;
     register f32 dt, work;
@@ -46,7 +66,16 @@ VEC3* VEC3Minimize(VEC3* pOut, const VEC3* pA, const VEC3* pB) {
 
     return pOut;
 }
+#endif
 
+#if TARGET_PC
+MTX33* MTX33Identity(MTX33* pMtx) {
+    pMtx->_00 = 1.0f; pMtx->_01 = 0.0f; pMtx->_02 = 0.0f;
+    pMtx->_10 = 0.0f; pMtx->_11 = 1.0f; pMtx->_12 = 0.0f;
+    pMtx->_20 = 0.0f; pMtx->_21 = 0.0f; pMtx->_22 = 1.0f;
+    return pMtx;
+}
+#else
 MTX33* MTX33Identity(register MTX33* pMtx) {
     register f32 c_00 = 0.0f, c_10 = 1.0f;
     register f32 c_11;
@@ -64,7 +93,16 @@ MTX33* MTX33Identity(register MTX33* pMtx) {
 
     return pMtx;
 }
+#endif
 
+#if TARGET_PC
+MTX33* MTX34ToMTX33(MTX33* pOut, const MTX34* pIn) {
+    pOut->_00 = pIn->_00; pOut->_01 = pIn->_01; pOut->_02 = pIn->_02;
+    pOut->_10 = pIn->_10; pOut->_11 = pIn->_11; pOut->_12 = pIn->_12;
+    pOut->_20 = pIn->_20; pOut->_21 = pIn->_21; pOut->_22 = pIn->_22;
+    return pOut;
+}
+#else
 MTX33* MTX34ToMTX33(register MTX33* pOut, register const MTX34* pIn) {
     register f32 row0a, row0b, row1a, row1b, row2a, row2b;
 
@@ -86,7 +124,31 @@ MTX33* MTX34ToMTX33(register MTX33* pOut, register const MTX34* pIn) {
 
     return pOut;
 }
+#endif
 
+#if TARGET_PC
+// The cofactor matrix of the 3x3 part over its determinant (fres refined twice: exact 1/det)
+u32 MTX34InvTranspose(MTX33* pOut, const MTX34* pIn) {
+    f32 a = pIn->_00, b = pIn->_01, c = pIn->_02;
+    f32 d = pIn->_10, e = pIn->_11, f = pIn->_12;
+    f32 g = pIn->_20, h = pIn->_21, i = pIn->_22;
+
+    f32 c00 = e * i - h * f, c01 = f * g - i * d, c02 = d * h - e * g;
+    f32 c10 = h * c - b * i, c11 = i * a - c * g, c12 = b * g - a * h;
+    f32 c20 = b * f - e * c, c21 = c * d - f * a, c22 = a * e - b * d;
+
+    f32 det = g * c20 + (d * c10 + a * c00);
+    if (det == 0.0f) {
+        return FALSE;
+    }
+
+    f32 inv = 1.0f / det;
+    pOut->_00 = c00 * inv; pOut->_01 = c01 * inv; pOut->_02 = c02 * inv;
+    pOut->_10 = c10 * inv; pOut->_11 = c11 * inv; pOut->_12 = c12 * inv;
+    pOut->_20 = c20 * inv; pOut->_21 = c21 * inv; pOut->_22 = c22 * inv;
+    return TRUE;
+}
+#else
 #define nofralloc
 #undef PURE_ASM
 
@@ -164,7 +226,18 @@ inverse_exists:
     blr
     // clang-format on
 }
+#endif
 
+#if TARGET_PC
+MTX34* MTX34Zero(MTX34* pMtx) {
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 4; j++) {
+            pMtx->m[i][j] = 0.0f;
+        }
+    }
+    return pMtx;
+}
+#else
 MTX34* MTX34Zero(register MTX34* pMtx) {
     register f32 c_zero = 0.0f;
 
@@ -179,7 +252,21 @@ MTX34* MTX34Zero(register MTX34* pMtx) {
 
     return pMtx;
 }
+#endif
 
+#if TARGET_PC
+// Scales the 3x3 part's columns; the translation column is multiplied by 1 (psq_l with W=1)
+MTX34* MTX34Scale(MTX34* pOut, const MTX34* pIn, const VEC3* pScale) {
+    f32 x = pScale->x, y = pScale->y, z = pScale->z;
+    for (int i = 0; i < 3; i++) {
+        pOut->m[i][0] = pIn->m[i][0] * x;
+        pOut->m[i][1] = pIn->m[i][1] * y;
+        pOut->m[i][2] = pIn->m[i][2] * z;
+        pOut->m[i][3] = pIn->m[i][3];
+    }
+    return pOut;
+}
+#else
 MTX34* MTX34Scale(register MTX34* pOut, register const MTX34* pIn,
                   register const VEC3* pScale) {
     register f32 xy, z;
@@ -215,7 +302,22 @@ MTX34* MTX34Scale(register MTX34* pOut, register const MTX34* pIn,
 
     return pOut;
 }
+#endif
 
+#if TARGET_PC
+// Copies pIn and moves its translation by the 3x3 part times pTrans (from pIn's values)
+MTX34* MTX34Trans(MTX34* pOut, const MTX34* pIn, const VEC3* pTrans) {
+    f32 x = pTrans->x, y = pTrans->y, z = pTrans->z;
+    for (int i = 0; i < 3; i++) {
+        f32 r0 = pIn->m[i][0], r1 = pIn->m[i][1], r2 = pIn->m[i][2], r3 = pIn->m[i][3];
+        pOut->m[i][0] = r0;
+        pOut->m[i][1] = r1;
+        pOut->m[i][2] = r2;
+        pOut->m[i][3] = (r2 * z + r0 * x) + (r3 + r1 * y);
+    }
+    return pOut;
+}
+#else
 MTX34* MTX34Trans(register MTX34* pOut, register const MTX34* pIn,
                   register const VEC3* pTrans) {
     register f32 xy, z;
@@ -268,12 +370,58 @@ MTX34* MTX34Trans(register MTX34* pOut, register const MTX34* pIn,
 
     return pOut;
 }
+#endif
 
 MTX34* MTX34RotAxisFIdx(MTX34* pMtx, const VEC3* pAxis, f32 fidx) {
     PSMTXRotAxisRad(*pMtx, *pAxis, NW4R_MATH_FIDX_TO_RAD(fidx));
     return pMtx;
 }
 
+#if TARGET_PC
+namespace {
+
+// SinCosFIdx's table lookup (the asm does X and Y in parallel, then Z)
+void SinCosFromTable(f32 fidx, f32* pSin, f32* pCos) {
+    f32 value = FAbs(fidx);
+    while (value > 65536.0f) {
+        value -= 65536.0f;
+    }
+
+    // psq_st through GQR3 (u16): truncated, saturating at 65535
+    u32 whole = value >= 65535.0f ? 65535 : static_cast<u32>(value);
+    f32 frac = value - static_cast<f32>(whole);
+
+    const detail::SinCosSample& rSample = detail::gSinCosTbl[whole & 255];
+    f32 sin = rSample.sin_delta * frac + rSample.sin_val;
+    *pCos = rSample.cos_delta * frac + rSample.cos_val;
+    *pSin = fidx >= 0.0f ? sin : -sin;
+}
+
+} // namespace
+
+MTX34* MTX34RotXYZFIdx(MTX34* pOut, f32 fIdxX, f32 fIdxY, f32 fIdxZ) {
+    f32 sx, cx, sy, cy, sz, cz;
+    SinCosFromTable(fIdxX, &sx, &cx);
+    SinCosFromTable(fIdxY, &sy, &cy);
+    SinCosFromTable(fIdxZ, &sz, &cz);
+
+    pOut->_00 = cz * cy;
+    pOut->_01 = (sx * cz) * sy + -cx * sz;
+    pOut->_02 = (cx * cz) * sy + sx * sz;
+    pOut->_03 = 0.0f;
+
+    pOut->_10 = sz * cy;
+    pOut->_11 = (sx * sz) * sy + cx * cz;
+    pOut->_12 = (cx * sz) * sy + -(sx * cz);
+    pOut->_13 = 0.0f;
+
+    pOut->_20 = -sy;
+    pOut->_21 = sx * cy;
+    pOut->_22 = cx * cy;
+    pOut->_23 = 0.0f;
+    return pOut;
+}
+#else
 MTX34* MTX34RotXYZFIdx(register MTX34* pOut, register f32 fIdxX,
                        register f32 fIdxY, register f32 fIdxZ) {
     register __vec2x32float__ sincosx, sincosy, sincosz;
@@ -406,6 +554,7 @@ MTX34* MTX34RotXYZFIdx(register MTX34* pOut, register f32 fIdxX,
 
     return pOut;
 }
+#endif
 
 VEC3* VEC3TransformNormal(VEC3* pOut, const MTX34* pMtx, const VEC3* pVec) {
     VEC3 tmp;
@@ -420,6 +569,16 @@ VEC3* VEC3TransformNormal(VEC3* pOut, const MTX34* pMtx, const VEC3* pVec) {
     return pOut;
 }
 
+#if TARGET_PC
+MTX44* MTX44Identity(MTX44* pMtx) {
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            pMtx->m[i][j] = i == j ? 1.0f : 0.0f;
+        }
+    }
+    return pMtx;
+}
+#else
 MTX44* MTX44Identity(register MTX44* pMtx) {
     register f32 c_zero = 0.0f, c_one = 1.0f;
     register f32 c_01, c_10;
@@ -440,7 +599,18 @@ MTX44* MTX44Identity(register MTX44* pMtx) {
 
     return pMtx;
 }
+#endif
 
+#if TARGET_PC
+MTX44* MTX44Copy(MTX44* pDst, const MTX44* pSrc) {
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            pDst->m[i][j] = pSrc->m[i][j];
+        }
+    }
+    return pDst;
+}
+#else
 MTX44* MTX44Copy(register MTX44* pDst, register const MTX44* pSrc) {
     register f32 row0a, row0b;
     register f32 row1a, row1b;
@@ -469,6 +639,7 @@ MTX44* MTX44Copy(register MTX44* pDst, register const MTX44* pSrc) {
 
     return pDst;
 }
+#endif
 
 } // namespace math
 } // namespace nw4r

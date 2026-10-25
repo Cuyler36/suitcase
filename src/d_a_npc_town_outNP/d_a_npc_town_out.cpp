@@ -142,7 +142,7 @@ BOOL dAcNpcTownOut_c::updateUmbrella() {
     }
     if (held->mId != dItem::ITEM_ID_NONE) {
         if (!rain) {
-            animal->setHeldItem(&dItem::Item());
+            animal->setHeldItem(TEMP_ADDR(dItem::Item()));
             return TRUE;
         }
     } else if (rain) {

@@ -24,7 +24,7 @@ bool create(EGG::Heap *parentHeap, size_t size) {
     nw4r::lyt::LytInit();
     EGG::ExpHeap *heap = EGG::ExpHeap::create(size, parentHeap, 4);
     heap->setName(M2D_HEAP_NAME);
-    l_allocator = new (heap, 4) mAllocator_c();
+    l_allocator = EGG_NEW_ARGS(heap, 4) mAllocator_c();
     l_allocator->attach(heap, 4);
     nw4r::lyt::Layout::SetAllocator(l_allocator);
     reset();

@@ -1423,12 +1423,20 @@ void dFishFldShadow_c::initNibble() {
     // __ptmf_test of the PTMF constants data 0x398 / 0x3A4) instead of the
     // local: mine is unused.
     BOOL mine = isMine();
+#if TARGET_PC
+    if (getRec()->mRemote) { // !isMine is always false
+#else
     if (!isMine || getRec()->mRemote) {
+#endif
         mPlayer = getRec()->mRec.getMember();
     }
     mNibbleNum = 0;
     mNibbling = 0;
+#if TARGET_PC
+    { // isMine (the member function pointer) is always true
+#else
     if (isMine) {
+#endif
         getRec()->mRec.setDir(mNibbling);
     }
     mTimer = cM::rndRange(70, 220);

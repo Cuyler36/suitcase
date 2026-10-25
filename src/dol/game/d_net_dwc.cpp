@@ -759,9 +759,9 @@ void Session_c::onPing(int latency, u8 aid, void *) {
     dNetMgr_c::setSendCount(aid, latency);
 }
 
-typedef char SessionSizeCheck[sizeof(Session_c) == 0x380 ? 1 : -1];
-typedef char SessionErrorCheck[offsetof(Session_c, mError) == 0x32C ? 1 : -1];
-typedef char
-    SessionKeepaliveCheck[offsetof(Session_c, mKeepaliveEnabled) == 0x379 ? 1
-                                                                          : -1];
+STATIC_ASSERT_WII(SessionSizeCheck, sizeof(Session_c) == 0x380);
+STATIC_ASSERT_WII(SessionErrorCheck, offsetof(Session_c, mError) == 0x32C);
+STATIC_ASSERT_WII(SessionKeepaliveCheck,
+                  offsetof(Session_c, mKeepaliveEnabled) == 0x379);
+
 } // namespace dNetDwc

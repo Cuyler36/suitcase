@@ -2533,8 +2533,8 @@ void route_c::trimToNearbyPos(const mVec3_c *pos) {
     }
 }
 
-typedef char CheckNodeSize[sizeof(route_c::node_s) == 3 ? 1 : -1];
-typedef char CheckRouteSize[sizeof(route_c) == 0x14C ? 1 : -1];
+STATIC_ASSERT_WII(CheckNodeSize, sizeof(route_c::node_s) == 3);
+STATIC_ASSERT_WII(CheckRouteSize, sizeof(route_c) == 0x14C);
 } // namespace dANpcOut
 
 namespace dANpcOut {
@@ -8664,12 +8664,12 @@ void action_c::executeRemoteClothChange(dAcNpcOut_c *npc) {
     }
 }
 
-typedef char CheckOutActionSize[sizeof(action_c) == 0x48 ? 1 : -1];
+STATIC_ASSERT_WII(CheckOutActionSize, sizeof(action_c) == 0x48);
 } // namespace dANpcOut
 
-typedef char CheckNpcOutSize[sizeof(dAcNpcOut_c) == 0x2C50 ? 1 : -1];
-typedef char CheckNpcOutMode[offsetof(dAcNpcOut_c, mMode) == 0x219C ? 1 : -1];
-typedef char CheckNpcOutRoute[offsetof(dAcNpcOut_c, mRoute) == 0x2AD8 ? 1 : -1];
+STATIC_ASSERT_WII(CheckNpcOutSize, sizeof(dAcNpcOut_c) == 0x2C50);
+STATIC_ASSERT_WII(CheckNpcOutMode, offsetof(dAcNpcOut_c, mMode) == 0x219C);
+STATIC_ASSERT_WII(CheckNpcOutRoute, offsetof(dAcNpcOut_c, mRoute) == 0x2AD8);
 
 namespace dANpcOut {
 extern const float cPitfallMoveSpeed = 1.5f;

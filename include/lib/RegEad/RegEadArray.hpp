@@ -16,9 +16,13 @@
 #include <string.h>
 
 // Placement new, inlined (the library has its own; no call to __nw__FUlPv).
+#if TARGET_PC
+#include <new> // the host provides placement new
+#else
 inline void *operator new(size_t, void *ptr) {
     return ptr;
 }
+#endif
 
 namespace RegEad {
 

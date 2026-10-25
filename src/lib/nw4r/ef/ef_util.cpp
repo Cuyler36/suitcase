@@ -10,13 +10,59 @@ namespace ef {
 static f32 sPS_Three_Half[2] = {3.0f, 0.5f};
 static const f32 EMITTER_ZERO_SCALE = 0.00001f;
 
+#if TARGET_PC
+namespace {
+
+// psq_st through GQR3 (u16, scale 0, set by OSInitFastCast): saturate, truncate toward zero
+inline u16 QuantizeU16(f32 x) {
+    if (!(x > 0.0f)) {
+        return 0;
+    }
+    if (x >= 65535.0f) {
+        return 65535;
+    }
+    return static_cast<u16>(x);
+}
+
+// One gSinCosTbl lookup as the paired-single code does it: |fidx| is wrapped below 65536 and
+// quantized to u16, whose low 8 bits pick the table entry and whose remainder interpolates it.
+// The sign of fidx is applied to the sine.
+inline void SinCosFIdx(f32 fidx, f32 *pSin, f32 *pCos) {
+    f32 abs_fidx = std::fabs(fidx);
+    if (abs_fidx > 65536.0f) {
+        do {
+            abs_fidx -= 65536.0f;
+        } while (abs_fidx >= 65536.0f);
+    }
+
+    u16 idx = QuantizeU16(abs_fidx);
+    f32 r = abs_fidx - static_cast<f32>(idx);
+    const math::detail::SinCosSample &rSample = math::detail::gSinCosTbl[idx & 0xFF];
+
+    // ps_madds0: delta * r + value
+    f32 sin_val = rSample.sin_delta * r + rSample.sin_val;
+    f32 cos_val = rSample.cos_delta * r + rSample.cos_val;
+
+    *pSin = fidx >= 0.0f ? sin_val : -sin_val;
+    *pCos = cos_val;
+}
+
+} // namespace
+#endif
+
 // Layout witness for constants contributed by stripped SDK code. The original
 // owner of these early literals has not been recovered.
 bool StrippedUtilLiteralLayoutWitness(register f32 *pair, f32 value) {
+#if TARGET_PC
+    // Only places literals for matching (no callers); the store writes 65536 to both lanes
+    pair[0] = 65536.0f;
+    pair[1] = 65536.0f;
+#else
     register __vec2x32float__ idxmax = 65536.0f;
     // clang-format off
     asm { psq_st idxmax, 0(pair), 0, 0 }
     // clang-format on
+#endif
     value *= NW4R_MATH_RAD_TO_FIDX(1.0f);
     return value == 0.0f || value == 1.0f || value == 0.00001f ||
            value == -1.0f;
@@ -245,6 +291,27 @@ void MtxGetScale(const math::MTX34 &rMtx, math::VEC3 *pScale) {
 }
 
 bool Normalize(register math::VEC3 *dst, register const math::VEC3 *vec) {
+#if TARGET_PC
+    f32 x = vec->x;
+    f32 y = vec->y;
+    f32 z = vec->z;
+
+    // ps_madd pairs z^2 with x^2, then ps_sum0 adds y^2
+    f32 sqsum = (z * z + x * x) + y * y;
+    if (sqsum == 0.0f) {
+        dst->x = x;
+        dst->y = y;
+        dst->z = z;
+        return false;
+    }
+
+    // frsqrte refined by one Newton-Raphson step
+    f32 rsqrt = 1.0f / std::sqrt(sqsum);
+    dst->x = x * rsqrt;
+    dst->y = y * rsqrt;
+    dst->z = z * rsqrt;
+    return true;
+#else
     register f32 c_half = 0.5f;
     register f32 c_three = 3.0f;
     register f32 c_zero;
@@ -280,9 +347,14 @@ zero:
     }
     // clang-format on
     return false;
+#endif
 }
 
 void _PSSinCosRad(register f32 *pRes, register f32 val) {
+#if TARGET_PC
+    // pRes[0] = sin, pRes[1] = cos
+    SinCosFIdx(val * NW4R_MATH_RAD_TO_FIDX(1.0f), &pRes[0], &pRes[1]);
+#else
     register f32 fidx;
     register u32 idx;
     register f32 abs_fidx, r;
@@ -322,9 +394,17 @@ void _PSSinCosRad(register f32 *pRes, register f32 val) {
         psq_st result, 0(pRes), 0, 0
     }
     // clang-format on
+#endif
 }
 
 void PSSinCosRad(register f32 *pSin, register f32 *pCos, register f32 val) {
+#if TARGET_PC
+    f32 sin_val, cos_val;
+    SinCosFIdx(val * NW4R_MATH_RAD_TO_FIDX(1.0f), &sin_val, &cos_val);
+    // cos is stored first, as in the original
+    *pCos = cos_val;
+    *pSin = sin_val;
+#else
     register f32 fidx;
     register u32 idx;
     register f32 abs_fidx, r;
@@ -365,9 +445,24 @@ void PSSinCosRad(register f32 *pSin, register f32 *pCos, register f32 val) {
         psq_st result, 0(pSin), 1, 0
     }
     // clang-format on
+#endif
 }
 
 math::VEC3 &Rotation2VecY(const math::VEC3 &rRot, register math::VEC3 *pOut) {
+#if TARGET_PC
+    const f32 c_radToFidx = NW4R_MATH_RAD_TO_FIDX(1.0f);
+    f32 sx, cx, sy, cy, sz, cz;
+    SinCosFIdx(rRot.x * c_radToFidx, &sx, &cx);
+    SinCosFIdx(rRot.y * c_radToFidx, &sy, &cy);
+    SinCosFIdx(rRot.z * c_radToFidx, &sz, &cz);
+
+    // sincosp = (sy, cy) * sx, sssc = (-sz, cz) * cx, res1 = (cz, sz) * sincosp.ps0 + sssc
+    f32 sysx = sy * sx;
+    pOut->x = cz * sysx + -(sz * cx);
+    pOut->y = sz * sysx + cz * cx;
+    pOut->z = cy * sx;
+    return *pOut;
+#else
     register const f32 *pAngle = &rRot.x;
     register f32 angleX = pAngle[0], angleY = pAngle[1], angleZ = pAngle[2];
     register __vec2x32float__ sincosr, sincosp, sincosh;
@@ -484,10 +579,33 @@ math::VEC3 &Rotation2VecY(const math::VEC3 &rRot, register math::VEC3 *pOut) {
     }
     // clang-format on
     return *pOut;
+#endif
 }
 
 math::MTX34 *PSMTX34RotXYZRad(register math::MTX34 *pOut, register f32 fIdxX,
                               register f32 fIdxY, register f32 fIdxZ) {
+#if TARGET_PC
+    // Despite the names, the angles are in radians (converted with c_radToFidx)
+    const f32 c_radToFidx = NW4R_MATH_RAD_TO_FIDX(1.0f);
+    f32 sx, cx, sy, cy, sz, cz;
+    SinCosFIdx(fIdxX * c_radToFidx, &sx, &cx);
+    SinCosFIdx(fIdxY * c_radToFidx, &sy, &cy);
+    SinCosFIdx(fIdxZ * c_radToFidx, &sz, &cz);
+
+    pOut->_00 = cz * cy;
+    pOut->_01 = (sx * cz) * sy + -cx * sz;
+    pOut->_02 = (cx * cz) * sy + sx * sz;
+    pOut->_03 = 0.0f;
+    pOut->_10 = sz * cy;
+    pOut->_11 = (sx * sz) * sy + cx * cz;
+    pOut->_12 = (cx * sz) * sy + -(sx * cz);
+    pOut->_13 = 0.0f;
+    pOut->_20 = -sy;
+    pOut->_21 = sx * cy;
+    pOut->_22 = cx * cy;
+    pOut->_23 = 0.0f;
+    return pOut;
+#else
     register __vec2x32float__ sincosx, sincosy, sincosz;
     register __vec2x32float__ sincosxneg, mcosxsinx, scx_sinz, scz_cosy, res;
     register f32 c_zero;
@@ -619,11 +737,30 @@ math::MTX34 *PSMTX34RotXYZRad(register math::MTX34 *pOut, register f32 fIdxX,
     // clang-format on
 
     return pOut;
+#endif
 }
 
 math::MTX34 *MTX34ScaleNonZero(register math::MTX34 *pOut,
                                register const math::MTX34 *pM,
                                register const math::VEC3 *pS) {
+#if TARGET_PC
+    // Scales the columns (translation untouched); zero scale components become 0.00001
+    f32 s[3] = {pS->x, pS->y, pS->z};
+    for (int i = 0; i < 3; i++) {
+        if (s[i] == 0.0f) {
+            s[i] = 0.00001f;
+        }
+    }
+
+    const math::MTX34 m = *pM; // all rows are loaded before the first store
+    for (int row = 0; row < 3; row++) {
+        pOut->m[row][0] = m.m[row][0] * s[0];
+        pOut->m[row][1] = m.m[row][1] * s[1];
+        pOut->m[row][2] = m.m[row][2] * s[2];
+        pOut->m[row][3] = m.m[row][3];
+    }
+    return pOut;
+#else
     register f32 xy, z1, row0a, row0b, row1a, row1b, row2a, row2b;
     register f32 c_zero, c_eps = 0.00001f;
     // clang-format off
@@ -664,11 +801,29 @@ math::MTX34 *MTX34ScaleNonZero(register math::MTX34 *pOut,
     }
     // clang-format on
     return pOut;
+#endif
 }
 
 math::MTX34 *MTX34ScaleNonZero(register math::MTX34 *dst,
                                register const math::VEC3 *pS,
                                register const math::MTX34 *src) {
+#if TARGET_PC
+    // Scales the rows (translation included); zero scale components become EMITTER_ZERO_SCALE
+    f32 s[3] = {pS->x, pS->y, pS->z};
+    for (int i = 0; i < 3; i++) {
+        if (s[i] == 0.0f) {
+            s[i] = EMITTER_ZERO_SCALE;
+        }
+    }
+
+    const math::MTX34 m = *src; // all rows are loaded before the first store
+    for (int row = 0; row < 3; row++) {
+        for (int col = 0; col < 4; col++) {
+            dst->m[row][col] = m.m[row][col] * s[row];
+        }
+    }
+    return dst;
+#else
     // clang-format off
     asm {
         lis r6, EMITTER_ZERO_SCALE@ha
@@ -710,6 +865,7 @@ math::MTX34 *MTX34ScaleNonZero(register math::MTX34 *dst,
     }
     // clang-format on
     return dst;
+#endif
 }
 
 math::MTX34 *MTX34ScaleInv(math::MTX34 *pOut, const math::MTX34 *pM,
@@ -722,6 +878,19 @@ math::MTX34 *MTX34ScaleInv(math::MTX34 *pOut, const math::MTX34 *pM,
 }
 
 f32 MTXColLen(register const math::MTX34 *pSrc, register int col) {
+#if TARGET_PC
+    f32 a = pSrc->m[0][col];
+    f32 b = pSrc->m[1][col];
+    f32 c = pSrc->m[2][col];
+
+    // ps_madd pairs c^2 with a^2, then ps_sum0 adds b^2
+    f32 sqmag = (c * c + a * a) + b * b;
+    if (sqmag == 0.0f) {
+        return sqmag;
+    }
+    // sqmag * frsqrte(sqmag), refined by one Newton-Raphson step
+    return sqmag * (1.0f / std::sqrt(sqmag));
+#else
     register f32 vxy, vzz, sqmag, rmag, nwork0, nwork1, c_zero;
     register __vec2x32float__ c_three_half;
     register const f32 *v;
@@ -752,6 +921,7 @@ f32 MTXColLen(register const math::MTX34 *pSrc, register int col) {
     }
     // clang-format on
     return sqmag;
+#endif
 }
 
 } // namespace ef

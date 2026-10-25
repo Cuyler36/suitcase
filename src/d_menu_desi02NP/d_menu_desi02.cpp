@@ -294,7 +294,7 @@ int dMenuDesi02_c::hitCheck(BOOL hover) {
         return SLOT_NONE;
     }
     mVec2_c pos = dObjCursor_c::getPos();
-    int slot = m2d::hitButton(&mVec2_c(pos), &mLyt, 0, 6, -1, -1, 1.0f);
+    int slot = m2d::hitButton(TEMP_ADDR(mVec2_c(pos)), &mLyt, 0, 6, -1, -1, 1.0f);
     if (hover == FALSE && !isBox(slot)) {
         slot = SLOT_NONE;
     }

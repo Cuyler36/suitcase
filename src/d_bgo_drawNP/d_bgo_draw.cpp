@@ -358,7 +358,7 @@ void dBgoDraw_c::block_c::create(u32 blockX, u32 blockZ,
             switch (getSoundPoint(&pos.x, &pos.z, blockX, blockZ, i)) {
             case SOUND_POINT_FALL:
                 pos.y = dBGCF::getGroundY(&pos, FALSE);
-                mpSound[mSoundNum] = new (dHeap::localHeap_p, 4) dSndObjFall_c;
+                mpSound[mSoundNum] = EGG_NEW_ARGS(dHeap::localHeap_p, 4) dSndObjFall_c;
                 if (mpSound[mSoundNum] != NULL) {
                     mSoundPos[mSoundNum] = pos;
                     mSoundId[mSoundNum] = SE_LEV_taki;
@@ -367,7 +367,7 @@ void dBgoDraw_c::block_c::create(u32 blockX, u32 blockZ,
                 break;
             case SOUND_POINT_POND:
                 pos.y = dBGCF::getGroundY(&pos, FALSE);
-                mpSound[mSoundNum] = new (dHeap::localHeap_p, 4) dSndObjPond_c;
+                mpSound[mSoundNum] = EGG_NEW_ARGS(dHeap::localHeap_p, 4) dSndObjPond_c;
                 if (mpSound[mSoundNum] != NULL) {
                     mSoundPos[mSoundNum] = pos;
                     mSoundId[mSoundNum] = SE_LEV_ike;
@@ -376,7 +376,7 @@ void dBgoDraw_c::block_c::create(u32 blockX, u32 blockZ,
                 break;
             case SOUND_POINT_RIVER:
                 pos.y = dBGCF::getGroundY(&pos, FALSE);
-                mpSound[mSoundNum] = new (dHeap::localHeap_p, 4) dSndObjRiver_c;
+                mpSound[mSoundNum] = EGG_NEW_ARGS(dHeap::localHeap_p, 4) dSndObjRiver_c;
                 if (mpSound[mSoundNum] != NULL) {
                     mSoundPos[mSoundNum] = pos;
                     mSoundId[mSoundNum] = 0;
@@ -475,13 +475,13 @@ void dBgoDraw_c::block_c::remove(u32 blockX, u32 blockZ,
         if (mpSound[i] != NULL) {
             switch (mSoundId[i]) {
             case SE_LEV_taki:
-                delete (dSndObjFall_c *)mpSound[i];
+                EGG_DELETE((dSndObjFall_c *)mpSound[i]);
                 break;
             case SE_LEV_ike:
-                delete (dSndObjPond_c *)mpSound[i];
+                EGG_DELETE((dSndObjPond_c *)mpSound[i]);
                 break;
             default:
-                delete (dSndObjRiver_c *)mpSound[i];
+                EGG_DELETE((dSndObjRiver_c *)mpSound[i]);
                 break;
             }
             mpSound[i] = NULL;
@@ -665,7 +665,7 @@ void dBgoDraw_c::calcGrassTrans() {
     if (player != NULL) {
         pos = player->getPos();
     } else {
-        dWorld::toFieldPosition(&pos, &camera->getTargetPos());
+        dWorld::toFieldPosition(&pos, TEMP_ADDR(camera->getTargetPos()));
     }
     f32 z = dWorld::angleToZ(dWorld::getPlayerHorizonAngle(NULL));
     mVec3_c horizon(0.0f, dBGCF::getGroundY(&pos, FALSE), z);

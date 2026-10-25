@@ -1,5 +1,6 @@
 #ifndef NW4R_MATH_CONSTANT_H
 #define NW4R_MATH_CONSTANT_H
+#include <types.h>
 #include <nw4r/types_nw4r.h>
 
 #include <cmath>
@@ -24,7 +25,12 @@
  *
  ******************************************************************************/
 // Quiet NaN (0x7FC00000)
+#ifdef __MWERKS__
 #define NW4R_MATH_QNAN (-(0.0f / 0.0f))
+#else
+#include <limits>
+#define NW4R_MATH_QNAN (-std::numeric_limits<f32>::quiet_NaN())
+#endif
 
 /******************************************************************************
  *
@@ -40,6 +46,10 @@
 // Difference between 1.0 and the next representable value
 #define NW4R_MATH_FLT_EPSILON 1.192092895e-7f
 
+#ifdef __MWERKS__
 #define NW4R_MATH_INF (1.0f / 0.0f)
+#else
+#define NW4R_MATH_INF (std::numeric_limits<f32>::infinity())
+#endif
 
 #endif

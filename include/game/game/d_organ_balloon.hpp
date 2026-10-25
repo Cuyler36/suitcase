@@ -34,7 +34,7 @@ class dOrganBalloonString_c : public dBalloonString_c {
     }
 
     static dOrganBalloonString_c *create(EGG::Heap *heap) {
-        dOrganBalloonString_c *string = new (heap, 4) dOrganBalloonString_c();
+        dOrganBalloonString_c *string = EGG_NEW_ARGS(heap, 4) dOrganBalloonString_c();
         string->mAllocator.attach(heap, 4);
         string->createProc();
         return string;
