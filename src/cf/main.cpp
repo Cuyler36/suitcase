@@ -6,6 +6,7 @@
 #include <borealis/log.hpp>
 #include <dolphin/gx.h>
 #include <cf/config.h>
+#include <cf/frame.h>
 #include <cf/debug.h>
 
 #include <cstdlib>
@@ -86,6 +87,13 @@ int main(int argc, char* argv[]) {
     bool exiting = false;
     bool paused = false;
     while (!exiting) {
+#if CF_BUILD_GAME
+        // A tick, or (above 60 FPS) a frame drawing the last tick again (cf/frame.h)
+        const cf::frame::Step step = paused ? cf::frame::Step::Tick : cf::frame::NextStep(cf::CanPresentGameFrame());
+        if (step == cf::frame::Step::Skip) {
+            continue;
+        }
+#endif
         for (const AuroraEvent* event = aurora_update(); event != nullptr && event->type != AURORA_NONE; ++event) {
             switch (event->type) {
             case AURORA_EXIT:
@@ -106,7 +114,11 @@ int main(int argc, char* argv[]) {
         }
 #if CF_BUILD_GAME
         try {
-            cf::RunGameFrame();
+            if (step == cf::frame::Step::Present) {
+                cf::PresentGameFrame();
+            } else {
+                cf::RunGameFrame();
+            }
             cf::debug::draw();
             // Saves the settings a moment after they change
             borealis::config::update();

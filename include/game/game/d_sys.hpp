@@ -38,6 +38,14 @@ sPhase_c::METHOD_RESULT_e initLoader(void *);     // 8016C34C
 sPhase_c::METHOD_RESULT_e initSound(void *);      // 8016C370
 sPhase_c::METHOD_RESULT_e waitSound(void *);      // 8016C394
 void runFrame();                                  // 8016C3C0
+#if TARGET_PC
+// A frame drawn between two ticks (src/cf/game/frame.cpp), when canPresent
+BOOL canPresent();
+void presentFrame();
+// Whether a frame between ticks is being drawn: drawing that consumes what the logic queued (e.g. the
+// shadows, d_shadow) keeps it for the next frame
+BOOL isPresenting();
+#endif
 } // namespace dSys
 
 #endif

@@ -33,6 +33,11 @@
 #include <game/game/d_thunder.hpp>
 #include <game/game/d_wifi_err.hpp>
 #include <game/mLib/m_3d/global.hpp>
+#if TARGET_PC
+#include <game/game/d_m2d.hpp>
+#include <game/mLib/m_2d.hpp>
+#include <game/game/d_tag_processor.hpp>
+#endif
 #include <game/mLib/m_allocator.hpp>
 #include <game/mLib/m_dvd.hpp>
 #include <game/mLib/m_face.hpp>
@@ -401,11 +406,21 @@ sPhase_c::METHOD_RESULT_e waitSound(void *) {
 }
 
 // 8016C3C0
+#if TARGET_PC
+// The last tick's error windows (runFrame): frames between ticks are not drawn while one is up
+static BOOL l_lastCaution;
+static BOOL l_lastWifiError;
+#endif
+
 void runFrame() {
     EGG::Heap *mem1 = sRootHeapMem1;
     EGG::Heap *mem2 = sRootHeapMem2;
     BOOL caution = dCaution::g_caution.check();
     BOOL wifiError = g_wifiErr.check();
+#if TARGET_PC
+    l_lastCaution = caution;
+    l_lastWifiError = wifiError;
+#endif
     static_cast<EGG::ExpHeap *>(mem1)->checkHeap(1);
     static_cast<EGG::ExpHeap *>(mem2)->checkHeap(1);
     dHomeButton_c::getInstance()->execute();
@@ -485,6 +500,58 @@ void runFrame() {
     static_cast<EGG::ExpHeap *>(mem2)->checkHeap(1);
     cCounter_c::m_gameFrame++;
 }
+
+#if TARGET_PC
+// Frames drawn between two ticks (a frame rate above the game's, src/cf/game/frame.cpp). runFrame draws
+// the lists the previous tick's logic built, then runs the logic, which builds the next ones: a frame
+// in between draws those (the next tick draws them again), without the per-tick work (the retrace
+// wait and the display's bookkeeping in beginFrame, input, captures, the logic) and without consuming
+// the lists the next tick draws.
+static BOOL l_presenting;
+
+BOOL isPresenting() {
+    return l_presenting;
+}
+
+BOOL canPresent() {
+    if (dSysGfx::sDrawCallback == NULL || l_lastCaution || l_lastWifiError) {
+        return FALSE;
+    }
+    return dHomeButton_c::getInstance()->mState != dHomeButton_c::STATE_OPEN;
+}
+
+void presentFrame() {
+    l_presenting = TRUE;
+    // Drawing the message window's text advances the tag processor from where its controller's draw
+    // (the logic, dMsg::Comp_c::draw) left it: each frame, and the next tick, start from there
+    const u8 rectEnd = g_tagProcessor.mRectEnd;
+    const u8 drawEnd = g_tagProcessor.mDrawEnd;
+    const u8 line = g_tagProcessor.mLine;
+    const u8 typeLine = g_tagProcessor.mTypeLine;
+    m3d::calcWorld();
+    m3d::calcMaterial();
+    m3d::reset();
+    beginRender();
+    m3d::saveDrawList();
+    m2d::saveDrawList();
+    m2d::beginPresent();
+    dSysGfx::draw();
+    m2d::endPresent();
+    m2d::restoreDrawList();
+    m3d::restoreDrawList();
+    drawShutterFader();
+    mFader_c::draw();
+    dShutdownFader::draw();
+    dReset::Manage_c::GetInstance()->Draw();
+    dBlackWait::BlackWait_c::getInstance()->draw();
+    endRender();
+    g_tagProcessor.mRectEnd = rectEnd;
+    g_tagProcessor.mDrawEnd = drawEnd;
+    g_tagProcessor.mLine = line;
+    g_tagProcessor.mTypeLine = typeLine;
+    l_presenting = FALSE;
+}
+#endif
 
 static sPhase_c::phaseMethod sStartupMethods[] = {
     initDyl,        waitDyl,    linkRoot,  linkBootScene,

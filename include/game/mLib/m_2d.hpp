@@ -14,6 +14,12 @@
 namespace m2d {
 
 void reset();
+#if TARGET_PC
+// Frames drawn between ticks (src/cf/game/frame.cpp): the layouts' draw list, kept across the drawing
+// that resets it
+void saveDrawList();
+void restoreDrawList();
+#endif
 bool create(EGG::Heap *heap, size_t size);
 void defaultSet();
 void draw();

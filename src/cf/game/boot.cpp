@@ -85,6 +85,15 @@ void RunGameFrame() {
     dSys::runFrame();
 }
 
+bool CanPresentGameFrame() {
+    return dSys::canPresent() != FALSE;
+}
+
+void PresentGameFrame() {
+    screen::Update();
+    dSys::presentFrame();
+}
+
 void ShutdownGame() {
     // In dependency order: sound (its threads use the SDK's), the SDK's worker threads (their
     // callbacks run game code), then the game's own threads

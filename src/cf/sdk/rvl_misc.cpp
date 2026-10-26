@@ -8,6 +8,7 @@
 
 #include <aurora/wpad.h>
 
+#include <cf/frame.h>
 #include <cf/screen.h>
 
 #include <game_version.h>
@@ -82,7 +83,10 @@ void VIWaitForRetrace(void) {
     constexpr auto period = std::chrono::nanoseconds(1000000000 / 60);
     static Clock::time_point sNext = Clock::now() + period;
     auto now = Clock::now();
-    if (now < sNext) {
+    if (cf::frame::IsDecoupled()) {
+        // A frame rate other than the game's: the frame loop paces the ticks (cf/frame.h)
+        sNext = now + period;
+    } else if (now < sNext) {
         std::this_thread::sleep_until(sNext);
         sNext += period;
     } else {

@@ -16,8 +16,18 @@ namespace graphics {
 
 // The game's widescreen mode, filling the window at any shape (cf/screen.h); read at boot
 extern borealis::config::Var<bool> widescreen;
+// Frames per second: 60 is the game's; higher draws frames between its 60 Hz ticks; 0 is unlimited
+// (cf/frame.h)
+extern borealis::config::Var<int> frameRate;
 
 } // namespace graphics
+
+namespace debug {
+
+// The FPS counter overlay (src/cf/debug)
+extern borealis::config::Var<bool> showFps;
+
+} // namespace debug
 
 namespace input {
 

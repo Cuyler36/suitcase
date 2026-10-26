@@ -27,6 +27,7 @@
 #include <string.h>
 #if TARGET_PC
 #include <cf/screen.h>
+#include <vector>
 #endif
 
 // Dependencies whose owners are not recovered yet.
@@ -1298,7 +1299,35 @@ void removeCapture(captureNode_c *node) {
 }
 
 // 8000A57C
+#if TARGET_PC
+static bool l_presenting;
+static std::vector<dLineNdPr_c *> l_savedCallbacks;
+
+void beginPresent() {
+    l_savedCallbacks.clear();
+    for (dLineNdPr_c *node = (dLineNdPr_c *)l_callbackList.getFirst(); node != nullptr;
+         node = (dLineNdPr_c *)node->getNext()) {
+        l_savedCallbacks.push_back(node);
+    }
+    l_presenting = true;
+}
+
+void endPresent() {
+    l_presenting = false;
+    // insertByPriority keeps equal priorities in order: the same list again
+    l_callbackList.init();
+    for (dLineNdPr_c *node : l_savedCallbacks) {
+        l_callbackList.insertByPriority(node);
+    }
+}
+#endif
+
 void executeCaptures() {
+#if TARGET_PC
+    if (l_presenting) {
+        return;
+    }
+#endif
     captureNode_c *node = (captureNode_c *)l_captureList.getFirst();
     while (node != nullptr) {
         node->execute();

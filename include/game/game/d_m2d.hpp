@@ -249,6 +249,12 @@ void initCaptureList();                  // 8000A55C
 void addCapture(captureNode_c *node);    // 8000A564
 void removeCapture(captureNode_c *node); // 8000A570
 void executeCaptures();                  // 8000A57C
+#if TARGET_PC
+// Frames drawn between ticks (src/cf/game/frame.cpp): the 3D-in-layout callbacks are kept across the
+// drawing that consumes them, and the captures (one-off renders, e.g. Mii icons) wait for the tick
+void beginPresent();
+void endPresent();
+#endif
 
 // Moves a position to a target in a number of steps, slowing down over the last
 // mDecel steps.

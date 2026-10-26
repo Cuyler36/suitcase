@@ -39,6 +39,12 @@ namespace m3d {
 
     void clear();
     void reset();
+#if TARGET_PC
+    // Frames drawn between ticks (src/cf/game/frame.cpp): the scene's draw list, kept across the
+    // drawing that clears it
+    void saveDrawList();
+    void restoreDrawList();
+#endif
 
     int getMatID(nw4r::g3d::ResMdl mdl, char const *name);
     int getNodeID(nw4r::g3d::ResMdl mdl, char const *name);

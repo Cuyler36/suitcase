@@ -15,6 +15,9 @@
 #include <stddef.h>
 
 #include <game/game/d_shadow_internal.hpp>
+#if TARGET_PC
+#include <game/game/d_sys.hpp>
+#endif
 
 // 8074C5A8
 namespace dShadow {
@@ -215,7 +218,12 @@ void dShadow_c::drawPass(u32 pass) {
             }
         }
     }
+#if TARGET_PC
+    // A frame between ticks draws the same shadows; the next tick's draw clears them (d_sys)
+    if (pass == 0 && !dSys::isPresenting()) { mRoundCount = 0; mTextureCount = 0; }
+#else
     if (pass == 0) { mRoundCount = 0; mTextureCount = 0; }
+#endif
     nw4r::g3d::G3DState::Invalidate(0x7FF);
 }
 // 801C7A14

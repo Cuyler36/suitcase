@@ -9,6 +9,9 @@ bool BootGame();
 
 // Runs one game frame (dSys::runFrame). Call between aurora_begin_frame and aurora_end_frame.
 void RunGameFrame();
+// A frame between two ticks (cf/frame.h): whether one can be drawn now, and drawing it
+bool CanPresentGameFrame();
+void PresentGameFrame();
 
 // Call before leaving main, booted or not, and before aurora_dvd_close: ends the sound, the SDK's
 // worker threads and the game threads (src/cf/sdk/shutdown.h). Then, after aurora_shutdown,

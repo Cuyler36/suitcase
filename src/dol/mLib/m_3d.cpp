@@ -17,6 +17,9 @@
 #include <game/mLib/m_mtx.hpp>
 #include <nw4r/ut.h>
 #include <game/mLib/m_heap.hpp>
+#if TARGET_PC
+#include <vector>
+#endif
 
 // ---- m3d (SS m/m3d/m3d.cpp)
 
@@ -140,6 +143,21 @@ bool pushBack(nw4r::g3d::ScnObj *obj) {
 void clear() {
     internal::l_scnRoot_p->Clear();
 }
+
+#if TARGET_PC
+static std::vector<nw4r::g3d::ScnObj *> l_savedDrawList;
+
+void saveDrawList() {
+    l_savedDrawList.assign(internal::l_scnRoot_p->Begin(), internal::l_scnRoot_p->End());
+}
+
+void restoreDrawList() {
+    internal::l_scnRoot_p->Clear();
+    for (nw4r::g3d::ScnObj *obj : l_savedDrawList) {
+        internal::l_scnRoot_p->PushBack(obj);
+    }
+}
+#endif
 
 void reset() {
     nw4r::g3d::G3dReset();

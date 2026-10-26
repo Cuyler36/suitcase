@@ -30,6 +30,19 @@ void reset() {
 #endif
 }
 
+#if TARGET_PC
+static nw4r::ut::List l_savedList;
+
+// reset() only re-initializes the head: the entries keep their links
+void saveDrawList() {
+    l_savedList = l_list;
+}
+
+void restoreDrawList() {
+    l_list = l_savedList;
+}
+#endif
+
 bool create(EGG::Heap *parentHeap, size_t size) {
     nw4r::lyt::LytInit();
     EGG::ExpHeap *heap = EGG::ExpHeap::create(size, parentHeap, 4);

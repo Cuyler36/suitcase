@@ -8,6 +8,7 @@
 
 #include <suitcase/wpad_host.hpp>
 
+#include <cf/frame.h>
 #include <cf/screen.h>
 
 #include <filesystem>
@@ -38,8 +39,15 @@ constexpr borealis::Log Log{"cf::config"};
 namespace graphics {
 
 borealis::config::Var<bool> widescreen{"graphics.widescreen", true};
+borealis::config::Var<int> frameRate{"graphics.frameRate", frame::kTickRate, {.min = 0, .max = 1000}};
 
 } // namespace graphics
+
+namespace debug {
+
+borealis::config::Var<bool> showFps{"debug.showFps", false};
+
+} // namespace debug
 
 namespace input {
 
@@ -82,6 +90,8 @@ void Load(const char* userPath) {
 
     // The game reads it once, at boot: later changes apply at the next start
     screen::SetWidescreen(graphics::widescreen);
+
+    graphics::frameRate.observe([](int rate) { frame::SetFrameRate(rate); }).release();
 }
 
 } // namespace config
