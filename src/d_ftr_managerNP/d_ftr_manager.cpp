@@ -1311,11 +1311,23 @@ BOOL dFtrm_c::pool_c::create(u32 num) {
     if (mNum == 0) {
         clear();
         mSize = 0;
+#if TARGET_PC
+        // l_ftrSize holds the Wii's sizes of the furniture classes; on 64-bit they are larger, and
+        // each actor overran its slot into the next (and past the pool: heap corruption, UB-13)
+        static const u32 classSizes[] = {sizeof(daFTR_c), sizeof(daFtrLp_c), sizeof(daFtrTrg_c), sizeof(daFtrSw_c), sizeof(daFtrSw2_c), sizeof(daFtrFlp_c), sizeof(daFtr2W_c), sizeof(daFtrFsw_c), sizeof(daFtrFaw_c), sizeof(daFtrChair_c), sizeof(daFtrBed_c), sizeof(daFtrChest_c), sizeof(daFtrClock_c), sizeof(daFtrAudio_c), sizeof(daFtrTv_c), sizeof(daFtrTvF_c), sizeof(daFtrPcart_c), sizeof(daFtrHnw_c), sizeof(daFtrKiller_c), sizeof(daFtrCloth_c), sizeof(daFtrMyobj_c), sizeof(daFtrTaobj_c), sizeof(daFtrCmps_c), sizeof(daFtrInstrument_c), sizeof(daFtrBk_c), sizeof(daFtrMetro_c), sizeof(daFtrFlower_c), sizeof(daFtrCatalogCW_c), sizeof(daFtrUmb_c), sizeof(daFtrBalloon_c), sizeof(daFtrWindmill_c), sizeof(daFtrAcc_c), sizeof(daFtrMonitor_c), sizeof(daFtrCicada_c), sizeof(daFtrTel_c), sizeof(daFtrAtm_c), sizeof(daFtrBarley_c), sizeof(daFtrRoller_c)};
+        for (u32 c = 0; c < ARRAY_SIZE(classSizes); c++) {
+            u32 classSize = classSizes[c];
+            if (classSize > mSize) {
+                mSize = classSize;
+            }
+        }
+#else
         for (const u32 *p = l_ftrSize; p < l_ftrSize + typeCount; p++) {
             if (*p > mSize) {
                 mSize = *p;
             }
         }
+#endif
         mSize = ROUND_UP(mSize, 0x20);
         u32 size = mSize * num;
         if (size != 0) {

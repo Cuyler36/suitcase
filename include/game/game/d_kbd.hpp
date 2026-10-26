@@ -271,7 +271,11 @@ class Cur_c {
     void build();                    // 800CAA64
     void draw();                     // 800CAAF8
     void setPos(const mVec3_c *pos); // 800CAB44
+#if TARGET_PC
+    mVec3_c getPos();
+#else
     const mVec3_c &getPos();         // 800CAB8C
+#endif
 
     /* 0x004 */ m2d::SimpleEx_c mLyt;
     /* 0x09C */ m2d::Anm_c mBlinkAnm;

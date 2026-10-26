@@ -12,6 +12,9 @@
 #include <game/game/d_string.hpp>
 #include <game/mLib/m_pad.hpp>
 #include <revolution/sc.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace dMenuPost01 {
 // .text:0xCC
@@ -106,6 +109,13 @@ int dMenuPost01_c::execute() {
     calcHeld();
     mLtrWin.playWindowAnm();
     mSelect.update();
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): placed again at the new width
+    static u32 sScreenWidth;
+    if (cf::screen::WidthChanged(&sScreenWidth)) {
+        onFlag(FLAG_CALC);
+    }
+#endif
     if (isFlag(FLAG_CALC)) {
         offFlag(FLAG_CALC);
     }
@@ -532,7 +542,11 @@ void dMenuPost01_c::initMails() {
 const mVec2_c &dMenuPost01_c::getSlotPos(int slot, float dx, float dy) {
     static mVec2_c result(0.0f, 0.0f);
     if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
+#if TARGET_PC
+        dx *= (1.0f / cf::screen::WideScale());
+#else
         dx *= 0.730769f;
+#endif
     }
     if (isBox(slot)) {
         mVec3_c pos;
@@ -541,7 +555,13 @@ const mVec2_c &dMenuPost01_c::getSlotPos(int slot, float dx, float dy) {
         result.y = pos.y + dy;
         return result;
     } else if (isLetter(slot)) {
+#if TARGET_PC
+        // Through the static: the target returns a reference to the returned temporary (UB-14)
+        result = mLtrWin.getLetterPos(slot, dx, dy);
+        return result;
+#else
         return mLtrWin.getLetterPos(slot, dx, dy);
+#endif
     }
     return result;
 }

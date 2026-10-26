@@ -105,7 +105,12 @@ class daNameplateMuseum_c : public dDemoActor_c, private dMsg::Rcpt_c {
         return getMuseum()->isDonated(item);
     }
     const dScData::PanelData_c *getPanel() const {
+#if TARGET_PC
+        // A pointer: the full width (fBase_c::mParamPtr; UB-15 in pc_port_ub.md)
+        return (const dScData::PanelData_c *)mParamPtr;
+#else
         return (const dScData::PanelData_c *)mParam;
+#endif
     }
     static dMuseum_c *getMuseum() {
         return &dSaveData_c::getTown()->mMuseum;

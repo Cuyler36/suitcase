@@ -291,6 +291,12 @@ public:
     /* 0x48 */ const Data *mData;
     /* 0x4C */ const FrameSound *mFrames;
     /* 0x50 */ const void *mSeq;
+#if TARGET_PC
+    // setupSeq's data (a.bfs in the furniture's brres) is big-endian: copied here in host order, as
+    // mData and mFrames also point at the native tables (E-60 in pc_port_endianness.md)
+    Data mSeqData;
+    FrameSound mSeqFrames[10];
+#endif
 }; // size 0x54
 
 // An instrument that plays the town tune (dol/sound/SoundBgm.cpp, vtable 80501090): the notes of

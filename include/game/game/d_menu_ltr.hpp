@@ -25,7 +25,11 @@ class Icon_c {
     void setRootPos(const mVec3_c *pos);     // .text:0xAC8
     void setScale(const mVec2_c &scale);     // .text:0xB0C
     void setAlpha(u8 alpha);                 // .text:0xB48
+#if TARGET_PC
+    mVec3_c getRootPos();
+#else
     const mVec3_c &getRootPos();             // .text:0xB78
+#endif
     void setSelected(bool selected);         // .text:0xBB4
     void setNoChoice(bool visible);          // .text:0xC34
     void setMark(bool visible);              // .text:0xC44

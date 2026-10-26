@@ -22,7 +22,7 @@ public:
     virtual ~dActor_c() {};
 
     static void setTmpCtData(const mVec3_c *position, const mAng3_c *rotation);
-    static dActor_c *construct(ProfileName profile, fBase_c *parent, unsigned long param,
+    static dActor_c *construct(ProfileName profile, fBase_c *parent, fBaseParam param,
                                const mVec3_c *position, const mAng3_c *rotation);
 
     void calcSpeed();

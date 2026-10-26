@@ -5,7 +5,11 @@
 
 fBaseID_e fBase_c::m_rootUniqueID = BASE_ID_FIRST;
 ProfileName fBase_c::m_tmpCtProfName;
+#if TARGET_PC
+fBaseParam fBase_c::m_tmpCtParam;
+#else
 u32 fBase_c::m_tmpCtParam;
+#endif
 u8 fBase_c::m_tmpCtGroupType;
 fTrNdBa_c *fBase_c::m_tmpCtConnectParent;
 
@@ -17,7 +21,12 @@ fBase_c::fBase_c() :
 
     mUniqueID = m_rootUniqueID;
     m_rootUniqueID = (fBaseID_e) (m_rootUniqueID + 1);
+#if TARGET_PC
+    mParam = static_cast<u32>(m_tmpCtParam);
+    mParamPtr = m_tmpCtParam;
+#else
     mParam = m_tmpCtParam;
+#endif
     mProfName = m_tmpCtProfName;
     mGroupType = m_tmpCtGroupType;
 
@@ -452,14 +461,14 @@ fBase_c *fBase_c::getChildProcessCreateState() const {
     return nullptr;
 }
 
-void fBase_c::setTmpCtData(ProfileName profName, fTrNdBa_c *connectParent, unsigned long param, u8 groupType) {
+void fBase_c::setTmpCtData(ProfileName profName, fTrNdBa_c *connectParent, fBaseParam param, u8 groupType) {
     m_tmpCtParam = param;
     m_tmpCtProfName = profName;
     m_tmpCtGroupType = groupType;
     m_tmpCtConnectParent = connectParent;
 }
 
-fBase_c *fBase_c::fBase_make(ProfileName profName, fTrNdBa_c *connectParent, unsigned long param, u8 groupType) {
+fBase_c *fBase_c::fBase_make(ProfileName profName, fTrNdBa_c *connectParent, fBaseParam param, u8 groupType) {
 
     // Check if the profile exists
     if ((*fProfListMg_c::m_data_p)[profName].mBaseProfile == nullptr) {
@@ -479,13 +488,13 @@ fBase_c *fBase_c::fBase_make(ProfileName profName, fTrNdBa_c *connectParent, uns
     return res;
 }
 
-fBase_c *fBase_c::createChild(ProfileName profName, fBase_c *connectParent, unsigned long param, u8 groupType) {
+fBase_c *fBase_c::createChild(ProfileName profName, fBase_c *connectParent, fBaseParam param, u8 groupType) {
     if (connectParent != nullptr) {
         return fBase_make(profName, &connectParent->mMng.mConnectNode, param, groupType);
     }
     return nullptr;
 }
 
-fBase_c *fBase_c::createRoot(ProfileName profName, unsigned long param, u8 groupType) {
+fBase_c *fBase_c::createRoot(ProfileName profName, fBaseParam param, u8 groupType) {
     return fBase_make(profName, nullptr, param, groupType);
 }

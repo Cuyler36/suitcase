@@ -6,6 +6,9 @@
 #include <game/game/d_player_mgr.hpp>
 #include <game/game/d_private_data.hpp>
 #include <game/mLib/m_pad.hpp>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace dMenuBank {
 // .text:0x5C
@@ -83,6 +86,13 @@ int dMenuBank_c::execute() {
     }
     mBtn.execute();
     calcWinAnm();
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): placed again at the new width
+    static u32 sScreenWidth;
+    if (cf::screen::WidthChanged(&sScreenWidth)) {
+        onFlag(FLAG_CALC);
+    }
+#endif
     if (isFlag(FLAG_CALC)) {
         offFlag(FLAG_CALC);
         mLyt.calc();

@@ -24,6 +24,9 @@ dItem::Item *dMenuItemXX_c::getPockets() {
 }
 
 #include "d_menu_itemxx_button.inc"
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 // .text:0x80
 int dMenuItemXX_c::preCreate() {
@@ -601,7 +604,11 @@ mVec2_c dMenuItemXX_c::getPocketPos(int slot, float dx, float dy) {
 mVec2_c dMenuItemXX_c::getSlotPos(int slot, float dx, float dy) {
     mVec2_c pos(0.0f, 0.0f);
     if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
+#if TARGET_PC
+        dx *= (1.0f / cf::screen::WideScale());
+#else
         dx *= 0.730769f;
+#endif
     }
     if (isPocket(slot)) {
         return getPocketPos(slot, dx, dy);
@@ -744,6 +751,14 @@ void dMenuItemXX_c::updateHeldItem() {
 
 // .text:0x2AB0
 void dMenuItemXX_c::calcLayouts() {
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): placed again at the new width
+    static u32 sScreenWidth;
+    if (cf::screen::WidthChanged(&sScreenWidth)) {
+        onFlag(FLAG_CALC_ITEM);
+        onFlag(FLAG_CALC_LETTER);
+    }
+#endif
     if (isFlag(FLAG_CALC_ITEM)) {
         offFlag(FLAG_CALC_ITEM);
         mItemWin.calcLayouts();

@@ -550,7 +550,12 @@ void Icon_c::setRootPos(const mVec3_c *pos) {
 // .text:0x1404
 // The target returns a reference to a converted temporary. Preserve this
 // original lifetime bug.
+#if TARGET_PC
+// By value: the temporary is gone when the caller reads it (UB-12 in pc_port_ub.md)
+mVec3_c Icon_c::getRootPos() {
+#else
 const mVec3_c &Icon_c::getRootPos() {
+#endif
     return mLyt.getRootPane()->GetTranslate();
 }
 

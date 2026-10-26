@@ -8,6 +8,9 @@
 #include <game/game/d_save_data.hpp>
 #include <game/mLib/m_pad.hpp>
 #include <revolution/sc.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace dMenuStar00 {
 // .text:0x5C
@@ -449,7 +452,11 @@ BOOL dMenuStar00_c::isCursorOnChart() {
     mVec2_c pos = dObjCursor_c::getPos();
     // The 16:9 screen is wider than the chart's 4:3 coordinates (26 / 19).
     if (SCGetAspectRatio() == 1) {
+#if TARGET_PC
+        pos.x *= cf::screen::WideScale();
+#else
         pos.x *= 1.368421f;
+#endif
     }
     // The chart's circle has the radius 220.
     if (pos.x * pos.x + pos.y * pos.y < 48400.0f) {

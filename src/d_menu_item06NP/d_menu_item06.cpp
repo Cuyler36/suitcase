@@ -3,6 +3,9 @@
 #include <game/game/d_menu_mng.hpp>
 #include <game/game/d_obj_cursor.hpp>
 #include <game/mLib/m_pad.hpp>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace dMenuItem06 {
 // .text:0x5C
@@ -56,6 +59,13 @@ int dMenuItem06_c::execute() {
     if (mCursor != CURSOR_NONE && prev != mCursor) {
         playSeCursor();
     }
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): placed again at the new width
+    static u32 sScreenWidth;
+    if (cf::screen::WidthChanged(&sScreenWidth)) {
+        onFlag(FLAG_CALC);
+    }
+#endif
     if (isFlag(FLAG_CALC)) {
         offFlag(FLAG_CALC);
         mLyt.calc();

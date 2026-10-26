@@ -12,6 +12,9 @@
 #include <game/game/d_string.hpp>
 #include <game/mLib/m_pad.hpp>
 #include <revolution/sc.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace dMenuPost00 {
 // .text:0xCC
@@ -96,6 +99,13 @@ int dMenuPost00_c::execute() {
     calcHeld();
     mLtrWin.playWindowAnm();
     mSelect.update();
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): placed again at the new width
+    static u32 sScreenWidth;
+    if (cf::screen::WidthChanged(&sScreenWidth)) {
+        onFlag(FLAG_CALC);
+    }
+#endif
     if (isFlag(FLAG_CALC)) {
         offFlag(FLAG_CALC);
     }
@@ -508,7 +518,11 @@ const mVec2_c &dMenuPost00_c::getSlotPos(int slot, float dx, float dy) {
     static mVec2_c pos(0.0f, 0.0f);
     mVec3_c root;
     if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
+#if TARGET_PC
+        dx *= (1.0f / cf::screen::WideScale());
+#else
         dx *= 0.730769f;
+#endif
     }
     if (isBox(slot)) {
         root = mIcons[slot - SLOT_BOX].getRootPos();

@@ -11,6 +11,9 @@
 #include <game/mLib/m_pad.hpp>
 #include <game/snd/snd_id.hpp>
 #include <stdio.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace dMenuFriend03 {
 // .text:0x5C
@@ -85,6 +88,13 @@ int dMenuFriend03_c::execute() {
     }
     mBtn.execute();
     calcAnms();
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): placed again at the new width
+    static u32 sScreenWidth;
+    if (cf::screen::WidthChanged(&sScreenWidth)) {
+        onFlag(FLAG_CALC);
+    }
+#endif
     if (isFlag(FLAG_CALC)) {
         offFlag(FLAG_CALC);
         mLyt.calc();

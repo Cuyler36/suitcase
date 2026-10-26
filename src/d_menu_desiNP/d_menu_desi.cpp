@@ -5,6 +5,9 @@
 #include <game/game/d_mii_icon.hpp>
 #include <revolution/sc.h>
 #include <stdio.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace dMenuDesi {
 static const char *l_miiLogo[] = {"miiLogo", NULL};
@@ -197,7 +200,11 @@ mVec2_c Desi_c::getDesignPos(int slot, f32 x, f32 y) {
     mVec3_c pos;
     m2d::getScreenPos(&pos, mLyt.findPane(name));
     if (SCGetAspectRatio() == 1) {
+#if TARGET_PC
+        x *= (1.0f / cf::screen::WideScale());
+#else
         x *= 0.730769f;
+#endif
     }
     result.x = pos.x + x;
     result.y = pos.y + y;
@@ -210,7 +217,11 @@ mVec2_c Desi_c::getFacePos(int kind, f32 x, f32 y) {
     m2d::getScreenPos(&pos,
                       mLyt.findPane(kind == 0 ? l_playerFace : l_miiFace));
     if (SCGetAspectRatio() == 1) {
+#if TARGET_PC
+        x *= (1.0f / cf::screen::WideScale());
+#else
         x *= 0.730769f;
+#endif
     }
     result.x = pos.x + x;
     result.y = pos.y + y;

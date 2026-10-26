@@ -23,5 +23,13 @@ void InterpolateWorld(f32 tickFraction);
 // the blend must start from the newest, not from the last frame's blend.
 void RestoreWorld();
 
+// The same for the 2D layouts in the draw list: each pane's global matrix and each layout's view matrix
+// (its position). A tick's frame records them; a frame between ticks blends them before drawing and
+// restores them after. RestoreLayouts restores every layout's view matrix, so a frame may also move
+// one itself in between (the pointer cursor, d_obj_cursor).
+void RecordLayouts();
+void InterpolateLayouts(f32 tickFraction);
+void RestoreLayouts();
+
 } // namespace interp
 } // namespace cf

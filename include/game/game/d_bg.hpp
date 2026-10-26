@@ -1,5 +1,6 @@
 #pragma once
 #include <types.h>
+#include <port/endian.h>
 #include <game/game/d_dvd.hpp>
 
 // Background (field model) resources, namespace dBG (src/dol/game/d_bg.cpp,
@@ -37,13 +38,14 @@ namespace dBG {
 // block, each with an id and a position relative to the block's corner.
 class bsd_c {
   public:
+    // sound.bsd in a block's bg model: big-endian (E-60 in pc_port_endianness.md)
     struct point_s {
-        s16 mId;
-        s16 mX;
-        s16 mZ;
+        BE(s16) mId;
+        BE(s16) mX;
+        BE(s16) mZ;
     };
     struct data_s {
-        u16 mNum;
+        BE(u16) mNum;
         point_s mPoints[1];
     };
 

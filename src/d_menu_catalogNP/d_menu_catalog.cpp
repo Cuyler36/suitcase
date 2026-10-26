@@ -14,6 +14,9 @@
 #include <game/mLib/m_pad.hpp>
 #include <game/snd/snd_id.hpp>
 #include <stdio.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace dMenuCatalog {
 void *classInit();
@@ -152,6 +155,14 @@ int dMenuCatalog_c::execute() {
     calcTabAnm();
     calcRowAnm();
     calcScrlBtnAnm();
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): placed again at the new width
+    static u32 sScreenWidth;
+    if (cf::screen::WidthChanged(&sScreenWidth)) {
+        onFlag(FLAG_CALC_TAB);
+        onFlag(FLAG_CALC);
+    }
+#endif
     if (isFlag(FLAG_CALC_TAB)) {
         offFlag(FLAG_CALC_TAB);
         mTabLyt.calc();

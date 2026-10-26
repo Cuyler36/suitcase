@@ -41,6 +41,14 @@ void saveDrawList() {
 void restoreDrawList() {
     l_list = l_savedList;
 }
+
+void forEachDrawEntry(void (*func)(Base_c *entry, void *arg), void *arg) {
+    Base_c *next = (Base_c *)nw4r::ut::List_GetNext(&l_list, nullptr);
+    while (next != nullptr) {
+        func(next, arg);
+        next = (Base_c *)nw4r::ut::List_GetNext(&l_list, next);
+    }
+}
 #endif
 
 bool create(EGG::Heap *parentHeap, size_t size) {
@@ -340,6 +348,16 @@ void Simple_c::calcAfter() {
 }
 
 void Simple_c::draw() {
+#if TARGET_PC
+    // The 16:9 adjust also scales the adjusted panes' size: a layout calculated once (the title screen's
+    // copyright, built and calculated once) keeps the width it was calculated at. Recalculated when the
+    // window's width changed since (cf/screen.h); the rest recalculate each tick (calcBefore).
+    if (mDrawInfo.IsLocationAdjust() &&
+        mDrawInfo.GetLocationAdjustScale().x != 1.0f / cf::screen::WideScale()) {
+        mDrawInfo.SetLocationAdjustScale(nw4r::math::VEC2(1.0f / cf::screen::WideScale(), 1.0f));
+        mLayout.CalculateMtx(mDrawInfo);
+    }
+#endif
     nw4r::ut::Rect rect = mLayout.GetLayoutRect();
     f32 near = 0.0f;
     f32 far = 500.0f;

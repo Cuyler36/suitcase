@@ -12,6 +12,9 @@
 #include <game/mLib/m_pad.hpp>
 #include <game/snd/snd_id.hpp>
 #include <stdio.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace dMenuNotice00 {
 fProf::fBaseProfile_c g_profile_MENU_NOTICE00 = {
@@ -92,6 +95,13 @@ int dMenuNotice00_c::execute() {
     mBtn.execute();
     mSlct.execute();
     calcAnms();
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): placed again at the new width
+    static u32 sScreenWidth;
+    if (cf::screen::WidthChanged(&sScreenWidth)) {
+        onFlag(FLAG_CALC);
+    }
+#endif
     if (isFlag(FLAG_CALC)) {
         offFlag(FLAG_CALC);
         mLyt.calc();

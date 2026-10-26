@@ -916,6 +916,28 @@ static BOOL getBuildingExit(u16 building, u8 *scene, mVec3_c *pos, u32 *type, s1
     return FALSE;
 }
 
+#if TARGET_PC
+// The debug UI's scene select (src/cf/debug/debug_scene.cpp)
+const char *getSceneName(u8 scene) {
+    return scene < SCENE_NUM ? sSceneList[scene].mName : "?";
+}
+
+BOOL isSceneBuildingPlaced(u8 scene) {
+    u16 building = getSceneBuilding(scene);
+    if (building == 0xFFF1) {
+        return TRUE;
+    }
+    // As getBuildingExit: in the town (1) or the city (2)
+    u8 flags = 1;
+    if (dItem::Item(building).isExtId()) {
+        flags = dSTR::getBuildingInfo(dItem::Item(building).getExtIndex())->mField;
+    }
+    dItem::Item item(building);
+    int x, z;
+    return dSaveData_c::getTown()->mBuilding.mList.getPos(&x, &z, item, flags);
+}
+#endif
+
 // 80163154
 int dSceneChange_c::getExitDest(u32 idx, u8 *scene, mVec3_c *pos, u32 *type, s16 *angle, int *blockX,
                                 int *blockZ) {

@@ -13,6 +13,9 @@
 #include <game/game/d_string.hpp>
 #include <game/mLib/m_pad.hpp>
 #include <game/snd/snd_id.hpp>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace dMenuTime00 {
 // .text:0x5C
@@ -143,6 +146,13 @@ int dMenuTime00_c::execute() {
         }
         onFlag(FLAG_CALC);
     }
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): placed again at the new width
+    static u32 sScreenWidth;
+    if (cf::screen::WidthChanged(&sScreenWidth)) {
+        onFlag(FLAG_CALC);
+    }
+#endif
     if (isFlag(FLAG_CALC)) {
         offFlag(FLAG_CALC);
         mLyt.calc();

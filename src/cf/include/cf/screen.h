@@ -35,5 +35,11 @@ f32 WideScale();
 // game's fixed view boxes around the camera (what is drawn or active near the edges)
 f32 ViewWidthScale();
 
+// Whether the wide width changed since the last call with this counter (true on the first). For the
+// menus that calculate their layouts only when something in them changes (their FLAG_CALC flags):
+// a layout placed from another's pane positions (the item icons on their slots) keeps the positions
+// of the width it was calculated at.
+bool WidthChanged(u32* seen);
+
 } // namespace screen
 } // namespace cf

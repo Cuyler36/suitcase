@@ -60,7 +60,7 @@ void dActor_c::setTmpCtData(const mVec3_c *position, const mAng3_c *rotation) {
     m_tmpCtAngleP = rotation;
 }
 
-dActor_c *dActor_c::construct(ProfileName profile, fBase_c *parent, unsigned long param,
+dActor_c *dActor_c::construct(ProfileName profile, fBase_c *parent, fBaseParam param,
                              const mVec3_c *position, const mAng3_c *rotation) {
     setTmpCtData(position, rotation);
     return static_cast<dActor_c *>(dBase_c::createBase(profile, parent, param, ACTOR));

@@ -1,8 +1,10 @@
 // Interpolated models for frames between ticks (src/cf/include/cf/interp.h).
 #include <cf/interp.h>
 
+#include <game/mLib/m_2d.hpp>
 #include <game/mLib/m_3d/global.hpp>
 #include <nw4r/g3d.h>
+#include <nw4r/lyt.h>
 
 #include <cmath>
 #include <unordered_map>
@@ -15,6 +17,8 @@ namespace {
 
 // A model that moves further in a tick is not blended (a warp, a respawn)
 constexpr f32 kSnapDistance = 300.0f;
+// The same for a layout's pane or the layout itself, in layout units (a page switching, a menu jumping)
+constexpr f32 kLayoutSnapDistance = 120.0f;
 
 struct Quat {
     f32 x, y, z, w;
@@ -124,6 +128,15 @@ void Blend(const nw4r::math::MTX34& from, nw4r::math::MTX34& to, f32 t) {
     Compose(b, to);
 }
 
+// Element by element: exact at both ends, shear included (a pane's global matrix often has some: a
+// rotating child under a parent with uneven scale, e.g. the clock's hands), and close enough in between
+// for the small change of one tick
+void BlendLinear(const nw4r::math::MTX34& from, nw4r::math::MTX34& to, f32 t) {
+    for (int i = 0; i < 12; i++) {
+        to.a[i] = from.a[i] + (to.a[i] - from.a[i]) * t;
+    }
+}
+
 f32 DistanceSq(const nw4r::math::MTX34& a, const nw4r::math::MTX34& b) {
     f32 sum = 0.0f;
     for (int row = 0; row < 3; row++) {
@@ -163,7 +176,90 @@ void ForEachModel(F&& f) {
     }
 }
 
+// Layouts: each pane's global matrix and each layout's view matrix (its position, Simple_c::mPos)
+std::unordered_map<const void*, nw4r::math::MTX34> sLayoutRecords;
+
+struct SavedMtx {
+    nw4r::math::MTX34* target; // a layout's view matrix, or nullptr for a pane's
+    nw4r::lyt::Pane* pane;
+    nw4r::math::MTX34 mtx;
+};
+std::vector<SavedMtx> sLayoutSaved;
+
+template <typename F>
+void ForEachPane(nw4r::lyt::Pane* pane, F&& f) {
+    f(pane);
+    auto& children = pane->GetChildList(); // PaneList is protected
+    for (auto it = children.GetBeginIter(); it != children.GetEndIter(); ++it) {
+        ForEachPane(&*it, f);
+    }
+}
+
+template <typename F>
+void ForEachLayout(F&& f) {
+    m2d::forEachDrawEntry(
+        [](m2d::Base_c* entry, void* arg) {
+            if (m2d::Simple_c* simple = dynamic_cast<m2d::Simple_c*>(entry)) {
+                if (simple->mLayout.GetRootPane() != nullptr) {
+                    (*static_cast<F*>(arg))(simple);
+                }
+            }
+        },
+        &f);
+}
+
+// The view matrix's storage in a DrawInfo (only the getter is const)
+nw4r::math::MTX34* ViewMtx(m2d::Simple_c* simple) {
+    return const_cast<nw4r::math::MTX34*>(&simple->mDrawInfo.GetViewMtx());
+}
+
+void BlendRecorded(const void* key, nw4r::math::MTX34& mtx, f32 t) {
+    const auto it = sLayoutRecords.find(key);
+    if (it != sLayoutRecords.end() && DistanceSq(it->second, mtx) <= kLayoutSnapDistance * kLayoutSnapDistance) {
+        BlendLinear(it->second, mtx, t);
+    }
+}
+
 } // namespace
+
+void RecordLayouts() {
+    sLayoutRecords.clear();
+    ForEachLayout([](m2d::Simple_c* simple) {
+        sLayoutRecords[simple] = simple->mDrawInfo.GetViewMtx();
+        ForEachPane(simple->mLayout.GetRootPane(),
+                    [](nw4r::lyt::Pane* pane) { sLayoutRecords[pane] = pane->GetGlobalMtx(); });
+    });
+}
+
+void InterpolateLayouts(f32 tickFraction) {
+    sLayoutSaved.clear();
+    ForEachLayout([tickFraction](m2d::Simple_c* simple) {
+        nw4r::math::MTX34* view = ViewMtx(simple);
+        sLayoutSaved.push_back({view, nullptr, *view});
+        if (tickFraction < 1.0f) {
+            BlendRecorded(simple, *view, tickFraction);
+        }
+        ForEachPane(simple->mLayout.GetRootPane(), [tickFraction](nw4r::lyt::Pane* pane) {
+            nw4r::math::MTX34 mtx = pane->GetGlobalMtx();
+            sLayoutSaved.push_back({nullptr, pane, mtx});
+            if (tickFraction < 1.0f) {
+                BlendRecorded(pane, mtx, tickFraction);
+                pane->SetGlobalMtx(mtx);
+            }
+        });
+    });
+}
+
+void RestoreLayouts() {
+    for (const SavedMtx& saved : sLayoutSaved) {
+        if (saved.target != nullptr) {
+            *saved.target = saved.mtx;
+        } else {
+            saved.pane->SetGlobalMtx(saved.mtx);
+        }
+    }
+    sLayoutSaved.clear();
+}
 
 void RecordWorld() {
     sRecords.clear();

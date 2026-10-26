@@ -316,4 +316,11 @@ void *getScenePlayer(); // 80162C00
 fBase_c *getSceneParent(); // 80162C08
 mVec3_c *getScenePlayerPos(); // 80162C10
 
+#if TARGET_PC
+// The debug UI's scene select (src/cf/debug/debug_scene.cpp): the scene's name in the scene table, and
+// whether its building stands in the town or the city (TRUE for scenes without one)
+const char *getSceneName(u8 scene);
+BOOL isSceneBuildingPlaced(u8 scene);
+#endif
+
 } // namespace dScene

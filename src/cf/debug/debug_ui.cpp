@@ -61,9 +61,14 @@ void draw() {
                 config::debug::showFps.set(showFps);
             }
             ImGui::Separator();
+            if (ImGui::MenuItem("Dump 2D layouts")) {
+                std::string path;
+                DumpLayouts(&path);
+            }
             ImGui::MenuItem("ImGui demo", nullptr, &sShowDemo);
             ImGui::EndMenu();
         }
+        DrawSceneMenu();
         if (ImGui::BeginMenu("Config")) {
             if (auto* resettiDisabled = borealis::config::find<bool>("game.resettiDisabled")) {
                 bool value = *resettiDisabled;

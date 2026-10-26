@@ -41,7 +41,11 @@ class Icon_c {
     void setVisible(bool visible);                          // .text:0x12A4
     void setGiftAnm(int gift);                              // .text:0x12CC
     void setRootPos(const mVec3_c *pos);                    // .text:0x1374
+#if TARGET_PC
+    mVec3_c getRootPos();
+#else
     const mVec3_c &getRootPos();                            // .text:0x1404
+#endif
     void setItem(dItem::Item item, int flag, int unused);   // .text:0x1440
     bool calcGift();                                        // .text:0x1720
 

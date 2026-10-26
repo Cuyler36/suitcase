@@ -13,7 +13,18 @@ CUSTOM_BASE_PROFILE(OBJ_STAFFROLL, dObjStaffroll_c, fProf::OBJ_STAFFROLL,
 // Request helpers use the mask view; the process updates individual state bits.
 union Flags_c {
     u32 mValue;
+    // MWCC allocates from the most significant bit: reversed on PC so the bits match the masks
+    // (E-57 in pc_port_endianness.md)
     struct {
+#if TARGET_PC
+        u32 start : 1;
+        u32 stop : 1;
+        u32 scroll : 1;
+        u32 ending : 1;
+        u32 show : 1;
+        u32 done : 1;
+        u32 unused : 26;
+#else
         u32 unused : 26;
         u32 done : 1;
         u32 show : 1;
@@ -21,6 +32,7 @@ union Flags_c {
         u32 scroll : 1;
         u32 stop : 1;
         u32 start : 1;
+#endif
     } mBits;
 };
 static Flags_c l_flags;

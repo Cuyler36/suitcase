@@ -6,6 +6,9 @@
 #include <game/game/d_private_data.hpp>
 #include <game/game/d_save_data.hpp>
 #include <game/mLib/m_pad.hpp>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace dMenuMap03 {
 // .text:0x5C
@@ -171,6 +174,13 @@ void dMenuMap03_c::calcFrames() {
         }
         onFlag(FLAG_CALC_FRAME);
     }
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): placed again at the new width
+    static u32 sScreenWidth;
+    if (cf::screen::WidthChanged(&sScreenWidth)) {
+        onFlag(FLAG_CALC_FRAME);
+    }
+#endif
     if (isFlag(FLAG_CALC_FRAME)) {
         offFlag(FLAG_CALC_FRAME);
         for (i = 0; i < HOUSE_NUM; i++) {

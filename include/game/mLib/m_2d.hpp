@@ -19,6 +19,9 @@ void reset();
 // that resets it
 void saveDrawList();
 void restoreDrawList();
+class Base_c;
+// The entries of the layouts' draw list, in order (interpolation, src/cf/game/interp.cpp)
+void forEachDrawEntry(void (*func)(Base_c *entry, void *arg), void *arg);
 #endif
 bool create(EGG::Heap *heap, size_t size);
 void defaultSet();

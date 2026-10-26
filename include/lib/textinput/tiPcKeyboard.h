@@ -189,12 +189,23 @@ class Base : public KeyboardBase {
         }
 
         union {
+            // The fields are muFlag's bits (mbShift 0x80, mbCaps 0x40, muTranslateMode 0xF), which the
+            // code also sets through muFlag. MWCC allocates from the most significant bit; on PC the
+            // order is reversed to keep them on the same bits (E-56 in pc_port_endianness.md).
             struct {
+#if TARGET_PC
+                u32 muTranslateMode : 4;
+                u32 _1A : 2;
+                u32 mbCaps : 1;
+                u32 mbShift : 1;
+                u32 _00 : 24;
+#else
                 /* 0x00 */ u32 _00 : 24;
                 /* 0x00 */ u32 mbShift : 1;
                 /* 0x00 */ u32 mbCaps : 1;
                 /* 0x00 */ u32 _1A : 2;
                 /* 0x00 */ u32 muTranslateMode : 4;
+#endif
             };
             /* 0x00 */ u32 muFlag;
         };

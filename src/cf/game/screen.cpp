@@ -19,6 +19,8 @@ bool sWidescreen = true;
 bool sStretchSet = false;
 // Whether the picture is locked to 4:3 (letterboxed), as last set
 int sLocked4x3 = -1;
+// Counts the wide width's changes (WidthChanged)
+u32 sWidthChanges = 0;
 
 // The game's picture is 640 pixels for 608 (4:3) or WideWidth() virtual units: aurora stretches it to
 // the window, or to a 4:3 box in it (VILockAspectRatio; its plain fit would keep the 640 x 456
@@ -73,6 +75,7 @@ void Update() {
         return;
     }
     wide.width = width;
+    sWidthChanges++;
     if (EGG::StateGX::getEfbWidth() != 0) {
         wide.ratios.x = static_cast<f32>(EGG::StateGX::getEfbWidth()) / static_cast<f32>(width);
     }
@@ -88,6 +91,14 @@ f32 WideWidth() {
 
 f32 WideScale() {
     return WideWidth() / kWidth4x3;
+}
+
+bool WidthChanged(u32* seen) {
+    if (*seen == sWidthChanges) {
+        return false;
+    }
+    *seen = sWidthChanges;
+    return true;
 }
 
 f32 ViewWidthScale() {

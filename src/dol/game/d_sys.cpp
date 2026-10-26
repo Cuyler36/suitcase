@@ -38,6 +38,7 @@
 #include <game/mLib/m_2d.hpp>
 #include <cf/interp.h>
 #include <game/game/d_camera.hpp>
+#include <game/game/d_obj_cursor.hpp>
 #include <game/game/d_shadow.hpp>
 #include <game/game/d_tag_processor.hpp>
 #endif
@@ -433,6 +434,7 @@ void runFrame() {
 #if TARGET_PC
     // The world matrices this frame draws, for the frames before the next tick (presentFrame)
     cf::interp::RecordWorld();
+    cf::interp::RecordLayouts();
 #endif
     beginFrame();
     m3d::calcMaterial();
@@ -549,6 +551,8 @@ void presentFrame(f32 tickFraction) {
     m2d::saveDrawList();
     m2d::beginPresent();
     dCamera::applyPresent(tickFraction);
+    cf::interp::InterpolateLayouts(tickFraction);
+    dObjCursor_c::presentPointer();
     dSysGfx::draw();
     dCamera::restorePresent();
     cf::interp::RestoreWorld();
@@ -561,6 +565,7 @@ void presentFrame(f32 tickFraction) {
     dReset::Manage_c::GetInstance()->Draw();
     dBlackWait::BlackWait_c::getInstance()->draw();
     endRender();
+    cf::interp::RestoreLayouts();
     g_tagProcessor.mRectEnd = rectEnd;
     g_tagProcessor.mDrawEnd = drawEnd;
     g_tagProcessor.mLine = line;

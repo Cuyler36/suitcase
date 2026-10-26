@@ -66,7 +66,11 @@ class SimpleEx_c : public Simple_c {
     void setWord(const char *name, const dScript::Word_c *word);     // 80007FC4
     void setPosZ(const char *name, f32 z);                           // 80008048
     void addPos(const char *name, f32 x, f32 y);                     // 800080A0
+#if TARGET_PC
+    mVec3_c getPos(const char *name);
+#else
     const mVec3_c &getPos(const char *name);                         // 80008114
+#endif
     void setPos(const char *name, const mVec3_c *pos);               // 80008150
     // Moves pane dstName of other onto the screen position of pane srcName of
     // this layout.

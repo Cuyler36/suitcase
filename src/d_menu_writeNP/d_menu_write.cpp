@@ -15,6 +15,9 @@
 #include <game/mLib/m_pad.hpp>
 #include <game/snd/snd_id.hpp>
 #include <string.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace dMenuWrite {
 // .text:0x5C
@@ -193,6 +196,14 @@ int dMenuWrite_c::execute() {
         updateCursorPos();
         onFlag(FLAG_CALC_MARKS);
     }
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): placed again at the new width
+    static u32 sScreenWidth;
+    if (cf::screen::WidthChanged(&sScreenWidth)) {
+        onFlag(FLAG_CALC_PAPER);
+        onFlag(FLAG_CALC_MARKS);
+    }
+#endif
     if (isFlag(FLAG_CALC_PAPER)) {
         offFlag(FLAG_CALC_PAPER);
         mPaper.execute();

@@ -1277,7 +1277,12 @@ void Cur_c::setPos(const mVec3_c *pos) {
     mLyt.getRootPane()->SetTranslate(*pos);
 }
 
+#if TARGET_PC
+// By value: the target returns a reference to its local (UB-14 in pc_port_ub.md)
+mVec3_c Cur_c::getPos() {
+#else
 const mVec3_c &Cur_c::getPos() {
+#endif
     mVec3_c pos = mLyt.getRootPane()->GetTranslate();
     return pos;
 }

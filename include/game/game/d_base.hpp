@@ -12,6 +12,6 @@ public:
     static int loadAsyncCallback();
     static void unloadCallback();
     static void initLoader();
-    static fBase_c *createBase(ProfileName profile, fBase_c *parent, unsigned long param, u8 group);
-    static fBase_c *createRoot(ProfileName profile, unsigned long param, u8 group);
+    static fBase_c *createBase(ProfileName profile, fBase_c *parent, fBaseParam param, u8 group);
+    static fBase_c *createRoot(ProfileName profile, fBaseParam param, u8 group);
 };

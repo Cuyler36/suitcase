@@ -4,6 +4,9 @@
 #include <game/game/d_menu_mng.hpp>
 #include <game/game/d_obj_cursor.hpp>
 #include <game/mLib/m_pad.hpp>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace dMenuPaper {
 // .text:0x5C
@@ -157,6 +160,13 @@ void dMenuPaper_c::executeSubState() {
 
 // .text:0x5D4
 void dMenuPaper_c::calcPaper() {
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): placed again at the new width
+    static u32 sScreenWidth;
+    if (cf::screen::WidthChanged(&sScreenWidth)) {
+        onFlag(FLAG_CALC_PAPER);
+    }
+#endif
     if (isFlag(FLAG_CALC_PAPER)) {
         offFlag(FLAG_CALC_PAPER);
         mPaper.execute();

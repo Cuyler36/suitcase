@@ -205,9 +205,18 @@ int dFishMus_c::create() {
         dFishMuseum::sBubbles[i]->init();
     }
     for (int i = 0; i < dAquarium_c::IDX_NUM; i++) {
+#if TARGET_PC
+        // On the Wii this REL's data is fresh each time it is linked; on PC the static aquariums and
+        // their objects keep the lists of the last visit, and adding the objects again made a cycle
+        // (addObj never ended: a freeze entering the room a second time; PC-13 in pc_port_ub.md)
+        dFishMuseum::sAquariums[i]->mObjList = NULL;
+#endif
         dAquariumCorrectObj_c **objs = dFishMuseum::sCorrectObjLists[i].mpObjs;
         if (objs != NULL) {
             for (u32 j = 0; j < dFishMuseum::sCorrectObjLists[i].mNum; j++) {
+#if TARGET_PC
+                (*objs)->mNext = NULL;
+#endif
                 (*objs)->init();
                 dFishMuseum::sAquariums[i]->addObj(*objs);
                 objs++;

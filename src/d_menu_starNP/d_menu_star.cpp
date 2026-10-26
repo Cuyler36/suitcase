@@ -6,6 +6,9 @@
 #include <game/sLib/s_lib.hpp>
 #include <game/snd/snd_id.hpp>
 #include <revolution/sc.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 // .text:0x5C
 BOOL dMenuStar_c::load() {
@@ -43,7 +46,11 @@ void dMenuStar_c::draw() {
         mVec3_c pos = m2d::getTotalPos(mWinLyt.findPane("N_star_win_all"));
         f32 halfWidth = 200.0f;
         if (SCGetAspectRatio() != SC_ASPECT_RATIO_16x9) {
+#if TARGET_PC
+            halfWidth *= cf::screen::WideScale();
+#else
             halfWidth *= 1.368421f;
+#endif
         }
         mWinZClear.set(250.0 + pos.y, -250.0f + pos.y, -halfWidth + pos.x,
                        halfWidth + pos.x, -499.9f);

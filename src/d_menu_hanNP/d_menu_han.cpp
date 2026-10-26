@@ -16,6 +16,9 @@
 #include <game/mLib/m_color.hpp>
 #include <game/mLib/m_pad.hpp>
 #include <string.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 #ifdef MUST_MATCH
 // Matching-only emission order, following d_a_npc_sp_fuko's existing helper.
@@ -363,6 +366,13 @@ void dMenuHan_c::executeSubState() {
 // .text:0xD3C
 void dMenuHan_c::calcLayout() {
     mKbd.calc();
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): placed again at the new width
+    static u32 sScreenWidth;
+    if (cf::screen::WidthChanged(&sScreenWidth)) {
+        onFlag(FLAG_CALC);
+    }
+#endif
     if (isFlag(FLAG_CALC)) {
         offFlag(FLAG_CALC);
         mLyt.calc();

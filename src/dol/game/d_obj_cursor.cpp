@@ -10,6 +10,9 @@
 #include <game/sLib/s_lib.hpp>
 #include <game/snd/snd_id.hpp>
 #include <revolution/wpad.h>
+#if TARGET_PC
+#include <cf/pointer.h>
+#endif
 
 CUSTOM_BASE_PROFILE(OBJ_CURSOR, dObjCursor_c, fProf::OBJ_CURSOR,
                     fProf::DRAW_ORDER::OBJ_CURSOR);
@@ -19,7 +22,29 @@ static f32 l_alpha;
 static f32 l_edgeRate;
 static u16 l_flags;
 
+#if TARGET_PC
+static dObjCursor_c *l_instance;
+
+void dObjCursor_c::presentPointer() {
+    float x, y;
+    if (l_instance == NULL || !(l_flags & FLAG_VISIBLE) || !cf::pointer::GetLive(&x, &y)) {
+        return;
+    }
+    // As dPad::begin turns the pointer into a position (sPointerPosition), and Simple_c::calc into the
+    // layout's view matrix
+    nw4r::math::MTX34 view;
+    PSMTXTrans(view, 304.0f * x, -228.0f * y, 0.0f);
+    l_instance->mLyt.mDrawInfo.SetViewMtx(view);
+    if (!(l_flags & FLAG_RIPPLE)) {
+        l_instance->mRippleLyt.mDrawInfo.SetViewMtx(view);
+    }
+}
+#endif
+
 int dObjCursor_c::create() {
+#if TARGET_PC
+    l_instance = this;
+#endif
     if (!mRes.load("Layout/pointer.arc")) {
         return NOT_READY;
     }
@@ -39,6 +64,11 @@ int dObjCursor_c::create() {
 }
 
 int dObjCursor_c::doDelete() {
+#if TARGET_PC
+    if (l_instance == this) {
+        l_instance = NULL;
+    }
+#endif
     return mRes.remove() != FALSE;
 }
 

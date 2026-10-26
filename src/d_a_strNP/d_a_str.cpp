@@ -1726,15 +1726,18 @@ BOOL daSTR_c::fixDoorVerts() {
                     nw4r::g3d::ResVtxPos vtx = shp.GetResVtxPos();
                     u16 num = vtx.ref().numPos;
                     if (num != -1) {
-                        mVec3_c *pos = (mVec3_c *)vtx.GetData();
-                        for (u32 j = 0; j < num; j++, pos++) {
+                        // The resource's positions: big-endian f32 (E-55 in pc_port_endianness.md)
+                        BE(f32) *pos = (BE(f32) *)vtx.GetData();
+                        for (u32 j = 0; j < num; j++, pos += 3) {
                             f32 y = mPos.y;
-                            mVec3_c p = *pos;
+                            mVec3_c p(pos[0], pos[1], pos[2]);
                             p.y += y;
                             mVec3_c curvedPos;
                             dWorld::curvePositionSimple(&curvedPos, &p);
                             curvedPos.y -= y + dWorld::getRadius();
-                            *pos = curvedPos;
+                            pos[0] = curvedPos.x;
+                            pos[1] = curvedPos.y;
+                            pos[2] = curvedPos.z;
                         }
                         curved = TRUE;
                     }

@@ -1242,8 +1242,13 @@ int fgMngLock_find(u32 scene, dFdAsPos_c *pos, u32 layer) {
     dFgMngLock_c *lock = fgMngLock_get(0);
     for (int i = 0; i < FG_MNG_LOCK_NUM; lock++, i++) {
         if (lock->mPendingPlayers != 0 && scene == lock->mScene &&
+#if TARGET_PC
+            // Written as bytes (fgMngLock_add): mRaw is (x << 8) | z only big-endian (E-58)
+            layer == lock->mLayer && lock->mPos.mPos.mX == pos->mX && lock->mPos.mPos.mZ == pos->mZ) {
+#else
             layer == lock->mLayer && (lock->mPos.mRaw >> 8) == pos->mX &&
             (lock->mPos.mRaw & 0xFF) == pos->mZ) {
+#endif
             return i;
         }
     }

@@ -11,10 +11,10 @@ void dBase_c::initLoader() {
     sUnloadCallback = &unloadCallback;
 }
 
-fBase_c *dBase_c::createBase(ProfileName profile, fBase_c *parent, unsigned long param, u8 group) {
+fBase_c *dBase_c::createBase(ProfileName profile, fBase_c *parent, fBaseParam param, u8 group) {
     return fBase_c::createChild(profile, parent, param, group);
 }
 
-fBase_c *dBase_c::createRoot(ProfileName profile, unsigned long param, u8 group) {
+fBase_c *dBase_c::createRoot(ProfileName profile, fBaseParam param, u8 group) {
     return fBase_c::createRoot(profile, param, group);
 }

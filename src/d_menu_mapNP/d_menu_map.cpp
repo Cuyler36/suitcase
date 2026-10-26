@@ -14,6 +14,9 @@
 #include <game/game/d_snd_util.hpp>
 #include <game/game/d_string.hpp>
 #include <game/snd/snd_id.hpp>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 // The map picture shows the usable blocks: unit positions lose the border
 // block, and the picture's centre is the origin of the icon panes.
@@ -76,6 +79,20 @@ int dMenuMap_c::execute() {
     calcButtonAnms();
     calcScroll();
     calcBlink();
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): placed again at the new width
+    static u32 sScreenWidth;
+    if (cf::screen::WidthChanged(&sScreenWidth)) {
+        onFlag(FLAG_CALC_WINDOW);
+        onFlag(FLAG_CALC_ICONS);
+        // The icons take the map's position only while the menu opens (above), at the width then
+        mWinLyt.calc();
+        for (i = 0; i < ENTRY_NUM; i++) {
+            mWinLyt.copyPos(&mIcons[i], "map_00", l_allPanes[0]);
+        }
+        mWinLyt.copyPos(&mPlayerIcon, "map_00", l_allPanes[0]);
+    }
+#endif
     if (isFlag(FLAG_CALC_WINDOW)) {
         offFlag(FLAG_CALC_WINDOW);
         mWinLyt.calc();

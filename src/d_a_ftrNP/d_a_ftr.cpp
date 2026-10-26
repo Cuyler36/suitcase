@@ -56,6 +56,13 @@ CUSTOM_BASE_PROFILE(A_FTR, daFTR_c, fProf::A_FTR, fProf::DRAW_ORDER::A_FTR);
 // 0x454
 void *daFTR_c::operator new(size_t size) {
     u32 blockSize = dFtrm_c::getPool()->mSize;
+#if TARGET_PC
+    // A class larger than the pool's slots would overrun them (UB-13): dFtrm_c::pool_c::create sizes
+    // them from every furniture class
+    if (size > blockSize) {
+        OSPanic(__FILE__, __LINE__, "daFTR_c: %zu bytes do not fit the furniture pool's %u", size, blockSize);
+    }
+#endif
     void *p = dFtrm_c::getPool()->alloc();
     if (p == NULL) {
         return NULL;

@@ -29,7 +29,12 @@ int daRmobjBarricade_c::create() {
                            ? "obj_tw_theater_ent_pole"
                            : "obj_tw_HRA_ent_pole";
     Param_s param;
+#if TARGET_PC
+    // A pointer: the full width (fBase_c::mParamPtr; UB-15 in pc_port_ub.md)
+    memcpy(&param, (const void *)mParamPtr, sizeof(Param_s));
+#else
     memcpy(&param, (const void *)mParam, sizeof(Param_s));
+#endif
     u8 scene = param.mScene;
     u8 prev = dScene::getPrevScene();
     if (prev == scene) {
@@ -153,7 +158,12 @@ BOOL daRmobjBarricade_c::initTalkStart() {
     attachDemoActor(this);
     setMessageLabel("sys_MESS/SYS_Door");
     Param_s param;
+#if TARGET_PC
+    // A pointer: the full width (fBase_c::mParamPtr; UB-15 in pc_port_ub.md)
+    memcpy(&param, (const void *)mParamPtr, sizeof(Param_s));
+#else
     memcpy(&param, (const void *)mParam, sizeof(Param_s));
+#endif
     setMessageCode(param.mMsgCode);
     getController()->requestStart(0);
     return TRUE;

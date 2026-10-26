@@ -41,7 +41,10 @@ add_subdirectory(extern/aurora EXCLUDE_FROM_ALL)
 add_subdirectory(extern/borealis EXCLUDE_FROM_ALL)
 
 # A function that falls off the end without a value is UB that optimized builds turn into crashes
-# (../pc_port_ub.md UB-10): an error, not a warning. This directory's targets only.
+# (../pc_port_ub.md UB-10): an error, not a warning. So is returning a reference to a local or a
+# temporary, which the Wii build happens to survive and optimized PC builds do not (UB-12, UB-14;
+# MSVC only).
+# This directory's targets only.
 if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
     # Multi-character constants ('ABCD') encode identically on CW, GCC, Clang and MSVC
     add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:-Wno-multichar>
@@ -49,6 +52,7 @@ if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
 elseif (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
     add_compile_options(
             $<$<COMPILE_LANGUAGE:C,CXX>:/we4715>
+            $<$<COMPILE_LANGUAGE:C,CXX>:/we4172>
             $<$<COMPILE_LANGUAGE:C,CXX>:/bigobj>
             $<$<COMPILE_LANGUAGE:C,CXX>:/MP>
             $<$<COMPILE_LANGUAGE:C,CXX>:/FS>

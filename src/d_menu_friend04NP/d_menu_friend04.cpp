@@ -13,6 +13,9 @@
 #include <game/mLib/m_pad.hpp>
 #include <game/snd/snd_id.hpp>
 #include <stdio.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace dMenuFriend04 {
 // .text:0x5C
@@ -108,6 +111,13 @@ int dMenuFriend04_c::stateClose() {
 
 // .text:0x518
 int dMenuFriend04_c::draw() {
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): placed again at the new width
+    static u32 sScreenWidth;
+    if (cf::screen::WidthChanged(&sScreenWidth)) {
+        onFlag(FLAG_CALC);
+    }
+#endif
     if (isFlag(FLAG_CALC)) {
         offFlag(FLAG_CALC);
         mLyt.calc();
@@ -1116,7 +1126,11 @@ void dMenuFriend04_c::fitBalloon() {
     mVec2_c scaleVec = body->GetScale();
     scaleVec.x = scale;
     body->SetScale(scaleVec);
+#if TARGET_PC
+    f32 x = cf::screen::WideScale() * (mBalloonX * scale);
+#else
     f32 x = 1.368421f * (mBalloonX * scale);
+#endif
     mVec3_c pos = body->GetTranslate();
     pos.x = x;
     body->SetTranslate(pos);

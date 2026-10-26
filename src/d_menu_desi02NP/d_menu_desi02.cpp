@@ -14,6 +14,9 @@
 #include <game/snd/snd_id.hpp>
 #include <stdio.h>
 #include <revolution/sc.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace dMenuDesi02 {
 // .text:0x5C
@@ -100,6 +103,13 @@ int dMenuDesi02_c::execute() {
     calcAnm();
     mDialog.execute();
     mSelect.update();
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): placed again at the new width
+    static u32 sScreenWidth;
+    if (cf::screen::WidthChanged(&sScreenWidth)) {
+        onFlag(FLAG_CALC);
+    }
+#endif
     if (isFlag(FLAG_CALC)) {
         offFlag(FLAG_CALC);
         mLyt.calc();
@@ -618,7 +628,11 @@ mVec2_c dMenuDesi02_c::getSlotPos(int slot, f32 x, f32 y) {
         mVec3_c pos;
         m2d::getScreenPos(&pos, mLyt.findPane(name));
         if (SCGetAspectRatio() == 1) {
+#if TARGET_PC
+            x *= (1.0f / cf::screen::WideScale());
+#else
             x *= 0.730769f;
+#endif
         }
         result.x = pos.x + x;
         result.y = pos.y + y;

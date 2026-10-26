@@ -16,6 +16,8 @@
 
 #include <suitcase/wpad_host.hpp>
 
+#include <cf/pointer.h>
+
 #include "../../input/port.hpp"
 
 #include <SDL3/SDL_gamepad.h>
@@ -557,6 +559,26 @@ const suitcase::wpad::PadSettings& suitcase::wpad::pad_settings() { return auror
 suitcase::wpad::StickReading suitcase::wpad::left_stick_reading() {
   std::lock_guard lock{aurora::wpad::mutex};
   return aurora::wpad::leftStick;
+}
+
+// The pointer as host_sample gives it, without advancing the pad pointer (that moves once a sample)
+bool cf::pointer::GetLive(float* x, float* y) {
+  using namespace aurora::wpad;
+  std::lock_guard lock{mutex};
+  if (host.pointerHidden) {
+    return false;
+  }
+  if (host.padPointer) {
+    *x = host.padPointerX;
+    *y = host.padPointerY;
+    return true;
+  }
+  if (!host.pointer.valid) {
+    return false;
+  }
+  *x = host.pointer.x;
+  *y = host.pointer.y;
+  return true;
 }
 
 bool aurora::pad::detail::blocked() { return false; }

@@ -3,6 +3,7 @@
 #include <game/snd/snd_obj.hpp>
 #include <game/snd/snd_manager.hpp>
 #include <game/snd/snd_id.hpp>
+#include <cstddef>
 
 // Per furniture sound item.
 static const SoundObjFurniture::Data sData[152] = {
@@ -239,6 +240,36 @@ void SoundObjFurniture::setup(u8 item, bool on) {
 // 801E2148
 void SoundObjFurniture::setupSeq(const SeqData *data, const void *seq, bool on) {
     mSeq = seq;
+#if TARGET_PC
+    if (data != NULL) {
+        // Host-order copies of the big-endian data (mSeqData)
+        const u8 *raw = reinterpret_cast<const u8 *>(data);
+        auto be16 = [raw](size_t ofs) { return static_cast<u16>((raw[ofs] << 8) | raw[ofs + 1]); };
+        mSeqData.mOnSound = be16(offsetof(SeqData, mData) + offsetof(Data, mOnSound));
+        mSeqData.mOffSound = be16(offsetof(SeqData, mData) + offsetof(Data, mOffSound));
+        mSeqData.mFlags = be16(offsetof(SeqData, mData) + offsetof(Data, mFlags));
+        mSeqData.mLoopSound = be16(offsetof(SeqData, mData) + offsetof(Data, mLoopSound));
+        // The list ends at a zero sound (update reads at most 10)
+        bool ended = false;
+        for (int i = 0; i < 10; i++) {
+            const size_t ofs = offsetof(SeqData, mFrames) + i * sizeof(FrameSound);
+            mSeqFrames[i].mFrame = ended ? 0 : be16(ofs + offsetof(FrameSound, mFrame));
+            mSeqFrames[i].mSound = ended ? 0 : be16(ofs + offsetof(FrameSound, mSound));
+            ended = ended || mSeqFrames[i].mSound == 0;
+        }
+        mData = &mSeqData;
+        mOn = on;
+        mCount = 0;
+        mCycles = -1;
+        mFrame = -1.0f;
+        mLoopOnce = (mSeqData.mFlags & FLAG_LOOP_ONCE) != 0;
+        if (mSeqFrames[0].mSound != 0) {
+            mFrames = mSeqFrames;
+        }
+        mSeqId = be16(offsetof(SeqData, mSeqId));
+        return;
+    }
+#endif
     mData = &data->mData;
     mOn = on;
     mCount = 0;

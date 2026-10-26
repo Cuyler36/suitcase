@@ -8,6 +8,9 @@
 #include <game/mLib/m_pad.hpp>
 #include <game/snd/snd_id.hpp>
 #include <string.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace dMenuNotice01 {
 // .text:0x5C
@@ -155,6 +158,13 @@ int dMenuNotice01_c::draw() {
     if (dMenuNotice_c::isUpdated()) {
         onFlag(FLAG_CALC_MARKS);
     }
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): placed again at the new width
+    static u32 sScreenWidth;
+    if (cf::screen::WidthChanged(&sScreenWidth)) {
+        onFlag(FLAG_CALC_MARKS);
+    }
+#endif
     if (isFlag(FLAG_CALC_MARKS)) {
         calcMarks();
         offFlag(FLAG_CALC_MARKS);

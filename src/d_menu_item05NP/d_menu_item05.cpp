@@ -8,6 +8,9 @@
 #include <game/game/d_save_data.hpp>
 #include <game/mLib/m_pad.hpp>
 #include <revolution/sc.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace dMenuItem05 {
 // .text:0xCC
@@ -84,6 +87,13 @@ int dMenuItem05_c::execute() {
     mWin.calcIcons();
     calcAnm();
     calcHold();
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): placed again at the new width
+    static u32 sScreenWidth;
+    if (cf::screen::WidthChanged(&sScreenWidth)) {
+        onFlag(FLAG_CALC);
+    }
+#endif
     if (isFlag(FLAG_CALC)) {
         offFlag(FLAG_CALC);
         mLyt.calc();
@@ -363,7 +373,11 @@ void dMenuItem05_c::setIcons() {
 const mVec2_c &dMenuItem05_c::getSlotPos(int slot, f32 ofsX, f32 ofsY) {
     static mVec2_c pos(0.0f, 0.0f);
     if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
+#if TARGET_PC
+        ofsX *= (1.0f / cf::screen::WideScale());
+#else
         ofsX *= 0.730769f;
+#endif
     }
     mVec3_c base;
     if (isPocket(slot)) {

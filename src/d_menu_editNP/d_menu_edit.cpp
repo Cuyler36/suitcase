@@ -18,6 +18,9 @@
 #include <stdio.h>
 #include <game/cLib/c_math.hpp>
 #include <string.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace dMenuEdit {
 // .text:0xCC
@@ -788,6 +791,16 @@ void dMenuEdit_c::calcAnm(BOOL anming) {
         onFlag(FLAG_CALC_COLOR);
         mBtn.setPos(&mLyt, "N_editD_Win_all");
     }
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): placed again at the new width
+    static u32 sScreenWidth;
+    if (cf::screen::WidthChanged(&sScreenWidth)) {
+        onFlag(FLAG_CALC);
+        onFlag(FLAG_CALC_TOOL);
+        onFlag(FLAG_CALC_COLOR);
+        onFlag(FLAG_CALC_PARTS);
+    }
+#endif
     if (isFlag(FLAG_CALC)) {
         offFlag(FLAG_CALC);
         onFlag(FLAG_CALC_TOOL);
@@ -1618,7 +1631,11 @@ void dMenuEdit_c::setPixelFromPos(const mVec2_c *pos) {
     nw4r::lyt::Size size = pane->GetSize();
     if (SCGetAspectRatio() == 1) {
         f32 width = size.width;
+#if TARGET_PC
+        width = width * (1.0f / cf::screen::WideScale());
+#else
         width = width * 0.730769f;
+#endif
         p.x /= width;
     } else {
         f32 width = size.width;
@@ -1658,7 +1675,11 @@ mVec2_c dMenuEdit_c::getPixelPos(int x, int y, int ofsX, int ofsY) {
     f32 pixelW = size.width;
     pixelW = pixelW / (32.0f * srt->scale.x);
     if (SCGetAspectRatio() == 1) {
+#if TARGET_PC
+        pixelW *= (1.0f / cf::screen::WideScale());
+#else
         pixelW *= 0.730769f;
+#endif
     }
     f32 pixelH = size.height;
     pixelH = pixelH / (32.0f * srt->scale.y);
@@ -2339,7 +2360,11 @@ mVec2_c dMenuEdit_c::getPartPos(int btn, f32 x, f32 y) {
     mVec3_c pos;
     m2d::getScreenPos(&pos, mPartsLyt.findPane(name));
     if (SCGetAspectRatio() == 1) {
+#if TARGET_PC
+        x *= (1.0f / cf::screen::WideScale());
+#else
         x *= 0.730769f;
+#endif
     }
     mVec2_c result;
     result.x = pos.x + x;

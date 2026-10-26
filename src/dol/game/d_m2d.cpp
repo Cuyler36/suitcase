@@ -300,7 +300,12 @@ void SimpleEx_c::addPos(const char *name, f32 x, f32 y) {
 }
 
 // 80008114
+#if TARGET_PC
+// By value: the target returns a reference to its local (UB-14 in pc_port_ub.md)
+mVec3_c SimpleEx_c::getPos(const char *name) {
+#else
 const mVec3_c &SimpleEx_c::getPos(const char *name) {
+#endif
     mVec3_c pos = findPane(name)->GetTranslate();
     return pos;
 }

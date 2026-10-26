@@ -14,7 +14,14 @@
 #define ACTOR_PARAM_GEN(cls, name, value) ((value & ((1 << (cls::PARAM_##name & 0xff)) - 1)) << (cls::PARAM_##name >> 8))
 
 /// @brief The base class for all scenes, actors and various other processes.
-/// @ingroup framework
+/// @ingroup framework
+// A base's parameter as the construction functions take it: pointer-wide on PC (fBase_c::mParamPtr)
+#if TARGET_PC
+typedef uintptr_t fBaseParam;
+#else
+typedef unsigned long fBaseParam;
+#endif
+
 class fBase_c {
 public:
 
@@ -60,6 +67,11 @@ public:
     /// @details The ID counter is incremented for every created base.
     fBaseID_e mUniqueID;
     u32 mParam; ///< A bitfield that configures the base's behaviour. Its usage varies from profile to profile.
+#if TARGET_PC
+    /// The parameter at full width: some scene tables pass a pointer (dScData::ActorData_c), which
+    /// mParam truncates on 64-bit. mParam keeps the 32-bit value the rest of the game expects.
+    uintptr_t mParamPtr;
+#endif
     ProfileName mProfName; ///< The base's profile name.
 
 public:
@@ -253,7 +265,7 @@ public:
      * @param groupType The base's group type.
      * @return A pointer to the instantiated base, or @p nullptr .
      */
-    static fBase_c *createChild(ProfileName profName, fBase_c *parent, unsigned long param, u8 groupType);
+    static fBase_c *createChild(ProfileName profName, fBase_c *parent, fBaseParam param, u8 groupType);
 
     /**
      * @brief Creates a root base.
@@ -263,7 +275,7 @@ public:
      * @param groupType The base's group type.
      * @return A pointer to the instantiated base, or @p nullptr .
      */
-    static fBase_c *createRoot(ProfileName profName, unsigned long param, u8 groupType);
+    static fBase_c *createRoot(ProfileName profName, fBaseParam param, u8 groupType);
 
 private:
     /**
@@ -274,7 +286,7 @@ private:
      * @param param The base's parameters.
      * @param groupType The base's group type.
      */
-    static void setTmpCtData(ProfileName profName, fTrNdBa_c *connectParent, unsigned long param, u8 groupType);
+    static void setTmpCtData(ProfileName profName, fTrNdBa_c *connectParent, fBaseParam param, u8 groupType);
 
     /**
      * @brief Internal function for base construction.
@@ -285,7 +297,7 @@ private:
      * @param groupType The base's group type.
      * @return A pointer to the instantiated base, or @p nullptr .
      */
-    static fBase_c *fBase_make(ProfileName profName, fTrNdBa_c *connectParent, unsigned long param, u8 groupType);
+    static fBase_c *fBase_make(ProfileName profName, fTrNdBa_c *connectParent, fBaseParam param, u8 groupType);
 
 protected:
     static int (*sLoadAsyncCallback)(); ///< See [Unused Content](#unused-content). @unused
@@ -293,7 +305,11 @@ protected:
 
 private:
     static fBaseID_e m_rootUniqueID; ///< Unique ID counter for base construction. See #mUniqueID.
+#if TARGET_PC
+    static fBaseParam m_tmpCtParam;
+#else
     static u32 m_tmpCtParam; ///< Temporary storage for the next constructed base's params. See #mParam.
+#endif
     static ProfileName m_tmpCtProfName; ///< Temporary storage for the next constructed base's profile name. See #mProfName.
     static u8 m_tmpCtGroupType; ///< Temporary storage for the next constructed base's group type. See #mGroupType.
     static fTrNdBa_c *m_tmpCtConnectParent; ///< Temporary storage for the next constructed base's parent connect node.

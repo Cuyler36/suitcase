@@ -16,6 +16,9 @@
 #include <game/snd/snd_id.hpp>
 #include <revolution/sc.h>
 #include <stdio.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace dMenuInsc {
 // .text:0x5C
@@ -188,6 +191,14 @@ void dMenuInsc_c::postExecute(MAIN_STATE_e state) {
     calcTabHoverAnm();
     calcAnms();
     calcScroll();
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): placed again at the new width
+    static u32 sScreenWidth;
+    if (cf::screen::WidthChanged(&sScreenWidth)) {
+        onFlag(FLAG_CALC);
+        onFlag(FLAG_CALC_TAB);
+    }
+#endif
     if (isFlag(FLAG_CALC)) {
         offFlag(FLAG_CALC);
         mSldLyt.calc();
@@ -332,7 +343,11 @@ void dMenuInsc_c::subStateSlider() {
     int prev = (int)(0.1f * (mSliderPos - -(f32)SLIDER_RANGE));
     mVec2_c cursor = dObjCursor_c::getPos();
     if (SCGetAspectRatio() == 1) {
+#if TARGET_PC
+        mSliderPos = cf::screen::WideScale() * (cursor.x + mDragOffset);
+#else
         mSliderPos = 1.368421f * (cursor.x + mDragOffset);
+#endif
     } else {
         mSliderPos = cursor.x + mDragOffset;
     }
@@ -683,7 +698,11 @@ void dMenuInsc_c::startSliderDrag() {
     mVec3_c pos = mLyt.findPane(l_scaleCrsr)->GetTranslate();
     mVec2_c cursor = dObjCursor_c::getPos();
     if (SCGetAspectRatio() == 1) {
+#if TARGET_PC
+        mDragOffset = (1.0f / cf::screen::WideScale()) * pos.y - cursor.x;
+#else
         mDragOffset = 0.730769f * pos.y - cursor.x;
+#endif
     } else {
         mDragOffset = pos.y - cursor.x;
     }

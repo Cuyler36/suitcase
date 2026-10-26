@@ -16,24 +16,27 @@
 #include <game/mLib/m_angle.hpp>
 #include <game/mLib/m_vec.hpp>
 #include <game/game/d_net.hpp>
+#include <port/bitfield.h>
+#include <port/endian.h>
 
 namespace dBgUtil {
 
 // One sign of "sign.bin" (0x10 bytes), relative to the block's corner.
+// sign.bin in a room's bg model: big-endian (E-59 in pc_port_endianness.md)
 struct sign_s {
-    /* 0x0 */ s16 mX;
-    /* 0x2 */ s16 mY;
-    /* 0x4 */ s16 mZ;
-    /* 0x6 */ s16 mSizeX;
-    /* 0x8 */ s16 mSizeZ;
-    /* 0xA */ s16 mSizeY;
-    /* 0xC */ s16 mAngleY; // degrees
+    /* 0x0 */ BE(s16) mX;
+    /* 0x2 */ BE(s16) mY;
+    /* 0x4 */ BE(s16) mZ;
+    /* 0x6 */ BE(s16) mSizeX;
+    /* 0x8 */ BE(s16) mSizeZ;
+    /* 0xA */ BE(s16) mSizeY;
+    /* 0xC */ BE(s16) mAngleY; // degrees
     /* 0xE */ s8 mMsg;
-    /* 0xF */ u8 mFlag : 1;
+    /* 0xF */ BITFIELD_BYTE_2(u8 mFlag : 1, u8 : 7);
 };
 
 struct signData_s {
-    /* 0x00 */ u32 mNum;
+    /* 0x00 */ BE(u32) mNum;
     /* 0x04 */ u8 _04[0x1C];
     /* 0x20 */ sign_s mSigns[1];
 };

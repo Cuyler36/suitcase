@@ -118,33 +118,58 @@ public:
         u32 mInited : 1;
     };
 
+    // The actor's parameter (mParam). The bit-field unions keep the Wii's bits in mValue, which code also
+    // reads by shifting (dFtrm_c::createFtr: the item is info >> 16): MWCC allocates from the most
+    // significant bit, so on PC the fields are declared in reverse order (E-57 in pc_port_endianness.md)
     union info_c {
         u32 mValue;
         struct {
+#if TARGET_PC
+            u32 mKind : 2;
+            u32 mZ : 6;
+            u32 mLayer : 1;
+            u32 mRot : 2;
+            u32 mX : 5;
+            u32 mItem : 16;
+#else
             u32 mItem : 16;
             u32 mX : 5;
             u32 mRot : 2;
             u32 mLayer : 1;
             u32 mZ : 6;
             u32 mKind : 2;
+#endif
         };
     };
 
     union demoIdA_u {
         u16 mValue;
         struct {
+#if TARGET_PC
+            u16 mScene : 7;
+            u16 mHandle : 9;
+#else
             u16 mHandle : 9;
             u16 mScene : 7;
+#endif
         };
     };
 
     union demoIdB_u {
         u16 mValue;
         struct {
+#if TARGET_PC
+            u16 : 1;
+            u16 mScene : 6;
+            u16 mLayer : 1;
+            u16 mZ : 4;
+            u16 mX : 4;
+#else
             u16 mX : 4;
             u16 mZ : 4;
             u16 mLayer : 1;
             u16 mScene : 6;
+#endif
         };
     };
 
