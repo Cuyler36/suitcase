@@ -29,6 +29,7 @@ Clock::time_point sStatsStart = Clock::now();
 int sFrames = 0;
 int sTicks = 0;
 Stats sStats;
+float sTickFraction = 1.0f;
 
 void Count(Step step) {
     if (step == Step::Skip) {
@@ -78,6 +79,10 @@ Stats GetStats() {
     return sStats;
 }
 
+float GetTickFraction() {
+    return sTickFraction;
+}
+
 namespace {
 
 Step Decide(bool canPresent) {
@@ -114,6 +119,10 @@ Step Decide(bool canPresent) {
         return Step::Tick;
     }
     if (canPresent) {
+        // sNextTick - kTickPeriod: the last tick's time
+        const float fraction = std::chrono::duration<float>(now - (sNextTick - kTickPeriod)) /
+                               std::chrono::duration<float>(kTickPeriod);
+        sTickFraction = std::clamp(fraction, 0.0f, 1.0f);
         return Step::Present;
     }
     // Nothing to draw between ticks: wait for the next one

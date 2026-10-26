@@ -1808,6 +1808,72 @@ void dCamera::resetSecondaryFovy() {
 }
 
 // 8018B34C
+#if TARGET_PC
+namespace {
+// A camera that moves further in a tick is a cut (scene change, warp): not interpolated
+const f32 kPresentSnapDistance = 300.0f;
+
+const dCamera_c *l_presentCamera; // the camera the snapshot is of (another: a new scene)
+mVec3_c l_presentPos;
+mVec3_c l_presentAt;
+mVec3_c l_presentUp;
+bool l_presentApplied;
+nw4r::math::MTX34 l_presentSavedMtx;
+
+f32 distanceSq(const mVec3_c &a, const mVec3_c &b) {
+    const f32 dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z;
+    return dx * dx + dy * dy + dz * dz;
+}
+
+mVec3_c lerpVec(const mVec3_c &a, const mVec3_c &b, f32 t) {
+    return mVec3_c(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t);
+}
+} // namespace
+
+void dCamera::snapshotForPresent() {
+    dCamera_c *camera = dCamera_c::sInstance;
+    l_presentCamera = camera;
+    if (camera != NULL) {
+        l_presentPos = camera->mCamera.mPos;
+        l_presentAt = camera->mCamera.mAt;
+        l_presentUp = camera->mCamera.mUp;
+    }
+}
+
+void dCamera::applyPresent(f32 tickFraction) {
+    l_presentApplied = false;
+    dCamera_c *camera = dCamera_c::sInstance;
+    if (camera == NULL || camera != l_presentCamera) {
+        return;
+    }
+    const mVec3_c pos = camera->mCamera.mPos;
+    const mVec3_c at = camera->mCamera.mAt;
+    if (distanceSq(pos, l_presentPos) > kPresentSnapDistance * kPresentSnapDistance ||
+        distanceSq(at, l_presentAt) > kPresentSnapDistance * kPresentSnapDistance) {
+        return;
+    }
+    EGG::LookAtCamera blended;
+    blended.mPos = lerpVec(l_presentPos, pos, tickFraction);
+    blended.mAt = lerpVec(l_presentAt, at, tickFraction);
+    mVec3_c up = lerpVec(l_presentUp, camera->mCamera.mUp, tickFraction);
+    up.normalize();
+    blended.mUp = up;
+    blended.doUpdateMatrix();
+
+    nw4r::g3d::Camera g3dCamera = m3d::getCamera(0);
+    g3dCamera.GetCameraMtx(&l_presentSavedMtx);
+    blended.setG3DCamera(g3dCamera);
+    l_presentApplied = true;
+}
+
+void dCamera::restorePresent() {
+    if (l_presentApplied) {
+        m3d::getCamera(0).SetCameraMtxDirectly(l_presentSavedMtx);
+        l_presentApplied = false;
+    }
+}
+#endif
+
 void dCamera::useMainFovy() {
     setSecondaryFovy(l_hostIO.mFovy);
 }

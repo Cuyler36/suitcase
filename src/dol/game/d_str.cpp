@@ -1,6 +1,9 @@
 // dSTR: town structures (banks, flatness/copy checks, collision bank) and the per-unit field
 // attribute map dFdUnitAttr_c. .text 80166990..8016AE68.
 #include <game/game/d_str.hpp>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 #include <game/game/d_field_info.hpp>
 #include <game/game/d_bgcf.hpp>
 #include <game/game/d_scene.hpp>
@@ -173,7 +176,12 @@ viewArea_c::viewArea_c(f32 front, f32 back, f32 halfWidth) {
 void viewArea_c::set(f32 front, f32 back, f32 halfWidth) {
     mFront = front;
     mBack = back;
+#if TARGET_PC
+    // Covers the Wii's widest view (16:9): wider windows widen it (cf/screen.h)
+    mHalfWidth = 4.0f / 3.0f * halfWidth * cf::screen::ViewWidthScale();
+#else
     mHalfWidth = 4.0f / 3.0f * halfWidth;
+#endif
 }
 
 // 80166BB8

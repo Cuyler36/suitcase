@@ -1,4 +1,7 @@
 #include <game/game/d_shadow.hpp>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 #include <game/game/d_bgcf.hpp>
 #include <game/game/d_bg.hpp>
 #include <game/game/d_camera.hpp>
@@ -421,8 +424,14 @@ BOOL requestRound(const mVec3_c *pos, u32 flags, const mAng *angle,
         f32 x = f32(__fabs(pos->x - dCamera_c::sCenter.x));
         z = pos->z - dCamera_c::sCenter.z;
         bool culled = false;
+#if TARGET_PC
+        // Covers the Wii's widest view (16:9): wider windows widen it (cf/screen.h)
+        if (x > bounds.z * cf::screen::ViewWidthScale() || z > bounds.x || z < bounds.y)
+            culled = true;
+#else
         if (x > bounds.z || z > bounds.x || z < bounds.y)
             culled = true;
+#endif
         if (!culled) {
             if (sizeZ == 0.0f) sizeZ = sizeX;
             return sInstance->addRound(pos, flags, *angle, sizeX, scale, alphaScale, sizeZ, heightScale);
@@ -440,6 +449,16 @@ BOOL requestTexture(const mVec3_c *pos, int texture, f32 width, f32 length, f32 
 }
 // 801C865C
 f32 getSunTime() { return sSunTime; }
+#if TARGET_PC
+static u32 sPresentRoundCount;
+static u32 sPresentTextureCount;
+void beginPresent() {
+    if (sInstance) { sPresentRoundCount = sInstance->mRoundCount; sPresentTextureCount = sInstance->mTextureCount; }
+}
+void endPresent() {
+    if (sInstance) { sInstance->mRoundCount = sPresentRoundCount; sInstance->mTextureCount = sPresentTextureCount; }
+}
+#endif
 // 801C8664
 BOOL fn_801C8664() { return FALSE; }
 // 801C866C

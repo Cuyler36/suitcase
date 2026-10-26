@@ -51,6 +51,12 @@ BOOL requestRound(const mVec3_c *pos, u32 flags, const mAng *angle,
 BOOL requestTexture(const mVec3_c *pos, int texture, f32 width, f32 length,
                     f32 texS0, f32 texS1); // 801C8628
 f32 getSunTime(); // 801C865C
+#if TARGET_PC
+// A frame between ticks (d_sys presentFrame) leaves the queued shadows as it found them: those the
+// logic queued stay, those its own drawing queued (the trees', d_fg_draw) go
+void beginPresent();
+void endPresent();
+#endif
 // Debug hooks; both are constant FALSE and have no side effects.
 BOOL fn_801C8664(); // 801C8664
 BOOL fn_801C866C(); // 801C866C

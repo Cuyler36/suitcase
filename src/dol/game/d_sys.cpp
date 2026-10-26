@@ -36,6 +36,9 @@
 #if TARGET_PC
 #include <game/game/d_m2d.hpp>
 #include <game/mLib/m_2d.hpp>
+#include <cf/interp.h>
+#include <game/game/d_camera.hpp>
+#include <game/game/d_shadow.hpp>
 #include <game/game/d_tag_processor.hpp>
 #endif
 #include <game/mLib/m_allocator.hpp>
@@ -427,6 +430,10 @@ void runFrame() {
     dReset::Manage_c::GetInstance()->Calculate();
     dResetSave::execute();
     m3d::calcWorld();
+#if TARGET_PC
+    // The world matrices this frame draws, for the frames before the next tick (presentFrame)
+    cf::interp::RecordWorld();
+#endif
     beginFrame();
     m3d::calcMaterial();
     mFace::execute();
@@ -476,6 +483,10 @@ void runFrame() {
             fManager_c::PROC_FLAG_CREATE) {
             dScene_c::createNextScene();
         }
+#if TARGET_PC
+        // The camera this tick drew with, for the frames before the next (presentFrame)
+        dCamera::snapshotForPresent();
+#endif
         fManager_c::mainLoop();
     }
     if (!caution && !wifiError) {
@@ -520,7 +531,7 @@ BOOL canPresent() {
     return dHomeButton_c::getInstance()->mState != dHomeButton_c::STATE_OPEN;
 }
 
-void presentFrame() {
+void presentFrame(f32 tickFraction) {
     l_presenting = TRUE;
     // Drawing the message window's text advances the tag processor from where its controller's draw
     // (the logic, dMsg::Comp_c::draw) left it: each frame, and the next tick, start from there
@@ -528,14 +539,19 @@ void presentFrame() {
     const u8 drawEnd = g_tagProcessor.mDrawEnd;
     const u8 line = g_tagProcessor.mLine;
     const u8 typeLine = g_tagProcessor.mTypeLine;
+    dShadow::beginPresent();
     m3d::calcWorld();
+    cf::interp::InterpolateWorld(tickFraction);
     m3d::calcMaterial();
     m3d::reset();
     beginRender();
     m3d::saveDrawList();
     m2d::saveDrawList();
     m2d::beginPresent();
+    dCamera::applyPresent(tickFraction);
     dSysGfx::draw();
+    dCamera::restorePresent();
+    cf::interp::RestoreWorld();
     m2d::endPresent();
     m2d::restoreDrawList();
     m3d::restoreDrawList();
@@ -549,6 +565,7 @@ void presentFrame() {
     g_tagProcessor.mDrawEnd = drawEnd;
     g_tagProcessor.mLine = line;
     g_tagProcessor.mTypeLine = typeLine;
+    dShadow::endPresent();
     l_presenting = FALSE;
 }
 #endif

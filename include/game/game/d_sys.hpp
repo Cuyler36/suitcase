@@ -41,7 +41,7 @@ void runFrame();                                  // 8016C3C0
 #if TARGET_PC
 // A frame drawn between two ticks (src/cf/game/frame.cpp), when canPresent
 BOOL canPresent();
-void presentFrame();
+void presentFrame(f32 tickFraction);
 // Whether a frame between ticks is being drawn: drawing that consumes what the logic queued (e.g. the
 // shadows, d_shadow) keeps it for the next frame
 BOOL isPresenting();

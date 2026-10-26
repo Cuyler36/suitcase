@@ -1,6 +1,9 @@
 // dInsectField_c: the insects in the town (REL d_insect_fieldNP). See
 // include/game/game/d_insect_field.hpp.
 #include <game/framework/f_profile_name.hpp>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 #include <game/game/d_insect_field.hpp>
 #include <game/game/d_camera.hpp>
 #include <game/game/d_scene.hpp>
@@ -2008,8 +2011,14 @@ PlaceFinder sPlaceFinders[PLACE_NUM] = {
 
 // 0x4F58: pos is in the view of the camera at center
 BOOL isInView(const mVec3_c *center, const mVec3_c *pos) {
+#if TARGET_PC
+    // Covers the Wii's widest view (16:9): wider windows widen it (cf/screen.h)
+    f32 minX = -320.0f * cf::screen::ViewWidthScale() + center->x;
+    f32 maxX = 320.0f * cf::screen::ViewWidthScale() + center->x;
+#else
     f32 minX = -320.0f + center->x;
     f32 maxX = 320.0f + center->x;
+#endif
     f32 minZ = -512.0f + center->z;
     f32 maxZ = 192.0f + center->z;
     if (sLib::isInRange(pos->x, minX, maxX) &&

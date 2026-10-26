@@ -90,5 +90,13 @@ f32 WideScale() {
     return WideWidth() / kWidth4x3;
 }
 
+f32 ViewWidthScale() {
+    if (!sWidescreen) {
+        return 1.0f;
+    }
+    const f32 scale = WideWidth() / 832.0f;
+    return scale > 1.0f ? scale : 1.0f;
+}
+
 } // namespace screen
 } // namespace cf

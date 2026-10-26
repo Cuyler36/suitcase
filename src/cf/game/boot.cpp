@@ -21,6 +21,7 @@
 #include "../sdk/shutdown.h"
 
 #include <cf/save_codec.h>
+#include <cf/frame.h>
 #include <cf/screen.h>
 
 #include <cstdlib>
@@ -91,7 +92,7 @@ bool CanPresentGameFrame() {
 
 void PresentGameFrame() {
     screen::Update();
-    dSys::presentFrame();
+    dSys::presentFrame(frame::GetTickFraction());
 }
 
 void ShutdownGame() {

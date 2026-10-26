@@ -1,6 +1,9 @@
 // dFishField_c: the fish in the town (REL d_fish_fieldNP). See
 // include/game/game/d_fish_field.hpp.
 #include <game/framework/f_profile_name.hpp>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 #include <game/game/d_fish_field.hpp>
 #include <game/game/d_camera.hpp>
 #include <lib/egg/core/eggExpHeap.h>
@@ -842,8 +845,14 @@ dFishFldShadow_c::Proc dFishFldShadow_c::sProcs[11] = {
 
 // 0x2304
 BOOL dFishField_c::isInView(const mVec3_c *center, const mVec3_c *pos) {
+#if TARGET_PC
+    // Covers the Wii's widest view (16:9): wider windows widen it (cf/screen.h)
+    f32 minX = center->x - 320.0f * cf::screen::ViewWidthScale();
+    f32 maxX = 320.0f * cf::screen::ViewWidthScale() + center->x;
+#else
     f32 minX = center->x - 320.0f;
     f32 maxX = 320.0f + center->x;
+#endif
     f32 minZ = center->z - 448.0f;
     f32 maxZ = 192.0f + center->z;
     if (sLib::isInRange(pos->x, minX, maxX) &&

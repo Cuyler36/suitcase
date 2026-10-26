@@ -28,8 +28,26 @@
 // These wrappers only call unidentified manager functions; ownership is not yet
 // known.
 #include <game/game/d_fgobj_manager.hpp>
+#if TARGET_PC
+#include <cf/screen.h>
+#include <cmath>
+#endif
 
 namespace dFgDraw {
+#if TARGET_PC
+// Units are drawn up to 13 either side of the camera's centre, enough for the Wii's widest view
+// (16:9); wider windows (cf/screen.h) widen it, up to kMaxRangeScale times, with as many more entries
+static const f32 kMaxRangeScale = 2.5f;
+static const int kDrawCapacity = int(DRAW_CAPACITY * kMaxRangeScale);
+
+static int getRangeX() {
+    f32 scale = cf::screen::ViewWidthScale();
+    if (scale > kMaxRangeScale) {
+        scale = kMaxRangeScale;
+    }
+    return int(std::ceil(13.0f * scale));
+}
+#endif
 static designLoaders_c sDesigns;
 static fgHostIO_c sHostIO;
 
@@ -199,7 +217,11 @@ BOOL inModelRange(int x, int z, int unitX, int unitZ, int height,
         above = 0;
     }
     int dx = unitX - x, dz = unitZ - z;
+#if TARGET_PC
+    return dx >= -getRangeX() && dx <= getRangeX() && dz >= -19 && dz - above <= 5;
+#else
     return dx >= -13 && dx <= 13 && dz >= -19 && dz - above <= 5;
+#endif
 }
 // .text 04D4
 BOOL inTextureRange(int x, int z, int unitX, int unitZ, int height,
@@ -209,7 +231,11 @@ BOOL inTextureRange(int x, int z, int unitX, int unitZ, int height,
         above = 0;
     }
     int dx = unitX - x, dz = unitZ - z;
+#if TARGET_PC
+    return dx >= -getRangeX() && dx <= getRangeX() && dz >= -16 && dz - above <= 5;
+#else
     return dx >= -13 && dx <= 13 && dz >= -16 && dz - above <= 5;
+#endif
 }
 // .text 0518
 BOOL inNoRange(int, int, int, int, int, int) {
@@ -924,7 +950,11 @@ BOOL manager_c::execute() {
         entry = next;
     }
     for (int dz = -19; dz <= 5; dz++) {
+#if TARGET_PC
+        f32 radius = getRangeX();
+#else
         f32 radius = 13.0f;
+#endif
         for (int dx = -radius; dx <= radius; dx++) {
             int unitX = x + dx, unitZ = z + dz;
             if (!mUsed.test(unitX, unitZ)) {
@@ -1239,6 +1269,17 @@ int dFgDraw_c::create() {
     if (!mParam || g_fgObjRes.load(heap)) {
         mAllocator.attach(heap, 32);
         m3d::proc_c::create(&mAllocator, NULL);
+#if TARGET_PC
+        // As many more entries as the widest range needs (the PC heaps have the room, PC-14)
+        mpEntries = (dFgDraw::entry_c *)heap->alloc(
+            sizeof(dFgDraw::entry_c) * dFgDraw::kDrawCapacity, 32);
+        u32 i;
+        for (i = 0; i < dFgDraw::kDrawCapacity; i++) {
+            new (&mpEntries[i]) dFgDraw::entry_c;
+        }
+        if (dFgDraw::sManager.init(mpEntries, dFgDraw::kDrawCapacity,
+                                   mParam != 0)) {
+#else
         mpEntries = (dFgDraw::entry_c *)heap->alloc(
             sizeof(dFgDraw::entry_c) * dFgDraw::DRAW_CAPACITY, 32);
         u32 i;
@@ -1247,6 +1288,7 @@ int dFgDraw_c::create() {
         }
         if (dFgDraw::sManager.init(mpEntries, dFgDraw::DRAW_CAPACITY,
                                    mParam != 0)) {
+#endif
             setPriorityDraw(5, 127);
         }
         dFgDraw::sDesigns.load(heap);

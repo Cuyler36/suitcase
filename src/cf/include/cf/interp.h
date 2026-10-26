@@ -1,0 +1,27 @@
+// Interpolated models for frames between ticks (src/cf/game/interp.cpp, cf/frame.h).
+//
+// Each tick's frame records the world matrices of the models it draws (after m3d::calcWorld); a frame
+// between ticks blends each model's matrices (the model's and its nodes') from those to the ones the
+// newest logic gives, so movement and animation are smooth. A model that jumps further than a
+// threshold in a tick (a warp, a respawn) is not blended.
+#pragma once
+
+#include <types.h>
+
+namespace cf {
+namespace interp {
+
+// A tick's frame, after m3d::calcWorld: the drawn models' world matrices
+void RecordWorld();
+
+// A frame between ticks, after m3d::calcWorld: the drawn models' world matrices blended from the
+// recorded ones by tickFraction (0: the recorded, 1: the newest)
+void InterpolateWorld(f32 tickFraction);
+
+// After that frame is drawn: the newest matrices back. Not every model's are recomputed by the next
+// m3d::calcWorld (some are calculated only by their own code, in the logic, e.g. the player's), and
+// the blend must start from the newest, not from the last frame's blend.
+void RestoreWorld();
+
+} // namespace interp
+} // namespace cf

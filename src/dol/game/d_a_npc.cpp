@@ -52,6 +52,9 @@
 #include <string.h>
 #include <game/snd/snd_id.hpp>
 #include <game/game/d_a_player.hpp>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 // ---- top-of-file data (.rodata 804659F0..8046B0B0, .sdata2 8074FDE0..8074FE58, __sinit globals) ----
 
@@ -8050,8 +8053,16 @@ BOOL dAcNpc_c::viewArea_c::isOutside(const mVec3_c *pos, const nw4r::math::VEC3 
     if (pos == NULL || center == NULL) {
         return TRUE;
     }
+#if TARGET_PC
+    // The box covers the Wii's widest view (16:9): wider windows widen it (cf/screen.h)
+    const f32 minX = mMin.x * cf::screen::ViewWidthScale();
+    const f32 maxX = mMax.x * cf::screen::ViewWidthScale();
+    if (pos->x > center->x + minX && pos->x < center->x + maxX && pos->z > center->z + mMin.z &&
+        pos->z < center->z + mMax.z) {
+#else
     if (pos->x > center->x + mMin.x && pos->x < center->x + mMax.x && pos->z > center->z + mMin.z &&
         pos->z < center->z + mMax.z) {
+#endif
         return FALSE;
     }
     return TRUE;
@@ -8063,8 +8074,13 @@ BOOL dAcNpc_c::viewArea_c::isUnitOutside(int ux, int uz, const nw4r::math::VEC3 
     if (center == NULL) {
         return TRUE;
     }
+#if TARGET_PC
+    mVec3_c lo(center->x + mMin.x * cf::screen::ViewWidthScale(), 0.0f, center->z + mMin.z);
+    mVec3_c hi(center->x + mMax.x * cf::screen::ViewWidthScale(), 0.0f, center->z + mMax.z);
+#else
     mVec3_c lo(center->x + mMin.x, 0.0f, center->z + mMin.z);
     mVec3_c hi(center->x + mMax.x, 0.0f, center->z + mMax.z);
+#endif
     x0 = lo.x;
     z0 = lo.z;
     x1 = hi.x;

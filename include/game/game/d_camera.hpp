@@ -303,6 +303,13 @@ void worldToScreen(const dCamera_c *cam, f32 *x, f32 *y, const mVec3_c *pos);
 void setSecondaryFovy(f32 fovy);
 void resetSecondaryFovy();
 void useMainFovy();
+#if TARGET_PC
+// Frames between ticks (d_sys presentFrame): the main camera between the one the last tick drew with
+// (recorded before its logic) and the current one
+void snapshotForPresent();
+void applyPresent(f32 tickFraction);
+void restorePresent();
+#endif
 
 } // namespace dCamera
 

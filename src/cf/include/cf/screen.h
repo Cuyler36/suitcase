@@ -31,6 +31,9 @@ void Update();
 f32 WideWidth();
 // WideWidth() / 608 (the Wii's 1.368421)
 f32 WideScale();
+// How much wider the 3D view is than the Wii's widest (16:9, a wide width of 832), at least 1: for the
+// game's fixed view boxes around the camera (what is drawn or active near the edges)
+f32 ViewWidthScale();
 
 } // namespace screen
 } // namespace cf

@@ -26,6 +26,9 @@ enum class Step {
 // Before each frame: waits for its time, and says what it does
 Step NextStep(bool canPresent);
 
+// For a Present step: how far its time is from the last tick to the next, 0..1 (interpolation)
+float GetTickFraction();
+
 // Measured over the last half second: frames presented (ticks and frames between them) and ticks,
 // per second, and the frames' average time in milliseconds
 struct Stats {
