@@ -8,6 +8,9 @@
 #include <revolution/sc.h>
 #include <cstdio>
 #include <game/game/d_a_player.hpp>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 CUSTOM_BASE_PROFILE(OBJ_BAL, dObjBal_c, fProf::OBJ_BAL,
                     fProf::DRAW_ORDER::OBJ_BAL);
@@ -182,8 +185,16 @@ void dObjBal_c::setPos(int bln) {
     f32 right = rightBottom.x;
     f32 limit = 292.0f;
     if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
+#if TARGET_PC
+        right *= cf::screen::WideScale();
+#else
         right *= 1.368421f;
+#endif
+#if TARGET_PC
+        limit *= cf::screen::WideScale();
+#else
         limit *= 1.368421f;
+#endif
     }
     if (limit < right) {
         trans.x = mBaseX + (limit - right);

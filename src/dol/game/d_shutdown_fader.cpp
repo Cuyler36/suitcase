@@ -9,6 +9,9 @@
 #include <revolution/mtx.h>
 #include <revolution/sc.h>
 #include <lib/egg/core/eggNew.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 // 8015FDF0
 dShutdownFader_c::dShutdownFader_c(mColor col, mFaderBase_c::EStatus status) : mFaderBase_c(col, status) {
@@ -57,7 +60,11 @@ int dShutdownFader_c::calc() {
 
 // 8015FF48
 void dShutdownFader_c::draw() {
+#if TARGET_PC
+    f32 halfWidth = 304.0f * (mWidthScale != 1.0f ? cf::screen::WideScale() : 1.0f);
+#else
     f32 halfWidth = 304.0f * mWidthScale;
+#endif
     if (mFaderColor.a == 0) {
         return;
     }

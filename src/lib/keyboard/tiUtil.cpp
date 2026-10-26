@@ -2,6 +2,9 @@
 #include <lib/textinput/tiCpData.h>
 #include <string.h>
 #include <wchar.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace textinput {
 namespace util {
@@ -245,8 +248,16 @@ void getProjectionRect4x3(nw4r::ut::Rect *rect) {
 }
 
 void getProjectionRect16x9(nw4r::ut::Rect *rect) {
+#if TARGET_PC
+    rect->left = -cf::screen::WideWidth() / 2.0f;
+#else
     rect->left = -416.0;
+#endif
+#if TARGET_PC
+    rect->right = cf::screen::WideWidth() / 2.0f;
+#else
     rect->right = 416.0;
+#endif
     rect->bottom = 228.0;
     rect->top = -228.0;
 }

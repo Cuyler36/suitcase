@@ -14,6 +14,8 @@ struct PadSettings {
   float triggerThreshold = 0.5f;
   // The pointer's speed at full right-stick deflection, in pointer widths per second
   float pointerSpeed = 1.2f;
+  // Hide the OS cursor over the game (it draws its own); layers above (the debug UI) still show it
+  bool hideCursor = true;
 };
 
 void set_pad_settings(const PadSettings& settings);

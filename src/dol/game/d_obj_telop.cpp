@@ -15,6 +15,9 @@
 #include <revolution/sc.h>
 #include <revolution/vi.h>
 #include <revolution/wpad.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 CUSTOM_BASE_PROFILE(OBJ_TELOP, dObjTelop_c, fProf::OBJ_TELOP,
                     fProf::DRAW_ORDER::OBJ_TELOP);
@@ -163,7 +166,11 @@ void dObjTelop_c::setMsg() {
     mTextWidth =
         m2d::calcTextWidth(textBox, word.getText(), word.getCapacity());
     if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
+#if TARGET_PC
+        mTextWidth *= (1.0f / cf::screen::WideScale());
+#else
         mTextWidth *= 0.730769f;
+#endif
     }
 }
 

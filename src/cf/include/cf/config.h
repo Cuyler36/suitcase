@@ -12,6 +12,13 @@ namespace config {
 // aurora_initialize)
 void Load(const char* userPath);
 
+namespace graphics {
+
+// The game's widescreen mode, filling the window at any shape (cf/screen.h); read at boot
+extern borealis::config::Var<bool> widescreen;
+
+} // namespace graphics
+
 namespace input {
 
 // Gamepads (the Wii Remote stand-in, src/cf/aurora_wpad): suitcase::wpad::PadSettings
@@ -19,6 +26,7 @@ extern borealis::config::Var<float> stickGain;
 extern borealis::config::Var<float> deadZone;
 extern borealis::config::Var<float> triggerThreshold;
 extern borealis::config::Var<float> pointerSpeed;
+extern borealis::config::Var<bool> hideCursor;
 
 } // namespace input
 

@@ -25,6 +25,9 @@
 #include <revolution/RFL.h>
 #include <revolution/sc.h>
 #include <string.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 // Dependencies whose owners are not recovered yet.
 extern "C" {
@@ -427,7 +430,11 @@ void SimpleEx_c::copyPos(SimpleEx_c *other, const char *srcName,
         getScreenPos(&pos, src);
         if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9 &&
             !dst->IsLocationAdjust()) {
+#if TARGET_PC
+            pos.x *= cf::screen::WideScale();
+#else
             pos.x *= 1.368421f;
+#endif
         }
         dst->SetTranslate(pos);
     }
@@ -834,7 +841,11 @@ int Word_c::getPosAtScreenX(f32 x) {
         pos = rb;
         f32 width = calcWidth(nullptr, 0);
         if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
+#if TARGET_PC
+            width *= (1.0f / cf::screen::WideScale());
+#else
             width *= 0.730769f;
+#endif
         }
         dx = x - (pos.x - width);
         break;
@@ -848,7 +859,11 @@ int Word_c::getPosAtScreenX(f32 x) {
     }
     }
     if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
+#if TARGET_PC
+        dx *= cf::screen::WideScale();
+#else
         dx *= 1.368421f;
+#endif
     }
     return getPosAt(dx);
 }
@@ -862,7 +877,11 @@ f32 Word_c::getScreenXLeft(int pos) {
     }
     f32 width = calcWidth(nullptr, getSizeAt(getBuffer(), pos));
     if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
+#if TARGET_PC
+        width *= (1.0f / cf::screen::WideScale());
+#else
         width *= 0.730769f;
+#endif
     }
     return lt.x + width;
 }
@@ -880,8 +899,16 @@ f32 Word_c::getScreenXRight(int pos) {
     }
     f32 total = calcWidth(nullptr, 0);
     if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
+#if TARGET_PC
+        width *= (1.0f / cf::screen::WideScale());
+#else
         width *= 0.730769f;
+#endif
+#if TARGET_PC
+        total *= (1.0f / cf::screen::WideScale());
+#else
         total *= 0.730769f;
+#endif
     }
     return rb.x + width - total;
 }

@@ -13,6 +13,9 @@
 #include <math.h>
 #include <game/game/d_environment.hpp>
 #include <game/game/d_heap.hpp>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 void *dSky_c_classInit();
 f32 getMoonAge(const dTime_c *now);
@@ -316,11 +319,24 @@ void dSky_c::calc() {
     mPos.y += getOffsetY();
     mPos.z += getOffsetZ();
 
+#if TARGET_PC
+    // The sky and cloud models fill the widest view the Wii shows (16:9, 832 virtual units): a wider
+    // window (cf/screen.h) stretches them sideways to its width
+    f32 wideX = cf::screen::WideWidth() > 832.0f ? cf::screen::WideWidth() / 832.0f : 1.0f;
+#endif
     mSkyMtx.concat(mMtx_c::createTrans(skyPos));
+#if TARGET_PC
+    mSkyMtx.concat(mMtx_c::createScale(wideX, 1.0f, 1.0f));
+#else
     mSkyMtx.concat(mMtx_c::createScale(1.0f, 1.0f, 1.0f));
+#endif
     mMtx538.trans(skyPos);
     mCloudMtx.concat(mMtx_c::createTrans(cloudPos));
+#if TARGET_PC
+    mCloudMtx.concat(mMtx_c::createScale(0.9375f * wideX, 0.8f, 1.0f));
+#else
     mCloudMtx.concat(mMtx_c::createScale(0.9375f, 0.8f, 1.0f));
+#endif
     mMdlCloud.setLocalMtx(&mCloudMtx);
     mMdlCloud.calc(false);
 

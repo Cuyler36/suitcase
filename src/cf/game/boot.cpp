@@ -21,6 +21,7 @@
 #include "../sdk/shutdown.h"
 
 #include <cf/save_codec.h>
+#include <cf/screen.h>
 
 #include <cstdlib>
 
@@ -79,6 +80,8 @@ bool BootGame() {
 }
 
 void RunGameFrame() {
+    // The window's shape for this frame (widescreen)
+    screen::Update();
     dSys::runFrame();
 }
 

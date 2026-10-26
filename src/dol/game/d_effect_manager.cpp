@@ -14,6 +14,9 @@
 #include <nw4r/ef/ef_drawinfo.h>
 #include <nw4r/g3d/g3d_state.h>
 #include <revolution/sc.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace dEffect {
 dOneEmitterEffect_c l_playerLeft;
@@ -246,7 +249,11 @@ void dEffect::draw(int creator, int group) {
             halfWidth = 320.0f;
             halfHeight = 240.0f;
         } else {
+#if TARGET_PC
+            halfWidth = (cf::screen::WideWidth() / 2.0f);
+#else
             halfWidth = 416.0f;
+#endif
             halfHeight = 240.0f;
         }
         info.SetProjMtx(makeOrtho(halfHeight, halfWidth));

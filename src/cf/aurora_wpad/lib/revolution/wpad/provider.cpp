@@ -493,6 +493,9 @@ void initialize_provider() {
       .label = "suitcase.wpad",
       .priority = input::kGameLayerPriority,
       .onEvent = on_event,
+      // The game draws its own cursor. aurora asks the layers from the top: over the debug UI (which
+      // takes the mouse) the cursor shows.
+      .pointerMode = [](void*) { return settings.hideCursor ? input::PointerMode::Hidden : input::PointerMode::None; },
   });
 }
 

@@ -7,6 +7,9 @@
 #include <lib/egg/math/eggMatrix.h>
 #include <revolution/mtx.h>
 #include <revolution/sc.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 static const char *lBalloonPane = "bln_00";
 static const char *lShadowPane = "blnSdw_00";
@@ -72,7 +75,11 @@ int dBalloon_c::draw() {
 // 800657B4
 void dBalloon_c::setPos(mVec2_c pos) {
     if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
+#if TARGET_PC
+        pos.x += (78.0f / cf::screen::WideScale());
+#else
         pos.x += 56.99998f;
+#endif
     } else {
         pos.x += 78.0f;
     }

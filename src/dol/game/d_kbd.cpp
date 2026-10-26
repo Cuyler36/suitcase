@@ -24,6 +24,9 @@
 
 #if TARGET_PC
 #include <cf/kbd.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 #endif
 
 namespace dKbd {
@@ -692,7 +695,11 @@ BOOL Mng_c::updatePointer() {
         pos.y = 1000.0f;
     } else {
         u8 aspect = (u8)SCGetAspectRatio();
+#if TARGET_PC
+        pos.x = (aspect ? cf::screen::WideWidth() : l_screenWidth[aspect]) * dPad::getRawPointer().x / 2.0f;
+#else
         pos.x = l_screenWidth[aspect] * dPad::getRawPointer().x / 2.0f;
+#endif
         pos.y = l_screenHeight[aspect] * dPad::getRawPointer().y / 2.0f;
     }
     u32 trig = mPad::g_currentCore->mCoreStatus[0].trig;

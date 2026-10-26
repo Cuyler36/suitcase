@@ -322,6 +322,12 @@ int dCamera_c::execute() {
     PSMTXInverse(mViewMtx, mViewMtx);
     mCamera.setG3DCamera(camera);
     const nw4r::math::MTX34 &view = mCamera.getViewMatrix();
+#if TARGET_PC
+    // The screen's shape follows the window (widescreen, cf/screen.h), but the frustum is sized once
+    // per scene: resized here, before the culling frustum, the projection (draw) and screenToWorld
+    mFrustum.SetSizeX(EGG::Screen::GetSizeXMax());
+    mFrustum.SetSizeY(EGG::Screen::GetSizeYMax());
+#endif
     f32 aspect = mFrustum.mSize.x / mFrustum.mSize.y;
     f32 farZ = l_hostIO.mFar;
     f32 nearZ = l_hostIO.mNear;

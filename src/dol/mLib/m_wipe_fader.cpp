@@ -3,6 +3,9 @@
 #include <game/mLib/m_video.hpp>
 #include <revolution/vi.h>
 #include <private/gx.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 mWipeFader_c::mWipeFader_c(mColor col, mFaderBase_c::EStatus status) :
     mFaderBase_c(col, status),
@@ -32,6 +35,13 @@ void mWipeFader_c::setStatus(EStatus status) {
 
 int mWipeFader_c::calc() {
     int res = mFaderBase_c::calc();
+#if TARGET_PC
+    // The wide width follows the window (cf/screen.h): the factor (832 / 608 on the Wii, set once at
+    // construction) with it, for calcMtx (the subclasses' too: dWipeFader_c, dSideWipeFader_c) and draw
+    if (SCGetAspectRatio() == 1) {
+        mAspectRatioFactor = cf::screen::WideScale();
+    }
+#endif
 
     u16 currFrame = mCurrFrame;
     u16 endFrame = mFrameCount;

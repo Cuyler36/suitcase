@@ -13,6 +13,7 @@
 
 #if TARGET_PC
 #include <port/base_offset.h>
+#include <cf/screen.h>
 #endif
 
 namespace m2d {
@@ -285,7 +286,11 @@ void Base_c::entry() {
 
 Simple_c::Simple_c() : mpResAcc(nullptr), mPos(0.0f, 0.0f, 0.0f), mFlags(0) {
     if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
+#if TARGET_PC
+        mDrawInfo.SetLocationAdjustScale(nw4r::math::VEC2(1.0f / cf::screen::WideScale(), 1.0f));
+#else
         mDrawInfo.SetLocationAdjustScale(nw4r::math::VEC2(19.0f / 26.0f, 1.0f));
+#endif
         mDrawInfo.SetLocationAdjust(true);
     }
 }
@@ -303,6 +308,12 @@ void Simple_c::calc() {
 }
 
 void Simple_c::calcBefore() {
+#if TARGET_PC
+    // The wide width follows the window (cf/screen.h): the 16:9 position adjust with it
+    if (mDrawInfo.IsLocationAdjust()) {
+        mDrawInfo.SetLocationAdjustScale(nw4r::math::VEC2(1.0f / cf::screen::WideScale(), 1.0f));
+    }
+#endif
     u32 option = 0;
     if (mFlags & SKIP_INVISIBLE) {
         option = nw4r::lyt::ANIMOPTION_SKIP_INVISIBLE;

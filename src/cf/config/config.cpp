@@ -8,6 +8,8 @@
 
 #include <suitcase/wpad_host.hpp>
 
+#include <cf/screen.h>
+
 #include <filesystem>
 #include <string>
 
@@ -33,12 +35,19 @@ namespace {
 constexpr borealis::Log Log{"cf::config"};
 } // namespace
 
+namespace graphics {
+
+borealis::config::Var<bool> widescreen{"graphics.widescreen", true};
+
+} // namespace graphics
+
 namespace input {
 
 borealis::config::Var<float> stickGain{"input.stickGain", 1.f, {.min = 1.f, .max = 2.f}};
 borealis::config::Var<float> deadZone{"input.deadZone", 0.1f, {.min = 0.f, .max = 0.5f}};
 borealis::config::Var<float> triggerThreshold{"input.triggerThreshold", 0.5f, {.min = 0.1f, .max = 0.9f}};
 borealis::config::Var<float> pointerSpeed{"input.pointerSpeed", 1.2f, {.min = 0.2f, .max = 4.f}};
+borealis::config::Var<bool> hideCursor{"input.hideCursor", true};
 
 namespace {
 
@@ -48,6 +57,7 @@ void ApplyPadSettings() {
         .deadZone = deadZone,
         .triggerThreshold = triggerThreshold,
         .pointerSpeed = pointerSpeed,
+        .hideCursor = hideCursor,
     });
 }
 
@@ -67,7 +77,11 @@ void Load(const char* userPath) {
          {&input::stickGain, &input::deadZone, &input::triggerThreshold, &input::pointerSpeed}) {
         var->on_change([] { input::ApplyPadSettings(); }).release();
     }
+    input::hideCursor.on_change([] { input::ApplyPadSettings(); }).release();
     input::ApplyPadSettings();
+
+    // The game reads it once, at boot: later changes apply at the next start
+    screen::SetWidescreen(graphics::widescreen);
 }
 
 } // namespace config

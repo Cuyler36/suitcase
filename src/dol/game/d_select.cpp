@@ -13,6 +13,9 @@
 #include <game/mLib/m_pad.hpp>
 #include <revolution/sc.h>
 #include <string.h>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 namespace dSelect {
 
@@ -848,7 +851,11 @@ void MComp_c::setCancelLast() {
 void MComp_c::placeAbove(mVec2_c pos) {
     updateLayout();
     if (SCGetAspectRatio() == 1) {
+#if TARGET_PC
+        pos.x += (1.0f / cf::screen::WideScale()) * (0.5f * getWindowWidth());
+#else
         pos.x += 0.730769f * (0.5f * getWindowWidth());
+#endif
     } else {
         pos.x += 0.5f * getWindowWidth();
     }
@@ -862,7 +869,11 @@ void MComp_c::placeAbove(mVec2_c pos) {
 void MComp_c::placeBelow(mVec2_c pos) {
     updateLayout();
     if (SCGetAspectRatio() == 1) {
+#if TARGET_PC
+        pos.x += (1.0f / cf::screen::WideScale()) * (0.5f * getWindowWidth());
+#else
         pos.x += 0.730769f * (0.5f * getWindowWidth());
+#endif
     } else {
         pos.x += 0.5f * getWindowWidth();
     }
@@ -881,7 +892,11 @@ void MComp_c::place(mVec2_c pos) {
         above = true;
     }
     if (SCGetAspectRatio() == 1) {
+#if TARGET_PC
+        pos.x += (1.0f / cf::screen::WideScale()) * (0.5f * getWindowWidth());
+#else
         pos.x += 0.730769f * (0.5f * getWindowWidth());
+#endif
     } else {
         pos.x += 0.5f * getWindowWidth();
     }
@@ -909,7 +924,11 @@ void MComp_c::place(mVec2_c *below, mVec2_c *above) {
         pos = *below;
     }
     if (SCGetAspectRatio() == 1) {
+#if TARGET_PC
+        pos.x += (1.0f / cf::screen::WideScale()) * (0.5f * getWindowWidth());
+#else
         pos.x += 0.730769f * (0.5f * getWindowWidth());
+#endif
     } else {
         pos.x += 0.5f * getWindowWidth();
     }

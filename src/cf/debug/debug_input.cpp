@@ -67,6 +67,10 @@ void DrawInputWindow(bool* open) {
     VarSlider("Dead zone", config::input::deadZone);
     VarSlider("Trigger threshold", config::input::triggerThreshold);
     VarSlider("Pointer speed", config::input::pointerSpeed, "%.2f widths/s");
+    bool hideCursor = config::input::hideCursor;
+    if (ImGui::Checkbox("Hide the OS cursor over the game", &hideCursor)) {
+        config::input::hideCursor.set(hideCursor);
+    }
 
     ImGui::SeparatorText("Left stick");
     const auto stick = suitcase::wpad::left_stick_reading();

@@ -8,6 +8,8 @@
 
 #include <aurora/wpad.h>
 
+#include <cf/screen.h>
+
 #include <game_version.h>
 
 #include <chrono>
@@ -62,8 +64,9 @@ u8 SCGetEuRgb60Mode(void) {
     return 0;
 }
 
+// The game's widescreen mode, at the window's shape (cf/screen.h)
 u8 SCGetAspectRatio(void) {
-    return SC_ASPECT_RATIO_4x3;
+    return cf::screen::IsWidescreen() ? SC_ASPECT_RATIO_16x9 : SC_ASPECT_RATIO_4x3;
 }
 
 // Parental controls do not restrict messaging

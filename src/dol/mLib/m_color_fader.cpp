@@ -3,6 +3,9 @@
 #include <private/gx.h>
 #include <revolution/sc.h>
 #include <game/mLib/m_video.hpp>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 void mColorFader_c::setStatus(EStatus status) {
     if (status == OPAQUE) {
@@ -38,7 +41,11 @@ int mColorFader_c::calc() {
 }
 
 void mColorFader_c::draw() {
+#if TARGET_PC
+    float h = (SCGetAspectRatio() == 1) ? (cf::screen::WideWidth() / 2.0f) : VI_VIRTUAL_HALF_WIDTH_STD;
+#else
     float h = (SCGetAspectRatio() == 1) ? VI_VIRTUAL_HALF_WIDTH_WIDE : VI_VIRTUAL_HALF_WIDTH_STD;
+#endif
 
     if (mFaderColor.a == 0) {
         return;
