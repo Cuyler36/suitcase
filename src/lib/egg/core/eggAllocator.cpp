@@ -4,6 +4,13 @@
 namespace EGG {
 
 Allocator::Allocator(Heap *heap, long align) : mpHeap(heap), mAlign(align) {
+#if TARGET_PC
+    // No heap: a static mAllocator_c built before mAllocator_c::init made the dummy heap (the RELs'
+    // statics are constructed before main on PC); it sets itself up (src/dol/mLib/m_allocator.cpp)
+    if (heap == nullptr) {
+        return;
+    }
+#endif
     heap->initAllocator(this, align);
 }
 

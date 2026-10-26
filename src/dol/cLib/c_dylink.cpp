@@ -2,9 +2,6 @@
 #include <lib/revolution/os/OSContext.h>
 #include <runtime/rel.h>
 #include <cstdio>
-#if TARGET_PC
-#include <cf/rel.h>
-#endif
 
 DynamicModuleControlBase *DynamicModuleControlBase::mFirst;
 DynamicModuleControlBase *DynamicModuleControlBase::mLast;
@@ -128,10 +125,6 @@ void DynamicModuleControl::initialize(EGG::ExpHeap *heap) {
     sDylinkHeap = heap;
     sDvdFile = EGG_NEW_ARGS(heap, 4) EGG::DvdFile();
     sAllocBytes = sizeof(EGG::DvdFile);
-#if TARGET_PC
-    // The RELs are linked statically; run their prologs' static initializers now that the heaps exist
-    cf::RunRelStaticInitializers();
-#endif
 }
 
 // 802AA554

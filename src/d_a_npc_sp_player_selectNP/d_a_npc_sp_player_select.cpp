@@ -46,7 +46,20 @@ struct DsSaveBuf_s {
 };
 static DsSaveBuf_s l_dsSaveBuf;
 // A player travelling to or from the DS.
+#if TARGET_PC
+// Built on first use: its constructor reaches the sound system and the console's language
+// (dAnimal_c -> dSaveMelody_c::clear -> getDefaultTownTune), which do not exist before main, when
+// the RELs' statics are constructed on PC
+static dTravelData::Data_c &travelData() {
+    static dTravelData::Data_c data;
+    return data;
+}
+#else
 static dTravelData::Data_c l_travelData;
+static inline dTravelData::Data_c &travelData() {
+    return l_travelData;
+}
+#endif
 } // namespace dANpcSpPlayerSelect
 
 // .text 0x264
@@ -418,11 +431,11 @@ void dAcNpcSpPlayerSelect_c::talk_c::setFirstPlayerName() {
 }
 // .text 0x1798
 void dAcNpcSpPlayerSelect_c::talk_c::finishTravelReturn() {
-    dANpcSpPlayerSelect::l_travelData.finishReturn();
+    dANpcSpPlayerSelect::travelData().finishReturn();
 }
 // .text 0x17A4
 void dAcNpcSpPlayerSelect_c::talk_c::finishTravelVisit() {
-    dANpcSpPlayerSelect::l_travelData.finishVisit();
+    dANpcSpPlayerSelect::travelData().finishVisit();
 }
 // .text 0x17B0
 void dAcNpcSpPlayerSelect_c::talk_c::onMessageEnd(int kind) {
@@ -1227,7 +1240,7 @@ void dAcNpcSpPlayerSelect_c::talk_c::refuseTravel() {
 }
 // .text 0x40BC
 void dAcNpcSpPlayerSelect_c::talk_c::checkTravelReturn() {
-    if (dANpcSpPlayerSelect::l_travelData.mPlayer.mPID.isFromTown()) {
+    if (dANpcSpPlayerSelect::travelData().mPlayer.mPID.isFromTown()) {
         int code = getTravelPlayerMsg();
         requestMessage(code, dANpcSpPlayerSelect::l_msgLabel);
     } else {
@@ -1238,7 +1251,7 @@ void dAcNpcSpPlayerSelect_c::talk_c::checkTravelReturn() {
 void dAcNpcSpPlayerSelect_c::talk_c::onTalkEnd() {
     switch (mEndAction) {
     case END_ACTION_DS_VISIT: {
-        dPrivateHost_c *host = &dANpcSpPlayerSelect::l_travelData.mPlayer.mHost;
+        dPrivateHost_c *host = &dANpcSpPlayerSelect::travelData().mPlayer.mHost;
         if (host->mFlagB &&
             host->mPID.land == dSaveData_c::getTown()->mLandID) {
             dScene::requestSceneChange(dScene::SCENE_DM_CHKP_MISS, 0, 0);
@@ -1265,7 +1278,7 @@ void dAcNpcSpPlayerSelect_c::talk_c::onTalkEnd() {
 }
 // .text 0x43C8
 int dAcNpcSpPlayerSelect_c::talk_c::getTravelPlayerMsg() {
-    dPrivateData_c *travel = &dANpcSpPlayerSelect::l_travelData.mPlayer;
+    dPrivateData_c *travel = &dANpcSpPlayerSelect::travelData().mPlayer;
     dPrivateData_c *player = dPlayerMgr::Mgr_c::getPlayer(
         dPlayerMgr::findPersonalIDSlot(&travel->mPID));
     if (!player->isFlag0(PRIVATE_FLAG0_TRAVELLING)) {
@@ -1672,9 +1685,9 @@ void dAcNpcSpPlayerSelect_c::talk_c::executeSearchDS() {
 }
 // .text 0x61F4
 void dAcNpcSpPlayerSelect_c::talk_c::stepSearchDSCarrier_c::startListen() {
-    dANpcSpPlayerSelect::l_travelData.clear();
-    dDsDl::g_manager.listenForDs(&dANpcSpPlayerSelect::l_travelData,
-                                 sizeof(dANpcSpPlayerSelect::l_travelData));
+    dANpcSpPlayerSelect::travelData().clear();
+    dDsDl::g_manager.listenForDs(&dANpcSpPlayerSelect::travelData(),
+                                 sizeof(dANpcSpPlayerSelect::travelData()));
     mpOwner->mpOwner->mDsDlActive = 1;
     mTimer = 10800;
     nextStep();
@@ -1713,7 +1726,7 @@ void dAcNpcSpPlayerSelect_c::talk_c::stepSearchDSCarrier_c::download() {
                                     dANpcSpPlayerSelect::l_msgLabel);
             mpOwner->changeMode(&talk_c::executeEndDS);
         } else if (dDsDl::g_manager.isReceived()) {
-            dPrivateData_c *player = &dANpcSpPlayerSelect::l_travelData.mPlayer;
+            dPrivateData_c *player = &dANpcSpPlayerSelect::travelData().mPlayer;
             dLandNameWord_c land;
             player->mPID.land.setWord(&land);
             dHmnName::Word_c name;

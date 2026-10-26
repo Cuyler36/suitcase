@@ -86,11 +86,9 @@ function(cf_unit)
         endif ()
     endforeach ()
     set(options "")
-    # REL units: their static initializers run when d_dylink starts, not before main
+    # The RELs are linked statically: their static initializers run before main, like the DOL's
+    # (../pc_port_ub.md PC-13), so they must not need the game's heaps or systems
     set(prefix_headers ${U_PREFIX_HEADERS})
-    if (U_SOURCE MATCHES "^src/[^/]+NP/")
-        list(PREPEND prefix_headers "${PROJECT_SOURCE_DIR}/src/cf/include/cf/rel_static_init.h")
-    endif ()
     foreach (header IN LISTS prefix_headers)
         if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
             list(APPEND options "/FI${header}")

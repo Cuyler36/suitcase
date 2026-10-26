@@ -22,6 +22,12 @@ public:
     static void *AllocatorAllocForDummyHeap(MEMAllocator *, u32); // 802AE4F0
     static void AllocatorFreeForDummyHeap(MEMAllocator *, void *); // 802AE4F8
     static mAllocatorDummyHeap_c *getInstance(); // 802AE560
+#if TARGET_PC
+    // An allocator made before the dummy heap exists (a REL's static, constructed before main on PC)
+    // has no heap: it gets the dummy heap's functions, and counts as on the dummy heap
+    static void initDummyAllocator(EGG::Allocator *allocator, long alignment);
+    static bool isDummy(const EGG::Heap *heap) { return heap == nullptr || heap == getInstance(); }
+#endif
 
     static mAllocatorDummyHeap_c *m_instance;
     static MEMiHeapHead *m_heapHead; // Zero-initialized heap handle passed to EGG::Heap.

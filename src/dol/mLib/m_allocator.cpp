@@ -18,14 +18,31 @@ mAllocatorDummyHeap_c::mAllocatorDummyHeap_c() : EGG::Heap(m_heapHead) {
     m_instance = this;
 }
 
+#if TARGET_PC
+static const MEMAllocatorFunc sDummyAllocatorFunc = {mAllocatorDummyHeap_c::AllocatorAllocForDummyHeap,
+                                                     mAllocatorDummyHeap_c::AllocatorFreeForDummyHeap};
+
+void mAllocatorDummyHeap_c::initDummyAllocator(EGG::Allocator *allocator, long alignment) {
+    allocator->func = &sDummyAllocatorFunc;
+    allocator->heap = nullptr;
+    allocator->heapParam1 = alignment;
+    allocator->heapParam2 = 0;
+}
+#endif
+
 // 802AE540
 void mAllocatorDummyHeap_c::initAllocator(EGG::Allocator *allocator, long alignment) {
+#if TARGET_PC
+    initDummyAllocator(allocator, alignment);
+    allocator->heap = mHeapHandle;
+#else
     static const MEMAllocatorFunc sAllocatorFunc = {AllocatorAllocForDummyHeap,
                                                     AllocatorFreeForDummyHeap};
     allocator->func = &sAllocatorFunc;
     allocator->heap = mHeapHandle;
     allocator->heapParam1 = alignment;
     allocator->heapParam2 = 0;
+#endif
 }
 
 // 802AE560
@@ -34,7 +51,13 @@ mAllocatorDummyHeap_c *mAllocatorDummyHeap_c::getInstance() {
 }
 
 // 802AE568
-mAllocator_c::mAllocator_c() : EGG::Allocator(mAllocatorDummyHeap_c::getInstance(), 4) {}
+mAllocator_c::mAllocator_c() : EGG::Allocator(mAllocatorDummyHeap_c::getInstance(), 4) {
+#if TARGET_PC
+    if (mpHeap == nullptr) {
+        mAllocatorDummyHeap_c::initDummyAllocator(this, 4);
+    }
+#endif
+}
 
 // 802AE5B4
 mAllocator_c::~mAllocator_c() {}
@@ -52,11 +75,23 @@ bool mAllocator_c::attach(EGG::Heap *heap, int alignment) {
 
 // 802AE65C
 void *mAllocator_c::alloc(size_t size) {
+#if TARGET_PC
+    // Unattached and made before the dummy heap (initDummyAllocator): as the dummy heap does. EGG's
+    // Heap::alloc would take a null heap as the current heap.
+    if (mpHeap == nullptr) {
+        return nullptr;
+    }
+#endif
     return EGG::Allocator::alloc(size);
 }
 
 // 802AE660
 void mAllocator_c::free(void *ptr) {
+#if TARGET_PC
+    if (mpHeap == nullptr) {
+        return;
+    }
+#endif
     EGG::Allocator::free(ptr);
 }
 
@@ -81,7 +116,11 @@ bool mHeapAllocator_c::createExpHeap(size_t size, EGG::Heap *parent, const char 
 
 // 802AE724
 void mHeapAllocator_c::destroyHeap() {
+#if TARGET_PC
+    if (!mAllocatorDummyHeap_c::isDummy(mpHeap)) {
+#else
     if (mpHeap != mAllocatorDummyHeap_c::getInstance()) {
+#endif
         mpHeap->destroy();
         mpHeap = mAllocatorDummyHeap_c::getInstance();
     }

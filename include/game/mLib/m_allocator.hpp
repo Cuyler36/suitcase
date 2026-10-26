@@ -16,7 +16,11 @@ public:
     virtual void free(void *ptr) override; // 802AE660
 
     bool attach(EGG::Heap *heap, int alignment); // 802AE60C
+#if TARGET_PC
+    bool hasHeap() const { return !mAllocatorDummyHeap_c::isDummy(mpHeap); }
+#else
     bool hasHeap() const { return mpHeap != mAllocatorDummyHeap_c::getInstance(); }
+#endif
 
     static void init(EGG::Heap *heap); // 802AE664
 }; // size 0x1C
