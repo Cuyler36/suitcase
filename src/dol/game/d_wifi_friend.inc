@@ -288,7 +288,7 @@ void updateReq() {
 }
 
 // 8017C3EC
-void updateFriend(u32 idx, const dPersonalID_c *pid, const wchar_t *message, const u64 *key) {
+void updateFriend(u32 idx, const dPersonalID_c *pid, const wchar16_t *message, const u64 *key) {
     dPrivateData_c *player = dPlayerMgr::Mgr_c::getCurrentPlayer();
     if (idx < FRIEND_NUM) {
         player->mFriends.mFriends[idx].mKey = *key;

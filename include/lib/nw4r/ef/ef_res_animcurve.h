@@ -4,6 +4,10 @@
 
 #include <nw4r/math.h>
 
+#if TARGET_PC
+#include <port/side_slot.h>
+#endif
+
 #define NW4R_EF_MAGIC_ANIMCURVE 0xAC
 #define NW4R_EF_MAGIC_ANIMBAKED 0xAB
 
@@ -136,7 +140,11 @@ struct AnimCurveRandomTable {
 
 struct AnimCurveNameTable {
     struct Name {
+#if TARGET_PC
+        SidePtr<void> work; // at 0x0 (4-byte pointer slot)
+#else
         u32 work; // at 0x0
+#endif
     };
 
     u16 count;       // at 0x0

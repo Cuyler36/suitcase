@@ -38,8 +38,8 @@ class Caution_c {
 public:
     bool loadFont(nw4r::ut::ResFont *font);       // 80086558: g_cautionFont into a dvdErrHeap_p buffer
     void removeFont(nw4r::ut::ResFont *font);     // 80086620
-    wchar_t *getMessage(int msgId);               // 80086664: message msgId (tags removed) in mText
-    void copyText(const wchar_t *text);           // 800866B0: text into mText without its tags
+    wchar16_t *getMessage(int msgId);               // 80086664: message msgId (tags removed) in mText
+    void copyText(const wchar16_t *text);           // 800866B0: text into mText without its tags
     void create();                                // 800866EC: builds the caution_00 layout
     void setMessage();                            // 800867E4: the message for mDriveStatus into T_dialg_00
     void init();                                  // 800868C4: selects the messages of the console language
@@ -52,7 +52,7 @@ public:
     /* 0x008 */ nw4r::ut::ResFont mFont;
     /* 0x024 */ const EGG::MsgRes::MessageInfoDataBlock *mpInfo; // INF1
     /* 0x028 */ const u8 *mpData;                 // DAT1's strings
-    /* 0x02C */ wchar_t mText[0x100];
+    /* 0x02C */ wchar16_t mText[0x100];
     /* 0x22C */ m2d::ResAcc_c mResAcc;
     /* 0x2E8 */ m2d::Simple_c mLyt;
     /* 0x380 */ m2d::Anm_c mAnm;

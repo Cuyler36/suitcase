@@ -22,6 +22,10 @@
 #include <revolution/wpad.h>
 #include <string.h>
 
+#if TARGET_PC
+#include <cf/kbd.h>
+#endif
+
 namespace dKbd {
 
 #define THREAD_STACK_SIZE 0x2800
@@ -39,7 +43,7 @@ void *volatile sThreadStack;
 // Whether the symbol window was open at the last calc.
 BOOL sSignWindowOpen;
 // The keypad character being picked, as a string.
-wchar_t sCandidateText[2];
+wchar16_t sCandidateText[2];
 
 static void createThread(OSThreadFunc func, void *arg) {
     void *stack = m2d::ResAccLoader_c::getAllocator()->mpHeap->alloc(
@@ -368,7 +372,7 @@ static u32 getStringCursor(textinput::inputform::LayoutByNW4R *form) {
     return form->mpString->getCursorPos();
 }
 
-static wchar_t *getKanaBuffer(textinput::inputform::LayoutByNW4R *form) {
+static wchar16_t *getKanaBuffer(textinput::inputform::LayoutByNW4R *form) {
     return form->mpString->getKanaBuffer();
 }
 
@@ -389,7 +393,7 @@ getCandidate(textinput::keyboard::cellphonetype::LayoutByNW4R *keypad) {
 static BOOL
 confirmCandidate(textinput::keyboard::cellphonetype::LayoutByNW4R *keypad) {
     if (keypad->mState.mpKey != NULL) {
-        wchar_t c = keypad->mState.mpKey->wc[keypad->mState.mIndex];
+        wchar16_t c = keypad->mState.mpKey->wc[keypad->mState.mIndex];
         textinput::keyboard::cellphonetype::KeyCommand command = {
             c, 0x100, keypad->mState.mpKey};
         keypad->sendCommand(textinput::CommandReceiver::INPUT_COMMAND_KEY,
@@ -753,7 +757,7 @@ void Mng_c::convertFullWidthSpace() {
     } else if (!isKanaInput() && !getShiftState()) {
         return;
     }
-    wchar_t *text = (wchar_t *)getText();
+    wchar16_t *text = (wchar16_t *)getText();
     int pos = getCursorPos();
     if (pos > 0 && text[pos - 1] == L' ') {
         text[pos - 1] = 0x3000;
@@ -770,7 +774,7 @@ void Mng_c::convertYenSign() {
     if (isSignWindowOpen()) {
         return;
     }
-    wchar_t *text = (wchar_t *)getText();
+    wchar16_t *text = (wchar16_t *)getText();
     int pos = getCursorPos();
     if (pos > 0 && text[pos - 1] == L'\\') {
         text[pos - 1] = 0xA5;
@@ -942,11 +946,11 @@ void Mng_c::setPos(mVec3_c pos) {
     mpManager->getSignKeyboard()->getLayout()->GetRootPane()->SetTranslate(pos);
 }
 
-const wchar_t *Mng_c::getText() {
+const wchar16_t *Mng_c::getText() {
     return mpManager->getWCString();
 }
 
-void Mng_c::setText(const wchar_t *str) {
+void Mng_c::setText(const wchar16_t *str) {
     mpManager->setWCString(str);
 }
 
@@ -968,8 +972,8 @@ int Mng_c::getInputLength() {
 }
 
 int Mng_c::getTextLength() {
-    const wchar_t *text = getText();
-    const wchar_t *input = getInputText();
+    const wchar16_t *text = getText();
+    const wchar16_t *input = getInputText();
     int textLen = m2d::Word_c::getLength(text);
     return textLen + m2d::Word_c::getLength(input);
 }
@@ -1036,11 +1040,11 @@ void Mng_c::setupLayout() {
     mpManager->getCandidateBox()->getLayout()->GetRootPane()->SetVisible(false);
 }
 
-const wchar_t *Mng_c::getInputText() {
+const wchar16_t *Mng_c::getInputText() {
     if (mFlags & FLAG_CELL_PHONE) {
         textinput::keyboard::cellphonetype::State *candidate =
             getCandidate(mpManager->getCellPhoneKeyboard());
-        wchar_t c;
+        wchar16_t c;
         if (candidate->mpKey != NULL) {
             c = candidate->mpKey->wc[candidate->mIndex];
         } else {
@@ -1077,25 +1081,25 @@ BOOL Mng_c::fixInput() {
     return confirmKana(mpManager->getInputForm());
 }
 
-BOOL Mng_c::getComposedText(wchar_t *buf, int size) {
+BOOL Mng_c::getComposedText(wchar16_t *buf, int size) {
     int pos = getInputPos();
-    const wchar_t *text = getText();
-    const wchar_t *input = getInputText();
+    const wchar16_t *text = getText();
+    const wchar16_t *input = getInputText();
     int textLen = m2d::Word_c::getLength(text);
     int inputLen = m2d::Word_c::getLength(input);
     if (textLen + inputLen >= size) {
         return FALSE;
     }
-    memset(buf, 0, size * sizeof(wchar_t));
+    memset(buf, 0, size * sizeof(wchar16_t));
     if (pos > 0) {
-        memcpy(buf, text, pos * sizeof(wchar_t));
+        memcpy(buf, text, pos * sizeof(wchar16_t));
     }
     if (inputLen > 0) {
-        memcpy(buf + pos, input, inputLen * sizeof(wchar_t));
+        memcpy(buf + pos, input, inputLen * sizeof(wchar16_t));
     }
     if (pos < textLen) {
         memcpy(buf + (pos + inputLen), text + pos,
-               (textLen - pos) * sizeof(wchar_t));
+               (textLen - pos) * sizeof(wchar16_t));
     }
     return TRUE;
 }
@@ -1177,7 +1181,7 @@ void Mng_c::updateInput() {
     } else if (!isCharInput()) {
         return;
     }
-    wchar_t c = 0;
+    wchar16_t c = 0;
     int inputLen = getInputLength();
     int pos = getInputPos();
     BOOL shift = FALSE;
@@ -1281,6 +1285,11 @@ void initHKB() {
 
 void calcHKB() {
     getHKBManager()->Update();
+#if TARGET_PC
+    // The host keyboard is also the Wii Remote's: it only types while a text input listens (the
+    // manager's own listener is the root)
+    cf::kbd::SetTextInput(getHKBManager()->getListenerRoot()->mpNext != NULL);
+#endif
 }
 
 void resetSetting() {

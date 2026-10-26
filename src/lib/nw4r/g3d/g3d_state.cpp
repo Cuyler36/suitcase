@@ -239,6 +239,17 @@ namespace {
  * Utility functions
  *
  ******************************************************************************/
+#if TARGET_PC
+// aurora's GXTexObj/GXTlutObj are larger than the Wii's 8/3 words (the data pointer and size come
+// later), so compare all of them: objects that differ only past the Wii's size are not equal.
+inline bool IsEqualTexObj(const GXTexObj& rLhs, const GXTexObj& rRhs) {
+    return std::memcmp(&rLhs, &rRhs, sizeof(GXTexObj)) == 0;
+}
+
+inline bool IsEqualTlutObj(const GXTlutObj& rLhs, const GXTlutObj& rRhs) {
+    return std::memcmp(&rLhs, &rRhs, sizeof(GXTlutObj)) == 0;
+}
+#else
 inline bool IsEqualTexObj(const GXTexObj& rLhs, const GXTexObj& rRhs) {
     return rLhs.dummy[0] == rRhs.dummy[0] && rLhs.dummy[1] == rRhs.dummy[1] &&
            rLhs.dummy[2] == rRhs.dummy[2] && rLhs.dummy[3] == rRhs.dummy[3] &&
@@ -250,6 +261,7 @@ inline bool IsEqualTlutObj(const GXTlutObj& rLhs, const GXTlutObj& rRhs) {
     return rLhs.dummy[0] == rRhs.dummy[0] && rLhs.dummy[1] == rRhs.dummy[1] &&
            rLhs.dummy[2] == rRhs.dummy[2];
 }
+#endif
 
 } // namespace
 
@@ -836,6 +848,32 @@ public:
         return mpViewPosMtxArray != NULL;
     }
 
+#if TARGET_PC
+    // The matrices are computed on the host (little-endian)
+    void SetViewPosNrmMtxArray(const math::MTX34* pViewPosMtxArray,
+                               const math::MTX33* pViewNrmMtxArray,
+                               const math::MTX34* pViewEnvTexMtxArray,
+                               u32 numViewMtx = 0) {
+        mpViewPosMtxArray = pViewPosMtxArray;
+        mpViewNrmMtxArray = pViewNrmMtxArray;
+        mpViewEnvTexMtxArray = pViewEnvTexMtxArray;
+
+        if (mpViewPosMtxArray != NULL) {
+            GXSETARRAY(GX_POS_MTX_ARRAY, mpViewPosMtxArray,
+                       numViewMtx * sizeof(math::MTX34), sizeof(math::MTX34), true);
+        }
+
+        if (mpViewNrmMtxArray != NULL) {
+            GXSETARRAY(GX_NRM_MTX_ARRAY, mpViewNrmMtxArray,
+                       numViewMtx * sizeof(math::MTX33), sizeof(math::MTX33), true);
+        }
+
+        if (mpViewEnvTexMtxArray != NULL) {
+            GXSETARRAY(GX_TEX_MTX_ARRAY, mpViewEnvTexMtxArray,
+                       numViewMtx * sizeof(math::MTX34), sizeof(math::MTX34), true);
+        }
+    }
+#else
     void SetViewPosNrmMtxArray(const math::MTX34* pViewPosMtxArray,
                                const math::MTX33* pViewNrmMtxArray,
                                const math::MTX34* pViewEnvTexMtxArray) {
@@ -858,6 +896,7 @@ public:
                        sizeof(math::MTX34));
         }
     }
+#endif
 
     const math::MTX34* GetViewPosMtxPtr(u32 id) const {
         if (mpViewPosMtxArray != NULL) {
@@ -1710,14 +1749,23 @@ void LoadResTexSrt(const ResTexSrt srt) {
                     if (!(rEffect.misc_flag & TexMtxEffect::FLAG_IDENT)) {
                         ident = false;
 
+#if TARGET_PC
+                        mtx = rEffect.effectMtx;
+#else
                         math::MTX34Copy(&mtx, static_cast<const math::MTX34*>(
                                                   &rEffect.effectMtx));
+#endif
                     }
                 } else {
+#if TARGET_PC
+                    const math::MTX34 effectMtx = rEffect.effectMtx;
+                    math::MTX34Mult(&mtx, &effectMtx, &mtx);
+#else
                     math::MTX34Mult(
                         &mtx,
                         static_cast<const math::MTX34*>(&rEffect.effectMtx),
                         &mtx);
+#endif
                 }
 
                 if (rEffect.map_mode == 0) {
@@ -1820,6 +1868,17 @@ void SetViewPosNrmMtxArray(const math::MTX34* pViewPosMtxArray,
     sPosNrmArrayState.SetViewPosNrmMtxArray(pViewPosMtxArray, pViewNrmMtxArray,
                                             pViewEnvTexMtxArray);
 }
+
+#if TARGET_PC
+void SetViewPosNrmMtxArray(const math::MTX34* pViewPosMtxArray,
+                           const math::MTX33* pViewNrmMtxArray,
+                           const math::MTX34* pViewEnvTexMtxArray,
+                           u32 numViewMtx) {
+
+    sPosNrmArrayState.SetViewPosNrmMtxArray(pViewPosMtxArray, pViewNrmMtxArray,
+                                            pViewEnvTexMtxArray, numViewMtx);
+}
+#endif
 
 const math::MTX33* GetViewNrmMtxPtr(u32 id) {
     return sPosNrmArrayState.GetViewNrmMtxPtr(id);

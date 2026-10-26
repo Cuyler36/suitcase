@@ -16,6 +16,13 @@
 
 #include <game/game/d_shadow_internal.hpp>
 
+// 8074C5A8
+namespace dShadow {
+fProf::fBaseProfile_c g_profile_SHADOW = {
+    reinterpret_cast<void *(*)()>(&dShadow_c::build), fProf::SHADOW,
+    fProf::DRAW_ORDER::SHADOW};
+} // namespace dShadow
+
 namespace dShadow {
 static const char *sTextureNames[TEXTURE_COUNT] = {
     "sh_circle", "sh_default", "sh_treeA", "sh_treeB", "sh_treeC",
@@ -74,7 +81,7 @@ static void setupProjection(const mVec3_c *pos, const mMtx_c *view, const Projec
     GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_SET);
     GXSetAlphaCompare(GX_GREATER, 0, GX_AOP_OR, GX_GREATER, 0);
     GXTexObj tex;
-    void *image; u16 width, height; GXTexFmt format; f32 minLod, maxLod; u8 mipmap;
+    void *image; u16 width, height; GXTexFmt format; f32 minLod, maxLod; GXBool mipmap;
     projection->mTexture.GetTexObjParam(&image, &width, &height, &format, &minLod, &maxLod, &mipmap);
     GXInitTexObj(&tex, image, width, height, format, GX_CLAMP, GX_CLAMP, mipmap);
     GXInitTexObjLOD(&tex, GX_NEAR, GX_NEAR, minLod, maxLod, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
@@ -225,6 +232,7 @@ void dShadow_c::drawQuad(const mVec3_c *pos, f32 size) {
         dWorld::curvePositionSimple(&curved, &field);
         GXPosition3f32(curved.x, curved.y, curved.z);
     }
+    GXEnd();
 }
 namespace dShadow {
 static inline void writePosition(volatile f32 *fifo, f32 x, f32 y, f32 z) {
@@ -259,7 +267,7 @@ void dShadow_c::drawTexture(const dShadow::Texture_c *shadow, mColor color) {
     GXSetZMode(GX_TRUE, GX_LEQUAL, GX_FALSE);
     GXSetAlphaCompare(GX_GREATER, 0, GX_AOP_OR, GX_GREATER, 0);
     GXTexObj tex;
-    void *image; u16 width, height; GXTexFmt format; f32 minLod, maxLod; u8 mipmap;
+    void *image; u16 width, height; GXTexFmt format; f32 minLod, maxLod; GXBool mipmap;
     mTextures[shadow->mTexture].GetTexObjParam(&image, &width, &height, &format, &minLod, &maxLod, &mipmap);
     GXInitTexObj(&tex, image, width, height, format, GX_REPEAT, GX_CLAMP, mipmap);
     GXInitTexObjLOD(&tex, GX_NEAR, GX_NEAR, minLod, maxLod, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
@@ -319,14 +327,23 @@ void dShadow_c::drawTexture(const dShadow::Texture_c *shadow, mColor color) {
         GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
         GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
         GXBegin(GX_QUADS, GX_VTXFMT0, vertexCount);
+#if !TARGET_PC
         volatile f32 *fifo = &WGPIPE.f;
+#endif
         f32 (*uv)[2] = texCoords;
         for (mVec3_c *p = vertices; p < vertices + vertexCount; ++p, ++uv) {
             mVec3_c curved;
             dWorld::curvePosition(&curved, TEMP_ADDR(mVec3_c(*p)));
+#if TARGET_PC
+            // There is no write-gather pipe; these write the same direct position and texcoord
+            GXPosition3f32(curved.x, curved.y, curved.z);
+            GXTexCoord2f32((*uv)[0], (*uv)[1]);
+#else
             dShadow::writePosition(fifo, curved.x, curved.y, curved.z);
             dShadow::writeTexCoord(fifo, (*uv)[0], (*uv)[1]);
+#endif
         }
+        GXEnd();
     }
 }
 namespace dShadow { static dShadow_c *sInstance; }
@@ -459,6 +476,7 @@ void shadowDtcb_c::checkFloor(dBGCF::floorList_c *floors) {
         GXPosition3f32(curvedB.x, curvedB.y, curvedB.z);
         GXPosition3f32(curvedA.x, curvedA.y, curvedA.z);
     }
+    GXEnd();
 }
 // 801C8950
 dShadow_hostIO_c::~dShadow_hostIO_c() {}

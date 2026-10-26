@@ -1,6 +1,7 @@
 #ifndef NW4R_G3D_RES_RES_ANM_FOG_H
 #define NW4R_G3D_RES_RES_ANM_FOG_H
 #include <nw4r/types_nw4r.h>
+#include <port/endian.h>
 
 #include <nw4r/g3d/res/g3d_resanm.h>
 #include <nw4r/g3d/res/g3d_rescommon.h>
@@ -36,13 +37,13 @@ struct ResAnmFogData {
         FLAG_COLOR_CONST = (1 << 31)
     };
 
-    ulong size;              // at 0x0
-    s32 toResAnmScnData;   // at 0x4
-    s32 name;              // at 0x8
-    ulong id;                // at 0xC
-    ulong refNumber;         // at 0x10
-    ulong flags;             // at 0x14
-    GXFogType type;        // at 0x18
+    BE(u32) size;              // at 0x0
+    BE(s32) toResAnmScnData;   // at 0x4
+    BE(s32) name;              // at 0x8
+    BE(u32) id;                // at 0xC
+    BE(u32) refNumber;         // at 0x10
+    BE(u32) flags;             // at 0x14
+    BE(GXFogType) type;        // at 0x18
     ResAnmData startz;     // at 0x1C
     ResAnmData endz;       // at 0x20
     ResColorAnmData color; // at 0x24

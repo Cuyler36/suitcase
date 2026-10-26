@@ -1,6 +1,7 @@
 #pragma once
 
 #include <types.h>
+#include <port/bitfield.h>
 
 // Saved game-clock offset (dSaveData_c::getTown()->mTimeOffset), see dTime_c::loadOffset / saveOffset.
 // Source: src/dol/game/d_sv_time_offset.cpp (.text 8014D020..8014D0BC). Names are inferred.
@@ -21,11 +22,8 @@ struct dSaveTimeOffset_c {
     /* 0x0 */ s64 mOffset; // dTime_c::sOffset
     /* 0x8 */ union {
         u8 mFlags; // TIME_OFFSET_*
-        struct {   // MSB first
-            u8 : 5;
-            u8 mChanged2 : 1;
-            u8 mChanged : 1;
-            u8 mAdjusted : 1;
+        struct {   // MSB first (the Wii's bit order on PC too, so the bits agree with mFlags)
+            BITFIELD_BYTE_4(u8 : 5, u8 mChanged2 : 1, u8 mChanged : 1, u8 mAdjusted : 1);
         };
     };
     /* 0x9 */ u8 _9[7];

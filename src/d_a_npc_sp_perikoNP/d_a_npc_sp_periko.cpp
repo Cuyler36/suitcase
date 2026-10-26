@@ -1962,7 +1962,7 @@ void dAcNpcSpPerikoBase_c::talk_c::setNetErrorMsg() {
 
 // .text 0x66BC
 void dAcNpcSpPerikoBase_c::talk_c::switchToSystemSpeaker() {
-    dString::Word_c speaker((const wchar_t *)getSpeakerName());
+    dString::Word_c speaker((const wchar16_t *)getSpeakerName());
     dHmnName::Word_c name;
     if (isPelly()) {
         dItem::Item item((u16)SP_NPC_POST_GIRL);
@@ -1979,7 +1979,7 @@ void dAcNpcSpPerikoBase_c::talk_c::switchToSystemSpeaker() {
 
 // .text 0x6798
 void dAcNpcSpPerikoBase_c::talk_c::switchToOwnSpeaker() {
-    dString::Word_c speaker((const wchar_t *)getSpeakerName());
+    dString::Word_c speaker((const wchar16_t *)getSpeakerName());
     dHmnName::Word_c name;
     if (isPelly()) {
         dItem::Item item((u16)SP_NPC_POST_GIRL);

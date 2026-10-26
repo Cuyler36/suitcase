@@ -407,7 +407,14 @@ struct dFgMngLitterFlags_c {
 }; // size 0x3
 
 // The d_fgobj_manager callback (8074E358).
-typedef void (*dFgObjCallback)(int a, int b, int c, mAng3_c *ang, int d);
+// The field object draw callback's position and scale pointers travel as integers (the player, the
+// hand item, balloons, fish): pointer-sized on PC
+#if TARGET_PC
+typedef intptr_t dFgObjArg_t;
+#else
+typedef int dFgObjArg_t;
+#endif
+typedef void (*dFgObjCallback)(int a, dFgObjArg_t b, dFgObjArg_t c, mAng3_c *ang, int d);
 
 dScene::dSceneChange_c *getSceneChange();       // 80091AF8: &dScene::gSceneChange, like dScene::getSceneChange
 BOOL isBlockedUnit(dFdBase_c *fd, int x, int z);  // 8009536C (also d_a_snowman)
@@ -455,7 +462,7 @@ void fgMngProc_playFlowerFallEffect(dItem::Item *item, int x, int z, int mode, c
 BOOL fgMngProc_isUnitSpecialGround(int x, int z); // 8009D68C: ground attribute 0x17 (meaning unknown)
 BOOL fgMngProc_isDayUpToDate();                 // 8009D6F4: the day change already ran today
 void fgMngProc_setFgObjCallback(dFgObjCallback func); // 8009D874
-void fgMngProc_callFgObjCallback(int a, int b, int c, int d); // 8009D87C
+void fgMngProc_callFgObjCallback(int a, dFgObjArg_t b, dFgObjArg_t c, int d); // 8009D87C
 BOOL fgMngProc_findHoleInFront(int *outX, int *outZ); // 8009D8C4: with a shovel, a fg 0x94 (hole?) in front
 BOOL fgMngProc_isChangeRequestValid(const dFgMngReq_c *req, u8 scene); // 8009DB80: a request from the net
 void fgMngProc_setUnitFgSync(int x, int z, u16 fg); // 8009DD40: online, also sends it (packet 0x2B)

@@ -14,7 +14,11 @@ struct EmitterResource;
 
 struct EffectProject {
     u32 headersize;       // at 0x0
+#if TARGET_PC
+    u8 projectlink[8]; // at 0x4 (the list node is kept beside the file, ef_resource.cpp)
+#else
     ut::Link projectlink; // at 0x4
+#endif
     u16 projectnameLen;   // at 0xC
     u16 PADDING_0xE;      // at 0xE
     u8 projectname[4];    // at 0x10
@@ -22,7 +26,11 @@ struct EffectProject {
 
 struct TextureProject {
     u32 headersize;       // at 0x0
+#if TARGET_PC
+    u8 projectlink[8]; // at 0x4 (the list node is kept beside the file, ef_resource.cpp)
+#else
     ut::Link projectlink; // at 0x4
+#endif
     u16 projectnameLen;   // at 0xC
     u16 PADDING_0xE;      // at 0xE
     u8 projectname[4];    // at 0x10

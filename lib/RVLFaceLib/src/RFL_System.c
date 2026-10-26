@@ -303,7 +303,15 @@ RFLiSysManager* RFLiGetManager() {
     return sRFLManager;
 }
 
+#if TARGET_PC
+// On PC the NAND callbacks run on a worker thread under the interrupt lock (src/cf/sdk/nand_async.cpp),
+// where the Wii runs them in interrupt context: the status is read under the lock (OSDisableInterrupts
+// takes it in RVLFaceLib, cmake/CfUnits.cmake), never between the steps of a callback chain (the
+// database open ends the work with an error, then accepts a missing database as success).
+static RFLErrcode getAsyncStatus_() {
+#else
 RFLErrcode RFLGetAsyncStatus() {
+#endif
     if (!RFLAvailable()) {
         return sRFLLastErrCode;
     }
@@ -319,6 +327,16 @@ RFLErrcode RFLGetAsyncStatus() {
     return RFLiGetManager()->mLastErrcode;
 }
 
+#if TARGET_PC
+RFLErrcode RFLGetAsyncStatus() {
+    RFLErrcode errcode;
+    BOOL enabled = OSDisableInterrupts();
+    errcode = getAsyncStatus_();
+    OSRestoreInterrupts(enabled);
+    return errcode;
+}
+#endif
+
 s32 RFLGetLastReason() {
     if (!RFLAvailable()) {
         return sRFLLastReason;
@@ -330,6 +348,12 @@ RFLErrcode RFLWaitAsync() {
     volatile RFLErrcode errcode;
     do {
         errcode = RFLGetAsyncStatus();
+#if TARGET_PC
+        // Lets the NAND worker take the interrupt lock
+        if (errcode == RFLErrcode_Busy) {
+            OSYieldThread();
+        }
+#endif
     } while (errcode == RFLErrcode_Busy);
     return errcode;
 }

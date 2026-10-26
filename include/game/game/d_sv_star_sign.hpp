@@ -23,14 +23,14 @@ struct Sign_c {
     ~Sign_c();                                // 80150A60
     Sign_c *copy(const Sign_c *other);        // 80150AA0: returns this
     void clear();                             // 80150AD4: no owner, no lines, no name
-    void setName(const wchar_t *name);        // 80150B58: SIGN_NAME_LEN characters
-    const wchar_t *getName() const;           // 80150B6C
+    void setName(const wchar16_t *name);        // 80150B58: SIGN_NAME_LEN characters
+    const wchar16_t *getName() const;           // 80150B6C
     void setLine(int idx, u16 line);          // 80150B74
     void clearLine(int idx);                  // 80150B84
 
     /* 0x00 */ dPersonalID_c mOwner;
     /* 0x2C */ u16 mLines[SIGN_LINE_NUM];     // SIGN_LINE_NONE if unused
-    /* 0x4C */ wchar_t mName[SIGN_NAME_LEN + 1];
+    /* 0x4C */ wchar16_t mName[SIGN_NAME_LEN + 1];
 }; // size 0x6E
 
 // The town's constellations.

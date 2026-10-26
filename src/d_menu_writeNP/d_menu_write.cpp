@@ -701,7 +701,7 @@ void dMenuWrite_c::updateLineArrows() {
 // .text:0x1BD0
 // The keyboard's text was changed: takes it over if it fits on the paper.
 bool dMenuWrite_c::checkText() {
-    static wchar_t text[KBD_MAX_LENGTH];
+    static wchar16_t text[KBD_MAX_LENGTH];
     if (!mKbd.getComposedText(text, mMaxLength + 1)) {
         return false;
     }
@@ -1083,7 +1083,7 @@ void dMenuWrite_c::initSelfMail() {
     word.capitalize();
 #endif
     memcpy(mpMail->mFooter, word.getText(),
-           (PLAYER_NAME_LEN + 1) * sizeof(wchar_t));
+           (PLAYER_NAME_LEN + 1) * sizeof(wchar16_t));
 }
 
 // .text:0x2B20
@@ -1097,7 +1097,7 @@ void dMenuWrite_c::finishSelf() {
     word.clear();
     dString::loadString(&word, MSG_FROM_PLAYER_B, "sys_2D/SYS_2D_menu");
     memcpy(dMenuMng_c::getPostTitle(), word.getText(),
-           (MAIL_HEADER_LEN + 1) * sizeof(wchar_t));
+           (MAIL_HEADER_LEN + 1) * sizeof(wchar16_t));
     buildPostMsg(TRUE);
     dMenuMng_c::setPostType(0);
 }
@@ -1106,11 +1106,11 @@ void dMenuWrite_c::finishSelf() {
 // The Wii message: the header, a blank line, the body lines, padding to seven
 // lines and the footer.
 void dMenuWrite_c::buildPostMsg(BOOL friendKey) {
-    wchar_t *msg = dMenuMng_c::getPostMsg();
+    wchar16_t *msg = dMenuMng_c::getPostMsg();
     int pos = 0;
     int headerLength = m2d::Word_c::getLength(mpMail->mHeader);
     if (headerLength != 0) {
-        memcpy(msg, mpMail->mHeader, headerLength * sizeof(wchar_t));
+        memcpy(msg, mpMail->mHeader, headerLength * sizeof(wchar16_t));
         pos = headerLength;
     }
     msg[pos] = L'\n';
@@ -1123,7 +1123,7 @@ void dMenuWrite_c::buildPostMsg(BOOL friendKey) {
         if (length == 0) {
             break;
         }
-        memcpy(msg + pos, mpMail->mBody + src, length * sizeof(wchar_t));
+        memcpy(msg + pos, mpMail->mBody + src, length * sizeof(wchar16_t));
         pos += length;
         src += length;
         if (!mPaper.isNewLine(line + 1)) {
@@ -1139,7 +1139,7 @@ void dMenuWrite_c::buildPostMsg(BOOL friendKey) {
     }
     int footerLength = m2d::Word_c::getLength(mpMail->mFooter);
     if (footerLength != 0) {
-        memcpy(msg + pos, mpMail->mFooter, footerLength * sizeof(wchar_t));
+        memcpy(msg + pos, mpMail->mFooter, footerLength * sizeof(wchar16_t));
         pos += footerLength;
     }
     msg[pos] = L'\n';

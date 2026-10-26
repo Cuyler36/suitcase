@@ -336,7 +336,11 @@ u8 *grassBank_c::getTexImage(int type) {
         char name[0x1E];
         snprintf(name, sizeof(name), "%03d", type);
         nw4r::g3d::ResTex tex = res.GetResTex(name);
+#if TARGET_PC
+        return (u8 *)tex.GetTexData();
+#else
         return (u8 *)&tex.ref() + tex.ref().toTexData;
+#endif
     }
     return NULL;
 }
@@ -381,7 +385,11 @@ void packBank_c::onLoaded() {
     tex.ref().width = dFootmark::TEX_SIZE;
     tex.ref().height = dFootmark::TEX_SIZE;
     u8 *pixels = dFootmark::getEditor()->getPixels();
+#if TARGET_PC
+    tex.SetTexData(pixels);
+#else
     tex.ref().toTexData = pixels - (u8 *)&tex.ref();
+#endif
     tex.DCStore(false);
     tex.Init();
 }

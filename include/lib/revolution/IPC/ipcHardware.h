@@ -8,8 +8,14 @@ extern "C" {
 /**
  * IPC hardware registers
  */
+#if TARGET_PC
+// No hardware behind them; defined once in src/cf/sdk/rvl_misc.cpp
+extern volatile u32 IPC_HW_REGS_PPC[256];
+extern volatile u32 IPC_HW_REGS[256];
+#else
 volatile u32 IPC_HW_REGS_PPC[256] AT_ADDRESS(0xCD000000);
 volatile u32 IPC_HW_REGS[256] AT_ADDRESS(0xCD800000);
+#endif
 
 /**
  * Hardware register indexes

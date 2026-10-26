@@ -15,7 +15,7 @@ class dPersonalID_c;
 namespace dScript {
 
 // BMG message tags: TAG_ESCAPE, then the tag size in bytes (high byte) and the group (low byte) in one
-// wchar_t, a u16 id and the parameters (getTagLength / getTagGroup / getTagId / getTagParams).
+// wchar16_t, a u16 id and the parameters (getTagLength / getTagGroup / getTagId / getTagParams).
 #define TAG_ESCAPE 0x1A
 #define TAG_HEAD(size, group) (((size) << 8) | (group))
 
@@ -180,7 +180,7 @@ public:
     Res_c(const void *data); // 8015784C
     virtual ~Res_c(); // 80157888
 
-    const wchar_t *getMessage(int id); // 801578E0
+    const wchar16_t *getMessage(int id); // 801578E0
     const MessageInfoDataBlock::Entry *getEntry(int id); // 801578E8: INF1 entry (game attributes follow)
     u16 getCount(); // 801578F0: number of INF1 entries
 };
@@ -208,7 +208,7 @@ public:
     Pacchim_c() : mLastChar(0) {}
     virtual ~Pacchim_c() {} // 8015B5D8
 
-    void check(wchar_t c); // 80157B18: keeps c if it is in U+AC00..U+D7A3
+    void check(wchar16_t c); // 80157B18: keeps c if it is in U+AC00..U+D7A3
 
     u16 mLastChar; // 0x04
 }; // sizeof = 0x8
@@ -226,7 +226,7 @@ public:
     Word_c(); // 80157D3C
     virtual ~Word_c(); // 80157D8C
     virtual u32 getBufferSize() = 0; // vtable +0x0C
-    virtual wchar_t *getBuffer() = 0; // vtable +0x10
+    virtual wchar16_t *getBuffer() = 0; // vtable +0x10
     virtual int setTagWord(int pos, Word_c *word); // 801598B8: insert word at a tag (with article)
     virtual int getParseStart(); // 8015822C: start position for parse()
     virtual int procTownName(int pos); // 8015A2E8: town name
@@ -279,7 +279,7 @@ public:
     virtual int procScale(int pos); // 8015B130: system 1: text scale (u16 param)
 
     // The text (a virtual getBuffer call through the word; d_wifi_err setMessage).
-    wchar_t *getText() { return getBuffer(); }
+    wchar16_t *getText() { return getBuffer(); }
     void clear(); // 80157DCC: zeroes the buffer and resets the word state
     void preParse(); // pre-scan: group 4 tags
     void parse(); // parse
@@ -297,27 +297,27 @@ public:
     int insertIcon2(int pos);
     BOOL capitalize(); // capitalizes the first character
     u32 getCapacity(); // capacity in characters
-    u32 getTextLength(const wchar_t *str, int breakOnNewLine); // length of str (tags count as their size)
+    u32 getTextLength(const wchar16_t *str, int breakOnNewLine); // length of str (tags count as their size)
     u32 getLength(int breakOnNewLine); // length of this word
     BOOL isSame(Word_c *other); // same text
-    BOOL getChar(wchar_t *out, u32 index); // character at index
+    BOOL getChar(wchar16_t *out, u32 index); // character at index
 #if VERSION == VERSION_RUUK01_01
-    BOOL set(const wchar_t *str, int breakOnNewLine, wchar_t lastChar = 0, s32 numberWord = 0);
+    BOOL set(const wchar16_t *str, int breakOnNewLine, wchar16_t lastChar = 0, s32 numberWord = 0);
 #else
-    BOOL set(const wchar_t *str, int breakOnNewLine); // 801590F0: clear(), copy, then parse
+    BOOL set(const wchar16_t *str, int breakOnNewLine); // 801590F0: clear(), copy, then parse
 #endif
     BOOL copy(const Word_c *src, int breakOnNewLine); // copy
-    BOOL appendText(const wchar_t *str, int breakOnNewLine); // append and parse
-    BOOL appendChar(wchar_t c); // append a character and parse
+    BOOL appendText(const wchar16_t *str, int breakOnNewLine); // append and parse
+    BOOL appendChar(wchar16_t c); // append a character and parse
     BOOL appendWord(Word_c *other, int breakOnNewLine); // append a word and parse
-    BOOL writeText(const wchar_t *str, u32 pos, int breakOnNewLine); // write at pos
-    BOOL appendRaw(const wchar_t *str, int breakOnNewLine); // append
-    BOOL write(const wchar_t *str, u32 len, u32 pos); // write len characters at pos
-    BOOL insert(const wchar_t *str, u32 len, u32 pos); // insert at pos
-    BOOL append(const wchar_t *str, u32 len); // append len characters
+    BOOL writeText(const wchar16_t *str, u32 pos, int breakOnNewLine); // write at pos
+    BOOL appendRaw(const wchar16_t *str, int breakOnNewLine); // append
+    BOOL write(const wchar16_t *str, u32 len, u32 pos); // write len characters at pos
+    BOOL insert(const wchar16_t *str, u32 len, u32 pos); // insert at pos
+    BOOL append(const wchar16_t *str, u32 len); // append len characters
     BOOL erase(u32 len, u32 pos); // delete len characters at pos
     int removeTag(int pos); // default tag handler: deletes the tag
-    u32 insertWord(u32 pos, const wchar_t *str, int len, BOOL isArticle); // insert with capitalization
+    u32 insertWord(u32 pos, const wchar16_t *str, int len, BOOL isArticle); // insert with capitalization
     int procYear(int pos); // year
     int procMonth(int pos); // month name
     int procDay(int pos); // day
@@ -344,13 +344,13 @@ public:
     int procElisionPlayer(int pos, const dPersonalID_c *pid);
     int procElisionAnimal(int pos, dAnmPersonalID_c *id);
     int procElisionWord(int pos, int offset, Word_c *word); // elision by the word's first letter
-    int procElision(int pos, int offset, wchar_t first);
+    int procElision(int pos, int offset, wchar16_t first);
     int procTownElision(int pos); // elision by the town name
     int procPlural(int pos, Word_c *word); // by "0"/"1"/other
     int procCounterJP2(int pos); // JP counter after a number
     int procRubyJP(int pos); // furigana (JP only)
     int procRuby(int pos); // furigana
-    BOOL fill(wchar_t c, u32 len, u32 pos); // fill
+    BOOL fill(wchar16_t c, u32 len, u32 pos); // fill
     BOOL censor(); // replaces every character with '!'
     int procRandomWord(int pos, int kind, dAnmPersonalID_c *id, u16 *used); // random word
     void clearCapitalize(); // clears the capitalization flags
@@ -377,16 +377,24 @@ public:
     /* 0x74 */ u8 _74[0x18];
 }; // size 0x8C
 
-int getStringLength(const wchar_t *text, u32 maxSize, int breakOnNewLine); // 8015790C
+int getStringLength(const wchar16_t *text, u32 maxSize, int breakOnNewLine); // 8015790C
 BOOL setNumber(Word_c *word, int value, int digits, NumberFormat_e format); // 8015665C
 BOOL formatNumber(Word_c *word, int value, int digits, NumberFormat_e format, int sep); // 801566E8
 // Builds a nickname from base with the BMG suffix string suffixIdx; FALSE if it doesn't fit. [D d_msg]
 BOOL makeNickname(Word_c *word, const Word_c *base, u16 suffixIdx); // 80156C5C
-u8 getTagLength(const wchar_t *tag);
-u8 getTagGroup(const wchar_t *tag);
-u16 getTagId(const wchar_t *tag);
-const u8 *getTagParams(const wchar_t *tag);
-BOOL isSeparator(wchar_t c);
+u8 getTagLength(const wchar16_t *tag);
+u8 getTagGroup(const wchar16_t *tag);
+u16 getTagId(const wchar16_t *tag);
+const u8 *getTagParams(const wchar16_t *tag);
+#if TARGET_PC
+// Text inside a tag's parameters (gender and plural choices, elisions, ruby) is still big-endian:
+// EGG::MsgRes::convertTextToHost converts a message's text but leaves tag parameters as they are.
+// Copies count characters from src, in host order, into out (TAG_TEXT_MAX characters) and returns
+// out. A tag holds at most 127 characters.
+#define TAG_TEXT_MAX 128
+const wchar16_t *getTagTextHost(const void *src, u32 count, wchar16_t *out);
+#endif
+BOOL isSeparator(wchar16_t c);
 const char *getScriptDir(); // 80155D38
 BOOL setNumber4(Word_c *word, int value); // 80156554
 BOOL setNumber2(Word_c *word, int value); // 80156564
@@ -395,15 +403,15 @@ BOOL setDecimal(Word_c *word, int decimals, f64 value); // 80156928
 BOOL setWeekdayName(Word_c *word, int day, BOOL abbrev); // 80156B98
 BOOL setMonthName(Word_c *word, int month); // 80156BC0
 BOOL setDayName(Word_c *word, int day); // 80156BD4
-bool toUpper(wchar_t *c);
+bool toUpper(wchar16_t *c);
 int to12Hour(int hour); // 80156A8C
 BOOL setAmPm(Word_c *word, int hour); // 80156B00
-u16 getSortKey(wchar_t c); // 80155B70: a character's sort key (d_snd_util passes two to SoundSystem)
-BOOL isHiragana(wchar_t c); // 80155D9C
-BOOL isKatakana(wchar_t c); // 80155DD0
-BOOL isAlpha(wchar_t c); // 80155E6C
-BOOL isHangul(wchar_t c); // 80156034
-bool toLower(wchar_t *c); // 80156368
+u16 getSortKey(wchar16_t c); // 80155B70: a character's sort key (d_snd_util passes two to SoundSystem)
+BOOL isHiragana(wchar16_t c); // 80155D9C
+BOOL isKatakana(wchar16_t c); // 80155DD0
+BOOL isAlpha(wchar16_t c); // 80155E6C
+BOOL isHangul(wchar16_t c); // 80156034
+bool toLower(wchar16_t *c); // 80156368
 int getLineLength(const u16 *text, u32 maxSize); // 801579C0
 Bank_c *getBank(); // 80157B30
 BOOL loadBank(Bank_c *bank, void *heap); // 80157B3C

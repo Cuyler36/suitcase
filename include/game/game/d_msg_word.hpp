@@ -45,7 +45,7 @@ public:
     Word_c(); // 8019FE6C
     virtual ~Word_c(); // 8019FEB0
     virtual u32 getBufferSize(); // 8019FF44
-    virtual wchar_t *getBuffer(); // 8019FF4C
+    virtual wchar16_t *getBuffer(); // 8019FF4C
     virtual int setTagWord(int pos, dScript::Word_c *word); // 8019FB18
     virtual int getParseStart(); // 8019FF54
     virtual int procTownName(int pos); // 801A110C
@@ -106,7 +106,7 @@ public:
     int insertScaleTag(int pos, int scale); // 801A03D0: inserts a scale tag 0xFF:1 (4 chars), returns 4
     // Inserts word's text at pos (setTagWord; the virtual calls are not devirtualized).
     u32 insertWordOf(u32 pos, dScript::Word_c *word, BOOL isArticle) {
-        const wchar_t *text = word->getBuffer();
+        const wchar16_t *text = word->getBuffer();
         int len = word->getLength(0);
         return insertWord(pos, text, len, isArticle);
     }
@@ -119,7 +119,7 @@ public:
     void pickAnimalParam(u8 slot); // 801A0F04: a villager for slot (once)
     void setAnimalWord(dScript::Word_c *word, dAnimal_c *animal, dAnimal_c *speaker); // 801A1FF0
 
-    /* 0x0024 */ wchar_t mBuffer[0x1401];
+    /* 0x0024 */ wchar16_t mBuffer[0x1401];
     /* 0x2828 */ s32 mLineStart; // the current line's start position (its line offset tag goes there)
     /* 0x282C */ u16 mPageLines; // lines in the current page; a new page re-inserts the colour tag
     /* 0x282E */ u16 mScale;    // procScale: the current text scale

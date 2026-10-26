@@ -21,12 +21,12 @@ namespace detail {
 struct StrmFile {
     struct Header {
         ut::BinaryFileHeader fileHeader; // size 0x10, offset 0x00
-        u32 headBlockOffset;             // size 0x04, offset 0x10
-        u32 headBlockSize;               // size 0x04, offset 0x14
-        u32 adpcBlockOffset;             // size 0x04, offset 0x18
-        u32 adpcBlockSize;               // size 0x04, offset 0x1c
-        u32 dataBlockOffset;             // size 0x04, offset 0x20
-        u32 dataBlockSize;               // size 0x04, offset 0x24
+        BE(u32) headBlockOffset;             // size 0x04, offset 0x10
+        BE(u32) headBlockSize;               // size 0x04, offset 0x14
+        BE(u32) adpcBlockOffset;             // size 0x04, offset 0x18
+        BE(u32) adpcBlockSize;               // size 0x04, offset 0x1c
+        BE(u32) dataBlockOffset;             // size 0x04, offset 0x20
+        BE(u32) dataBlockSize;               // size 0x04, offset 0x24
     }; // size 0x28
 
     struct StrmDataInfo {
@@ -34,19 +34,19 @@ struct StrmFile {
         u8 loopFlag;             // size 0x01, offset 0x01
         u8 numChannels;          // size 0x01, offset 0x02
         u8 sampleRate24;         // size 0x01, offset 0x03
-        u16 sampleRate;          // size 0x02, offset 0x04
-        u16 blockHeaderOffset;   // size 0x02, offset 0x06
-        u32 loopStart;           // size 0x04, offset 0x08
-        u32 loopEnd;             // size 0x04, offset 0x0c
-        u32 dataOffset;          // size 0x04, offset 0x10
-        u32 numBlocks;           // size 0x04, offset 0x14
-        u32 blockSize;           // size 0x04, offset 0x18
-        u32 blockSamples;        // size 0x04, offset 0x1c
-        u32 lastBlockSize;       // size 0x04, offset 0x20
-        u32 lastBlockSamples;    // size 0x04, offset 0x24
-        u32 lastBlockPaddedSize; // size 0x04, offset 0x28
-        u32 adpcmDataInterval;   // size 0x04, offset 0x2c
-        u32 adpcmDataSize;       // size 0x04, offset 0x30
+        BE(u16) sampleRate;          // size 0x02, offset 0x04
+        BE(u16) blockHeaderOffset;   // size 0x02, offset 0x06
+        BE(u32) loopStart;           // size 0x04, offset 0x08
+        BE(u32) loopEnd;             // size 0x04, offset 0x0c
+        BE(u32) dataOffset;          // size 0x04, offset 0x10
+        BE(u32) numBlocks;           // size 0x04, offset 0x14
+        BE(u32) blockSize;           // size 0x04, offset 0x18
+        BE(u32) blockSamples;        // size 0x04, offset 0x1c
+        BE(u32) lastBlockSize;       // size 0x04, offset 0x20
+        BE(u32) lastBlockSamples;    // size 0x04, offset 0x24
+        BE(u32) lastBlockPaddedSize; // size 0x04, offset 0x28
+        BE(u32) adpcmDataInterval;   // size 0x04, offset 0x2c
+        BE(u32) adpcmDataSize;       // size 0x04, offset 0x30
     }; // size 0x34
 
     struct TrackInfo {
@@ -58,7 +58,7 @@ struct StrmFile {
         u8 volume; // size 0x01, offset 0x00
         u8 pan;    // size 0x01, offset 0x01
         u8 padding[2];
-        u32 reserved;
+        BE(u32) reserved;
         u8 channelCount; // size 0x01, offset 0x08
         u8 channelIndexTable[];
         /* 3 bytes padding */
@@ -71,10 +71,14 @@ struct StrmFile {
         Util::DataRef<TrackInfo, TrackInfoEx> refTrackHeader[];
     }; // size 0x04
 
+#if TARGET_PC
+    typedef AdpcmParamSetData AdpcmParamSet;
+#else
     struct AdpcmParamSet {
         AdpcmParam adpcmParam;         // size 0x28, offset 0x00
         AdpcmLoopParam adpcmLoopParam; // size 0x06, offset 0x28
     }; // size 0x2e
+#endif
 
     struct ChannelInfo {
         Util::DataRef<AdpcmParamSet> refAdpcmInfo; // size 0x08, offset 0x00

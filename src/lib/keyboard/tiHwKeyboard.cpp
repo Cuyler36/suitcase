@@ -120,7 +120,7 @@ bool HWKeyboard::updateInput(input::HKBManager &hkbManager) {
                 mgr()->getPCKeyboard()->setABC(true);
             }
             for (; keySet.IsValid(); keySet = keySet.GetNext()) {
-                wchar_t wc = keySet.GetWChar();
+                wchar16_t wc = keySet.GetWChar();
                 u8 key = keySet.GetKey();
                 if (wc != L' ') {
                     if (wc != L'\0') {

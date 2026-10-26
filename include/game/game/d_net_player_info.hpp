@@ -11,9 +11,9 @@ struct Info_c {
     void clear(); // 800AC154
     void set();   // 800AC160: from dPlayerMgr::Mgr_c::getCurrentPlayer()
 
-    /* 0x00 */ wchar_t mPlayerName[9];    // dPrivateData_c::mPID.player.mName
-    /* 0x12 */ wchar_t mTownName[9];      // dPrivateData_c::mPID.land.mName
-    /* 0x24 */ wchar_t mFriendName[0x21]; // dFriendList_c::mName
+    /* 0x00 */ wchar16_t mPlayerName[9];    // dPrivateData_c::mPID.player.mName
+    /* 0x12 */ wchar16_t mTownName[9];      // dPrivateData_c::mPID.land.mName
+    /* 0x24 */ wchar16_t mFriendName[0x21]; // dFriendList_c::mName
 }; // size 0x66
 
 } // namespace dNetPlayerInfo

@@ -3,7 +3,7 @@
 #include <game/game/d_script.hpp>
 
 class dPersonalID_c;
-class dLandID_c;
+struct dLandID_c;
 
 // BMG string loading, the global word slots and the string words built on dScript::Word_c. Defined in
 // src/dol/game/d_string.cpp. The free function and global names are inferred.
@@ -46,13 +46,13 @@ public:
 class Word_c : public WordBase_c {
 public:
     Word_c(); // 8016B630
-    Word_c(const wchar_t *str); // 8016B674
+    Word_c(const wchar16_t *str); // 8016B674
     Word_c(u16 index, const char *group); // 8016B6D4: loads a BMG string (loadString)
     virtual ~Word_c(); // 8016B740
     virtual u32 getBufferSize(); // 8016B798: returns sizeof(mBuffer)
-    virtual wchar_t *getBuffer(); // 8016B7A0
+    virtual wchar16_t *getBuffer(); // 8016B7A0
 
-    wchar_t mBuffer[0x65]; // 0x24
+    wchar16_t mBuffer[0x65]; // 0x24
 }; // sizeof = 0xF0
 
 // The global word slots used by the tag handlers (g_comp). Name from RTTI.

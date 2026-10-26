@@ -4467,7 +4467,7 @@ void fgMngProc_procDayChange(BOOL arg) {
                 }
             } else if (dSaveData_c::getTown()->isFlag(flag)) {
                 dSaveData_c::getTown()->clearFlag(flag);
-                memset((u8 *)player + 0x865F, 0, 0x10);
+                memset(player->mFlags1, 0, sizeof(player->mFlags1));
             }
             player->dailyUpdate(days);
         }
@@ -5245,7 +5245,7 @@ void fgMngProc_setFgObjCallback(dFgObjCallback func) {
 
 // 8009D87C: calls the d_fgobj_manager callback (if set) with a zero angle;
 // caller fn_80192128.
-void fgMngProc_callFgObjCallback(int a, int b, int c, int d) {
+void fgMngProc_callFgObjCallback(int a, dFgObjArg_t b, dFgObjArg_t c, int d) {
     if (sFgObjCallback != NULL) {
         mAng3_c ang(0, 0, 0);
         sFgObjCallback(a, b, c, &ang, d);

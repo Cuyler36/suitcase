@@ -6,8 +6,8 @@
 namespace dScData {
 
 static dScene::dSceneBaseData_c l_base[] = {{fProf::SKY, 0}};
-static u32 l_setting0[] = {0x404850FF, 0x6B000000}; // scene setting kind 8
-static u32 l_setting1[] = {0x906040FF, 0xF71D2000}; // scene setting kind 0x11
+static u32 l_setting0[] = {SC_COLOR(0x404850FF), SC_COLOR(0x6B000000)}; // scene setting kind 8
+static u32 l_setting1[] = {SC_COLOR(0x906040FF), SC_ANGLES(0xF71D2000)}; // scene setting kind 0x11
 static u16 l_resources[] = {fProf::SKY, fProf::A_NPC_SP_PLAYER_CREATE,
                             fProf::A_NPC_SP_KAPPEI, fProf::A_RMOBJ_BUS};
 static u16 l_exitInfoData[] = {0x019A, 0x0000};
@@ -28,12 +28,12 @@ static ActorData_c l_actors[] = {
      (void *)0x8014},
     {fProf::A_RMOBJ_BUS, 0, {0.0f, 0.0f, 0.0f}, {0, 0, 0}, 0, 0},
 };
-static u32 l_setting2[] = {0xFFEFBDFF, 0x43880000, 0x42400000, 0x43A80000,
-                           0xC0000000, 0x3F800000, 0x3A83126F, 0x38D1B717,
-                           0x42B40000, 0x00000000, 0x00000000, 0x3DCCCCCD,
+static u32 l_setting2[] = {SC_COLOR(0xFFEFBDFF), 0x43880000, 0x42400000, 0x43A80000,
+                           SC_ANGLES(0xC0000000), 0x3F800000, 0x3A83126F, 0x38D1B717,
+                           0x42B40000, 0x00000000, SC_COLOR(0x00000000), 0x3DCCCCCD,
                            0x3DCCCCCD}; // scene setting kind 0xD
-static u32 l_setting3[] = {0x906000FF, 0x43700000, 0x42500000, 0x00000000,
-                           0xC0000000, 0x3F800000, 0x3C23D70A, 0x3983126F,
+static u32 l_setting3[] = {SC_COLOR(0x906000FF), 0x43700000, 0x42500000, 0x00000000,
+                           SC_ANGLES(0xC0000000), 0x3F800000, 0x3C23D70A, 0x3983126F,
                            0x42B40000, 0x00000000, 0x43700000, 0x42500000,
                            0x44480000, 0x41000000}; // scene setting kind 0x12
 static Scene3Entry_c l_scene3[] = {

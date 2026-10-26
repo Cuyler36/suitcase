@@ -22,6 +22,13 @@ enum {
     DOWNLOAD_STATE_READY = 2, COMMON_NAME_BANNER = 11
 };
 // SDK configuration layouts; unknown options retain offset names.
+// PC port: ConnectionConfig, ApplicationConfig and onEvent's info are padding views of RevoEX SDK
+// structs at their Wii offsets, so their layouts are wrong on a 64-bit host (they hold pointers).
+// ConnectionConfig is the MPConfig given to MPStartup (callback at 0x194; the tail is 0x28 bytes on
+// RUUK01_01, 0x38 elsewhere): City Folk's RevoEX is not the one in lib/RevoEX/include/private/mp_types.h,
+// whose MPConfig has the callback at 0xB0. ApplicationConfig is the MPDL configuration. onEvent's info
+// is an MPPortResult (words[4] aid, words[5..6] recv.data/size, +0x18 connected.macAddress). Left as is:
+// DS Download is stubbed on PC (and likely to be removed).
 struct ConnectionConfig {
     void *(*alloc)(u32);
     void (*free)(void *);
@@ -40,7 +47,7 @@ struct ApplicationConfig {
     void *(*alloc)(u32);
     void (*free)(void *);
     u32 _0008, mId, _0010, _0014, _0018;
-    const wchar_t *mTitle, *mName, *mDescription;
+    const wchar16_t *mTitle, *mName, *mDescription;
     u32 _0028;
     void *mRom;
     u32 _0030, _0034;
@@ -71,17 +78,17 @@ char sProgramRegistration[] =
 #endif
     "</NINTENDO-DS-PROGRAM-REGISTRATION-LIST>\n";
 struct DefaultBanner {
-    wchar_t mTitle[10];
+    wchar16_t mTitle[10];
 #if VERSION == VERSION_RUUK01_01
-    wchar_t mName[10];
-    wchar_t mDescription[40];
+    wchar16_t mName[10];
+    wchar16_t mDescription[40];
 #else
-    wchar_t mName[12];
-    wchar_t mDescription[52];
+    wchar16_t mName[12];
+    wchar16_t mDescription[52];
 #endif
 };
 static DefaultBanner sDefaultBanner = {
-    L"RVFOREST1", L"DS Appli", L"This is DS Download Appli for RVFOREST1"
+    WSTR("RVFOREST1"), WSTR("DS Appli"), WSTR("This is DS Download Appli for RVFOREST1")
 };
 static ApplicationConfig sApplicationConfig = {
     alloc, free, 8, 0x003FFFAA, 0xFFFFFFFF, 0, 0,
@@ -197,6 +204,7 @@ void Connection_c::onSend() {
         sConnection->mSend(sConnection->mSendResult);
 }
 // 800E416C
+// info: an MPPortResult viewed as words (see ConnectionConfig: wrong on PC)
 void Connection_c::onEvent(int event, const void *info) {
     const u32 *words = (const u32 *)info;
     Connection_c *connection = sConnection;
@@ -343,8 +351,8 @@ void Application_c::stop() {
     else if ((mState >= STATE_OPEN && mState < STATE_STOP) || mState == STATE_DOWNLOAD_ERROR) mState = STATE_STOP;
 }
 // 800E46F8
-void Application_c::copyBannerText(const wchar_t *src, wchar_t *dst) {
-    wchar_t ch;
+void Application_c::copyBannerText(const wchar16_t *src, wchar16_t *dst) {
+    wchar16_t ch;
     while ((ch = *src) != 0) { *dst = ch; src++; dst++; }
     *dst = ch;
 }

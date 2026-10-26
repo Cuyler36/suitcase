@@ -14,6 +14,9 @@ void GXClearVtxDesc();
 void GXSetVtxAttrFmt(GXVtxFmt vtxfmt, GXAttr attr, GXCompCnt cnt, GXCompType type, u8 frac);
 void GXSetVtxAttrFmtv(GXVtxFmt vtxfmt, const GXVtxAttrFmtList* list);
 void GXSetArray(GXAttr attr, const void* base_ptr, u8 stride);
+// GXSetArray with the array's size in bytes and whether it is little-endian (host-order data built
+// in code rather than big-endian resource data), which the PC port's GX needs. The Wii ignores both.
+#define GXSETARRAY(attr, data, size, stride, le) GXSetArray((attr), (data), (stride))
 
 void GXDrawSphere(u8 numMajor, u8 numMinor);
 void GXInvalidateVtxCache();

@@ -55,9 +55,9 @@
 //   804A487C 0x0C PTMF {0, -1, actVisitWalk}
 //   804A4888 0x0C PTMF {0, -1, actVisitArrive}
 //   804A4894 0x0B string "Q_Roomtalk"
-//   804A48A0 0x0C wchar_t[6] (0x2606 x4)
-//   804A48AC 0x0C wchar_t[6] (0x2606 x5)
-//   804A48B8 0x14 wchar_t *[5] {lbl_80749AC0, lbl_80749AC4, lbl_80749AD0, lbl_804A48A0, lbl_804A48AC}: words of msgVisitLayout
+//   804A48A0 0x0C wchar16_t[6] (0x2606 x4)
+//   804A48AC 0x0C wchar16_t[6] (0x2606 x5)
+//   804A48B8 0x14 wchar16_t *[5] {lbl_80749AC0, lbl_80749AC4, lbl_80749AD0, lbl_804A48A0, lbl_804A48AC}: words of msgVisitLayout
 //   804A48CC 0x0C PTMF {0, -1, endVisitFirst}
 //   804A48D8 0x0C PTMF {0, -1, endQuestCommon}
 //   804A48E4 0x0C PTMF {0, -1, endQuestCommon}

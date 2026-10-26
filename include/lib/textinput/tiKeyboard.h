@@ -29,10 +29,19 @@ public:
     KeyboardBase() : meLanguage(JP) {}
 
     virtual ~KeyboardBase() {}
+#if TARGET_PC
+    // Not in the original binary (every keyboard overrides them), but MSVC emits KeyboardBase's
+    // vtable wherever a keyboard is constructed, so the slots need definitions.
+    virtual void create(MEMAllocator *allocator) {}
+    virtual void init() {}
+    virtual void onKey(u32 key, void *data) {}    // 0x20
+    virtual int getType() { return 0; }           // 0x24
+#else
     virtual void create(MEMAllocator *allocator);
     virtual void init();
     virtual void onKey(u32 key, void *data);      // 0x20
     virtual int getType();                        // 0x24
+#endif
     virtual void setLanguage(Language language) { meLanguage = language; } // 0x28
     virtual Language getLanguage() const { return meLanguage; } // 0x2C
     virtual void update() {}                      // 0x30

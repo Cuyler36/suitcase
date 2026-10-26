@@ -18,7 +18,7 @@ u32 Word_c::getBufferSize() {
     return sizeof(mBuffer);
 }
 
-wchar_t *Word_c::getBuffer() {
+wchar16_t *Word_c::getBuffer() {
     return mBuffer;
 }
 
@@ -99,39 +99,59 @@ int Word_c::procSelect(int pos) {
 
 // The tag builders copy a constant template (.sdata2 80751758..) and then set the escape and the parameter.
 int Word_c::insertFeelTag(int pos, u32 id) {
-    wchar_t tag[3] = {0, TAG_HEAD(6, 2), 0}; // feel tag (group 2, Seq_c::procFeel)
+    wchar16_t tag[3] = {0, TAG_HEAD(6, 2), 0}; // feel tag (group 2, Seq_c::procFeel)
     tag[0] = TAG_ESCAPE;
     tag[2] = id;
+#if TARGET_PC
+    // Tag bodies are big-endian (as in the BMG files)
+    tag[1] = RES_U16(tag[1]);
+    tag[2] = RES_U16(tag[2]);
+#endif
     insert(tag, 3, pos);
     return 3;
 }
 
 int Word_c::insertColorTag(int pos, u8 color) {
-    wchar_t tag[4] = {0, TAG_HEAD(8, dScript::TAG_GROUP_SYSTEM), 0x0000, 0}; // system 0: colour
+    wchar16_t tag[4] = {0, TAG_HEAD(8, dScript::TAG_GROUP_SYSTEM), 0x0000, 0}; // system 0: colour
     tag[0] = TAG_ESCAPE;
     tag[3] = color << 8;
+#if TARGET_PC
+    for (int i = 1; i < 4; i++) {
+        tag[i] = RES_U16(tag[i]);
+    }
+#endif
     insert(tag, 4, pos);
     return 4;
 }
 
 int Word_c::insertLineOffsetTag(int pos, int offset) {
-    wchar_t tag[4] = {0, TAG_HEAD(8, dScript::TAG_GROUP_SYSTEM), 0x0003, 0}; // system 3: line offset (y)
+    wchar16_t tag[4] = {0, TAG_HEAD(8, dScript::TAG_GROUP_SYSTEM), 0x0003, 0}; // system 3: line offset (y)
     tag[0] = TAG_ESCAPE;
     tag[3] = offset;
+#if TARGET_PC
+    for (int i = 1; i < 4; i++) {
+        tag[i] = RES_U16(tag[i]);
+    }
+#endif
     insert(tag, 4, pos);
     return 4;
 }
 
 int Word_c::insertScaleTag(int pos, int scale) {
-    wchar_t tag[4] = {0, TAG_HEAD(8, dScript::TAG_GROUP_SYSTEM), 0x0001, 0}; // system 1: scale
+    wchar16_t tag[4] = {0, TAG_HEAD(8, dScript::TAG_GROUP_SYSTEM), 0x0001, 0}; // system 1: scale
     tag[0] = TAG_ESCAPE;
     tag[3] = scale;
+#if TARGET_PC
+    for (int i = 1; i < 4; i++) {
+        tag[i] = RES_U16(tag[i]);
+    }
+#endif
     insert(tag, 4, pos);
     return 4;
 }
 
 int Word_c::procNumber(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     dScript::getTagId(tag);
     const u8 *params = dScript::getTagParams(tag);
     u8 idx = 0;
@@ -145,7 +165,7 @@ int Word_c::procNumber(int pos) {
 }
 
 int Word_c::procRandomNumber(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     dScript::getTagId(tag);
     const u8 *params = dScript::getTagParams(tag);
     u8 idx = 0;
@@ -155,8 +175,14 @@ int Word_c::procRandomNumber(int pos) {
     }
     u16 min = 0;
     std::memcpy(&min, params + 1, 2);
+#if TARGET_PC
+    min = RES_U16(min);
+#endif
     u16 max = 0;
     std::memcpy(&max, params + 3, 2);
+#if TARGET_PC
+    max = RES_U16(max);
+#endif
     if (mpComp->getRandomNumber(idx) == MSG_RANDOM_NUMBER_NONE) {
         int value = min + cM::rndInt(max - min + 1);
         mpComp->setRandomNumber(idx, value);
@@ -168,7 +194,7 @@ int Word_c::procRandomNumber(int pos) {
 }
 
 int Word_c::procWord(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     dScript::getTagId(tag);
     const u8 *params = dScript::getTagParams(tag);
     u8 idx = 0;
@@ -252,7 +278,7 @@ int Word_c::procPlayerChar(int pos, u32 index) {
     dPrivateData_c *player = dPlayerMgr::Mgr_c::getCurrentPlayer();
     dHmnName::Word_c name;
     player->mPID.setWord(&name);
-    wchar_t c = 0;
+    wchar16_t c = 0;
     if (!name.getChar(&c, index)) {
         return removeTag(pos);
     }
@@ -339,7 +365,7 @@ void Word_c::pickAnimalParam(u8 slot) {
 }
 
 int Word_c::procAnimalParam(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     dScript::getTagLength(tag);
     const u8 *params = dScript::getTagParams(tag);
     u8 slot = 0;
@@ -407,7 +433,7 @@ int Word_c::procAnimalStarSign(int pos) {
 }
 
 int Word_c::procGreeting(int pos) {
-    const wchar_t *p = getBuffer() + pos;
+    const wchar16_t *p = getBuffer() + pos;
     dScript::getTagLength(p);
     dPrivateData_c *player = dPlayerMgr::Mgr_c::getCurrentPlayer();
     dAnimal_c *speaker = mpComp->mpRcpt->getSpeakerAnimal();
@@ -442,7 +468,7 @@ int Word_c::procGreeting(int pos) {
 }
 
 int Word_c::procAnimalFlagBegin(int pos) {
-    const wchar_t *p = getBuffer() + pos;
+    const wchar16_t *p = getBuffer() + pos;
     dScript::getTagLength(p);
     dPlayerMgr::Mgr_c::getCurrentPlayer();
     dNpc::entry_c *entry = dNpc::getEntryByAnimal(&mpComp->mpRcpt->getSpeakerAnimal()->mID);
@@ -468,7 +494,7 @@ int Word_c::procAnimalFlagBegin(int pos) {
             }
         } else if (*p == 0) {
             return removeTag(pos);
-        } else if (!keep && _20 && dScript::toUpper((wchar_t *)p)) {
+        } else if (!keep && _20 && dScript::toUpper((wchar16_t *)p)) {
             clearCapitalize();
             break;
         } else {
@@ -502,7 +528,7 @@ int Word_c::procPlayerGender(int pos) {
 }
 
 int Word_c::procWordGender(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     dScript::getTagLength(tag);
     const u8 *params = dScript::getTagParams(tag);
     u8 slot = 0;
@@ -565,7 +591,7 @@ int Word_c::procWordElision(int pos) {
 }
 
 int Word_c::procNumberPlural(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     const u8 *params = dScript::getTagParams(tag);
     dScript::getTagLength(tag);
     u8 slot = 0;
@@ -577,7 +603,7 @@ int Word_c::procNumberPlural(int pos) {
 }
 
 int Word_c::procColor(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     u8 len = dScript::getTagLength(tag);
     const u8 *params = dScript::getTagParams(tag);
     u8 color = 0;
@@ -587,11 +613,14 @@ int Word_c::procColor(int pos) {
 }
 
 int Word_c::procScale(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     u8 len = dScript::getTagLength(tag);
     const u8 *params = dScript::getTagParams(tag);
     u16 scale = 0;
     std::memcpy(&scale, params, 2);
+#if TARGET_PC
+    scale = RES_U16(scale);
+#endif
     if (!mLineHasChar) {
         mMaxScale = scale;
     }
@@ -663,7 +692,7 @@ int Rcpt_c::getForcedVoiceMode() { return VOICE_MODE_NONE; }
 int Rcpt_c::getVoiceMood() { return 0; }
 
 void Rcpt_c::setSpeakerName(const u16 *name, u8 nameKind) {
-    int length = dScript::getStringLength((const wchar_t *)name, 0, 0);
+    int length = dScript::getStringLength((const wchar16_t *)name, 0, 0);
     std::memset(mSpeakerName, 0, sizeof(mSpeakerName));
     std::memcpy(mSpeakerName, name, length * sizeof(u16));
     mSpeakerNameKind = nameKind;
@@ -997,7 +1026,7 @@ void dMsg::Comp_c::setVibration(int level) {
     mAnmVib.setFrame(0.0f);
 }
 
-void dMsg::Comp_c::setVoiceChar(wchar_t c) {
+void dMsg::Comp_c::setVoiceChar(wchar16_t c) {
     if (!mSeq.mNoWait) {
         mVoice.setChar(c);
     }
@@ -1628,12 +1657,12 @@ void dMsg::Comp_c::openAnalogSelect() {
 
 // 801A5A98
 void dMsg::Comp_c::updateSpeakerName() {
-    int len = dScript::getStringLength((const wchar_t *)mpRcpt->getSpeakerName(), 0, 0);
+    int len = dScript::getStringLength((const wchar16_t *)mpRcpt->getSpeakerName(), 0, 0);
     if (len == 0) {
         mpNamePane->SetVisible(false);
         return;
     }
-    mpNameText->SetString((const wchar_t *)mpRcpt->getSpeakerName(), 0, len);
+    mpNameText->SetString((const wchar16_t *)mpRcpt->getSpeakerName(), 0, len);
     mpNamePane->SetVisible(true);
     switch (mpRcpt->getSpeakerNameKind()) {
     case 0:
@@ -1784,7 +1813,7 @@ void Voice_c::create(Comp_c *comp) {
 }
 
 // 801A60B8
-void Voice_c::setChar(wchar_t c) {
+void Voice_c::setChar(wchar16_t c) {
     mPrevChar = mChar;
     mChar = c;
     mCharSet = 1;

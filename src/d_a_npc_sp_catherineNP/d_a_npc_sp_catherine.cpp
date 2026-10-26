@@ -763,17 +763,17 @@ void dAcNpcSpCatherine_c::talk_c::onMessageStart(int arg) {
                        getMiiIndex());
         dString::Word_c word;
 #if VERSION == VERSION_RUUK01_01
-        wchar_t name[11];
+        wchar16_t name[11];
         memset(name, 0, sizeof(name));
-        wchar_t *dst;
-        const wchar_t *src = info.mName;
+        wchar16_t *dst;
+        const wchar16_t *src = info.mName;
         dst = name;
         for (int i = 0; i < 10; i++, src++) {
-            wchar_t c = *src;
+            wchar16_t c = *src;
             if (c == 0) {
                 break;
             }
-            static const wchar_t l_altChar = 0xE06B;
+            static const wchar16_t l_altChar = 0xE06B;
             if (c <= 0x1F || c == 0x7F) {
                 c = l_altChar;
             }

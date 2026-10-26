@@ -46,8 +46,8 @@ public:
     virtual bool updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release); // 0x1C
     virtual bool updateInput(input::HKBManager &hkbManager);                           // 0x20
     virtual void SetFont(nw4r::lyt::FontRefLink *fontLink);                            // 0x24
-    virtual wchar_t *getWCString() const;                                              // 0x28
-    virtual void setWCString(const wchar_t *string);                                   // 0x2C
+    virtual wchar16_t *getWCString() const;                                              // 0x28
+    virtual void setWCString(const wchar16_t *string);                                   // 0x2C
     virtual void setLanguage(Language language);                                       // 0x30
     virtual Language getLanguage() const { return meLanguage; }                        // 0x34
     virtual void setDestination(Destination destination);                             // 0x38
@@ -64,7 +64,7 @@ public:
     virtual void setFixedPredictionJP(int num, const char **predicts) {                // 0x54
         getInputForm()->getAtokString()->setFixedPredictionJP(num, predicts);
     }
-    virtual void setTitleText(const wchar_t *titleText);                               // 0x58
+    virtual void setTitleText(const wchar16_t *titleText);                               // 0x58
     virtual void start();                                                              // 0x5C
     virtual void end();                                                                // 0x60
 
@@ -141,8 +141,8 @@ public:
     virtual void draw();                                                               // 0x18
     virtual bool updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release); // 0x1C
     virtual bool updateInput(input::HKBManager &hkbManager);                           // 0x20
-    virtual wchar_t *getWCString() const;                                              // 0x24
-    virtual void setWCString(const wchar_t *string);                                   // 0x28
+    virtual wchar16_t *getWCString() const;                                              // 0x24
+    virtual void setWCString(const wchar16_t *string);                                   // 0x28
     virtual void setLanguage(Language language);                                       // 0x2C
     virtual void setDestination(Destination destination);                             // 0x30
     virtual void limitStringLength(u32 limitStringLength);                             // 0x34
@@ -158,7 +158,7 @@ public:
     virtual void setFixedPredictionJP(int num, const char **predicts) {                // 0x4C
         getInputForm()->getAtokString()->setFixedPredictionJP(num, predicts);
     }
-    virtual void setTitleText(const wchar_t *titleText);                               // 0x50
+    virtual void setTitleText(const wchar16_t *titleText);                               // 0x50
     virtual void start();                                                              // 0x54
     virtual void end();                                                                // 0x58
 

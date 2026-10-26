@@ -57,7 +57,7 @@ bool WaveFileReader::ReadWaveInfo(WaveData *waveData,
                             static_cast<AxVoice::Format>(sampleFormat)) +
                         1;
 
-    u32 const *channelInfoOffset = static_cast<u32 const *>(
+    BE(u32) const *channelInfoOffset = static_cast<BE(u32) const *>(
         ut::AddOffsetToPtr(mWaveInfo, mWaveInfo->channelInfoTableOffset));
 
     for (int channelIndex = 0; channelIndex < mWaveInfo->numChannels;
@@ -77,8 +77,12 @@ bool WaveFileReader::ReadWaveInfo(WaveData *waveData,
                 static_cast<WaveFile::AdpcmParamSet const *>(ut::AddOffsetToPtr(
                     mWaveInfo, waveChannelInfo->adpcmOffset));
 
+#if TARGET_PC
+            adpcmParamSet->Read(&channelParam.adpcmParam, &channelParam.adpcmLoopParam);
+#else
             channelParam.adpcmParam = adpcmParamSet->adpcmParam;
             channelParam.adpcmLoopParam = adpcmParamSet->adpcmLoopParam;
+#endif
         }
 
         channelParam.dataAddr = const_cast<void *>(
@@ -113,9 +117,14 @@ void const *WaveFileReader::GetWaveDataAddress(
         break;
 
     case 1:
+#if TARGET_PC
+        // An absolute 32-bit address: never in a PC file
+        return nullptr;
+#else
         waveDataAddress =
             reinterpret_cast<void const *>(mWaveInfo->dataLocation);
         break;
+#endif
 
     default:
         return nullptr;

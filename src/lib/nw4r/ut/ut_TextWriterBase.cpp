@@ -421,7 +421,7 @@ void TextWriterBase<T>::CalcStringRect(Rect* pRect, const T* pStr,
 }
 
 template struct TextWriterBase<char>;
-template struct TextWriterBase<wchar_t>;
+template struct TextWriterBase<wchar16_t>;
 
 } // namespace ut
 } // namespace nw4r

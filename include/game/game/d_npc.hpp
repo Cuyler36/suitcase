@@ -75,7 +75,7 @@ public:
     BOOL setPlayer(const dPlayerID_c *player);                                  // 800ED0C8
     BOOL setLand(const dLandID_c *land);                                        // 800ED124
     BOOL setRumorTown(u32 value);                                               // 800ED180: < 4
-    BOOL setText(const wchar_t *text);                                          // 800ED19C
+    BOOL setText(const wchar16_t *text);                                          // 800ED19C
     BOOL setImpression(u32 value);                                              // 800ED224: < 50
 
     /* 0x46 */ dPersonalID_c mPersonal;
@@ -88,7 +88,7 @@ public:
     /* 0xAC */ u32 mImpression; // 50 when cleared
     /* 0xB0 */ dItem::Item mItem0;
     /* 0xB2 */ dItem::Item mItem1;
-    /* 0xB4 */ wchar_t mText[17];
+    /* 0xB4 */ wchar16_t mText[17];
 }; // size 0xD8
 
 // 0x11E at entry_c+0x120. Cached word IDs for seven dialogue categories and six villager slots.

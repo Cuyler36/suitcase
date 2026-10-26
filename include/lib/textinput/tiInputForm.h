@@ -43,8 +43,8 @@ class DeadKeyStream {
     }
 #endif
 
-    static wchar_t ToCombineClass(Language language, wchar_t ch);
-    static wchar_t ToIndependentClass(wchar_t ch);
+    static wchar16_t ToCombineClass(Language language, wchar16_t ch);
+    static wchar16_t ToIndependentClass(wchar16_t ch);
 
     /* 0x00 */ KPRQueue mKPRQueue;
 }; // size 0x18
@@ -170,13 +170,13 @@ class Base : public CommandReceiver,
 #if VERSION == VERSION_RUUK01_01
     virtual void updateCandidateState_();
 #endif
-    virtual wchar_t *getWCString() const {
+    virtual wchar16_t *getWCString() const {
         return mpString->getWCString();
     } // 0xD8
     virtual tistring::WithAtok *getAtokString() {
         return mpUnfixString;
     } // 0xDC
-    virtual wchar_t getCandidate() const {
+    virtual wchar16_t getCandidate() const {
         return mpString->getCandidate();
     }                                                     // 0xE0
     virtual u32 getCursorPos();                           // 0xE4
@@ -204,8 +204,8 @@ class Base : public CommandReceiver,
     virtual void setLanguage(Language language);                        // 0x108
     virtual void setPredictMode(PredictMode predictMode);               // 0x10C
     virtual PredictMode getPredictMode();                               // 0x110
-    virtual u32 isOverRowLimit(u32 limitRowNum, const wchar_t *string); // 0x114
-    virtual bool findURL(u32 *, u32 *, const wchar_t *, u32, u32);      // 0x118
+    virtual u32 isOverRowLimit(u32 limitRowNum, const wchar16_t *string); // 0x114
+    virtual bool findURL(u32 *, u32 *, const wchar16_t *, u32, u32);      // 0x118
     virtual bool isInScroll() {
         return mScrollAnm.isActive();
     } // 0x11C
@@ -224,12 +224,12 @@ class Base : public CommandReceiver,
     virtual bool canConvert() {
         return getCurrentString(false) == mpUnfixString ? true : false;
     }                                              // 0x134
-    virtual void setString(const wchar_t *string); // 0x138
+    virtual void setString(const wchar16_t *string); // 0x138
     virtual void draw();                           // 0x13C
     virtual void calc();                           // 0x140
-    virtual void doBeforeDrawProcess(const wchar_t *wcString, u32 pos,
+    virtual void doBeforeDrawProcess(const wchar16_t *wcString, u32 pos,
                                      const DrawInfo &drawInfo); // 0x144
-    virtual void doAfterDrawProcess(const wchar_t *wcString, u32 pos,
+    virtual void doAfterDrawProcess(const wchar16_t *wcString, u32 pos,
                                     const DrawInfo &drawInfo) {
     }                              // 0x148
     virtual void preDraw(u32 pos); // 0x14C
@@ -240,7 +240,7 @@ class Base : public CommandReceiver,
     virtual void drawCursor(f32 x, f32 y);                    // 0x15C
     virtual void doScroll(Scroll *scroll);                    // 0x160
     virtual void autoScroll();                                // 0x164
-    virtual bool doWordWrap(const wchar_t *string, u32, f32); // 0x168
+    virtual bool doWordWrap(const wchar16_t *string, u32, f32); // 0x168
     void completeDrawCursor_(CursorPos *cursorPos);
     virtual void drawFixString(u32); // 0x16C
     virtual void onSE(sound::SE seId) {
@@ -259,7 +259,7 @@ class Base : public CommandReceiver,
                                  s32 endLine); // 0x19C
 
     struct CharInput {
-        /* 0x0 */ wchar_t ch;
+        /* 0x0 */ wchar16_t ch;
         /* 0x4 */ u32 flags;
         /* 0x8 */ bool usePCKeyboardMode;
         /* 0x9 */ bool deadKey;
@@ -267,7 +267,7 @@ class Base : public CommandReceiver,
     }; // size 0x10
 
     struct KeyInput {
-        /* 0x0 */ wchar_t ch;
+        /* 0x0 */ wchar16_t ch;
         /* 0x2 */ u16 letterMode;
         /* 0x4 */ bool direct;
         /* 0x5 */ u8 _05;
@@ -295,11 +295,11 @@ class Base : public CommandReceiver,
     void setCursorPos(tistring::Decolated *string, u32 pos);
     void calcCursorTimer();
     void confirmInput_();
-    void inputInputting_(wchar_t ch);
-    void confirmInputting_(wchar_t ch, bool direct, u16 letterMode,
+    void inputInputting_(wchar16_t ch);
+    void confirmInputting_(wchar16_t ch, bool direct, u16 letterMode,
                            bool checkCandidate, void *holdingKey);
-    void inputCharZi_(wchar_t ch, u32 flags);
-    void inputCharDefault_(wchar_t ch);
+    void inputCharZi_(wchar16_t ch, u32 flags);
+    void inputCharDefault_(wchar16_t ch);
     tistring::Decolated *getCurrentString(bool ignoreFix);
     bool isAtokActive();
     void onHKBCtrlCode(HVKCode code, u32);

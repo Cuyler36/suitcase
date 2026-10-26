@@ -6,8 +6,8 @@
 
 namespace dScData {
 
-static u32 l_setting0[] = {0x42426BFF, 0x6B000000}; // scene setting kind 7
-static u32 l_setting1[] = {0x9CBDCEFF, 0xDAAB0000}; // scene setting kind 0x10
+static u32 l_setting0[] = {SC_COLOR(0x42426BFF), SC_COLOR(0x6B000000)}; // scene setting kind 7
+static u32 l_setting1[] = {SC_COLOR(0x9CBDCEFF), SC_ANGLES(0xDAAB0000)}; // scene setting kind 0x10
 static PlayerData_c l_player = {{256.0f, 0.0f, 464.0f}, {0, -0x8000, 0}, 0, 8};
 static dScene::dSceneBaseData_c l_base[] = {{fProf::SV_DEMO, 0},
                                             {fProf::SKY, 0}};
@@ -41,8 +41,9 @@ static ActorData_c l_actors[] = {
     {fProf::A_SAMPLE3, 0, {256.0f, 0.0f, 384.0f}, {0, 0, 0}, 0, 0},
 };
 static u32 l_setting2[] ALIGN(8) = {
-    0x9CBDCEFF, 0x43800000, 0x42700000, 0x438C0000, 0xE0000000,
-    0x3F800000, 0x00000000, 0x38D1B717, 0x42B40000}; // scene setting kind 0xC
+    SC_COLOR(0x9CBDCEFF), 0x43800000, 0x42700000, 0x438C0000, SC_ANGLES(0xE0000000),
+    0x3F800000, 0x00000000, 0x38D1B717, 0x42B40000,
+    0x00000000 /* mSpotFn: GX_SP_OFF (the 10th word, alignment padding on the Wii) */}; // scene setting kind 0xC
 static Scene3Entry_c l_scene3[] = {
     {7, l_setting0}, {0x10, l_setting1}, {0xC, l_setting2}};
 static u16 l_resources[] = {fProf::SKY,

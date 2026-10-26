@@ -7,7 +7,7 @@
 namespace nw4r {
 namespace ut {
 
-typedef TagProcessorBase<wchar_t> WideTagProcessor;
+typedef TagProcessorBase<wchar16_t> WideTagProcessor;
 
 } // namespace ut
 } // namespace nw4r

@@ -123,7 +123,7 @@ void CXUncompressHuffman(const void *src, void *dst) {
             u32 treeCheck = *treep;
             treeCheck <<= treeShift;
 
-            treep = (const u8 *)((((u32)treep >> 1) << 1) +
+            treep = (const u8 *)((((uintptr_t)treep >> 1) << 1) +
                                  (((*treep & 0x3F) + 1) << 1) + treeShift);
 
             if (treeCheck & 0x80) {

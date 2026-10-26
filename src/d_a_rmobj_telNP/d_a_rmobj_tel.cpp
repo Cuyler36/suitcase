@@ -761,7 +761,7 @@ void daRmobjTel_c::requestMessage(u16 code, const char *label) {
 
 // .text 0x2888
 void daRmobjTel_c::switchToSystemSpeaker() {
-    dString::Word_c speaker((const wchar_t *)getSpeakerName());
+    dString::Word_c speaker((const wchar16_t *)getSpeakerName());
     dHmnName::Word_c name;
     dItem::Item item((u16)SP_NPC_GUIDE);
     dNpc::getNpcName(&name, &item, LANGUAGE_NUM);
@@ -773,7 +773,7 @@ void daRmobjTel_c::switchToSystemSpeaker() {
 
 // .text 0x2930
 void daRmobjTel_c::switchToRoverSpeaker() {
-    dString::Word_c speaker((const wchar_t *)getSpeakerName());
+    dString::Word_c speaker((const wchar16_t *)getSpeakerName());
     dHmnName::Word_c name;
     dItem::Item item((u16)SP_NPC_GUIDE);
     dNpc::getNpcName(&name, &item, LANGUAGE_NUM);

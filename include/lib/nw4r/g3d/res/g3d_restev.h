@@ -1,6 +1,7 @@
 #ifndef NW4R_G3D_RES_RES_TEV_H
 #define NW4R_G3D_RES_RES_TEV_H
 #include <nw4r/types_nw4r.h>
+#include <port/endian.h>
 
 #include <nw4r/g3d/res/g3d_rescommon.h>
 
@@ -52,9 +53,9 @@ struct ResTevDL {
 };
 
 struct ResTevData {
-    ulong size;                               // at 0x0
-    s32 toResMdlData;                       // at 0x4
-    ulong id;                                 // at 0x8
+    BE(u32) size;                               // at 0x0
+    BE(s32) toResMdlData;                       // at 0x4
+    BE(u32) id;                                 // at 0x8
     u8 nStages;                             // at 0xC
     u8 PADDING_0xD[0x10 - 0xD];             // at 0xD
     u8 texCoordToTexMapID[GX_MAX_TEXCOORD]; // at 0x10

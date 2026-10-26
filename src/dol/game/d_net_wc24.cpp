@@ -26,7 +26,7 @@ NWC24Err NWC24GetNumFriendInfos(u32 *);
 NWC24Err NWC24CheckUserId(u64);
 NWC24Err NWC24SetMsgToStr(NWC24MsgObj *, const void *, u32);
 NWC24Err NWC24SetMsgAttached(NWC24MsgObj *, const void *, u32, NWC24MIMEType);
-NWC24Err NWC24SetMsgAltName(NWC24MsgObj *, const wchar_t *, u32);
+NWC24Err NWC24SetMsgAltName(NWC24MsgObj *, const wchar16_t *, u32);
 NWC24Err NWC24SetMsgMBNoReply(NWC24MsgObj *, BOOL);
 NWC24Err NWC24SetMsgDwcSize(NWC24MsgObj *, int);
 NWC24Err NWC24SetMsgLedPatternRaw(NWC24MsgObj *, u16);
@@ -38,7 +38,7 @@ NWC24Err NWC24GetMsgId(const NWC24MsgObj *, u32 *);
 NWC24Err NWC24GetMsgAppId(const NWC24MsgObj *, u32 *);
 NWC24Err NWC24GetMsgFromId(const NWC24MsgObj *, u64 *);
 NWC24Err NWC24ReadMsgAttached(NWC24MsgObj *, u32, void *, u32);
-NWC24Err NWC24SetMsgSubjectAndTextPublic(NWC24MsgObj *, const wchar_t *, u32, const wchar_t *, u32,
+NWC24Err NWC24SetMsgSubjectAndTextPublic(NWC24MsgObj *, const wchar16_t *, u32, const wchar16_t *, u32,
                      BOOL, u32, void *, u32);
 NWC24Err NWC24InitSearchConds();
 NWC24Err NWC24SetSearchCondMsgBox(u32);
@@ -471,7 +471,7 @@ BOOL dNetWc24_c::sendBoardMessage(const dPostRequest_c *req) {
     FriendInfo_c info ALIGN(32);
     u32 type;
     NWC24MsgObj msg;
-    wchar_t subject[MAX_SUBJECT_LENGTH];
+    wchar16_t subject[MAX_SUBJECT_LENGTH];
     if ((u32)req->mFriend != (u32)FRIEND_SELF) {
         if (readFriend(req->mFriend, &info) == FALSE) {
             return FALSE;
@@ -503,7 +503,7 @@ BOOL dNetWc24_c::sendBoardMessage(const dPostRequest_c *req) {
         u32 length = req->mSize[0] / 2;
         if (length < MAX_SUBJECT_LENGTH) {
             for (u32 i = 0; i < length; i++) {
-                subject[i] = ((const wchar_t *)req->mData[0])[i];
+                subject[i] = ((const wchar16_t *)req->mData[0])[i];
             }
             subject[length] = 0;
             if (NWC24SetMsgAltName(&msg, subject, length + 1) != NWC24_OK) {
@@ -533,8 +533,8 @@ BOOL dNetWc24_c::sendBoardMessage(const dPostRequest_c *req) {
                         strlen(info.mAddr.mAddress)) != NWC24_OK) {
             return FALSE;
         }
-        if (NWC24SetMsgSubjectAndTextPublic(&msg, (const wchar_t *)req->mData[0], req->mSize[0] / 2,
-                        (const wchar_t *)req->mData[1], req->mSize[1] / 2, WC24_CONSOLE_REGION,
+        if (NWC24SetMsgSubjectAndTextPublic(&msg, (const wchar16_t *)req->mData[0], req->mSize[0] / 2,
+                        (const wchar16_t *)req->mData[1], req->mSize[1] / 2, WC24_CONSOLE_REGION,
                         0, mMessageBuffer, MESSAGE_CAPACITY) != NWC24_OK) {
             return FALSE;
         }

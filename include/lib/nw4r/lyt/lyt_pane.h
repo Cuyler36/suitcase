@@ -61,10 +61,10 @@ struct Pane {
     u8 padding;                                // at 0xB
     char name[NW4R_LYT_RES_NAME_LEN];          // at 0xC
     char userData[NW4R_LYT_PANE_USERDATA_LEN]; // at 0x1C
-    math::VEC3 translate;                      // at 0x24
-    math::VEC3 rotate;                         // at 0x30
-    math::VEC2 scale;                          // at 0x3C
-    Size size;                                 // at 0x44
+    res::VEC3 translate;                      // at 0x24
+    res::VEC3 rotate;                         // at 0x30
+    res::VEC2 scale;                          // at 0x3C
+    res::Size size;                                 // at 0x44
 };
 
 } // namespace res

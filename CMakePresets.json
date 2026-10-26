@@ -23,12 +23,22 @@
       }
     },
     {
+      "name": "release",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDLL"
+      }
+    },
+    {
       "name": "base",
       "hidden": true,
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/pc/${presetName}",
       "cacheVariables": {
-        "CF_VERSION": "RUUE01_00"
+        "CF_VERSION": "RUUE01_00",
+        "CF_BUILD_GAME": true,
+        "CMAKE_EXPORT_COMPILE_COMMANDS": true
       }
     },
     {
@@ -38,6 +48,7 @@
     },
     { "name": "linux-default-debug", "inherits": ["debug", "linux-default"] },
     { "name": "linux-default-relwithdebinfo", "inherits": ["relwithdebinfo", "linux-default"] },
+    { "name": "linux-default-release", "inherits": ["release", "linux-default"] },
     {
       "name": "linux-clang",
       "inherits": "linux-default",
@@ -45,6 +56,7 @@
     },
     { "name": "linux-clang-debug", "inherits": ["debug", "linux-clang"] },
     { "name": "linux-clang-relwithdebinfo", "inherits": ["relwithdebinfo", "linux-clang"] },
+    { "name": "linux-clang-release", "inherits": ["release", "linux-clang"] },
     {
       "name": "macos-default",
       "inherits": "base",
@@ -52,6 +64,7 @@
     },
     { "name": "macos-default-debug", "inherits": ["debug", "macos-default"] },
     { "name": "macos-default-relwithdebinfo", "inherits": ["relwithdebinfo", "macos-default"] },
+    { "name": "macos-default-release", "inherits": ["release", "macos-default"] },
     {
       "name": "windows-msvc",
       "inherits": "base",
@@ -64,6 +77,7 @@
     },
     { "name": "windows-msvc-debug", "inherits": ["debug", "windows-msvc"] },
     { "name": "windows-msvc-relwithdebinfo", "inherits": ["relwithdebinfo", "windows-msvc"] },
+    { "name": "windows-msvc-release", "inherits": ["release", "windows-msvc"] },
     {
       "name": "windows-clang",
       "inherits": "windows-msvc",
@@ -74,18 +88,24 @@
       }
     },
     { "name": "windows-clang-debug", "inherits": ["debug", "windows-clang"] },
-    { "name": "windows-clang-relwithdebinfo", "inherits": ["relwithdebinfo", "windows-clang"] }
+    { "name": "windows-clang-relwithdebinfo", "inherits": ["relwithdebinfo", "windows-clang"] },
+    { "name": "windows-clang-release", "inherits": ["release", "windows-clang"] }
   ],
   "buildPresets": [
     { "name": "linux-default-debug", "configurePreset": "linux-default-debug" },
     { "name": "linux-default-relwithdebinfo", "configurePreset": "linux-default-relwithdebinfo" },
+    { "name": "linux-default-release", "configurePreset": "linux-default-release" },
     { "name": "linux-clang-debug", "configurePreset": "linux-clang-debug" },
     { "name": "linux-clang-relwithdebinfo", "configurePreset": "linux-clang-relwithdebinfo" },
+    { "name": "linux-clang-release", "configurePreset": "linux-clang-release" },
     { "name": "macos-default-debug", "configurePreset": "macos-default-debug" },
     { "name": "macos-default-relwithdebinfo", "configurePreset": "macos-default-relwithdebinfo" },
+    { "name": "macos-default-release", "configurePreset": "macos-default-release" },
     { "name": "windows-msvc-debug", "configurePreset": "windows-msvc-debug" },
     { "name": "windows-msvc-relwithdebinfo", "configurePreset": "windows-msvc-relwithdebinfo" },
+    { "name": "windows-msvc-release", "configurePreset": "windows-msvc-release" },
     { "name": "windows-clang-debug", "configurePreset": "windows-clang-debug" },
-    { "name": "windows-clang-relwithdebinfo", "configurePreset": "windows-clang-relwithdebinfo" }
+    { "name": "windows-clang-relwithdebinfo", "configurePreset": "windows-clang-relwithdebinfo" },
+    { "name": "windows-clang-release", "configurePreset": "windows-clang-release" }
   ]
 }

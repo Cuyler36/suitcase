@@ -25,7 +25,7 @@ public:
     Word_c(); // 800CC2C4
     virtual ~Word_c(); // 800CC308
     virtual u32 getBufferSize(); // 800CC360
-    virtual wchar_t *getBuffer(); // 800CC368
+    virtual wchar16_t *getBuffer(); // 800CC368
     virtual int procRubyTag(int pos); // 800CCAE0
     virtual int procNumber(int pos); // 800CC370
     virtual int procWord(int pos); // 800CC418
@@ -65,7 +65,7 @@ public:
     int procRandomWordTag(int pos, int kind); // 800CC4BC: word 4-10: random word of kind, remembered per slot
     int procPlayerChar(int pos, u32 index); // 800CC650: character index of the addressee's name
 
-    /* 0x024 */ wchar_t mBuffer[0x401];
+    /* 0x024 */ wchar16_t mBuffer[0x401];
 }; // size 0x828
 
 // The letter's word slots and people (global instance 805A02D0). Name from RTTI; vtable 804EB118.
@@ -108,10 +108,10 @@ void playDigitKeySe(int idx, BOOL a, BOOL b); // 800CB188: digit key SE (b: thir
 void playUpperKeySe(int idx);                // 800CB1EC: upper case letter key SE
 void playAltKeySe(int idx);                // 800CB234: letter key SE (b)
 void playLowerKeySe(int idx);                // 800CB27C: lower case letter key SE
-void playKeySe(wchar_t c, BOOL a, BOOL b, BOOL pcKeyboard); // 800CB2DC: the key SE of c (0x16DA for others); pcKeyboard (d_kbd) is unused
+void playKeySe(wchar16_t c, BOOL a, BOOL b, BOOL pcKeyboard); // 800CB2DC: the key SE of c (0x16DA for others); pcKeyboard (d_kbd) is unused
 #if VERSION == VERSION_RUUP01_00 || VERSION == VERSION_RUUP01_01
-int getUmlautIndex(wchar_t c, BOOL alt);
-BOOL playUmlautKeySe(wchar_t c, BOOL alt);
+int getUmlautIndex(wchar16_t c, BOOL alt);
+BOOL playUmlautKeySe(wchar16_t c, BOOL alt);
 #elif VERSION == VERSION_RUUJ01_01 || VERSION == VERSION_RUUJ01_02
 void playKanaKeySe(int idx, BOOL fix);
 void playUnfixKeySe(int idx);
@@ -120,7 +120,7 @@ void playUnfixKeySe(int idx);
 int getEntryNum(int kind, const char *label); // 800CB34C: the number of entries of the mail BMG kind/label
 // 800CB3C8: word = entry idx of the mail BMG kind/label (it has to fit)
 #if VERSION == VERSION_RUUK01_01
-BOOL loadEntry(dScript::Word_c *word, int kind, u16 idx, const char *label, wchar_t lastChar = 0, s32 numberWord = 0);
+BOOL loadEntry(dScript::Word_c *word, int kind, u16 idx, const char *label, wchar16_t lastChar = 0, s32 numberWord = 0);
 #else
 BOOL loadEntry(dScript::Word_c *word, int kind, u16 idx, const char *label);
 #endif

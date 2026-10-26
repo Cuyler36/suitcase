@@ -10,7 +10,7 @@ static const int KEY_COUNT = 50;
 
 struct PaneNameToCharCodeWithModeAscii {
     /* 0x00 */ const char *szPaneName;
-    /* 0x04 */ wchar_t wc[4];
+    /* 0x04 */ wchar16_t wc[4];
 }; // size 0xC
 
 extern const PaneNameToCharCodeWithModeAscii csJPKeyboard[KEY_COUNT];

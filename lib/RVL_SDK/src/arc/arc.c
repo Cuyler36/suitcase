@@ -4,6 +4,9 @@
 
 #include <ctype.h>
 
+// The archive is big-endian: RES_U32 converts on PC (a no-op on the Wii)
+#include <port/endian.h>
+
 #define ARC_MAX_PATH 128
 
 typedef struct FSTEntry {
@@ -20,8 +23,8 @@ typedef struct FSTEntry {
     };
 } FSTEntry;
 
-#define IS_ENTRY_DIR(fstStart, i) ((((fstStart)[i].isDirAndStringOff & 0xFF000000) == 0) ? FALSE : TRUE)
-#define FILE_STRING_OFF(fstStart, i) ((fstStart)[i].isDirAndStringOff & 0x00FFFFFF)
+#define IS_ENTRY_DIR(fstStart, i) (((RES_U32((fstStart)[i].isDirAndStringOff) & 0xFF000000) == 0) ? FALSE : TRUE)
+#define FILE_STRING_OFF(fstStart, i) (RES_U32((fstStart)[i].isDirAndStringOff) & 0x00FFFFFF)
 
 static BOOL ARCGetCurrentDir(ARCHandle* handle, char* path, u32 maxlen);
 
@@ -50,18 +53,18 @@ BOOL ARCInitHandle(void* arcStart, ARCHandle* handle) {
     ARCHeader* header = (ARCHeader*)arcStart;
     FSTEntry* FSTEntries;
 
-    OSAssertMsg(header->magic == ARC_MAGIC, "ARCInitHandle: bad archive format", 74);
+    OSAssertMsg(RES_U32(header->magic) == ARC_MAGIC, "ARCInitHandle: bad archive format", 74);
 
     handle->archiveStartAddr = arcStart;
 
-    FSTEntries = (FSTEntry*)((u32)arcStart + header->fstStart);
+    FSTEntries = (FSTEntry*)((uintptr_t)arcStart + RES_U32(header->fstStart));
     handle->FSTStart = FSTEntries;
 
-    handle->fileStart = (void*)((u32)arcStart + header->fileStart);
-    handle->entryNum = FSTEntries[0].dir.next;
+    handle->fileStart = (void*)((uintptr_t)arcStart + RES_U32(header->fileStart));
+    handle->entryNum = RES_U32(FSTEntries[0].dir.next);
 
     handle->FSTStringStart = (char*)&FSTEntries[handle->entryNum];
-    handle->FSTLength = header->fstSize;
+    handle->FSTLength = RES_U32(header->fstSize);
 
     handle->currDir = 0;
 
@@ -89,8 +92,8 @@ BOOL ARCOpen(ARCHandle* handle, const char* fileName, ARCFileInfo* file) {
 
     // Otherwise, prepare for read.
     file->handle = handle;
-    file->startOffset = FSTEntries[entryNum].file.position;
-    file->length = FSTEntries[entryNum].file.length;
+    file->startOffset = RES_U32(FSTEntries[entryNum].file.position);
+    file->length = RES_U32(FSTEntries[entryNum].file.length);
 
     return TRUE;
 }
@@ -105,8 +108,8 @@ BOOL ARCFastOpen(ARCHandle* handle, s32 entryNum, ARCFileInfo* file) {
 
     // Otherwise, prepare for read.
     file->handle = handle;
-    file->startOffset = FSTEntries[entryNum].file.position;
-    file->length = FSTEntries[entryNum].file.length;
+    file->startOffset = RES_U32(FSTEntries[entryNum].file.position);
+    file->length = RES_U32(FSTEntries[entryNum].file.length);
 
     return TRUE;
 }
@@ -138,13 +141,13 @@ s32 ARCConvertPathToEntrynum(ARCHandle* handle, const char* path) {
             if (*(path + 1) == '.') {
                 // Found `../`? Seek to parent.
                 if (*(path + 2) == '/') {
-                    dirLookAt = FSTEntries[dirLookAt].dir.parent;
+                    dirLookAt = RES_U32(FSTEntries[dirLookAt].dir.parent);
                     path += 3;
                     continue;
                 }
                 // If the input path was literally just `../`, then return the parent.
                 else if (*(path + 2) == 0) {
-                    return FSTEntries[dirLookAt].dir.parent;
+                    return RES_U32(FSTEntries[dirLookAt].dir.parent);
                 }
             }
             // "." directory does nothing
@@ -165,7 +168,7 @@ s32 ARCConvertPathToEntrynum(ARCHandle* handle, const char* path) {
         pathLen = ptrPath - path;
         ptrPath = path;
 
-        for (i = dirLookAt + 1; i < FSTEntries[dirLookAt].dir.next; i = IS_ENTRY_DIR(FSTEntries, i) ? FSTEntries[i].dir.next : i + 1) {
+        for (i = dirLookAt + 1; i < RES_U32(FSTEntries[dirLookAt].dir.next); i = IS_ENTRY_DIR(FSTEntries, i) ? RES_U32(FSTEntries[i].dir.next) : i + 1) {
             char* name;
         loop_back:
             // Skip directories
@@ -217,7 +220,7 @@ static u32 entryToPath(ARCHandle* handle, u32 entry, char* path, u32 maxlen) {
     }
 
     name = handle->FSTStringStart + FILE_STRING_OFF(FSTEntries, entry);
-    loc = entryToPath(handle, FSTEntries[entry].dir.parent, path, maxlen);
+    loc = entryToPath(handle, RES_U32(FSTEntries[entry].dir.parent), path, maxlen);
 
     if (loc == maxlen) {
         return loc;
@@ -258,7 +261,7 @@ static BOOL ARCGetCurrentDir(ARCHandle* handle, char* path, u32 maxlen) {
 
 void* ARCGetStartAddrInMem(ARCFileInfo* file) {
     ARCHandle* handle = file->handle;
-    return (void*)((u32)handle->archiveStartAddr + file->startOffset);
+    return (void*)((uintptr_t)handle->archiveStartAddr + file->startOffset);
 }
 
 u32 ARCGetStartOffset(ARCFileInfo* file) {
@@ -304,7 +307,7 @@ BOOL ARCOpenDir(ARCHandle* handle, const char* dirName, ARCDir* dir) {
     dir->handle = handle;
     dir->entryNum = entry;
     dir->location = entry + 1;
-    dir->next = FSTEntries[entry].dir.next;
+    dir->next = RES_U32(FSTEntries[entry].dir.next);
 
     return TRUE;
 }
@@ -332,7 +335,7 @@ retry:
         goto retry;
     }
 
-    dir->location = IS_ENTRY_DIR(FSTEntries, loc) ? FSTEntries[loc].dir.next : (loc + 1);
+    dir->location = IS_ENTRY_DIR(FSTEntries, loc) ? RES_U32(FSTEntries[loc].dir.next) : (loc + 1);
 
     return TRUE;
 }

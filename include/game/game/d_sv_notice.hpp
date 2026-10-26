@@ -20,10 +20,10 @@ public:
     dNoticeData_c &operator=(const dNoticeData_c &other);                    // 8011AD08
     void clear();                                                    // 8011AD3C
     void init(const dTime_c *date);                                  // 8011AD48: clear, mark valid, set the date
-    void setSender(const wchar_t *name);                             // 8011AD94
-    void setText(const wchar_t *text);                               // 8011AD9C
-    wchar_t *getSender();                                            // 8011ADA8
-    wchar_t *getText();                                              // 8011ADAC
+    void setSender(const wchar16_t *name);                             // 8011AD94
+    void setText(const wchar16_t *text);                               // 8011AD9C
+    wchar16_t *getSender();                                            // 8011ADA8
+    wchar16_t *getText();                                              // 8011ADAC
     BOOL isValid();                                                  // 8011ADB4
     BOOL isRead(int player);                                         // 8011ADCC
     void setRead(int player);                                        // 8011ADF0
@@ -34,8 +34,8 @@ public:
     BOOL isFlag20();                                                 // 8011AE40
     void setFlag20();                                                // 8011AE58
 
-    /* 0x000 */ wchar_t mSender[PLAYER_NAME_LEN + 1];
-    /* 0x012 */ wchar_t mText[0xC1];
+    /* 0x000 */ wchar16_t mSender[PLAYER_NAME_LEN + 1];
+    /* 0x012 */ wchar16_t mText[0xC1];
     /* 0x194 */ dYMD_c mDate;
     /* 0x198 */ u16 mFlags; // 1: valid, 2 << player: read by that player, 0x20: ?
 }; // size 0x19A
@@ -47,9 +47,9 @@ public:
     noticeWord_c();                                                  // 8011AE68
     virtual ~noticeWord_c();                                         // 8011AEAC
     virtual u32 getBufferSize();                                     // 8011AF04
-    virtual wchar_t *getBuffer();                                    // 8011AF0C
+    virtual wchar16_t *getBuffer();                                    // 8011AF0C
 
-    /* 0x024 */ wchar_t mBuffer[0xC1];
+    /* 0x024 */ wchar16_t mBuffer[0xC1];
 }; // size 0x1A8
 
 // The board: 15 notices in a ring starting at mHead, plus the time of the last visit.

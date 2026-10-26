@@ -3,7 +3,7 @@
 
 #include <wctype.h>
 
-int __msl_wcsnicmp(const wchar_t* a, const wchar_t* b, size_t n) {
+int __msl_wcsnicmp(const unsigned short* a, const unsigned short* b, size_t n) {
     wint_t ca = 0, cb = 0;
     while (n-- > 0) {
         ca = towlower((wint_t)*a++);

@@ -52,7 +52,7 @@ static inline void* MEMGetHeapEndAddress(MEMHeapHandle heap) {
 }
 
 static s32 MEMGetHeapTotalSize(const MEMiHeapHead* heap) {
-    return (u32)(heap->heapEnd) - (u32)(heap);
+    return (uintptr_t)(heap->heapEnd) - (uintptr_t)(heap);
 }
 
 #ifdef __cplusplus

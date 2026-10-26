@@ -191,7 +191,7 @@ int dInsectField_c::create() {
             mSearch[i]->setAll();
             mSearch[i]->removeBorder();
         }
-        g_playActorMng = reinterpret_cast<dPlayActorMng_c *>(this);
+        g_playActorMng = this;
         initSpawn();
         mCreated = TRUE;
     }
@@ -382,10 +382,13 @@ void dInsectField_c::removeDying(dInsFldBase_c *insect) {
     }
 }
 
+#if !TARGET_PC
 // 0xACC
+// Each REL has its own copy; the statically linked PC build uses d_fish_field's identical one.
 BOOL dBkAttrSearchCand_c::check(int x, int z) {
     return dField::getInfo(FD_ID_CURRENT)->getBlock(x, z)->hasFlag(mMask);
 }
+#endif
 
 // 0xB28
 BOOL dInsectField_c::addInsect(int type, const mVec3_c &pos,
@@ -2079,7 +2082,7 @@ BOOL dInsectField_c::acceptCatch(int member, dInsectField::catchMsg_c *msg) {
         data->getType() == msg->getValue() &&
         data->getSerial() == msg->getSerial()) {
         msg->setMember(member);
-        return g_playActorMng->findActorIf(dInsectField::tryCatchCb, msg);
+        return findAnyInsect(g_playActorMng, dInsectField::tryCatchCb, msg);
     }
     return FALSE;
 }
@@ -2087,7 +2090,7 @@ BOOL dInsectField_c::acceptCatch(int member, dInsectField::catchMsg_c *msg) {
 namespace dInsectField {
 
 // 0x52F8
-BOOL tryCatchCb(dPlayActor_c *actor, void *arg) {
+BOOL tryCatchCb(dInsFldBase_c *actor, void *arg) {
     dInsFldBase_c *insect = reinterpret_cast<dInsFldBase_c *>(actor);
     catchMsg_c *msg = static_cast<catchMsg_c *>(arg);
     if (insect->mHeapIdx == msg->getIdx()) {
@@ -2098,7 +2101,7 @@ BOOL tryCatchCb(dPlayActor_c *actor, void *arg) {
 }
 
 // 0x5340
-BOOL resetCatchCb(dPlayActor_c *actor, void *arg) {
+BOOL resetCatchCb(dInsFldBase_c *actor, void *arg) {
     dInsFldBase_c *insect = reinterpret_cast<dInsFldBase_c *>(actor);
     catchMsg_c *msg = static_cast<catchMsg_c *>(arg);
     if (insect->mHeapIdx == msg->getIdx()) {
@@ -2109,7 +2112,7 @@ BOOL resetCatchCb(dPlayActor_c *actor, void *arg) {
 }
 
 // 0x536C
-BOOL caughtCb(dPlayActor_c *actor, void *arg) {
+BOOL caughtCb(dInsFldBase_c *actor, void *arg) {
     dInsFldBase_c *insect = reinterpret_cast<dInsFldBase_c *>(actor);
     catchMsg_c *msg = static_cast<catchMsg_c *>(arg);
     if (insect->mHeapIdx == msg->getIdx()) {
@@ -2120,7 +2123,7 @@ BOOL caughtCb(dPlayActor_c *actor, void *arg) {
 }
 
 // 0x5398
-BOOL missedCb(dPlayActor_c *actor, void *arg) {
+BOOL missedCb(dInsFldBase_c *actor, void *arg) {
     dInsFldBase_c *insect = reinterpret_cast<dInsFldBase_c *>(actor);
     catchMsg_c *msg = static_cast<catchMsg_c *>(arg);
     if (insect->mHeapIdx == msg->getIdx()) {
@@ -2168,11 +2171,11 @@ void recvCatchMsg(int member, const u8 *data, u32 size, u32 arg) {
             }
         }
     } else if (type == catchMsg_c::TYPE_RESET) {
-        g_playActorMng->findActorIf(resetCatchCb, &msg);
+        findAnyInsect(g_playActorMng, resetCatchCb, &msg);
     } else if (type == catchMsg_c::TYPE_CAUGHT) {
-        g_playActorMng->findActorIf(caughtCb, &msg);
+        findAnyInsect(g_playActorMng, caughtCb, &msg);
     } else {
-        g_playActorMng->findActorIf(missedCb, &msg);
+        findAnyInsect(g_playActorMng, missedCb, &msg);
     }
 }
 

@@ -47,13 +47,20 @@ enum {
 
 typedef void (*AXVoiceCallback)(void*);
 
+#if TARGET_PC
+// Callers pass pointers (nw4r's AxVoice) through the user context
+typedef uintptr_t AXUserContext;
+#else
+typedef u32 AXUserContext;
+#endif
+
 typedef struct _AXVPB {
     void* next;                // 0x00
     void* prev;                // 0x04
     void* next1;               // 0x08
     u32 priority;              // 0x0C
     AXVoiceCallback callback;  // 0x10
-    u32 userContext;           // 0x14
+    AXUserContext userContext; // 0x14
     u32 index;                 // 0x18
     u32 sync;                  // 0x1C
     u32 depop;                 // 0x20

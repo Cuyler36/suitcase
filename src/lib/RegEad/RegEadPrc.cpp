@@ -1,4 +1,5 @@
 #include <lib/RegEad/RegEadPrc.hpp>
+#include <port/endian.h>
 
 namespace RegEad {
 
@@ -48,14 +49,23 @@ int prcSetup(void *work, int workSize, const void *data, int dataSize) {
     sPrcFrmHeap = MEMCreateFrmHeapEx((u8 *)work + PRC_EXP_HEAP_SIZE, workSize - PRC_EXP_HEAP_SIZE, 0);
     setHeap(sPrcExpHeap);
     sPrcPatterns = (void **)MEMAllocFromFrmHeapEx(sPrcFrmHeap, PRC_PATTERN_MAX * sizeof(void *), 4);
-    if (*(const u16 *)data != 0x504C) {
+    // The header and the word list are big-endian, from the disc (/PRC/*.bin) or a downloaded list in
+    // the save (dSaveExtra_c::mDistNgWords, kept as bytes)
+    if (RES_U16(*(const u16 *)data) != 0x504C) {
         return PRC_ERR_BAD_DATA;
     }
-    sPrcVersion = *(const u32 *)((const u8 *)data + 4);
+    sPrcVersion = RES_U32(*(const u32 *)((const u8 *)data + 4));
     const void *packed = (const u8 *)data + 0x20;
     int size = CXGetUncompressedSize(packed);
     u16 *text = (u16 *)MEMAllocFromFrmHeapEx(sPrcFrmHeap, size, 4);
     CXSecureUncompressLZ(packed, dataSize, text);
+#if TARGET_PC
+    // UTF-16 in the Wii's order (the BOM reads FFFE): to native, like the game's strings it is matched
+    // against (E-54)
+    for (int j = 0; j < size / 2; j++) {
+        be_swap(text[j]);
+    }
+#endif
     if (text[0] != 0xFEFF) {
         return PRC_ERR_BAD_DATA;
     }

@@ -87,7 +87,13 @@ void TexCoordAry::Copy(const void* pResTexCoord, u8 texCoordNum) {
 
     for (int j = 0; j < texCoordNum; j++) {
         for (int i = 0; i < VERTEXCOLOR_MAX; i++) {
+#if TARGET_PC
+            // The layout's coordinates are big-endian floats
+            mpData[j][i].x = RES_F32(src[j][i].x);
+            mpData[j][i].y = RES_F32(src[j][i].y);
+#else
             mpData[j][i] = src[j][i];
+#endif
         }
     }
 }

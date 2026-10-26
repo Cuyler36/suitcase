@@ -1,5 +1,6 @@
 #pragma once
 #include <types.h>
+#include <port/endian.h>
 #include <game/game/d_bgc.hpp>
 #include <game/game/d_bg_attr.hpp>
 #include <game/mLib/m_angle.hpp>
@@ -122,7 +123,7 @@ struct triDat_c {
     f32 getWaterY() const { return 0.5f * (getY1() + getY2()); }
     void clear() { mValue = 0; }
 
-    u16 mValue;
+    BE(u16) mValue; // collision files (field blocks, buildings) are big-endian
 }; // size 0x2
 
 // One unit's collision data (10 bytes; 16 x 16 per block).

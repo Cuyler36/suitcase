@@ -130,7 +130,11 @@ ResMatTexCoordGen ResMatTexCoordGen::CopyTo(void* pDst) const {
  ******************************************************************************/
 const GXTexObj* ResTexObj::GetTexObj(GXTexMapID id) const {
     if (IsValid() && id >= GX_TEXMAP0 && id <= GX_TEXMAP7) {
+#if TARGET_PC
+        return &ptr()->texObj[id].get();
+#else
         return &ptr()->texObj[id];
+#endif
     }
 
     return NULL;
@@ -138,7 +142,11 @@ const GXTexObj* ResTexObj::GetTexObj(GXTexMapID id) const {
 
 GXTexObj* ResTexObj::GetTexObj(GXTexMapID id) {
     if (IsValid() && id >= GX_TEXMAP0 && id <= GX_TEXMAP7) {
+#if TARGET_PC
+        return &ptr()->texObj[id].get();
+#else
         return &ptr()->texObj[id];
+#endif
     }
 
     return NULL;
@@ -178,8 +186,12 @@ ResTexObj ResTexObj::CopyTo(void* pDst) const {
             continue;
         }
 
+#if TARGET_PC
+        pData->texObj[i].get() = rSrc.texObj[i].get(); // side objects (port/side_slot.h)
+#else
         detail::Copy32ByteBlocks(&pData->texObj[i], &rSrc.texObj[i],
                                  sizeof(GXTexObj));
+#endif
     }
 
     return ResTexObj(pData);
@@ -192,7 +204,11 @@ ResTexObj ResTexObj::CopyTo(void* pDst) const {
  ******************************************************************************/
 const GXTlutObj* ResTlutObj::GetTlut(GXTlut tlut) const {
     if (IsValid() && tlut >= GX_TLUT0 && tlut <= GX_TLUT7) {
+#if TARGET_PC
+        return &ptr()->tlutObj[tlut].get();
+#else
         return &ptr()->tlutObj[tlut];
+#endif
     }
 
     return NULL;
@@ -200,7 +216,11 @@ const GXTlutObj* ResTlutObj::GetTlut(GXTlut tlut) const {
 
 GXTlutObj* ResTlutObj::GetTlut(GXTlut tlut) {
     if (IsValid() && tlut >= GX_TLUT0 && tlut <= GX_TLUT7) {
+#if TARGET_PC
+        return &ptr()->tlutObj[tlut].get();
+#else
         return &ptr()->tlutObj[tlut];
+#endif
     }
 
     return NULL;
@@ -233,7 +253,17 @@ ResTlutObj ResTlutObj::CopyTo(void* pDst) const {
     u32 flag = rSrc.flagUsedTlutID;
     pData->flagUsedTlutID = flag;
 
+#if TARGET_PC
+    // Side objects (port/side_slot.h)
+    for (u32 i = 0; i < GX_TLUT8 - GX_TLUT0; i++) {
+        if (flag & (1 << i)) {
+            pData->tlutObj[i].get() = rSrc.tlutObj[i].get();
+        }
+    }
+    if (false) {
+#else
     if (flag != 0) {
+#endif
         if (!(flag & static_cast<u8>(~(1 << GX_TLUT0 | 1 << GX_TLUT1)))) {
             // At most two tlut objects can fit into 64 bytes
             detail::Copy32ByteBlocks(&pData->tlutObj, &rSrc.tlutObj, 32);
@@ -272,6 +302,11 @@ ResTexSrt ResTexSrt::CopyTo(void* pDst) const {
             continue;
         }
 
+#if TARGET_PC
+        // Both sides are in the file's (big-endian) format
+        pData->texSrt[i] = r.texSrt[i];
+        pData->effect[i] = r.effect[i];
+#else
         const TexSrt& rFrom = r.texSrt[i];
         const TexMtxEffect& rFromEffect = r.effect[i];
 
@@ -292,6 +327,7 @@ ResTexSrt ResTexSrt::CopyTo(void* pDst) const {
         math::MTX34Copy(
             static_cast<math::MTX34*>(&rToEffect.effectMtx),
             static_cast<const math::MTX34*>(&rFromEffect.effectMtx));
+#endif
     }
 
     return ResTexSrt(pData);
@@ -302,13 +338,23 @@ bool ResTexSrt::SetEffectMtx(u32 id, const math::MTX34* pMtx) {
         TexMtxEffect& rEffect = ref().effect[id];
 
         if (pMtx != NULL) {
+#if TARGET_PC
+            rEffect.effectMtx = *pMtx;
+#else
             math::MTX34Copy(static_cast<math::MTX34*>(&rEffect.effectMtx),
                             pMtx);
+#endif
 
             rEffect.misc_flag &= ~TexMtxEffect::FLAG_IDENT;
 
         } else {
+#if TARGET_PC
+            math::MTX34 ident;
+            math::MTX34Identity(&ident);
+            rEffect.effectMtx = ident;
+#else
             math::MTX34Identity(static_cast<math::MTX34*>(&rEffect.effectMtx));
+#endif
 
             rEffect.misc_flag |= TexMtxEffect::FLAG_IDENT;
         }
@@ -323,8 +369,12 @@ bool ResTexSrt::GetEffectMtx(u32 id, math::MTX34* pMtx) const {
     if (pMtx != NULL && id < ResTexSrtData::NUM_OF_TEXTURE) {
         const TexMtxEffect& rEffect = ref().effect[id];
 
+#if TARGET_PC
+        *pMtx = rEffect.effectMtx;
+#else
         math::MTX34Copy(pMtx,
                         static_cast<const math::MTX34*>(&rEffect.effectMtx));
+#endif
 
         return true;
     }
@@ -1132,7 +1182,7 @@ void ResMatChan::GXSetChanCtrl(GXChannelID id, GXBool enable, GXColorSrc ambSrc,
                                GXDiffuseFn diffuseFn, GXAttnFn attnFn) {
     Chan& rChan = ref().chan[id & 1];
 
-    u32* pCtrl;
+    BE(u32)* pCtrl;
     if ((id & 2) == 0) {
         pCtrl = &rChan.paramChanCtrlC;
     } else {
@@ -1726,13 +1776,13 @@ void ResTexPlttInfo::BindPltt_(const ResPltt pltt, ResTlutObj tlutObj) {
     r.pPlttData = const_cast<ResPlttData*>(&pltt.ref());
 
     // @bug Shouldn't this be the TLUT id?
-    GXTlutObj* pGXObj = tlutObj.GetTlut(static_cast<GXTlut>(r.mapID));
+    GXTlutObj* pGXObj = tlutObj.GetTlut(static_cast<GXTlut>(static_cast<GXTexMapID>(r.mapID)));
 
     GXInitTlutObj(pGXObj, const_cast<u16*>(pltt.GetPlttData()), pltt.GetFmt(),
                   pltt.GetNumEntries());
 
     // @bug Shouldn't this be the TLUT id?
-    tlutObj.Validate(static_cast<GXTlut>(r.mapID));
+    tlutObj.Validate(static_cast<GXTlut>(static_cast<GXTexMapID>(r.mapID)));
 }
 
 bool ResTexPlttInfo::Bind(const ResFile file, ResTexObj texObj,
@@ -1775,7 +1825,7 @@ void ResTexPlttInfo::Release(ResTexObj texObj, ResTlutObj tlutObj) {
 
     texObj.Invalidate(r.mapID);
     // @bug Shouldn't this be the TLUT id?
-    tlutObj.Invalidate(static_cast<GXTlut>(r.mapID));
+    tlutObj.Invalidate(static_cast<GXTlut>(static_cast<GXTexMapID>(r.mapID)));
 }
 
 bool ResTexPlttInfo::ForceBindTex(const ResTex tex, ResTexObj texObj,

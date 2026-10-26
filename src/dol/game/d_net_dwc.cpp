@@ -170,7 +170,7 @@ void *Session_c::threadMain(void *) {
                     session->mFriends, session->mFriendNum);
                 DWC_SetSendSplitMax(TRANSPORT_PACKET_SIZE);
                 // Login uses a blank four-code-unit nickname.
-                if (DWC_LoginAsync(L"\0\0\0", 0, onLogin, 0)) {
+                if (DWC_LoginAsync(WSTR("\0\0\0"), 0, onLogin, 0)) {
                     session->setState(STATE_LOGIN);
                     for (;;) {
                         session->execute();

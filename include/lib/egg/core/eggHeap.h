@@ -14,7 +14,7 @@ class Thread;
 class Heap;
 
 struct HeapAllocArg {
-    int userArg; // 0x00
+    intptr_t userArg; // 0x00 (the callback argument, a pointer)
     u32 size;    // 0x04
     int align;   // 0x08
     Heap *heap;  // 0x0C
@@ -103,6 +103,15 @@ public:
     static void *addOffset(void *base, u32 offset) {
         return static_cast<u8 *>(base) + offset;
     }
+
+#if TARGET_PC
+    // PC: the game's heap sizes are the Wii's, but objects holding pointers grow up to twice as big on
+    // 64-bit (and so do the heap and block headers). Heaps created with an explicit size get twice the
+    // content space; the create functions add the PC's header sizes on top (pc_port_ub.md PC-14).
+    static size_t pcContentSize(size_t size) {
+        return size * 2;
+    }
+#endif
 
     static Heap *getCurrentHeap() {
         return sCurrentHeap;

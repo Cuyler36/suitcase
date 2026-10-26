@@ -250,11 +250,11 @@ bool Manager::updateInput(input::HKBManager &hkbManager) {
     return keyboard;
 }
 
-wchar_t *Manager::getWCString() const {
+wchar16_t *Manager::getWCString() const {
     return mpInputForm->getWCString();
 }
 
-void Manager::setWCString(const wchar_t *string) {
+void Manager::setWCString(const wchar16_t *string) {
     mpInputForm->inputform::Base::setString(string);
 }
 
@@ -293,7 +293,7 @@ void Manager::setAspectRatio(bool b4x3) {
     }
 }
 
-void Manager::setTitleText(const wchar_t *titleText) {
+void Manager::setTitleText(const wchar16_t *titleText) {
     nw4r::lyt::TextBox *textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox *>(
         mpInputForm->getPane("T_title_text"));
     if (textBox != NULL) {

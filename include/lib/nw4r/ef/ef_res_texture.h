@@ -4,12 +4,20 @@
 
 #include <nw4r/ef/ef_types.h>
 
+#if TARGET_PC
+#include <port/side_slot.h>
+#endif
+
 namespace nw4r {
 namespace ef {
 
 // TODO(kiwi) Unsure which field is missing
 struct TextureData {
+#if TARGET_PC
+    SidePtr<char> name; // at 0x0 (4-byte pointer slot)
+#else
     char* name;      // at 0x0
+#endif
     u16 width;       // at 0x4
     u16 height;      // at 0x6
     u32 dataSize;    // at 0x8
@@ -22,8 +30,13 @@ struct TextureData {
     u8 mag_filt;     // at 0x16
     u8 reserved[1];  // at 0x17
     // f32 lod_bias;    // at 0x18
+#if TARGET_PC
+    SidePtr<u8> texture; // at 0x18
+    SidePtr<u8> tlut;    // at 0x1C
+#else
     u8* texture; // at 0x18
     u8* tlut;    // at 0x1C
+#endif
 };
 
 class ResTexture {

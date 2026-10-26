@@ -61,7 +61,7 @@ Font::Type ResFontBase::GetType() const {
 }
 
 GXTexFmt ResFontBase::GetTextureFormat() const {
-    return static_cast<GXTexFmt>(mFontInfo->pGlyph->sheetFormat);
+    return static_cast<GXTexFmt>(BE_HOST(mFontInfo->pGlyph->sheetFormat));
 }
 
 int ResFontBase::GetLineFeed() const {
@@ -113,7 +113,7 @@ FontEncoding ResFontBase::GetEncoding() const {
 
 u16 ResFontBase::GetGlyphIndex(u16 ch) const {
     u16 index = FindGlyphIndex(ch);
-    return index != GLYPH_INDEX_NOT_FOUND ? index : mFontInfo->alterCharIndex;
+    return index != GLYPH_INDEX_NOT_FOUND ? index : BE_HOST(mFontInfo->alterCharIndex);
 }
 
 u16 ResFontBase::FindGlyphIndex(u16 ch) const {
@@ -152,11 +152,11 @@ u16 ResFontBase::FindGlyphIndex(const FontCodeMap* pMap, u16 ch) const {
 
     case FONT_MAPMETHOD_SCAN: {
         struct CMapScanEntry {
-            u16 ccode; // at 0x0
-            u16 index; // at 0x2
+            BE(u16) ccode; // at 0x0
+            BE(u16) index; // at 0x2
         };
         struct CMapInfoScan {
-            u16 num;                 // at 0x0
+            BE(u16) num;             // at 0x0
             CMapScanEntry entries[]; // at 0x2
         };
 
@@ -222,7 +222,7 @@ void ResFontBase::GetGlyphFromIndex(Glyph* pGlyph, u16 index) const {
     pGlyph->widths = GetCharWidthsFromIndex(index);
     pGlyph->height = pTexGlyph->cellHeight;
 
-    pGlyph->texFormat = static_cast<GXTexFmt>(pTexGlyph->sheetFormat);
+    pGlyph->texFormat = static_cast<GXTexFmt>(BE_HOST(pTexGlyph->sheetFormat));
 
     pGlyph->texWidth = pTexGlyph->sheetWidth;
     pGlyph->texHeight = pTexGlyph->sheetHeight;

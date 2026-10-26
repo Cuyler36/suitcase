@@ -15,27 +15,27 @@ namespace detail {
 struct SoundArchiveFile {
     struct Header {
         ut::BinaryFileHeader fileHeader; // size 0x10, offset 0x00
-        u32 symbolDataOffset;            // size 0x04, offset 0x10
-        u32 symbolDataSize;              // size 0x04, offset 0x14
-        u32 infoOffset;                  // size 0x04, offset 0x18
-        u32 infoSize;                    // size 0x04, offset 0x1c
-        u32 fileImageOffset;             // size 0x04, offset 0x20
-        u32 fileImageSize;               // size 0x04, offset 0x24
+        BE(u32) symbolDataOffset;            // size 0x04, offset 0x10
+        BE(u32) symbolDataSize;              // size 0x04, offset 0x14
+        BE(u32) infoOffset;                  // size 0x04, offset 0x18
+        BE(u32) infoSize;                    // size 0x04, offset 0x1c
+        BE(u32) fileImageOffset;             // size 0x04, offset 0x20
+        BE(u32) fileImageSize;               // size 0x04, offset 0x24
     }; // size 0x28
 
     static const int HEADER_AREA_SIZE = ROUND_UP(sizeof(Header), 32) + 40;
 
     struct StringTreeNode {
-        u16 flags;    // size 0x02, offset 0x00
-        u16 bit;      // size 0x02, offset 0x02
-        u32 leftIdx;  // size 0x04, offset 0x04
-        u32 rightIdx; // size 0x04, offset 0x08
-        u32 strIdx;   // size 0x04, offset 0x0c
-        u32 id;       // size 0x04, offset 0x10
+        BE(u16) flags;    // size 0x02, offset 0x00
+        BE(u16) bit;      // size 0x02, offset 0x02
+        BE(u32) leftIdx;  // size 0x04, offset 0x04
+        BE(u32) rightIdx; // size 0x04, offset 0x08
+        BE(u32) strIdx;   // size 0x04, offset 0x0c
+        BE(u32) id;       // size 0x04, offset 0x10
     }; // size 0x14
 
     struct StringTree {
-        u32 rootIdx;                           // size 0x04, offset 0x00
+        BE(u32) rootIdx;                           // size 0x04, offset 0x00
         Util::Table<StringTreeNode> nodeTable; // size 0x18, offset 0x04
     }; // size 0x1c
 
@@ -44,11 +44,11 @@ struct SoundArchiveFile {
     }; // size 0x08
 
     struct StringChunk {
-        u32 tableOffset;      // size 0x04, offset 0x00
-        u32 soundTreeOffset;  // size 0x04, offset 0x04
-        u32 playerTreeOffset; // size 0x04, offset 0x08
-        u32 groupTreeOffset;  // size 0x04, offset 0x0c
-        u32 bankTreeOffset;   // size 0x04, offset 0x10
+        BE(u32) tableOffset;      // size 0x04, offset 0x00
+        BE(u32) soundTreeOffset;  // size 0x04, offset 0x04
+        BE(u32) playerTreeOffset; // size 0x04, offset 0x08
+        BE(u32) groupTreeOffset;  // size 0x04, offset 0x0c
+        BE(u32) bankTreeOffset;   // size 0x04, offset 0x10
     }; // size 0x14
 
     union StringBlock {
@@ -72,52 +72,52 @@ struct SoundArchiveFile {
     };
 
     struct Sound3DParam {
-        u32 flags;
+        BE(u32) flags;
         u8 decayCurve;
         u8 decayRatio;
         u8 field_0x06;
     };
 
     struct SeqSoundInfo {
-        u32 dataOffset;        // size 0x04, offset 0x00
-        u32 bankId;            // size 0x04, offset 0x04
-        u32 allocTrack;        // size 0x04, offset 0x08
+        BE(u32) dataOffset;        // size 0x04, offset 0x00
+        BE(u32) bankId;            // size 0x04, offset 0x04
+        BE(u32) allocTrack;        // size 0x04, offset 0x08
         u8 channelPriority;    // size 0x01, offset 0x0c
         u8 releasePriorityFix; // size 0x01, offset 0x0d
         u8 padding[2];
-        u32 reserved;
+        BE(u32) reserved;
     }; // size 0x14
 
     struct StrmSoundInfo {
-        u32 startPosition;     // size 0x04, offset 0x00
-        u16 allocChannelCount; // size 0x02, offset 0x04
-        u16 allocTrackFlag;    // size 0x02, offset 0x06
-        u32 reserved;
+        BE(u32) startPosition;     // size 0x04, offset 0x00
+        BE(u16) allocChannelCount; // size 0x02, offset 0x04
+        BE(u16) allocTrackFlag;    // size 0x02, offset 0x06
+        BE(u32) reserved;
     }; // size 0x0c
 
     struct WaveSoundInfo {
-        s32 subNo;             // size 0x04, offset 0x00
-        u32 allocTrack;        // size 0x04, offset 0x04
+        BE(s32) subNo;             // size 0x04, offset 0x00
+        BE(u32) allocTrack;        // size 0x04, offset 0x04
         u8 channelPriority;    // size 0x01, offset 0x08
         u8 releasePriorityFix; // size 0x01, offset 0x09
         u8 padding[2];
-        u32 reserved;
+        BE(u32) reserved;
     }; // size 0x10
 
     typedef Util::DataRef<void, SeqSoundInfo, StrmSoundInfo, WaveSoundInfo>
         SoundInfoRef;
 
     struct SoundCommonInfo {
-        u32 stringId;                           // size 0x04, offset 0x00
-        u32 fileId;                             // size 0x04, offset 0x04
-        u32 playerId;                           // size 0x04, offset 0x08
+        BE(u32) stringId;                           // size 0x04, offset 0x00
+        BE(u32) fileId;                             // size 0x04, offset 0x04
+        BE(u32) playerId;                           // size 0x04, offset 0x08
         Util::DataRef<Sound3DParam> param3dRef; // size 0x08, offset 0x0c
         u8 volume;                              // size 0x01, offset 0x14
         u8 playerPriority;                      // size 0x01, offset 0x15
         u8 soundType;                           // size 0x01, offset 0x16
         u8 remoteFilter;                        // size 0x01, offset 0x17
         SoundInfoRef soundInfoRef;              // size 0x08, offset 0x18
-        u32 userParam[2];                       // size 0x08, offset 0x20
+        BE(u32) userParam[2];                       // size 0x08, offset 0x20
         u8 panMode;                             // size 0x01, offset 0x28
         u8 panCurve;                            // size 0x01, offset 0x29
         u8 actorPlayerId;                       // size 0x01, offset 0x2a
@@ -127,67 +127,76 @@ struct SoundArchiveFile {
     typedef Util::Table<Util::DataRef<SoundCommonInfo> > SoundCommonInfoTable;
 
     struct SoundArchivePlayerInfo {
-        u16 seqSoundCount;    // size 0x02, offset 0x00
-        u16 seqTrackCount;    // size 0x02, offset 0x02
-        u16 strmSoundCount;   // size 0x02, offset 0x04
-        u16 strmTrackCount;   // size 0x02, offset 0x06
-        u16 strmChannelCount; // size 0x02, offset 0x08
-        u16 waveSoundCount;   // size 0x02, offset 0x0a
-        u16 waveTrackCount;   // size 0x02, offset 0x0c
-        u16 padding;
-        u32 reserved;
+        BE(u16) seqSoundCount;    // size 0x02, offset 0x00
+        BE(u16) seqTrackCount;    // size 0x02, offset 0x02
+        BE(u16) strmSoundCount;   // size 0x02, offset 0x04
+        BE(u16) strmTrackCount;   // size 0x02, offset 0x06
+        BE(u16) strmChannelCount; // size 0x02, offset 0x08
+        BE(u16) waveSoundCount;   // size 0x02, offset 0x0a
+        BE(u16) waveTrackCount;   // size 0x02, offset 0x0c
+        BE(u16) padding;
+        BE(u32) reserved;
     }; // size 0x14
 
     struct BankInfo {
-        u32 stringId; // size 0x04, offset 0x00
-        u32 fileId;   // size 0x04, offset 0x04
-        u32 reserved;
+        BE(u32) stringId; // size 0x04, offset 0x00
+        BE(u32) fileId;   // size 0x04, offset 0x04
+        BE(u32) reserved;
     }; // size 0x0c
 
     typedef Util::Table<Util::DataRef<BankInfo> > BankInfoTable;
 
     struct PlayerInfo {
-        u32 stringId;          // size 0x04, offset 0x00
+        BE(u32) stringId;          // size 0x04, offset 0x00
         u8 playableSoundCount; // size 0x01, offset 0x04
         u8 padding;
-        u16 padding2;
-        u32 heapSize; // size 0x04, offset 0x08
-        u32 reserved;
+        BE(u16) padding2;
+        BE(u32) heapSize; // size 0x04, offset 0x08
+        BE(u32) reserved;
     }; // size 0x10
 
     typedef Util::Table<Util::DataRef<PlayerInfo> > PlayerInfoTable;
 
     struct GroupItemInfo {
-        u32 fileId;         // size 0x04, offset 0x00
-        u32 offset;         // size 0x04, offset 0x04
-        u32 size;           // size 0x04, offset 0x08
-        u32 waveDataOffset; // size 0x04, offset 0x0c
-        u32 waveDataSize;   // size 0x04, offset 0x10
-        u32 reserved;
+        BE(u32) fileId;         // size 0x04, offset 0x00
+        BE(u32) offset;         // size 0x04, offset 0x04
+        BE(u32) size;           // size 0x04, offset 0x08
+        BE(u32) waveDataOffset; // size 0x04, offset 0x0c
+        BE(u32) waveDataSize;   // size 0x04, offset 0x10
+        BE(u32) reserved;
     }; // size 0x18
 
     typedef Util::Table<Util::DataRef<GroupItemInfo> > GroupItemInfoTable;
 
     struct GroupInfo {
-        u32 stringId;                       // size 0x04, offset 0x00
-        s32 entryNum;                       // size 0x04, offset 0x04
+        BE(u32) stringId;                       // size 0x04, offset 0x00
+        BE(s32) entryNum;                       // size 0x04, offset 0x04
         Util::DataRef<char> extFilePathRef; // size 0x08, offset 0x08
-        u32 offset;                         // size 0x04, offset 0x10
-        u32 size;                           // size 0x04, offset 0x14
-        u32 waveDataOffset;                 // size 0x04, offset 0x18
-        u32 waveDataSize;                   // size 0x04, offset 0x1c
+        BE(u32) offset;                         // size 0x04, offset 0x10
+        BE(u32) size;                           // size 0x04, offset 0x14
+        BE(u32) waveDataOffset;                 // size 0x04, offset 0x18
+        BE(u32) waveDataSize;                   // size 0x04, offset 0x1c
         Util::DataRef<GroupItemInfoTable>
             itemTableRef; // size 0x08, offset 0x20
     }; // size 0x28
 
     typedef Util::Table<Util::DataRef<GroupInfo> > GroupInfoTable;
 
+#if TARGET_PC
+    // SoundArchive::FilePos as stored in the file; ReadFilePos converts it
+    struct FilePosData {
+        BE(u32) groupId; // size 0x04, offset 0x00
+        BE(u32) index;   // size 0x04, offset 0x04
+    }; // size 0x08
+    typedef Util::Table<Util::DataRef<FilePosData> > FilePosTable;
+#else
     typedef Util::Table<Util::DataRef<SoundArchive::FilePos> > FilePosTable;
+#endif
 
     struct FileInfo {
-        u32 fileSize;                                // size 0x04, offset 0x00
-        u32 waveDataFileSize;                        // size 0x04, offset 0x04
-        s32 entryNum;                                // size 0x04, offset 0x08
+        BE(u32) fileSize;                                // size 0x04, offset 0x00
+        BE(u32) waveDataFileSize;                        // size 0x04, offset 0x04
+        BE(s32) entryNum;                                // size 0x04, offset 0x08
         Util::DataRef<char> extFilePathRef;          // size 0x08, offset 0x0c
         Util::DataRef<FilePosTable> filePosTableRef; // size 0x08, offset 0x14
     }; // size 0x1c

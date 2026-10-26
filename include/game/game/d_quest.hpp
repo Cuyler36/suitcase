@@ -422,7 +422,7 @@ public:
 
     /* 0x00 */ dPlayerID_c mPlayers[2];
     /* 0x2C */ dQuestBase_c mBase;
-    /* 0x3A */ wchar_t mTopicText[17]; // memset by clearInfo
+    /* 0x3A */ wchar16_t mTopicText[17]; // memset by clearInfo
     /* 0x5C */ s8 mAnimalIdx;          // -1 when cleared
     /* 0x5D */ u8 mTopic;              // dQuestStyleTopic_e
     /* 0x5E */ u8 _5E;

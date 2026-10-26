@@ -23,7 +23,12 @@ typedef enum {
 } RFLCoordinate;
 
 typedef struct {
+#if TARGET_PC
+    // PC: room for RFLiCharModel, which holds pointers (0xC8 bytes)
+    u64 dummy[25];
+#else
     u32 dummy[34];
+#endif
 } RFLCharModel;
 
 typedef struct {

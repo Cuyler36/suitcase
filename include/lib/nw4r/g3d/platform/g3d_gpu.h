@@ -98,6 +98,21 @@ inline void GDSetChanCtrlLightOff(GXChannelID chan, ulong param, ulong lightMask
     LoadXFCmd(GX_XF_REG_COLOR0CNTRL + (chan & 3), param);
 }
 
+#if TARGET_PC
+// The register holds 0xRRGGBBAA: the GXColor's bytes read as a u32 only on a big-endian host
+inline ulong GDColorToReg(GXColor color) {
+    return static_cast<ulong>(color.r) << 24 | static_cast<ulong>(color.g) << 16 |
+           static_cast<ulong>(color.b) << 8 | static_cast<ulong>(color.a);
+}
+
+inline void GDSetChanAmbColor(GXChannelID chan, GXColor color) {
+    LoadXFCmd(GX_XF_REG_AMBIENT0 + (chan & 1), GDColorToReg(color));
+}
+
+inline void GDSetChanMatColor(GXChannelID chan, GXColor color) {
+    LoadXFCmd(GX_XF_REG_MATERIAL0 + (chan & 1), GDColorToReg(color));
+}
+#else
 inline void GDSetChanAmbColor(GXChannelID chan, GXColor color) {
     LoadXFCmd(GX_XF_REG_AMBIENT0 + (chan & 1),
               *reinterpret_cast<ulong*>(&color));
@@ -107,6 +122,7 @@ inline void GDSetChanMatColor(GXChannelID chan, GXColor color) {
     LoadXFCmd(GX_XF_REG_MATERIAL0 + (chan & 1),
               *reinterpret_cast<ulong*>(&color));
 }
+#endif
 
 } // namespace fifo
 } // namespace g3d

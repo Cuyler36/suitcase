@@ -25,8 +25,8 @@ public:
         Word_c();                          // .text:0x1654
         virtual ~Word_c();                 // 0x1698
         virtual u32 getBufferSize();        // 0x16F0
-        virtual wchar_t *getBuffer();       // 0x16F8
-        /* 0x28 */ wchar_t mBuffer[WORD_BUFFER_LENGTH];
+        virtual wchar16_t *getBuffer();       // 0x16F8
+        /* 0x28 */ wchar16_t mBuffer[WORD_BUFFER_LENGTH];
     }; // size 0xE4
 
     dPaper_c();                             // .text:0x5C
@@ -52,12 +52,12 @@ public:
     int getHeaderPosAtScreenX(f32 x);        // 0xB64
     int getFooterPosAtScreenX(f32 x);        // 0xB6C
     void setPaperOnly(BOOL paperOnly);      // 0xB74
-    void updateHeader(const wchar_t *text, int namePos, BOOL fixedSpaces); // 0xBF8
-    void updateBody(const wchar_t *text, BOOL fixedSpaces); // 0xDA8
-    void updateFooter(const wchar_t *text, BOOL fixedSpaces); // 0xFFC
-    BOOL fitsHeader(const wchar_t *text);   // 0x10CC
-    BOOL wrapBody(const wchar_t *text, BOOL); // 0x1188
-    BOOL fitsFooter(const wchar_t *text);   // 0x12CC
+    void updateHeader(const wchar16_t *text, int namePos, BOOL fixedSpaces); // 0xBF8
+    void updateBody(const wchar16_t *text, BOOL fixedSpaces); // 0xDA8
+    void updateFooter(const wchar16_t *text, BOOL fixedSpaces); // 0xFFC
+    BOOL fitsHeader(const wchar16_t *text);   // 0x10CC
+    BOOL wrapBody(const wchar16_t *text, BOOL); // 0x1188
+    BOOL fitsFooter(const wchar16_t *text);   // 0x12CC
     BOOL hasBodyLine(int line);             // 0x1350
     int getBodyLineCount();                 // 0x1370
     int getBodyLineLength(int line);        // 0x13DC
@@ -83,7 +83,7 @@ public:
     /* 0x9B0 */ int mSelectPart;
     /* 0x9B4 */ int mSelectLength;
     /* 0x9B8 */ int mSelectStart;
-    /* 0x9BC */ wchar_t mToName[10];
+    /* 0x9BC */ wchar16_t mToName[10];
     /* 0x9D0 */ int mToNameLength;
     /* 0x9D4 */ Color_c mTextWhite;
     /* 0x9D8 */ Color_c mTextBlack;

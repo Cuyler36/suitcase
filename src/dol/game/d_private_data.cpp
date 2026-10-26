@@ -349,7 +349,7 @@ BOOL dPrivateData_c::isFlag0Any(dPrivateData_c *players, u32 flag) {
 }
 
 // 80137000
-void dPrivateData_c::setup(const wchar_t *name, u16 id, u8 gender) {
+void dPrivateData_c::setup(const wchar16_t *name, u16 id, u8 gender) {
     mPID.setPlayer(name, id, gender);
     dSaveOption::setDefaults((dSaveOption_c *)&_83E8);
     mOrgDesigns.init(&mPID);

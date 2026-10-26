@@ -43,8 +43,14 @@ public:
     }
 
     virtual void AssignObjectID(void* pObj) {
+#if TARGET_PC
+        // Through T*: the LinkedObject base is not at offset 0 under MSVC's layout (PC-15)
+        static_cast< ::nw4r::ef::LinkedObject*>(static_cast<T*>(pObj))->mObjectID +=
+            OBJECT_ID_BASE;
+#else
         static_cast< ::nw4r::ef::LinkedObject*>(pObj)->mObjectID +=
             OBJECT_ID_BASE;
+#endif
     } // at 0x8
 
     // Not implemented for Particle

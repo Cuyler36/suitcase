@@ -15,6 +15,6 @@ u32 dHmnName::Word_c::getBufferSize() {
 }
 
 // 800B95E0
-wchar_t *dHmnName::Word_c::getBuffer() {
+wchar16_t *dHmnName::Word_c::getBuffer() {
     return mBuffer;
 }

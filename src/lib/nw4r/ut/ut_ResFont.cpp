@@ -4,10 +4,16 @@ namespace nw4r {
 namespace ut {
 namespace {
 
+#if TARGET_PC
+template <typename T> inline void ResolveOffset(OFFSET_PTR(T)& rpPtr, void* pBase) {
+    rpPtr.setBase(pBase);
+}
+#else
 template <typename T> inline void ResolveOffset(T*& rpPtr, void* pBase) {
     rpPtr = reinterpret_cast<T*>(static_cast<char*>(pBase) +
                                  reinterpret_cast<s32>(rpPtr));
 }
+#endif
 
 } // namespace
 

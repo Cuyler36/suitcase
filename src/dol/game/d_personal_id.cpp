@@ -17,7 +17,7 @@ extern "C" {
 const u16 dPlayerID_c::ID_UNSET = 0xFFFF;
 
 // 8013E618
-void dPersonalID_c::setPlayer(const wchar_t *name, u16 id, u8 gender) {
+void dPersonalID_c::setPlayer(const wchar16_t *name, u16 id, u8 gender) {
     player.set(name, id, gender);
 }
 
@@ -87,7 +87,7 @@ BOOL dPersonalID_c::fn_8013E740(const dPersonalID_c *other) const {
 }
 
 // 8013E860
-void dPersonalID_c::setPlayerName(const wchar_t *name) {
+void dPersonalID_c::setPlayerName(const wchar16_t *name) {
     player.setName(name);
 }
 
@@ -122,7 +122,7 @@ BOOL dPersonalID_c::isFromTown() const {
 }
 
 // 8013E978
-void dPlayerID_c::set(const wchar_t *name, u16 id, u8 gender) {
+void dPlayerID_c::set(const wchar16_t *name, u16 id, u8 gender) {
     memcpy(mName, name, sizeof(mName));
     mGender = gender;
     mId = id;
@@ -155,7 +155,7 @@ BOOL dPlayerID_c::isSame(const dPlayerID_c *other) const {
 }
 
 // 8013EA98
-void dPlayerID_c::setName(const wchar_t *name) {
+void dPlayerID_c::setName(const wchar16_t *name) {
     memcpy(mName, name, sizeof(mName));
 }
 

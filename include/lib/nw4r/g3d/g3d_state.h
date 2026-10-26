@@ -171,6 +171,13 @@ void LoadResShpPrimitive(const ResShp shp, const math::MTX34* pViewPos,
 void SetViewPosNrmMtxArray(const math::MTX34* pViewPosMtxArray,
                            const math::MTX33* pViewNrmMtxArray,
                            const math::MTX34* pViewEnvTexMtxArray);
+#if TARGET_PC
+// The PC's GX needs the arrays' sizes: numViewMtx matrices each
+void SetViewPosNrmMtxArray(const math::MTX34* pViewPosMtxArray,
+                           const math::MTX33* pViewNrmMtxArray,
+                           const math::MTX34* pViewEnvTexMtxArray,
+                           u32 numViewMtx);
+#endif
 const math::MTX33* GetViewNrmMtxPtr(ulong id);
 
 void SetScnDependentTexMtxFunc(ulong id, ScnDependentTexMtxFuncPtr func,

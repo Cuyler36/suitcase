@@ -4,6 +4,7 @@
 // Class names except dGreetingWord_c / dHabitWord_c (RTTI) are inferred.
 
 #include <types.h>
+#include <port/bitfield.h>
 #include <game/game/d_script.hpp>
 
 // Script words for a villager's greeting and catchphrase. Names from RTTI. Defined before d_item.hpp is
@@ -15,9 +16,9 @@ public:
     dGreetingWord_c(); // 8011B400
     virtual ~dGreetingWord_c(); // 8011B444
     virtual u32 getBufferSize(); // 8011B49C
-    virtual wchar_t *getBuffer(); // 8011B4A4
+    virtual wchar16_t *getBuffer(); // 8011B4A4
 
-    /* 0x24 */ wchar_t mBuffer[16 + 1];
+    /* 0x24 */ wchar16_t mBuffer[16 + 1];
 }; // size 0x48
 
 class dHabitWord_c : public dScript::Word_c { // vtable 804EEFD0
@@ -25,9 +26,9 @@ public:
     dHabitWord_c(); // 8011B4AC
     virtual ~dHabitWord_c(); // 8011B4F0
     virtual u32 getBufferSize(); // 8011B548
-    virtual wchar_t *getBuffer(); // 8011B550
+    virtual wchar16_t *getBuffer(); // 8011B550
 
-    /* 0x24 */ wchar_t mBuffer[10 + 1];
+    /* 0x24 */ wchar16_t mBuffer[10 + 1];
 }; // size 0x3C
 
 #include <game/game/d_item.hpp>
@@ -122,13 +123,13 @@ public:
     int getFriendshipLevel(s8 value); // 8011CFE0
     int getFriendshipLevel(); // 8011D008
     u32 hasLetter(); // 8011D044
-    void setNickname(const wchar_t *name, u32 len); // 8011D050
+    void setNickname(const wchar16_t *name, u32 len); // 8011D050
     void setNickname(dScript::Word_c *word); // 8011D0C8
     void getNickname(dScript::Word_c *word); // 8011D134
     void decNicknameWait(int num); // 8011D148
     void copyNickname(dAnimalMemory_c *other); // 8011D184
     u32 hasGreeting(); // 8011D1F4
-    void setGreeting(const wchar_t *str, u32 len); // 8011D200
+    void setGreeting(const wchar16_t *str, u32 len); // 8011D200
     void getGreeting(dScript::Word_c *word); // 8011D278
     void decGreetingWait(int num); // 8011D28C
     BOOL setPresent(const dItem::Item *item); // 8011D2C8
@@ -150,8 +151,8 @@ public:
     /* 0x0C */ dPersonalID_c mPlayer;
     /* 0x38 */ dLandID_c mLand;           // cleared by dLandID_c::clear
     /* 0x4E */ dAnimalTalkCount_c mTalkCount;
-    /* 0x50 */ wchar_t mNickname[PLAYER_NAME_LEN + 1]; // player name
-    /* 0x62 */ wchar_t mGreeting[17];          // 0x22 bytes, memset by clear
+    /* 0x50 */ wchar16_t mNickname[PLAYER_NAME_LEN + 1]; // player name
+    /* 0x62 */ wchar16_t mGreeting[17];          // 0x22 bytes, memset by clear
     /* 0x84 */ dItem::Item mPresent;
     /* 0x86 */ dItem::Item mLastClothes; // the shirt the villager last commented on
     /* 0x88 */ u8 mFriendship;
@@ -222,8 +223,8 @@ struct dAnimalTemplate_c {
     /* 0x00A */ s16 mFurniture[ANIMAL_FTR_COUNT]; // house furniture slots (getTemplateFtr)
     /* 0x01E */ s16 mMusic;           // music (getMusic / setMusic)
     /* 0x020 */ s16 mSoundId;        // the voice (dAcNpcNml_c::getSoundId)
-    /* 0x022 */ wchar_t mNames[REGION_NUM][ANIMAL_NAME_LEN + 1];
-    /* 0x0B2 */ wchar_t mHabits[LANGUAGE_NUM][ANIMAL_HABIT_LEN + 1]; // getHabit / setHabit
+    /* 0x022 */ wchar16_t mNames[REGION_NUM][ANIMAL_NAME_LEN + 1];
+    /* 0x0B2 */ wchar16_t mHabits[LANGUAGE_NUM][ANIMAL_HABIT_LEN + 1]; // getHabit / setHabit
     /* 0x18E */ u8 mSpecies;
     /* 0x18F */ u8 mBirthMonth;
     /* 0x190 */ u8 mBirthDay;
@@ -232,13 +233,10 @@ struct dAnimalTemplate_c {
     /* 0x193 */ s8 mDislikedStyle; // second clothing style (pickClothRequestItemNotDisliked)
     /* 0x194 */ u8 mFavFtrColor; // pickFtrRequestColor
     /* 0x195 */ s8 mFavFtrSeries; // furniture series (pickOwnItem, pickFtrRequestSeries)
-    /* 0x196 */ u8 mLooks : 4;
-    /* 0x196 */ u8 mLikesNewFtr : 1; // pickFtrRequestTaste
-    /* 0x196 */ u8 mLikesOldFtr : 1;
-    /* 0x196 */ u8 mLikesAdultFtr : 1;
-    /* 0x196 */ u8 mLikesKiddyFtr : 1;
-    /* 0x197 */ u8 mIsStarter : 1; // pickTemplateByLooks
-    /* 0x197 */ u8 _197_lo : 7;
+    // mLikesNewFtr..mLikesKiddyFtr: pickFtrRequestTaste; mIsStarter: pickTemplateByLooks
+    /* 0x196 */ BITFIELD_BYTE_5(u8 mLooks : 4, u8 mLikesNewFtr : 1, u8 mLikesOldFtr : 1,
+                                u8 mLikesAdultFtr : 1, u8 mLikesKiddyFtr : 1);
+    /* 0x197 */ BITFIELD_BYTE_2(u8 mIsStarter : 1, u8 _197_lo : 7);
 }; // size 0x198
 
 // One villager's save record. 0x3040, alignment 32 (dDesign_c).
@@ -400,8 +398,8 @@ public:
     BOOL sendNewYearLetter(const dPersonalID_c *to, int year); // 80126EAC
     BOOL sendMoveLetter(const dPersonalID_c *to); // 8012706C
     BOOL sendMoveLetters(); // 80127290
-    wchar_t *getHabit(int language); // 80127330
-    void setHabit(const wchar_t *habit, int language); // 801273D4
+    wchar16_t *getHabit(int language); // 80127330
+    void setHabit(const wchar16_t *habit, int language); // 801273D4
     u32 getSpecies(); // 8012808C
     int getSoundId() const { return mTemplate.mSoundId; } // the voice (dAcNpcNml_c::getSoundId)
     u32 getBirthMonth(); // 80128094
@@ -563,7 +561,7 @@ public:
     BOOL canStartStyle(dAnimal_c *animal, dPrivateData_c *players, dPrivateData_c *self); // 8012E444
     BOOL startStyle(const dAnmPersonalID_c *animal, const dPlayerID_c *player0, const dPlayerID_c *player1, dTime_c *limit); // 8012E558
     dItem::Item pickStylePresent(dPrivateData_c *player); // 8012E618
-    BOOL sendStyleLetter(const dPersonalID_c *pid0, const dPersonalID_c *pid1, dAnimal_c *animal, const wchar_t *topic, const dItem::Item *present, u32 which, BOOL flag); // 8012E87C
+    BOOL sendStyleLetter(const dPersonalID_c *pid0, const dPersonalID_c *pid1, dAnimal_c *animal, const wchar16_t *topic, const dItem::Item *present, u32 which, BOOL flag); // 8012E87C
     dPrivateData_c *getStylePlayer(dPrivateData_c *players, u32 i); // 8012EC00
     BOOL sendStyleLetterTo(u32 which, BOOL flag); // 8012EC54
     void checkStylePlayers(); // 8012ED90

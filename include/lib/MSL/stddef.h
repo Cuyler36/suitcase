@@ -14,8 +14,11 @@ extern "C" {
 #define offsetof(ST, M) __builtin_offsetof(ST, M)
 #endif
 
+#ifndef DECOMP_INTPTR_T_DEFINED
+#define DECOMP_INTPTR_T_DEFINED // also defined by revolution/types.h
 typedef signed long intptr_t;
 typedef unsigned long uintptr_t;
+#endif
 typedef intptr_t ptrdiff_t;
 
 #if __CWCC__

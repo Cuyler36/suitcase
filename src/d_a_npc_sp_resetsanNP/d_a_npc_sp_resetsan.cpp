@@ -725,7 +725,7 @@ void dAcNpcSpResetsan_c::talk_c::holdMsg() {
 void dAcNpcSpResetsan_c::talk_c::checkWord() {
     if (!isMenuInvalid()) {
         dString::Word_c word;
-        word.set((const wchar_t *)getMenuWork(), 0);
+        word.set((const wchar16_t *)getMenuWork(), 0);
         if (word.isSame(mpController->getWord(0))) {
             if (dPlayerMgr::Mgr_c::getCurrentPlayer()->getLastResetCount() ==
                 RESET_COUNT_PHRASE) {

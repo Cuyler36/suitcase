@@ -1,6 +1,7 @@
 #ifndef NW4R_G3D_RES_RES_ANM_CAMERA_H
 #define NW4R_G3D_RES_RES_ANM_CAMERA_H
 #include <nw4r/types_nw4r.h>
+#include <port/endian.h>
 
 #include <nw4r/g3d/res/g3d_resanm.h>
 #include <nw4r/g3d/res/g3d_rescommon.h>
@@ -89,14 +90,14 @@ struct ResAnmCameraData : ResAnmCameraDataTypedef {
         FLAG_ROT_Z_CONST = (1 << 31)
     };
 
-    ulong size;                  // at 0x0
-    s32 toResAnmScnData;       // at 0x4
-    s32 name;                  // at 0x8
-    ulong id;                    // at 0xC
-    ulong refNumber;             // at 0x10
-    GXProjectionType projType; // at 0x14
-    ulong flags;                 // at 0x18
-    s32 toResUserData;         // at 0x1C
+    BE(u32) size;                  // at 0x0
+    BE(s32) toResAnmScnData;       // at 0x4
+    BE(s32) name;                  // at 0x8
+    BE(u32) id;                    // at 0xC
+    BE(u32) refNumber;             // at 0x10
+    BE(GXProjectionType) projType; // at 0x14
+    BE(u32) flags;                 // at 0x18
+    BE(s32) toResUserData;         // at 0x1C
     ResAnmData posX;           // at 0x20
     ResAnmData posY;           // at 0x24
     ResAnmData posZ;           // at 0x28

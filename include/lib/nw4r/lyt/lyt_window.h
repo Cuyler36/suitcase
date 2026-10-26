@@ -28,14 +28,29 @@ struct InflationLRTB {
 
 namespace res {
 
+#if TARGET_PC
+struct InflationLRTB {
+    BE(f32) l; // at 0x0
+    BE(f32) r; // at 0x4
+    BE(f32) t; // at 0x8
+    BE(f32) b; // at 0xC
+    operator lyt::InflationLRTB() const {
+        lyt::InflationLRTB v = {l, r, t, b};
+        return v;
+    }
+};
+#else
+typedef lyt::InflationLRTB InflationLRTB;
+#endif
+
 /******************************************************************************
  *
  * WindowContent
  *
  ******************************************************************************/
 struct WindowContent {
-    ulong vtxCols[VERTEXCOLOR_MAX]; // at 0x0
-    u16 materialIdx;              // at 0x10
+    BE(u32) vtxCols[VERTEXCOLOR_MAX]; // at 0x0
+    BE(u16) materialIdx;              // at 0x10
     u8 texCoordNum;               // at 0x12
     u8 PADDING_0x13[0x14 - 0x13]; // at 0x13
 };
@@ -46,7 +61,7 @@ struct WindowContent {
  *
  ******************************************************************************/
 struct WindowFrame {
-    u16 materialIdx; // at 0x0
+    BE(u16) materialIdx; // at 0x0
     u8 textureFlip;  // at 0x2
     u8 PADDING_0x3;  // at 0x3
 };
@@ -59,13 +74,13 @@ struct WindowFrame {
 struct Window : public Pane {
     static const ulong SIGNATURE = 'wnd1';
 
-    InflationLRTB inflation;    // at 0x4C
+    res::InflationLRTB inflation;    // at 0x4C
     u8 frameNum;                // at 0x5C
     u8 PADDING_0x5D;            // at 0x5D
     u8 PADDING_0x5E;            // at 0x5E
     u8 PADDING_0x5F;            // at 0x5F
-    ulong contentOffset;          // at 0x60
-    ulong frameOffsetTableOffset; // at 0x64
+    BE(u32) contentOffset;          // at 0x60
+    BE(u32) frameOffsetTableOffset; // at 0x64
 };
 
 } // namespace res

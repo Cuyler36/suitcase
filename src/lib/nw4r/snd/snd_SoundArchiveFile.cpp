@@ -479,6 +479,16 @@ bool SoundArchiveFileReader::ReadFilePos(u32 fileId, u32 index,
         return false;
     }
 
+#if TARGET_PC
+    SoundArchiveFile::FilePosData const *pos =
+        Util::GetDataRefAddress0(filePosTable->items[index], mInfo);
+    if (!pos) {
+        return false;
+    }
+
+    filePos->groupId = pos->groupId;
+    filePos->index = pos->index;
+#else
     SoundArchive::FilePos const *pos =
         Util::GetDataRefAddress0(filePosTable->items[index], mInfo);
     if (!pos) {
@@ -486,6 +496,7 @@ bool SoundArchiveFileReader::ReadFilePos(u32 fileId, u32 index,
     }
 
     *filePos = *pos;
+#endif
 
     return true;
 }

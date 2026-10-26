@@ -25,7 +25,7 @@ struct NoteOnInfo {
     int priority;                       // size 0x04, offset 0x14
     int voiceOutCount;                  // size 0x04, offset 0x18
     Channel::Callback *channelCallback; // size 0x04, offset 0x1c
-    u32 channelCallbackData;            // size 0x04, offset 0x20
+    uintptr_t channelCallbackData;            // size 0x04, offset 0x20
 }; // size 0x24
 } // namespace detail
 } // namespace snd

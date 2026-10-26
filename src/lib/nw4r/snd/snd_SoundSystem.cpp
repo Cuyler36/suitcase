@@ -173,6 +173,7 @@ void SoundSystem::InitSoundSystem(SoundSystemParam const &param, void *workMem,
     NW4RAssert_Line(257, ptr <= reinterpret_cast<u8 *>(workMem) + workMemSize);
 }
 
+// Dead-stripped from CF's DOL (as is SoundThread::Shutdown). The PC calls it when the game ends.
 void SoundSystem::ShutdownSoundSystem() {
     if (!sInitialized) {
         return;

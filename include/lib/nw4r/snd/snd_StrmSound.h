@@ -33,7 +33,7 @@ class StrmSoundHandle;
 namespace nw4r {
 namespace ut {
 namespace detail {
-class RuntimeTypeInfo;
+struct RuntimeTypeInfo;
 }
 } // namespace ut
 } // namespace nw4r
@@ -48,7 +48,7 @@ namespace snd {
 namespace detail {
 class StrmSound : public BasicSound {
   public:
-    typedef ut::LinkList<StrmSound, 0xec> PriorityLinkList;
+    typedef ut::LinkList<StrmSound, NW4R_UT_LINK_OFFSET(0xec, 0x120)> PriorityLinkList;
 
   public:
     StrmSound(SoundInstanceManager<StrmSound> *manager, int priority,

@@ -385,7 +385,7 @@ void dMenuMap_c::initRows() {
     char name[40];
     m2d::stringWord_c title;
     dString::loadString(&title, MSG_TOWN_MAP, "sys_2D/SYS_2D_menu");
-    wchar_t *text = title.getText();
+    wchar16_t *text = title.getText();
     nw4r::lyt::TextBox *textBox = mWinLyt.findTextBox("T_name_00");
     textBox->AllocStringBuffer(title.getCapacity());
     textBox->SetString(text, 0);

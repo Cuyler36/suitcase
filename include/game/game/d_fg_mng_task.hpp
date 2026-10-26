@@ -69,8 +69,13 @@ enum dFgMngKind_e {
 struct dFgMngTaskPos_c {
     dFgMngTaskPos_c(u16 pos) : mPos(pos) {}
     dFgMngTaskPos_c(const dFdAsPos_c &pos) {
+#if TARGET_PC
+        // (x << 8) | z: the bytes are only x then z on a big-endian host
+        mPos = (pos.mX << 8) | pos.mZ;
+#else
         ((u8 *)&mPos)[0] = pos.mX;
         ((u8 *)&mPos)[1] = pos.mZ;
+#endif
     }
 
     /* 0x0 */ u16 mPos;
@@ -254,8 +259,14 @@ struct dFgMngPackedPos_c {
     union {
         /* 0x0 */ u16 mPos;
         struct {
+#if TARGET_PC
+            // mPos is (x << 8) | z: on a little-endian host z is the first byte
+            u8 mZ;
+            u8 mX;
+#else
             /* 0x0 */ u8 mX;
             /* 0x1 */ u8 mZ;
+#endif
         };
     };
 }; // size 0x2

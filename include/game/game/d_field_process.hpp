@@ -18,6 +18,14 @@ struct dFieldSceneData_c {
     /* 0x0C */ dFieldSceneMap_c *mField;
 }; // size 0x10
 
+#if TARGET_PC
+#include <game/game/d_sc_data.hpp>
+// The PC ExitInfo_c (d_sc_data.hpp) has the map's layout
+static_assert(offsetof(dScData::ExitInfo_c, mBlockW) == offsetof(dFieldSceneMap_c, mBlockW), "mBlockW");
+static_assert(offsetof(dScData::ExitInfo_c, mBlockH) == offsetof(dFieldSceneMap_c, mBlockH), "mBlockH");
+static_assert(offsetof(dScData::SceneData_c, mExitInfo) == offsetof(dFieldSceneData_c, mField), "mField");
+#endif
+
 class dFdInfoSv_c : public dFdBase_c {
 public:
     BOOL createTown(EGG::Heap *heap); // 8008DD70 (d_field_info.cpp)

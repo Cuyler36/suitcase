@@ -22,8 +22,8 @@ namespace res {
 struct Picture : Pane {
     static const ulong SIGNATURE = 'pic1';
 
-    ulong vtxCols[VERTEXCOLOR_MAX]; // at 0x4C
-    u16 materialIdx;              // at 0x5C
+    BE(u32) vtxCols[VERTEXCOLOR_MAX]; // at 0x4C
+    BE(u16) materialIdx;              // at 0x5C
     u8 texCoordNum;               // at 0x5E
     u8 PADDING_0x5F;              // at 0x5F
 };

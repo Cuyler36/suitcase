@@ -25,17 +25,17 @@ class dAnmPersonalID_c {
 public:
     void clear();                                             // 80135E88
     static int getNameSlot(int language);                     // 80135EE0; lbl_804760D8
-    void setName(int slot, const wchar_t *name);              // 80135F04
-    void set(u16 npcIdx, u8 looks, const dLandID_c *land, const wchar_t *name0, const wchar_t *name1,
-             const wchar_t *name2, const wchar_t *name3, const wchar_t *name4, const wchar_t *name5,
-             const wchar_t *name6, const wchar_t *name7);     // 80135F20
+    void setName(int slot, const wchar16_t *name);              // 80135F04
+    void set(u16 npcIdx, u8 looks, const dLandID_c *land, const wchar16_t *name0, const wchar16_t *name1,
+             const wchar16_t *name2, const wchar16_t *name3, const wchar16_t *name4, const wchar16_t *name5,
+             const wchar16_t *name6, const wchar16_t *name7);     // 80135F20
     BOOL isValid() const;                                           // 80136010
     void copy(const dAnmPersonalID_c *other);                 // 80136068
     u8 getLooks(int unused);                                  // 80136070
     static u8 looksToGender(u8 looks);                       // 80136078
     static void makeResName(char *buf, u32 size, const char *name, u32 looks); // 801360A0
     u8 getGender(int unused);                                // 80136138
-    const wchar_t *getName(int language);                     // 80136160; LANGUAGE_NUM or more uses the console language
+    const wchar16_t *getName(int language);                     // 80136160; LANGUAGE_NUM or more uses the console language
     void setWord(dScript::Word_c *word, int language);        // 801361AC
 
     inline bool operator==(const dAnmPersonalID_c& other) const {
@@ -48,7 +48,7 @@ public:
 
     dLandID_c mLand;
     dLandID_c mLand2; // TODO: figure it out
-    wchar_t mNameByRegion[REGION_NUM][ANIMAL_NAME_LEN+1];
+    wchar16_t mNameByRegion[REGION_NUM][ANIMAL_NAME_LEN+1];
     u16 mNpcIdx; // NPC index
     u8 mLooks; // Personality
 };

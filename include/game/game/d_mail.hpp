@@ -68,10 +68,10 @@ enum {
 // 0xC2. The first 0xBF bytes hold one of three forms, picked by mType (MAIL_ADDR_*).
 struct dMailAddress_c {                                    // 0xC2
     void setWord(dScript::Word_c *word, BOOL skipNoName);  // 801189C4: name word for this address
-    void getName(wchar_t *out, BOOL skipNoName);           // 80118AD8: name into a 9-wchar buffer
+    void getName(wchar16_t *out, BOOL skipNoName);           // 80118AD8: name into a 9-wchar buffer
     void setPlayer(const dPersonalID_c *pid);              // 80118B70
     void setAnimal(const dAnmPersonalID_c *animal);        // 80118C54
-    void setText(const wchar_t *text);                     // 80118D44: up to 95 chars
+    void setText(const wchar16_t *text);                     // 80118D44: up to 95 chars
     void hideName();                                       // 80118DF8: switch to the *_NONAME type
     void setFutureSelf();                                  // 80118E3C
     dPersonalID_c *getPlayer();                            // 80118E48: player types, else NULL
@@ -81,7 +81,7 @@ struct dMailAddress_c {                                    // 0xC2
     union {
         dPersonalID_c mPlayer;                 // PLAYER, PLAYER_NONAME, FUTURE_SELF
         dAnmPersonalID_c mAnimal;              // ANIMAL, ANIMAL_NONAME
-        wchar_t mText[MAIL_ADDRESS_RAW_LEN+1]; // TEXT
+        wchar16_t mText[MAIL_ADDRESS_RAW_LEN+1]; // TEXT
     };
     u8 mType;                        // 0xC0
 };
@@ -126,7 +126,7 @@ public:
     dPersonalID_c *getToPlayer();        // 80117A30
     dAnmPersonalID_c *getToAnimal();     // 80117A34
     void setup(const dAnmPersonalID_c *sender, const dPersonalID_c *to, const dItem::Item *paper); // 80117A38
-    static BOOL findNamePos(wchar_t *header, u8 *pos); // 80117AE8: removes the first newline, stores its index
+    static BOOL findNamePos(wchar16_t *header, u8 *pos); // 80117AE8: removes the first newline, stores its index
     void prepareHeader();                               // 80117C5C
     void setTextFromLabel(const u16 *kind, const char *label); // 80117CA8: dLetter text (dLetter::loadText)
     void setTextFromParts(const u16 *header, const u16 *body, const u16 *footer, const char *headerLabel,
@@ -154,15 +154,15 @@ public:
     void setToPlayer(int idx, BOOL keepHeader);         // 80118708
     void setToSelf();                                   // 80118784
     void setToFriend(int idx);                          // 801187DC
-    void getToName(wchar_t *out);                       // 80118838
+    void getToName(wchar16_t *out);                       // 80118838
     void setFromWord(dScript::Word_c *word);            // 80118840
     void getListWord(dScript::Word_c *word);            // 8011884C: "To <name>" / "From <name>" line for mail lists
 
     dMailAddress_c mTo;                   // 0x000
     dMailAddress_c mFrom;                 // 0x0C2
-    wchar_t mHeader[MAIL_HEADER_LEN + 1]; // 0x184  0x42 bytes
-    wchar_t mBody[MAIL_BODY_LEN + 1];     // 0x1C6  0x182 bytes
-    wchar_t mFooter[MAIL_FOOTER_LEN + 1]; // 0x348  0x42 bytes
+    wchar16_t mHeader[MAIL_HEADER_LEN + 1]; // 0x184  0x42 bytes
+    wchar16_t mBody[MAIL_BODY_LEN + 1];     // 0x1C6  0x182 bytes
+    wchar16_t mFooter[MAIL_FOOTER_LEN + 1]; // 0x348  0x42 bytes
     u8 mNamePos;                     // 0x38A  where the recipient name goes in the header (newline index, findNamePos)
     u8 mPaper;                       // 0x38B  stationery index (seeker_c::findLike on the paper item)
     u8 m38C;                         // 0x38C  MAIL_38C_*: status (bits 4-0), invite flag (bit 5), value (bits 7-6).
@@ -184,9 +184,9 @@ public:
     void applyHeader(dMail_c *mail);        // 801190F8
     void store(dMail_c *mail);              // 80119164
 
-    /* 0x00 */ wchar_t mHeader[MAIL_HEADER_LEN + 1];       // "Dear \n,"
-    /* 0x42 */ wchar_t mFutureHeader[MAIL_HEADER_LEN + 1]; // "Dear future \n," (letters to the future self)
-    /* 0x84 */ wchar_t mFooter[MAIL_FOOTER_LEN + 1];       // "From <player>"
+    /* 0x00 */ wchar16_t mHeader[MAIL_HEADER_LEN + 1];       // "Dear \n,"
+    /* 0x42 */ wchar16_t mFutureHeader[MAIL_HEADER_LEN + 1]; // "Dear future \n," (letters to the future self)
+    /* 0x84 */ wchar16_t mFooter[MAIL_FOOTER_LEN + 1];       // "From <player>"
     /* 0xC6 */ u8 mNamePos;       // 0xFF when cleared
     /* 0xC7 */ u8 mFutureNamePos; // 0xFF when cleared; >= 0x20 makes apply call init
 }; // size 0xC8

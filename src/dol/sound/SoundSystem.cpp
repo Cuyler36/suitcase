@@ -1,6 +1,12 @@
 // Music playback, track transitions, sound effects, and ambient river/rain
 // mixing. .text 801CA0F4..801CE58C.
 #include <game/snd/snd_system.hpp>
+#if TARGET_PC
+// For the ambient lists' link offsets (MWCC only needs the declarations; including it there would
+// change the weak function order)
+#include <game/snd/snd_obj.hpp>
+#include <cstddef>
+#endif
 #include <game/snd/snd_manager.hpp>
 #include <game/snd/snd_id.hpp>
 #include <game/game/d_scene.hpp>
@@ -94,9 +100,16 @@ SoundSystem::SoundSystem()
 }
 
 void SoundSystem::init() {
+#if TARGET_PC
+    // The Wii offsets of the objects' links; the layout differs on 64-bit
+    nw4r::ut::List_Init(&mLists[0], offsetof(SoundObjRiver, mLink));
+    nw4r::ut::List_Init(&mLists[1], offsetof(SoundObjPond, mLink));
+    nw4r::ut::List_Init(&mLists[2], offsetof(SoundObjFall, mLink));
+#else
     nw4r::ut::List_Init(&mLists[0], 0x2C);
     nw4r::ut::List_Init(&mLists[1], 0x30);
     nw4r::ut::List_Init(&mLists[2], 0x30);
+#endif
     for (int i = 0; i < 16; i++) {
         SeqSoundHandle::WriteGlobalVariable(i, 0);
     }

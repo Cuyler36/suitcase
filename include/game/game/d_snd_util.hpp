@@ -47,7 +47,7 @@ void playVoiceMelody(u16 soundId, u8 *notes);       // 8000FC98: plays a melody 
 void playHourlyChime();                             // 8000FD24: the hourly chime
 void playSeAt(const mVec3_c *pos, int arg);         // 8000FD90: plays a sound at a world position
 void sndSetVoiceType(int type);                     // 8000FE18: the speech voice type, 0..12 (d_msg)
-void sndSpeakVoice(int mode, int tone, wchar_t c, wchar_t next, f32 volume); // 8000FE90: (d_msg) the voice of c
+void sndSpeakVoice(int mode, int tone, wchar16_t c, wchar16_t next, f32 volume); // 8000FE90: (d_msg) the voice of c
 void sndStopReverb();                               // 8000FF44: stops the reverb
 void sndSetSeaDist(f32 dist);                       // 800101F4: the distance to the sea (no callers)
 void sndStartReverb();                              // 8001009C: starts the reverb

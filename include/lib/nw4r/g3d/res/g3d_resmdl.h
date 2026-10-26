@@ -1,6 +1,7 @@
 #ifndef NW4R_G3D_RES_RES_MDL_H
 #define NW4R_G3D_RES_RES_MDL_H
 #include <nw4r/types_nw4r.h>
+#include <port/endian.h>
 
 #include <nw4r/g3d/res/g3d_rescommon.h>
 #include <nw4r/g3d/res/g3d_resdict.h>
@@ -40,25 +41,25 @@ enum ScalingRule {
 };
 
 struct ResMtxIDToNodeIDData {
-    ulong numMtxID; // at 0x0
+    BE(u32) numMtxID; // at 0x0
 };
 
 struct ResMdlInfoData : ResMdlInfoDataTypedef {
-    ulong size;                   // at 0x0
-    s32 toResMdlData;           // at 0x4
-    ScalingRule scaling_rule;   // at 0x8
-    TexMatrixMode tex_mtx_mode; // at 0xC
-    s32 vertex_size;            // at 0x10
-    s32 triangle_size;          // at 0x14
-    s32 original_path;          // at 0x18
-    ulong numViewMtx;             // at 0x1C
+    BE(u32) size;                   // at 0x0
+    BE(s32) toResMdlData;           // at 0x4
+    BE(ScalingRule) scaling_rule;   // at 0x8
+    BE(TexMatrixMode) tex_mtx_mode; // at 0xC
+    BE(s32) vertex_size;            // at 0x10
+    BE(s32) triangle_size;          // at 0x14
+    BE(s32) original_path;          // at 0x18
+    BE(u32) numViewMtx;             // at 0x1C
     bool need_nrm_mtx_array;    // at 0x20
     bool need_tex_mtx_array;    // at 0x21
     bool is_valid_volume;       // at 0x22
     u8 envelope_mtx_mode;       // at 0x23
-    s32 toMtxIDToNodeID;        // at 0x24
-    math::_VEC3 volume_min;     // at 0x28
-    math::_VEC3 volume_max;     // at 0x34
+    BE(s32) toMtxIDToNodeID;        // at 0x24
+    BE(math::_VEC3) volume_min;     // at 0x28
+    BE(math::_VEC3) volume_max;     // at 0x34
 };
 
 class ResMdlInfo : public ResCommon<ResMdlInfoData>,
@@ -87,7 +88,7 @@ public:
     }
 
     s32 GetNodeIDFromMtxID(ulong id) const {
-        const s32* pArray = reinterpret_cast<const s32*>(
+        const BE(s32)* pArray = reinterpret_cast<const BE(s32)*>(
             reinterpret_cast<const u8*>(&ref()) + ref().toMtxIDToNodeID +
             sizeof(ResMtxIDToNodeIDData));
 
@@ -102,23 +103,23 @@ public:
  ******************************************************************************/
 struct ResMdlData {
     ResBlockHeaderData header;         // at 0x0
-    ulong revision;                      // at 0x8
-    s32 toResFileData;                 // at 0xC
-    s32 toResByteCodeDic;              // at 0x10
-    s32 toResNodeDic;                  // at 0x14
-    s32 toResVtxPosDic;                // at 0x18
-    s32 toResVtxNrmDic;                // at 0x1C
-    s32 toResVtxClrDic;                // at 0x20
-    s32 toResVtxTexCoordDic;           // at 0x24
-    s32 toResVtxFurVecDic;             // at 0x28
-    s32 toResVtxFurPosDic;             // at 0x2C
-    s32 toResMatDic;                   // at 0x30
-    s32 toResTevDic;                   // at 0x34
-    s32 toResShpDic;                   // at 0x38
-    s32 toResTexNameToTexPlttInfoDic;  // at 0x3C
-    s32 toResPlttNameToTexPlttInfoDic; // at 0x40
-    s32 toResUserData;                 // at 0x44
-    s32 name;                          // at 0x48
+    BE(u32) revision;                      // at 0x8
+    BE(s32) toResFileData;                 // at 0xC
+    BE(s32) toResByteCodeDic;              // at 0x10
+    BE(s32) toResNodeDic;                  // at 0x14
+    BE(s32) toResVtxPosDic;                // at 0x18
+    BE(s32) toResVtxNrmDic;                // at 0x1C
+    BE(s32) toResVtxClrDic;                // at 0x20
+    BE(s32) toResVtxTexCoordDic;           // at 0x24
+    BE(s32) toResVtxFurVecDic;             // at 0x28
+    BE(s32) toResVtxFurPosDic;             // at 0x2C
+    BE(s32) toResMatDic;                   // at 0x30
+    BE(s32) toResTevDic;                   // at 0x34
+    BE(s32) toResShpDic;                   // at 0x38
+    BE(s32) toResTexNameToTexPlttInfoDic;  // at 0x3C
+    BE(s32) toResPlttNameToTexPlttInfoDic; // at 0x40
+    BE(s32) toResUserData;                 // at 0x44
+    BE(s32) name;                          // at 0x48
     ResMdlInfoData info;               // at 0x4C
 };
 

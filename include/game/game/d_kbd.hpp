@@ -210,8 +210,8 @@ class Mng_c : public m2d::Base_c {
     void setMemoMode2();      // 800C9ADC
     BOOL isMemoEmpty();       // 800C9AF4
     void setPos(mVec3_c pos); // 800C9B3C
-    const wchar_t *getText(); // 800C9CD8
-    void setText(const wchar_t *str); // 800C9CEC
+    const wchar16_t *getText(); // 800C9CD8
+    void setText(const wchar16_t *str); // 800C9CEC
     void setMaxLength(int len);       // 800C9D00
     int getInputPos();                // 800C9D14
     int getCursorPos();               // 800C9D48
@@ -223,9 +223,9 @@ class Mng_c : public m2d::Base_c {
     void setKeyboardMode(bool lineFeed);   // 800C9F20
     void hideToolBar();               // 800C9FFC
     void setupLayout();               // 800CA04C
-    const wchar_t *getInputText();    // 800CA1BC: the text being composed
+    const wchar16_t *getInputText();    // 800CA1BC: the text being composed
     BOOL fixInput();                  // 800CA29C
-    BOOL getComposedText(wchar_t *buf, int size); // 800CA318
+    BOOL getComposedText(wchar16_t *buf, int size); // 800CA318
     BOOL isKanaInput();                           // 800CA40C
     void setABC();                                // 800CA488
     BOOL isSignWindowOpen();                      // 800CA4F0

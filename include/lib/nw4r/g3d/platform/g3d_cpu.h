@@ -1,5 +1,6 @@
 #ifndef NW4R_G3D_PLATFORM_CPU_H
 #define NW4R_G3D_PLATFORM_CPU_H
+#include <port/endian.h>
 #include <nw4r/types_nw4r.h>
 
 #include <revolution/os.h>
@@ -50,6 +51,17 @@ inline f32 S7_8ToF32(const s16* pPtr) {
 // psq_l through GQR6 (S16, scale 5): fixed point S10.5
 inline f32 S10_5ToF32(const s16* pPtr) {
     return *pPtr * (1.0f / 32.0f);
+}
+
+// The same for big-endian resource data (E-1 in pc_port_endianness.md)
+inline f32 U16_0ToF32(const BE(u16)* pPtr) {
+    return static_cast<f32>(static_cast<u16>(*pPtr));
+}
+inline f32 S7_8ToF32(const BE(s16)* pPtr) {
+    return static_cast<s16>(*pPtr) * (1.0f / 256.0f);
+}
+inline f32 S10_5ToF32(const BE(s16)* pPtr) {
+    return static_cast<s16>(*pPtr) * (1.0f / 32.0f);
 }
 #else
 inline f32 S7_8ToF32(register const s16* pPtr) {

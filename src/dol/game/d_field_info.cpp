@@ -317,6 +317,12 @@ dItem::Item *dFdBase_c::getItem(int blockX, int blockZ, int unitX, int unitZ, in
     if (block != NULL) {
         return block->getItem(unitX, unitZ, layer);
     }
+#if TARGET_PC
+    // Falls off the end outside the field: getBlock's NULL is still in r3 on the Wii. Callers rely on
+    // it (dFgMngProc_c::revertFg56 asks for the free (-1, -1) slots), and an optimized PC build
+    // returned garbage (UB-10)
+    return NULL;
+#endif
 }
 
 // 8008C850

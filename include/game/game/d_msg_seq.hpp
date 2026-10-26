@@ -105,18 +105,22 @@ public:
     virtual ~Ruby_c(); // 8019FD70 (inline, body in d_msg.cpp)
 
     void clear(); // 8019F9B8: clear
-    void set(Comp_c *comp, int baseLen, int len, const wchar_t *text); // 8019F9E0
+    void set(Comp_c *comp, int baseLen, int len, const wchar16_t *text); // 8019F9E0
     BOOL stepBaseChar(); // 8019FA2C: TRUE when the base text should advance a character now
     BOOL isEnd(); // 8019FA94: all ruby characters voiced (mPos >= mLen)
     void procChar(); // 8019FAB0: voices the next ruby character
 
     /* 0x04 */ Comp_c *mpComp;
-    /* 0x08 */ const wchar_t *mpText;
+    /* 0x08 */ const wchar16_t *mpText;
     /* 0x0C */ int mPos;
     /* 0x10 */ int mBasePos; // base characters released
     /* 0x14 */ int mBaseLen; // base characters under the ruby
     /* 0x18 */ int mLen;
     /* 0x1C */ int mStep; // ruby characters per base character (>= 1)
+#if TARGET_PC
+    // The ruby text in host order (set's text is a tag's parameters; mpText points here)
+    wchar16_t mHostText[TAG_TEXT_MAX];
+#endif
 }; // size 0x20
 
 // Seq_c states (setState; each calls a receiver hook).
@@ -146,10 +150,10 @@ public:
     void execute(); // 8019C844
     void clearText(); // 8019CAB4
     void start(int speed, int align); // 8019CB0C
-    void setText(const wchar_t *text); // 8019CCB0
+    void setText(const wchar16_t *text); // 8019CCB0
     void nextPage(); // 8019CD24
     BOOL procChar(); // 8019CD88: FALSE when typing stops (page full, end)
-    wchar_t getChar(const wchar_t *p); // 8019CFA4: the first character at p after any tags
+    wchar16_t getChar(const wchar16_t *p); // 8019CFA4: the first character at p after any tags
     BOOL isTypeReady(); // 8019CFEC: FALSE while waiting
     void procTag(); // 8019D0C8: dispatch by tag group
     void procFeel(); // 8019D240: group 2: Rcpt_c::setSpeakerFeel(id)
@@ -263,7 +267,7 @@ public:
     /* 0x0020 */ u16 mTextLen;        // mWord's text length
     /* 0x0024 */ Comp_c *mpComp;
     /* 0x0028 */ u8 _0028[0x30 - 0x28]; // never accessed in the DOL
-    /* 0x0030 */ const wchar_t *mpChar; // the character being typed
+    /* 0x0030 */ const wchar16_t *mpChar; // the character being typed
     /* 0x0034 */ u8 mFast;            // skip pressed: no waits
     /* 0x0035 */ u8 mNoWait;          // tags 6:2/6:3: the whole text at once
     /* 0x0036 */ u8 mNoSkip;          // tags 6:4/6:5
@@ -271,7 +275,7 @@ public:
     /* 0x0038 */ u8 mTyped;           // a character was typed
     /* 0x003C */ RndJump_c mRndJump;
     /* 0x0260 */ Word_c mWord;
-    /* 0x2B60 */ wchar_t mText[0x1401]; // what the text box shows
+    /* 0x2B60 */ wchar16_t mText[0x1401]; // what the text box shows
     /* 0x5364 */ Ruby_c mRuby;
 }; // size 0x5384
 

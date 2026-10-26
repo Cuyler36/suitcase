@@ -35,3 +35,6 @@ compile_commands.json
 /*.txt
 !/CMakeLists.txt
 *.exe
+
+# Release packages (build.py --for-release)
+dist/

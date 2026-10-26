@@ -578,7 +578,7 @@ void DrawBillboardStrategy::InitGraphics(const DrawInfo &drawInfo,
 
     GXEnableTexOffsets(GX_TEXCOORD0, GX_TRUE, GX_TRUE);
 
-    GXSetArray(GX_VA_TEX0, billboard_tex0_u8, 2);
+    GXSETARRAY(GX_VA_TEX0, billboard_tex0_u8, sizeof(billboard_tex0_u8), 2, true);
 
     GXClearVtxDesc();
     GXSetVtxDesc(GX_VA_POS, GX_DIRECT);

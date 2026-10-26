@@ -417,6 +417,18 @@ public:
 /**
  * Declare typedef for linked-list specialization.
  */
+/**
+ * A list node's offset written as a literal (a class cannot use offsetof on
+ * itself inside its own definition): the Wii layout's and the PC port's, which
+ * differ (MSVC puts the vtable pointer first, and pointers are 8 bytes). Each
+ * class checks its PC offsets with a static_assert.
+ */
+#if TARGET_PC
+#define NW4R_UT_LINK_OFFSET(WII, PC) (PC)
+#else
+#define NW4R_UT_LINK_OFFSET(WII, PC) (WII)
+#endif
+
 #define NW4R_UT_LINKLIST_TYPEDEF_DECL(T)                                       \
     typedef nw4r::ut::LinkList<T, offsetof(T, node)> T##List;
 

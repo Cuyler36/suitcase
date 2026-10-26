@@ -3,6 +3,7 @@
 #include <nw4r/types_nw4r.h>
 
 #include <nw4r/lyt/lyt_types.h>
+#include <port/endian.h>
 
 namespace nw4r {
 namespace lyt {
@@ -14,16 +15,78 @@ namespace res {
 
 /******************************************************************************
  *
+ * Big-endian twins of runtime types stored in the files (the same types on the Wii)
+ *
+ ******************************************************************************/
+#if TARGET_PC
+struct VEC2 {
+    BE(f32) x;
+    BE(f32) y;
+    operator math::VEC2() const {
+        return math::VEC2(x, y);
+    }
+};
+
+struct VEC3 {
+    BE(f32) x;
+    BE(f32) y;
+    BE(f32) z;
+    operator math::VEC3() const {
+        return math::VEC3(x, y, z);
+    }
+};
+
+struct Size {
+    BE(f32) width;
+    BE(f32) height;
+    operator lyt::Size() const {
+        return lyt::Size(width, height);
+    }
+};
+
+struct TexSRT {
+    res::VEC2 translate; // at 0x0
+    BE(f32) rotate;      // at 0x8
+    res::VEC2 scale;     // at 0xC
+    operator lyt::TexSRT() const {
+        lyt::TexSRT srt;
+        srt.translate = translate;
+        srt.rotate = rotate;
+        srt.scale = scale;
+        return srt;
+    }
+};
+
+struct ColorS10 {
+    BE(s16) r;
+    BE(s16) g;
+    BE(s16) b;
+    BE(s16) a;
+    operator GXColorS10() const {
+        GXColorS10 c = {r, g, b, a};
+        return c;
+    }
+};
+#else
+typedef math::VEC2 VEC2;
+typedef math::VEC3 VEC3;
+typedef lyt::Size Size;
+typedef lyt::TexSRT TexSRT;
+typedef GXColorS10 ColorS10;
+#endif
+
+/******************************************************************************
+ *
  * BinaryFileHeader
  *
  ******************************************************************************/
 struct BinaryFileHeader {
     char signature[4]; // at 0x0
-    u16 byteOrder;     // at 0x4
-    u16 version;       // at 0x6
-    ulong fileSize;      // at 0x8
-    u16 headerSize;    // at 0xC
-    u16 dataBlocks;    // at 0xE
+    BE(u16) byteOrder;     // at 0x4
+    BE(u16) version;       // at 0x6
+    BE(u32) fileSize;      // at 0x8
+    BE(u16) headerSize;    // at 0xC
+    BE(u16) dataBlocks;    // at 0xE
 };
 
 /******************************************************************************
@@ -33,7 +96,7 @@ struct BinaryFileHeader {
  ******************************************************************************/
 struct DataBlockHeader {
     char kind[4]; // at 0x0
-    ulong size;     // at 0x4
+    BE(u32) size;     // at 0x4
 };
 
 enum ExtUserDataType {
@@ -63,16 +126,16 @@ struct ExtUserData {
         return (ExtUserDataType)type;
     }
 
-    u32 nameOffs;   // at 0x00
-    u32 datOffs;    // at 0x04
-    u16 numEntries; // at 0x08
+    BE(u32) nameOffs;   // at 0x00
+    BE(u32) datOffs;    // at 0x04
+    BE(u16) numEntries; // at 0x08
     u8 type;        // at 0x0A
     u8 padding;     // at 0x0B
 };
 
 struct ExtUserDataList {
     DataBlockHeader blockHeader; // at 0x0
-    u16 num;                     // at 0x8
+    BE(u16) num;                     // at 0x8
     u8 padding[2];               // at 0xA
 };
 
@@ -82,7 +145,7 @@ struct ExtUserDataList {
  *
  ******************************************************************************/
 struct Texture {
-    ulong nameStrOffset;         // at 0x0
+    BE(u32) nameStrOffset;         // at 0x0
     u8 type;                   // at 0x4
     u8 PADDING_0x5[0x8 - 0x5]; // at 0x5
 };
@@ -93,7 +156,7 @@ struct Texture {
  ******************************************************************************/
 struct TextureList {
     res::DataBlockHeader blockHeader; // at 0x0
-    u16 texNum;                       // at 0x8
+    BE(u16) texNum;                       // at 0x8
     u8 PADDING_0xA[0xC - 0xA];        // at 0xA
 };
 
@@ -103,7 +166,7 @@ struct TextureList {
  *
  ******************************************************************************/
 struct Font {
-    ulong nameStrOffset;         // at 0x0
+    BE(u32) nameStrOffset;         // at 0x0
     u8 type;                   // at 0x4
     u8 PADDING_0x5[0x8 - 0x5]; // at 0x5
 };
@@ -114,7 +177,7 @@ struct Font {
  ******************************************************************************/
 struct FontList {
     res::DataBlockHeader blockHeader; // at 0x0
-    u16 fontNum;                      // at 0x8
+    BE(u16) fontNum;                      // at 0x8
     u8 PADDING_0xA[0xC - 0xA];        // at 0xA
 };
 
@@ -125,7 +188,7 @@ struct FontList {
  ******************************************************************************/
 struct MaterialList {
     res::DataBlockHeader blockHeader; // at 0x0
-    u16 materialNum;                  // at 0x8
+    BE(u16) materialNum;                  // at 0x8
     u8 PADDING_0xA[0xC - 0xA];        // at 0xA
 };
 
@@ -151,7 +214,7 @@ struct TexMap {
         return static_cast<GXTexFilter>((bitData + 1) & 1);
     }
 
-    u16 texIdx;  // at 0x0
+    BE(u16) texIdx;  // at 0x0
     u8 wrapSflt; // at 0x2
     u8 wrapTflt; // at 0x3
 };
@@ -176,7 +239,7 @@ struct ResBlockSet {
  *
  ******************************************************************************/
 struct MaterialResourceNum {
-    ulong bits;
+    BE(u32) bits;
 
     u8 GetTexMapNum() const {
         return detail::GetBits(bits, 0, 4);

@@ -285,8 +285,8 @@ Material::Material(const res::Material* pRes, const ResBlockSet& resBlockSet) {
         detail::ConvertOffsToPtr<res::TexMap>(pRes, resOffs);
     resOffs += pRes->resNum.GetTexMapNum() * sizeof(res::TexMap);
 
-    const TexSRT* const resTexSRTs =
-        detail::ConvertOffsToPtr<TexSRT>(pRes, resOffs);
+    const res::TexSRT* const resTexSRTs =
+        detail::ConvertOffsToPtr<res::TexSRT>(pRes, resOffs);
     resOffs += pRes->resNum.GetTexSRTNum() * sizeof(TexSRT);
 
     const TexCoordGen* const resTexCoordGens =
@@ -382,8 +382,8 @@ Material::Material(const res::Material* pRes, const ResBlockSet& resBlockSet) {
 
         if (indTexSRTNum != 0) {
             TexSRT* const indTexSRTs = GetIndTexSRTAry();
-            const TexSRT* const pResIndMtx =
-                detail::ConvertOffsToPtr<TexSRT>(pRes, resOffs);
+            const res::TexSRT* const pResIndMtx =
+                detail::ConvertOffsToPtr<res::TexSRT>(pRes, resOffs);
 
             for (int i = 0; i < indTexSRTNum; i++) {
                 indTexSRTs[i] = pResIndMtx[i];

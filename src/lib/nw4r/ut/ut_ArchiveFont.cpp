@@ -333,7 +333,7 @@ void ArchiveFont::GetGlyphFromIndex(Glyph *pGlyph, u16 index, u16 slot) const {
     pGlyph->widths = GetCharWidthsFromIndex(index);
     pGlyph->height = rTexGlyph.cellHeight;
 
-    pGlyph->texFormat = static_cast<GXTexFmt>(rTexGlyph.sheetFormat);
+    pGlyph->texFormat = static_cast<GXTexFmt>(BE_HOST(rTexGlyph.sheetFormat));
 
     pGlyph->texWidth = rTexGlyph.sheetWidth;
     pGlyph->texHeight = rTexGlyph.sheetHeight;
@@ -468,7 +468,7 @@ ArchiveFont::ConstructOpPrepairExpandSheet(ConstructContext *pContext,
     }
 
     pReader->Read(&compSize, sizeof(compSize));
-    const u32 srcSize = compSize;
+    const u32 srcSize = RES_U32(compSize); // big-endian in the file
 
     if (pContext->IsSheetLoaded()) {
         if (pContext->GetBufferRestSize() < srcSize) {

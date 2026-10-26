@@ -20,6 +20,10 @@
 #include <game/game/d_string.hpp>
 #include <game/game/d_item_debug.hpp>
 
+#if TARGET_PC
+#include <port/endian.h>
+#endif
+
 using namespace dItem;
 
 extern "C" {
@@ -122,7 +126,7 @@ const char *dItem::sFromNames[FROM_COUNT] = {
     "BALLOON_MAN", "MUSHROOM", "MUSIC_HAZURE",
 };
 
-static wchar_t sNone[] = L"\x306A\x3057"; // "‚È‚µ" (none); lives in .sdata, so not const
+static wchar16_t sNone[] = WSTR("\x306A\x3057"); // "‚È‚µ" (none); lives in .sdata, so not const
 
 // 800C0F80
 static u32 getDlSlot(u16 index) {
@@ -584,7 +588,7 @@ int BITM::getFtrFuncType() const {
 }
 
 // 800C1CF8
-const wchar_t *BITM::getName() const {
+const wchar16_t *BITM::getName() const {
     switch (getLanguage()) {
     case LANG_US:
         return m_nameUs;
@@ -891,11 +895,62 @@ BOOL infoBank_c::load(void *heap) {
     return dDvd::bank_c::load("/Item/item.arc", heap, 0);
 }
 
+#if TARGET_PC
+// item.arc's tables are big-endian; on PC they are converted to host order in place, once (the
+// bit-fields need no conversion, port/bitfield.h). A converted header's entry size reads as the
+// host's, which marks the conversion.
+static_assert(sizeof(BITM) == 0x18C, "BITM must match item.bin");
+
+static void convertBITM(BITM &item) {
+    be_swap(item.m_magic);
+    be_swap(item.m_price);
+    be_swap(item.m_baseId);
+    be_swap(item.m_icon);
+    be_swap(item.m_ftrKind);
+    be_swap(item._E);
+    be_swap(item.m_version);
+    be_swap(item.m_nameJp);
+    be_swap(item.m_nameUs);
+    be_swap(item.m_nameMx);
+    be_swap(item.m_nameQc);
+    be_swap(item.m_nameEn);
+    be_swap(item.m_nameDe);
+    be_swap(item.m_nameIt);
+    be_swap(item.m_nameEs);
+    be_swap(item.m_nameFr);
+    be_swap(item.m_nameKr);
+}
+
+static void convertTableToHost(void *file, u32 entrySize) {
+    BinHeader *header = static_cast<BinHeader *>(file);
+    if (header == NULL || header->mEntrySize == entrySize) {
+        return;
+    }
+    be_swap(header->mCount);
+    be_swap(header->mEntrySize);
+    if (header->mEntrySize != entrySize) {
+        OSReport("[dItem] unexpected table entry size %u (expected %u)\n", header->mEntrySize, entrySize);
+        return;
+    }
+    if (entrySize == sizeof(BITM)) {
+        BITM *items = reinterpret_cast<BITM *>(header + 1);
+        for (u32 i = 0; i < header->mCount; i++) {
+            convertBITM(items[i]);
+        }
+    }
+}
+#endif
+
 // 800C2590
 void infoBank_c::onLoaded() {
     u32 size;
     ARCInitHandle(mpData, &mHandle);
     mArcReady = 1;
+#if TARGET_PC
+    convertTableToHost(getFile("item/item.bin", &size), sizeof(BITM));
+    convertTableToHost(getFile("item/npcMsg.bin", &size), sizeof(NpcMsg));
+    convertTableToHost(getFile("item/npcMsgBullfest.bin", &size), sizeof(NpcMsgBullfest));
+#endif
     mpItems = reinterpret_cast<BITM *>(static_cast<u8 *>(getFile("item/item.bin", &size)) + 0x20);
     mpSeries = reinterpret_cast<Series *>(static_cast<u8 *>(getFile("item/series.bin", &size)) + 0x20);
     u32 *npcMsg = static_cast<u32 *>(getFile("item/npcMsg.bin", &size));
@@ -1569,13 +1624,21 @@ BOOL resLoader_c::bindTexture(void *tex, void *pltt, void *heap, s16 width, s16 
             if (height != -1) {
                 resTex.ref().height = height;
             }
+#if TARGET_PC
+            resTex.SetTexData(tex);
+#else
             resTex.ref().toTexData = static_cast<u8 *>(tex) - reinterpret_cast<u8 *>(&resTex.ref());
+#endif
             DCStoreRangeNoSync(tex, (resTex.GetWidth() * resTex.GetHeight()) >> 1);
             resTex.EndEdit();
         }
         if (pltt != NULL) {
             nw4r::g3d::ResPltt resPltt = file.GetResPltt(0);
+#if TARGET_PC
+            resPltt.SetPlttData(pltt);
+#else
             resPltt.ref().toPlttData = static_cast<u8 *>(pltt) - reinterpret_cast<u8 *>(&resPltt.ref());
+#endif
             DCStoreRangeNoSync(pltt, 0x20);
             resPltt.DCStore(false);
         }
@@ -1704,7 +1767,11 @@ void resLoader_c::replaceTexture(void *tex, void *pltt, u32 texIdx, u32 plttIdx,
     }
     if (tex != NULL && texIdx < file.GetResTexNumEntries()) {
         nw4r::g3d::ResTex resTex = file.GetResTex(texIdx);
+#if TARGET_PC
+        resTex.SetTexData(tex);
+#else
         resTex.ref().toTexData = static_cast<u8 *>(tex) - reinterpret_cast<u8 *>(&resTex.ref());
+#endif
         resTex.ref().width = width;
         resTex.ref().height = height;
         DCStoreRangeNoSync(tex, static_cast<u32>(width * height) >> 1);
@@ -1712,7 +1779,11 @@ void resLoader_c::replaceTexture(void *tex, void *pltt, u32 texIdx, u32 plttIdx,
     }
     if (pltt != NULL && plttIdx < file.GetResPlttNumEntries()) {
         nw4r::g3d::ResPltt resPltt = file.GetResPltt(plttIdx);
+#if TARGET_PC
+        resPltt.SetPlttData(pltt);
+#else
         resPltt.ref().toPlttData = static_cast<u8 *>(pltt) - reinterpret_cast<u8 *>(&resPltt.ref());
+#endif
         DCStoreRangeNoSync(pltt, 0x20);
         resPltt.DCStore(false);
     }
@@ -2279,9 +2350,17 @@ void addCatalogItems(void *addr, dCatalog_c *catalog) {
 }
 
 // 800C5278
+#if TARGET_PC
+// The Wii's version returns the CRC by leaving it in r3 (it is declared void); the caller
+// (d_save_dl_item.cpp, as u32 fn_800C5278(const void *, u32)) uses it
+extern "C" u32 fn_800C5278(const void *a, u32 b) {
+    return sCrc::calcCRC32(a, b, 0x04201018, -1);
+}
+#else
 extern "C" void fn_800C5278(void *a, void *b) {
     sCrc::calcCRC32(a, (ulong)b, 0x04201018, -1);
 }
+#endif
 
 // 800C5288
 const char *getKindName(u32 kind) {

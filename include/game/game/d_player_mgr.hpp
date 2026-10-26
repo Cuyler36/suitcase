@@ -404,7 +404,7 @@ extern u8 sSnowEffectWearThreshold; // 8074E5F8?: snow wear above it counts as s
 
 // Output of RFLGetAdditionalInfo; the create ID goes to dPrivateData_c::mMiiId.
 struct MiiData_c {
-    /* 0x00 */ wchar_t mName[10]; // d_a_npc_sp_catherine: the Mii's name
+    /* 0x00 */ wchar16_t mName[10]; // d_a_npc_sp_catherine: the Mii's name
     /* 0x14 */ u8 _14[0x18];
     /* 0x2C */ u8 mCreateID[8];
     /* 0x34 */ u32 mPersonalInfo;

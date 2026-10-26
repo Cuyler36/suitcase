@@ -800,28 +800,28 @@ void dMenuFriend04_c::updateRowIcons() {
 }
 
 // .text:0x20D8
-const wchar_t *dMenuFriend04_c::getTownName(int idx) {
+const wchar16_t *dMenuFriend04_c::getTownName(int idx) {
     return dPlayerMgr::Mgr_c::getCurrentPlayer()
         ->mFriends.getFriend(idx)
         ->mPID.land.mName;
 }
 
 // .text:0x2110
-const wchar_t *dMenuFriend04_c::getPlayerName(int idx) {
+const wchar16_t *dMenuFriend04_c::getPlayerName(int idx) {
     return dPlayerMgr::Mgr_c::getCurrentPlayer()
         ->mFriends.getFriend(idx)
         ->mPID.player.mName;
 }
 
 // .text:0x2148
-const wchar_t *dMenuFriend04_c::getComment(int idx) {
+const wchar16_t *dMenuFriend04_c::getComment(int idx) {
     return dPlayerMgr::Mgr_c::getCurrentPlayer()
         ->mFriends.getFriend(idx)
         ->mMessage;
 }
 
 // .text:0x2180
-const wchar_t *dMenuFriend04_c::getCursorComment(int cursor) {
+const wchar16_t *dMenuFriend04_c::getCursorComment(int cursor) {
     return getComment(getFriendIdx(cursor));
 }
 

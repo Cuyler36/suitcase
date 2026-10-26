@@ -298,10 +298,10 @@ void dAcNpcNml_c::talk_c::selStyleAnswer() {
 
 // 80059838
 void dAcNpcNml_c::talk_c::resStyleAnswer() {
-    const wchar_t *topic;
+    const wchar16_t *topic;
     BOOL right = FALSE;
     if (!isMenuInvalid()) {
-        const wchar_t *answer = (const wchar_t *)getMenuWork();
+        const wchar16_t *answer = (const wchar16_t *)getMenuWork();
         topic = dSaveData_c::getRaw()->mAnimals.mTown.mStyle.mTopicText;
         if (answer != NULL && topic != NULL) {
             dString::Word_c answerWord(answer);

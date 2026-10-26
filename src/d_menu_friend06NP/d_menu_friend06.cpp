@@ -20,8 +20,8 @@ BASE_PROFILE(MENU_FRIEND06, dMenuFriend06_c)
 static const char *l_allPane = "N_all";
 
 // The separator of the groups of the friend code.
-static wchar_t l_codeSeparatorText[3] = L"ー";
-static const wchar_t *l_codeSeparator = l_codeSeparatorText;
+static wchar16_t l_codeSeparatorText[3] = WSTR("ー");
+static const wchar16_t *l_codeSeparator = l_codeSeparatorText;
 
 // .text:0xD8
 int dMenuFriend06_c::create() {

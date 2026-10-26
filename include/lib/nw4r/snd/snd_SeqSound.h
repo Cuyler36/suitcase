@@ -30,7 +30,7 @@ class SeqSound : public BasicSound {
   public:
     NW4R_UT_RTTI_DECL(SeqSound);
 
-    typedef ut::LinkList<SeqSound, 0xEC> PriorityLinkList;
+    typedef ut::LinkList<SeqSound, NW4R_UT_LINK_OFFSET(0xEC, 0x120)> PriorityLinkList;
 
   public:
     SeqSound(SoundInstanceManager<SeqSound> *pManager, int priority,

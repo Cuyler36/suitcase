@@ -20,13 +20,17 @@ extern "C" {
 typedef enum {
     GX_CP_REG_MATRIXINDEXA = 0x30,
     GX_CP_REG_MATRIXINDEXB = 0x40,
+#if !TARGET_PC // aurora's GXEnum.h defines these four with the same values
     GX_CP_REG_VCD_LO = 0x50,
     GX_CP_REG_VCD_HI = 0x60,
+#endif
     GX_CP_REG_VAT_GROUP0 = 0x70,
     GX_CP_REG_VAT_GROUP1 = 0x80,
     GX_CP_REG_VAT_GROUP2 = 0x90,
+#if !TARGET_PC
     GX_CP_REG_ARRAYBASE = 0xA0,
     GX_CP_REG_ARRAYSTRIDE = 0xB0,
+#endif
 } GX_CP_REG;
 
 /******************************************************************************

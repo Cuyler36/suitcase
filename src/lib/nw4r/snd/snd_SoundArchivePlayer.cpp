@@ -143,7 +143,14 @@ u32 SoundArchivePlayer::GetRequiredMemSize(SoundArchive const *arc) {
         }
     }
 
+#if TARGET_PC
+    // GroupAddress holds two pointers, and the items follow the count at their alignment
+    size += ut::RoundUp(offsetof(GroupAddressTable, items) +
+                            arc->GetGroupCount() * sizeof(GroupAddress),
+                        4);
+#else
     size += ut::RoundUp(sizeof(u32) + arc->GetGroupCount() * 8, 4);
+#endif
 
     SoundArchive::SoundArchivePlayerInfo soundArchivePlayerInfo;
     if (arc->ReadSoundArchivePlayerInfo(&soundArchivePlayerInfo)) {
@@ -230,7 +237,12 @@ bool SoundArchivePlayer::SetupMram(SoundArchive const *arc, void *buffer,
 
 detail::PlayerHeap *
 SoundArchivePlayer::CreatePlayerHeap(void **buffer, void *endp, u32 heapSize) {
+#if TARGET_PC
+    // The Wii's PlayerHeap is 32 bytes (GetRequiredMemSize counts sizeof)
+    void *ep = ut::RoundUp(ut::AddOffsetToPtr(*buffer, sizeof(detail::PlayerHeap)), 4);
+#else
     void *ep = ut::RoundUp(ut::AddOffsetToPtr(*buffer, 32), 4);
+#endif
     if (ut::ComparePtr(ep, endp) > 0) {
         return nullptr;
     }
@@ -313,7 +325,12 @@ bool SoundArchivePlayer::SetupSoundPlayer(SoundArchive const *arc,
 
 bool SoundArchivePlayer::CreateGroupAddressTable(SoundArchive const *arc,
                                                  void **buffer, void *endp) {
+#if TARGET_PC
+    u32 requireSize = offsetof(GroupAddressTable, items) +
+                      sizeof(GroupAddress) * arc->GetGroupCount();
+#else
     u32 requireSize = sizeof(u32) + sizeof(GroupAddress) * arc->GetGroupCount();
+#endif
 
     void *ep = ut::RoundUp(ut::AddOffsetToPtr(*buffer, requireSize), 4);
 
@@ -1298,7 +1315,7 @@ detail::Channel *SoundArchivePlayer::SeqNoteOnCallback::NoteOn(
 bool SoundArchivePlayer::WsdCallback::GetWaveSoundData(
     detail::WaveSoundInfo *info, detail::WaveSoundNoteInfo *noteInfo,
     detail::WaveData *waveData, void const *waveSoundData, int index,
-    int noteIndex, u32 userData) const {
+    int noteIndex, uintptr_t userData) const {
     u32 fileID = userData;
 
     if (!mSoundArchivePlayer.IsAvailable()) {

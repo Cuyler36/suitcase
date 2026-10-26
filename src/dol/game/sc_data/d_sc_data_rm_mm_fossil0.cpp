@@ -8,7 +8,7 @@ namespace dScData {
 static u32 l_ids5[] = {0x33, 0x34};
 static u32 l_ids6[] = {0x35, 0x36};
 static ColorByte_c l_palette0 = {{0x63, 0x63, 0xA5, 0xFF}, 0x7B};
-static u32 l_setting0[] = {0xE7D6B5FF, 0xDAAB0000}; // scene setting kind 9
+static u32 l_setting0[] = {SC_COLOR(0xE7D6B5FF), SC_ANGLES(0xDAAB0000)}; // scene setting kind 9
 static u16 l_resources[] = {fProf::A_RMOBJ_FOSSIL, fProf::A_NAMEPLATE_MUSEUM};
 static PlayerData_c l_player = {{256.0f, 0.0f, 256.0f}, {0, -0x8000, 0}, 0, 8};
 static dScene::dSceneBaseData_c l_base[] = {{fProf::SV_DEMO, 0},

@@ -40,7 +40,12 @@ typedef enum {
 } RFLExpression;
 
 typedef struct RFLMiddleDB {
+#if TARGET_PC
+    // PC: room for RFLiMiddleDatabase, which holds pointers
+    u64 data[5];
+#else
     u32 data[6];
+#endif
 } RFLMiddleDB;
 
 typedef struct RFLCharInfo {
@@ -55,7 +60,12 @@ typedef struct RFLStoreData {
 // Opaque, 4-byte aligned. The size follows from mFace::model_c (RFLCharModel base at 0x10, next member at 0x98).
 #define RFL_CHAR_MODEL_SIZE 0x88
 typedef struct RFLCharModel {
+#if TARGET_PC
+    // PC: room for RFLiCharModel, which holds pointers (0xC8 bytes)
+    u64 dummy[25];
+#else
     u32 dummy[RFL_CHAR_MODEL_SIZE / sizeof(u32)];
+#endif
 } RFLCharModel;
 
 typedef struct RFLDrawCoreSetting {

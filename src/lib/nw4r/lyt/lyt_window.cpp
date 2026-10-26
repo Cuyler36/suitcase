@@ -243,7 +243,7 @@ Window::Window(const res::Window* pBlock, const ResBlockSet& resBlockSet)
 
     InitContent(texCoordNum);
 
-    const u32* const matOffsTbl = detail::ConvertOffsToPtr<u32>(
+    const BE(u32)* const matOffsTbl = detail::ConvertOffsToPtr<BE(u32)>(
         resBlockSet.pMaterialList, sizeof(res::MaterialList));
 
     mContentInflation = pBlock->inflation;
@@ -268,7 +268,7 @@ Window::Window(const res::Window* pBlock, const ResBlockSet& resBlockSet)
     if (pBlock->frameNum != 0) {
         InitFrame(pBlock->frameNum);
 
-        const u32* const frameOffsetTable = detail::ConvertOffsToPtr<u32>(
+        const BE(u32)* const frameOffsetTable = detail::ConvertOffsToPtr<BE(u32)>(
             pBlock, pBlock->frameOffsetTableOffset);
 
         for (int i = 0; i < mFrameNum; i++) {

@@ -18,7 +18,7 @@ static ActorData_c l_actors[] = {
      (void *)0x8029},
 };
 static u32 l_setting0[] ALIGN(8) = {
-    0xFFEF63FF, 0x43800000, 0x42A00000, 0x43F50000, 0xE0000000, 0x3FA00000,
+    SC_COLOR(0xFFEF63FF), 0x43800000, 0x42A00000, 0x43F50000, SC_ANGLES(0xE0000000), 0x3FA00000,
     0x3AA3D70A, 0x3903126F, 0x41F00000, 0x00000002}; // scene setting kind 0xC
 static Scene3Entry_c l_scene3[] = {{5, &l_palette0}, {0xC, l_setting0}};
 static dScene::dSceneDataEntry_c l_entries[] = {

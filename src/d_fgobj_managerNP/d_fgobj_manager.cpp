@@ -2419,7 +2419,7 @@ void dropTreeItems(const dItem::Item *tree, int player, int x, int z) {
 }
 
 // .text:0x6770
-void fgObjCallback(int item, int pos, int scale, mAng3_c *ang, int present) {
+void fgObjCallback(int item, dFgObjArg_t pos, dFgObjArg_t scale, mAng3_c *ang, int present) {
     if (getMgr() != NULL) {
         getMgr()->addFgDraw(item, (const mVec3_c *)pos, (const mVec3_c *)scale,
                             ang, present);
@@ -3138,8 +3138,13 @@ inline int getUnitZ(dFdAsPos_c pos) {
 
 // Packs a unit position into a command (x in the high byte, z in the low).
 inline void setCmdPos(dFgMngCmd_c *cmd, dFdAsPos_c pos) {
+#if TARGET_PC
+    // The bytes are only x then z on a big-endian host; readers take mPos >> 8 as x
+    cmd->mPos = (getUnitX(pos) << 8) | pos.mZ;
+#else
     ((u8 *)&cmd->mPos)[0] = getUnitX(pos);
     ((u8 *)&cmd->mPos)[1] = pos.mZ;
+#endif
 }
 
 // Plans the drops of a request processed offline.
@@ -3233,8 +3238,13 @@ void sendRequest(u8 idx, int b2) {
     req.mPlayer = idx;
     req.mStage = st->mStage;
     req.mKind = st->mKind;
+#if TARGET_PC
+    // (x << 8) | z: the bytes are only x then z on a big-endian host (dFgMngReq_c::proc reads mPos >> 8)
+    req.mPos = (pos.mX << 8) | pos.mZ;
+#else
     ((u8 *)&req.mPos)[0] = pos.mX;
     ((u8 *)&req.mPos)[1] = pos.mZ;
+#endif
     req.mTarget = item->mId;
     req.mItem = st->mItem;
     req.mB2 = b2;

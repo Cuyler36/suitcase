@@ -21,10 +21,10 @@ static ActorData_c l_actors[] = {
     {fProf::A_RMOBJ_THEATER, 0, {0.0f, 0.0f, 0.0f}, {0, 0, 0}, 0, 0},
 };
 static u32 l_setting0[] = {
-    0x806840FF, 0xE0000000, 0x484020FF, 0x10000000,
-    0x01000000, 0x3C888889, 0x3BB60B61}; // scene setting kind 0xB
-static u32 l_setting1[] = {0xFFFFC0FF, 0x43800000, 0x43200000, 0x43A00000,
-                           0xD0000000, 0x3EC00000, 0x00000000, 0x00000000,
+    SC_COLOR(0x806840FF), SC_ANGLES(0xE0000000), SC_COLOR(0x484020FF), SC_COLOR(0x10000000),
+    SC_COLOR(0x01000000), 0x3C888889, 0x3BB60B61}; // scene setting kind 0xB
+static u32 l_setting1[] = {SC_COLOR(0xFFFFC0FF), 0x43800000, 0x43200000, 0x43A00000,
+                           SC_ANGLES(0xD0000000), 0x3EC00000, 0x00000000, 0x00000000,
                            0x420C0000, 0x00000004}; // scene setting kind 0xE
 static Scene3Entry_c l_scene3[] = {
     {5, &l_palette0}, {0xB, l_setting0}, {0xE, l_setting1}};

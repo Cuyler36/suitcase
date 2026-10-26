@@ -16,29 +16,29 @@ public:
 
     virtual ~StringBase();                                           // 0x08
     virtual void create(MEMAllocator *allocator);                    // 0x0C
-    virtual void pushBack(wchar_t ch);                               // 0x10
+    virtual void pushBack(wchar16_t ch);                               // 0x10
     virtual void popBack();                                          // 0x14
     virtual void clear();                                            // 0x18
     virtual u16 getLength() const { return muLength; }               // 0x1C
-    virtual bool append(const wchar_t *string);                      // 0x20
-    virtual bool insert(u16 index, const wchar_t *string);           // 0x24
+    virtual bool append(const wchar16_t *string);                      // 0x20
+    virtual bool insert(u16 index, const wchar16_t *string);           // 0x24
     virtual void remove(u16 index, u16 num);                         // 0x28
-    virtual void replace(u16 index, u16 num, const wchar_t *string); // 0x2C
-    virtual void set(const wchar_t *string);                         // 0x30
-    virtual void setAt(u16 index, wchar_t ch);                       // 0x34
+    virtual void replace(u16 index, u16 num, const wchar16_t *string); // 0x2C
+    virtual void set(const wchar16_t *string);                         // 0x30
+    virtual void setAt(u16 index, wchar16_t ch);                       // 0x34
     virtual void setLength(u16 length);                              // 0x38
-    virtual wchar_t *getWCString() const { return mpszString; }      // 0x3C
-    virtual void setCandidate(wchar_t candidate) { mwcCandidate = candidate; } // 0x40
-    virtual wchar_t getCandidate() const { return mwcCandidate; }    // 0x44
+    virtual wchar16_t *getWCString() const { return mpszString; }      // 0x3C
+    virtual void setCandidate(wchar16_t candidate) { mwcCandidate = candidate; } // 0x40
+    virtual wchar16_t getCandidate() const { return mwcCandidate; }    // 0x44
     virtual bool hasCandidate() const { return mwcCandidate != 0; }  // 0x48
-    virtual wchar_t getLastWChar();                                  // 0x4C
+    virtual wchar16_t getLastWChar();                                  // 0x4C
 
 protected:
     /* 0x04 */ u16 muMaxLength;
     /* 0x06 */ u16 muLength;
-    /* 0x08 */ wchar_t *mpszString;
-    /* 0x0C */ wchar_t *mpszTmpString;
-    /* 0x10 */ wchar_t mwcCandidate;
+    /* 0x08 */ wchar16_t *mpszString;
+    /* 0x0C */ wchar16_t *mpszTmpString;
+    /* 0x10 */ wchar16_t mwcCandidate;
     /* 0x14 */ MEMAllocator *mpAllocator;
 }; // size 0x18
 
@@ -68,17 +68,17 @@ public:
         mbSustain = false;
         initKanaConverter();
     }
-    virtual void set(const wchar_t *string) { // 0x30
+    virtual void set(const wchar16_t *string) { // 0x30
         StringBase::set(string);
         muAnchorPos = muCursorPos = getLength();
     }
     virtual void setLength(u16 length); // 0x38
 
-    virtual void inputChar(wchar_t ch);                       // 0x50
-    virtual void inputString(const wchar_t *string);          // 0x54
+    virtual void inputChar(wchar16_t ch);                       // 0x50
+    virtual void inputString(const wchar16_t *string);          // 0x54
     virtual void deleteChar() {}                              // 0x58
     virtual void backSpace();                                 // 0x5C
-    virtual void confirm(const wchar_t *string);              // 0x60
+    virtual void confirm(const wchar16_t *string);              // 0x60
     virtual bool moveCursorRight();                           // 0x64
     virtual bool moveCursorLeft();                            // 0x68
     virtual void setCursorPos(u32 pos);                       // 0x6C
@@ -90,8 +90,8 @@ public:
     virtual bool canBackSpace();                              // 0x84
     virtual bool deleteForward();                             // 0x88
     virtual void getSelected(u32 &start, u32 &end);           // 0x8C
-    virtual wchar_t getWCharAtCursor();                       // 0x90
-    virtual void replaceAtCursor(wchar_t ch);                 // 0x94
+    virtual wchar16_t getWCharAtCursor();                       // 0x90
+    virtual void replaceAtCursor(wchar16_t ch);                 // 0x94
     virtual bool isDakuten();                                 // 0x98
     virtual void converDakuten();                             // 0x9C
     virtual bool isHandaku();                                 // 0xA0
@@ -101,7 +101,7 @@ public:
     virtual void converSmall();                               // 0xB0
     virtual bool atTheBeginningOfASentence();                 // 0xB4
     virtual void initKanaConverter();                         // 0xB8
-    virtual wchar_t *getKanaBuffer() { return mwcKanaBuffer; } // 0xBC
+    virtual wchar16_t *getKanaBuffer() { return mwcKanaBuffer; } // 0xBC
 #if VERSION == VERSION_RUUK01_01
     virtual bool isKanaFix() const {
         if (meTranslateMode == TM_Hangul) {
@@ -118,7 +118,7 @@ public:
     virtual void confirmKana();                               // 0xC8
 #endif
 
-    void inputString(const wchar_t *string, TranslateMode mode);
+    void inputString(const wchar16_t *string, TranslateMode mode);
     void setTranslateMode(TranslateMode mode);
     TranslateMode getTranslateMode() const { return meTranslateMode; }
 
@@ -133,7 +133,7 @@ protected:
     /* 0x50 */ u32 muHangulLength;
     /* 0x54 */ u8 _54[0x5C - 0x54];
 #endif
-    /* 0x40 */ wchar_t mwcKanaBuffer[5];
+    /* 0x40 */ wchar16_t mwcKanaBuffer[5];
 }; // size 0x4C
 
 } // namespace tistring

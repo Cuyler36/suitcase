@@ -1,6 +1,7 @@
 #pragma once
 
 #include <types.h>
+#include <port/bitfield.h>
 #include <game/game/d_dsn.hpp>
 #include <game/game/d_fg_item.hpp>
 #include <game/game/d_personal_id.hpp>
@@ -174,9 +175,10 @@ struct dHome_c {
     /* 0x15BB */ union {
         u8 mRaw;
         struct {
-            u8 _0 : 6;
-            u8 mHasFlag : 1;     // the house flies its flag (a full-size house: daStrPl_c, dFlag_c; inferred)
-            u8 mFlagPending : 1; // becomes mHasFlag on the next day's update()
+            // mHasFlag: the house flies its flag (a full-size house: daStrPl_c, dFlag_c; inferred);
+            // mFlagPending: becomes mHasFlag on the next day's update(). The Wii's bit order, so the
+            // bits agree with mRaw
+            BITFIELD_BYTE_3(u8 _0 : 6, u8 mHasFlag : 1, u8 mFlagPending : 1);
         } mBits;
     } _15BB;
 }; // size 0x15C0

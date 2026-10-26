@@ -257,7 +257,7 @@ void dMail_c::setup(const dAnmPersonalID_c *sender, const dPersonalID_c *to, con
 }
 
 // 80117AE8
-BOOL dMail_c::findNamePos(wchar_t *header, u8 *pos) {
+BOOL dMail_c::findNamePos(wchar16_t *header, u8 *pos) {
     int idx = -1;
     for (int i = 0; i < MAIL_HEADER_LEN && header[i] != 0 && idx == -1; i++) {
         if (header[i] == L'\n') {
@@ -336,10 +336,10 @@ void dMail_c::setupFromPlayer(const dItem::Item *paper) {
 }
 
 // Up to 10 characters of decimal digits; anything else is skipped.
-static inline u16 parseIndex(const wchar_t *str) {
+static inline u16 parseIndex(const wchar16_t *str) {
     u16 idx = 0;
     for (int i = 0; i < 10; i++) {
-        wchar_t c = str[i];
+        wchar16_t c = str[i];
         if (c == 0) {
             break;
         }
@@ -482,7 +482,7 @@ void dMail_c::setToFriend(int idx) {
 }
 
 // 80118838
-void dMail_c::getToName(wchar_t *out) {
+void dMail_c::getToName(wchar16_t *out) {
     mTo.getName(out, TRUE);
 }
 
@@ -550,11 +550,11 @@ void dMailAddress_c::setWord(dScript::Word_c *word, BOOL skipNoName) {
 }
 
 // 80118AD8
-void dMailAddress_c::getName(wchar_t *out, BOOL skipNoName) {
+void dMailAddress_c::getName(wchar16_t *out, BOOL skipNoName) {
     dHmnName::Word_c name;
-    memset(out, 0, (PLAYER_NAME_LEN + 1) * sizeof(wchar_t));
+    memset(out, 0, (PLAYER_NAME_LEN + 1) * sizeof(wchar16_t));
     setWord(&name, skipNoName);
-    memcpy(out, name.getText(), (PLAYER_NAME_LEN + 1) * sizeof(wchar_t));
+    memcpy(out, name.getText(), (PLAYER_NAME_LEN + 1) * sizeof(wchar16_t));
 }
 
 // 80118B70
@@ -570,7 +570,7 @@ void dMailAddress_c::setAnimal(const dAnmPersonalID_c *animal) {
 }
 
 // 80118D44
-void dMailAddress_c::setText(const wchar_t *text) {
+void dMailAddress_c::setText(const wchar16_t *text) {
     mType = MAIL_ADDR_TEXT;
     memset(this, 0, sizeof(mText));
     for (int i = 0; i < MAIL_ADDRESS_RAW_LEN; i++) {
@@ -676,7 +676,7 @@ void dLetterStyle_c::apply(dMail_c *mail) {
 
 // 801190F8
 void dLetterStyle_c::applyHeader(dMail_c *mail) {
-    const wchar_t *header;
+    const wchar16_t *header;
     if (mail->isToFutureSelf()) {
         mail->mNamePos = mFutureNamePos;
         header = mFutureHeader;
@@ -690,7 +690,7 @@ void dLetterStyle_c::applyHeader(dMail_c *mail) {
 // 80119164
 void dLetterStyle_c::store(dMail_c *mail) {
     memcpy(mFooter, mail->mFooter, sizeof(mFooter));
-    wchar_t *header;
+    wchar16_t *header;
     if (mail->isToFutureSelf()) {
         mFutureNamePos = mail->mNamePos;
         header = mFutureHeader;

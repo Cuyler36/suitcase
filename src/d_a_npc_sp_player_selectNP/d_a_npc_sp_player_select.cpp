@@ -729,7 +729,7 @@ void dAcNpcSpPlayerSelect_c::talk_c::setSaveKindTravel() {
 }
 // .text 0x25D8
 void dAcNpcSpPlayerSelect_c::talk_c::createDsPlayer() {
-    const wchar_t *buffer;
+    const wchar16_t *buffer;
     const u8 *dsPlayer = dDsPlayerData::getPlayer(
         dDsPlayerData::selectSave(dANpcSpPlayerSelect::l_dsSaveBuf.mData),
         mDsPlayer);
@@ -762,7 +762,7 @@ void dAcNpcSpPlayerSelect_c::talk_c::createDsPlayer() {
 }
 // .text 0x2754
 void dAcNpcSpPlayerSelect_c::talk_c::createDefaultPlayer() {
-    const wchar_t names[4][9] = {
+    const wchar16_t names[4][9] = {
         {0x30D7, 0x30EC, 0x30A4, 0x30E4, L'1'},
         {0x30D7, 0x30EC, 0x30A4, 0x30E4, L'2'},
         {0x30D7, 0x30EC, 0x30A4, 0x30E4, L'3'},
@@ -905,7 +905,7 @@ void dAcNpcSpPlayerSelect_c::talk_c::startRefuseDS() {
 }
 // .text 0x3650
 void dAcNpcSpPlayerSelect_c::talk_c::switchToSystemSpeaker() {
-    dString::Word_c speaker((const wchar_t *)getSpeakerName());
+    dString::Word_c speaker((const wchar16_t *)getSpeakerName());
     dHmnName::Word_c name;
     dItem::Item item((u16)SP_NPC_GUIDE);
     dNpc::getNpcName(&name, &item, LANGUAGE_NUM);
@@ -916,7 +916,7 @@ void dAcNpcSpPlayerSelect_c::talk_c::switchToSystemSpeaker() {
 }
 // .text 0x36FC
 void dAcNpcSpPlayerSelect_c::talk_c::switchToRoverSpeaker() {
-    dString::Word_c speaker((const wchar_t *)getSpeakerName());
+    dString::Word_c speaker((const wchar16_t *)getSpeakerName());
     dHmnName::Word_c name;
     dItem::Item item((u16)SP_NPC_GUIDE);
     dNpc::getNpcName(&name, &item, LANGUAGE_NUM);
@@ -1101,7 +1101,7 @@ void dAcNpcSpPlayerSelect_c::talk_c::selectDsPlayer() {
             dDsPlayerData::getPlayerName(dsPlayer, &name);
             controller->setWord(4, &name);
             dPersonalID_c pid;
-            const wchar_t *buffer =
+            const wchar16_t *buffer =
                 static_cast<dScript::Word_c &>(name).getBuffer();
             pid.setPlayer(buffer, dDsPlayerData::getPlayerId(dsPlayer),
                           dDsPlayerData::getGender(dsPlayer));
@@ -1278,7 +1278,7 @@ int dAcNpcSpPlayerSelect_c::talk_c::getTravelPlayerMsg() {
 }
 // .text 0x4444
 int dAcNpcSpPlayerSelect_c::talk_c::getDsSaveMsg() {
-    const wchar_t *buffer;
+    const wchar16_t *buffer;
     const u8 *save =
         dDsPlayerData::selectSave(dANpcSpPlayerSelect::l_dsSaveBuf.mData);
     int code;

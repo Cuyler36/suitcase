@@ -1,6 +1,7 @@
 #pragma once
 
 #include <types.h>
+#include <port/bitfield.h>
 #include <game/game/d_date.hpp>
 #include <game/game/d_save_mother_mail.hpp>
 #include <game/game/d_fg_item.hpp>
@@ -403,10 +404,9 @@ public:
 
     union {
         struct {
-            u8 unused : 5;
-            u8 noShoes : 1; // set from the player when dPrivateData_c::mShoeKind is 0
-            u8 male : 1;
-            u8 valid : 1;
+            // noShoes: set from the player when dPrivateData_c::mShoeKind is 0. The Wii's bit order,
+            // so the bits agree with mFlagByte
+            BITFIELD_BYTE_4(u8 unused : 5, u8 noShoes : 1, u8 male : 1, u8 valid : 1);
         } mFlags;
         u8 mFlagByte;
     };
@@ -588,7 +588,7 @@ public:
     static void clearFlag0All(dPrivateData_c *players, u32 flag); // 80136F00
     static BOOL isFlag0Any(dPrivateData_c *players, u32 flag);    // 80136F70
 
-    void setup(const wchar_t *name, u16 id, u8 gender); // 80137000
+    void setup(const wchar16_t *name, u16 id, u8 gender); // 80137000
     int findInSave() const;                             // 80137110
 
     // Daily update, and the letters it sends.

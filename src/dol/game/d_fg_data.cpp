@@ -4,6 +4,10 @@
 #include <game/game/d_fg_data.hpp>
 #include <game/game/d_heap.hpp>
 
+#if TARGET_PC
+#include <port/endian.h>
+#endif
+
 // Not split yet (C linkage keeps the target name).
 
 // 80588D1C
@@ -35,6 +39,27 @@ dFgData_c::Header *dFgData_c::getHeader(int section) {
 // 800917FC
 void dFgData_c::setup() {
     if (mData != NULL) {
+#if TARGET_PC
+        // fgdata.bin is big-endian: convert it to host order (setup runs once per load)
+        {
+            Header *headers = (Header *)mData;
+            u8 *data = (u8 *)mData + sizeof(Header) * FG_DATA_SECTION_NUM;
+            for (int i = 0; i < FG_DATA_SECTION_NUM; i++) {
+                be_swap(headers[i].mSize);
+                be_swap(headers[i].mNum);
+                u16 *counts = (u16 *)data;
+                be_swap(counts, headers[i].mNum);
+                if (headers[i].mSize > headers[i].mNum * sizeof(u16)) {
+                    Record *records = (Record *)(counts + headers[i].mNum);
+                    u32 numRecords = (headers[i].mSize - headers[i].mNum * sizeof(u16)) / sizeof(Record);
+                    for (u32 r = 0; r < numRecords; r++) {
+                        be_swap(records[r].mItem);
+                    }
+                }
+                data += headers[i].mSize;
+            }
+        }
+#endif
         Section *sect = mSections;
         u8 *start = (u8 *)mData + sizeof(Header) * FG_DATA_SECTION_NUM;
         u32 offset = 0;

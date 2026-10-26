@@ -183,7 +183,7 @@ CXSecureResult CXSecureUncompressLZ(const void* src, u32 length, void* dst) {
                     return CX_SECURE_ERR_BAD_FILE_SIZE;
                 }
 
-                if ((u32)&pDst[-offset] < (u32)dst) {
+                if ((uintptr_t)&pDst[-offset] < (uintptr_t)dst) {
                     return CX_SECURE_ERR_BAD_FILE_SIZE;
                 }
 
@@ -242,19 +242,24 @@ BOOL CXiVerifyHuffmanTable_(const void* param_1, u8 param_2) {
         u32 f = 1;
 
         for (a = b; a < d; f++, a++) {
+#if TARGET_PC
+            int g;
+            uintptr_t h; // an address
+#else
             int g, h;
+#endif
             if (e[f / 8] & (1 << (f % 8))) {
                 continue;
             }
 
             g = ((*a & 0x3f) + 1) << 1;
-            h = ((u32)a >> 1 << 1) + g;
+            h = ((uintptr_t)a >> 1 << 1) + g;
 
             if (*a == 0x00 && f >= c << 1) {
                 continue;
             }
 
-            if ((u32)h >= (u32)d) {
+            if ((uintptr_t)h >= (uintptr_t)d) {
                 return FALSE;
             }
 
@@ -317,7 +322,7 @@ CXSecureResult CXSecureUncompressHuffman(const void* src, u32 length, void* dst)
     }
 
     pSrc = base + e;
-    remainingLength -= (u32)pSrc - (u32)src;
+    remainingLength -= (uintptr_t)pSrc - (uintptr_t)src;
 
     if (remainingLength < 0) {
         return CX_SECURE_ERR_BUFFER_TOO_SMALL;
@@ -348,7 +353,7 @@ CXSecureResult CXSecureUncompressHuffman(const void* src, u32 length, void* dst)
             h <<= g;
 
             // ok
-            base = (const u8*)((((u32)(base) >> 1) << 1) + (((*base & 0x3f) + 1) << 1) + g);
+            base = (const u8*)((((uintptr_t)(base) >> 1) << 1) + (((*base & 0x3f) + 1) << 1) + g);
 
             if (h & 0x80) {
                 b >>= stat;

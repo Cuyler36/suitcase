@@ -86,9 +86,9 @@ class dNotice_c {
         Word_c();                     // .text:0x1764
         virtual ~Word_c();            // .text:0x17A8
         virtual u32 getBufferSize();  // .text:0x1800
-        virtual wchar_t *getBuffer(); // .text:0x1808
+        virtual wchar16_t *getBuffer(); // .text:0x1808
 
-        /* 0x28 */ wchar_t mBuffer[WORD_BUFFER_LENGTH];
+        /* 0x28 */ wchar16_t mBuffer[WORD_BUFFER_LENGTH];
     }; // size 0xA4
 
     dNotice_c();          // .text:0x600
@@ -103,7 +103,7 @@ class dNotice_c {
     // Wraps text into the lines. FALSE if it does not fit: nothing changes,
     // unless truncate is set, in which case the text is taken and still FALSE
     // is returned.
-    BOOL setText(const wchar_t *text, BOOL truncate); // .text:0x95C
+    BOOL setText(const wchar16_t *text, BOOL truncate); // .text:0x95C
     void setNotice(const dNoticeData_c *notice);      // .text:0xB4C
     void updateAlign();  // .text:0xB8C: text alignment of the lines
     void updateAll();    // .text:0xC50: date, lines, sender
@@ -220,7 +220,7 @@ class dMenuNotice_c : public dMenuBase_c {
                         const char *pane);              // .text:0x3BC
     static void setNotice(const dNoticeData_c *notice); // .text:0x404
     static void setPriority(u8 priority);               // .text:0x418
-    static BOOL setText(const wchar_t *text);           // .text:0x42C
+    static BOOL setText(const wchar16_t *text);           // .text:0x42C
     static void updateText(BOOL fixedSpaces);           // .text:0x444
     static void setSelect(int start, int length);       // .text:0x458
     static void initNew();                              // .text:0x470

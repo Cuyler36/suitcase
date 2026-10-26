@@ -456,12 +456,12 @@ static const char l_Q08_First[] = "Q08_First";
 // 8005DFA0
 int dAcNpcNml_c::talk_c::msgVisitLayout(msgInfo_s *info) {
     // the rating as stars (word 0)
-    static const wchar_t *l_stars[5] = {
-        L"\x2606",
-        L"\x2606\x2606",
-        L"\x2606\x2606\x2606",
-        L"\x2606\x2606\x2606\x2606",
-        L"\x2606\x2606\x2606\x2606\x2606",
+    static const wchar16_t *l_stars[5] = {
+        WSTR("\x2606"),
+        WSTR("\x2606\x2606"),
+        WSTR("\x2606\x2606\x2606"),
+        WSTR("\x2606\x2606\x2606\x2606"),
+        WSTR("\x2606\x2606\x2606\x2606\x2606"),
     };
     dPrivateData_c *player = dPlayerMgr::Mgr_c::getCurrentPlayer();
     if (player == NULL) {

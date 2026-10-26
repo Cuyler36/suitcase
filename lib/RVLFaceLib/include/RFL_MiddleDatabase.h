@@ -17,7 +17,12 @@ typedef enum {
 } RFLMiddleDBType;
 
 typedef struct {
+#if TARGET_PC
+    // PC: room for RFLiMiddleDatabase, which holds pointers
+    u64 data[5];
+#else
     u8 data[24];
+#endif
 } RFLMiddleDatabase;
 
 u32 RFLGetMiddleDBBufferSize(u16 size);

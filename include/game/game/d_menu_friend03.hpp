@@ -177,8 +177,8 @@ class dMenuFriend03_c : public dMenuBase_c {
     void calcAnms();                            // .text:0x1570
     void initRowWords();                        // .text:0x1674
     void updateRowWords();                      // .text:0x1724
-    const wchar_t *getTownName(int idx);        // .text:0x1884
-    const wchar_t *getPlayerName(int idx);      // .text:0x18D0
+    const wchar16_t *getTownName(int idx);        // .text:0x1884
+    const wchar16_t *getPlayerName(int idx);      // .text:0x18D0
     void setManAnms(int row);                   // .text:0x191C
     void updateMans();                          // .text:0x1A18
     int getMembers(int idx);                    // .text:0x1AD8

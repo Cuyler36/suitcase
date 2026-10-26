@@ -41,10 +41,10 @@ class Word_c : public dString::WordBase_c {
     Word_c();                         // 8015EE64
     virtual ~Word_c();                // 8015EEA8
     virtual u32 getBufferSize();      // 8015EF00
-    virtual wchar_t *getBuffer();     // 8015EF08
+    virtual wchar16_t *getBuffer();     // 8015EF08
     virtual int procRubyTag(int pos); // 8015EF10
 
-    /* 0x24 */ wchar_t mBuffer[101];
+    /* 0x24 */ wchar16_t mBuffer[101];
 }; // size 0xF0
 
 // An answer.

@@ -7,7 +7,7 @@ namespace dScData {
 
 static dScene::dSceneBaseData_c l_base[] = {{fProf::SV_DEMO, 0}};
 static ColorByte_c l_palette0 = {{0x52, 0x52, 0x94, 0xFF}, 0xA5};
-static u32 l_setting0[] = {0xFFEFCEFF, 0xDAAB0800}; // scene setting kind 9
+static u32 l_setting0[] = {SC_COLOR(0xFFEFCEFF), SC_ANGLES(0xDAAB0800)}; // scene setting kind 9
 static u16 l_resources[] = {fProf::A_NPC_SP_FUKO};
 static PlayerData_c l_player = {{256.0f, 0.0f, 464.0f}, {0, -0x8000, 0}, 0, 8};
 static ActorData_c l_actors[] = {

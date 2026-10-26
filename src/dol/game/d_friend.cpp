@@ -123,13 +123,13 @@ int dFriendList_c::getState(int idx) {
 }
 
 // 8011AAA8
-void dFriendList_c::setName(const wchar_t *name) {
+void dFriendList_c::setName(const wchar16_t *name) {
     mName[0x20] = 0;
     memcpy(mName, name, 0x40);
 }
 
 // 8011AABC
-void dFriendList_c::update(int idx, const dPersonalID_c *pid, const wchar_t *message) {
+void dFriendList_c::update(int idx, const dPersonalID_c *pid, const wchar16_t *message) {
     if (*pid != mFriends[idx].mPID) {
         mFriends[idx].mPID = *pid;
         if (message[0] != 0 && mFriends[idx].mMessage[0] == 0) {

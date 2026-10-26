@@ -17,7 +17,7 @@ typedef enum _KPRMode {
 } KPRMode;
 
 typedef struct _KPRQueue {
-    wchar_t text[6];  // 0x00
+    wchar16_t text[6];  // 0x00
     KPRMode mode;     // 0x0C
     u8 oCount;        // 0x10
     u8 iCount;        // 0x11
@@ -34,10 +34,10 @@ void KPRClearQueue(KPRQueue* queue);
 void KPRSetMode(KPRQueue* queue, KPRMode mode);
 KPRMode KPRGetMode(KPRQueue* queue);
 
-u32 KPRPutChar(KPRQueue* queue, wchar_t ch);
-wchar_t KPRGetChar(KPRQueue* queue);
-wchar_t KPRRemoveChar(KPRQueue* queue);
-u8 KPRLookAhead(KPRQueue* queue, wchar_t* buffer, u32 count);
+u32 KPRPutChar(KPRQueue* queue, wchar16_t ch);
+wchar16_t KPRGetChar(KPRQueue* queue);
+wchar16_t KPRRemoveChar(KPRQueue* queue);
+u8 KPRLookAhead(KPRQueue* queue, wchar16_t* buffer, u32 count);
 
 #ifdef __cplusplus
 }

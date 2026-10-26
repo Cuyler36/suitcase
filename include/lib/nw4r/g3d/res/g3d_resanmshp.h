@@ -1,6 +1,7 @@
 #ifndef NW4R_G3D_RES_RES_ANM_SHP_H
 #define NW4R_G3D_RES_RES_ANM_SHP_H
 #include <nw4r/types_nw4r.h>
+#include <port/endian.h>
 
 #include <nw4r/g3d/res/g3d_resanm.h>
 #include <nw4r/g3d/res/g3d_rescommon.h>
@@ -67,30 +68,30 @@ struct ResAnmShpAnmData {
         FLAG_ANM_VTXCLR = (1 << 3),
     };
 
-    ulong flags;                 // at 0x0
-    s32 name;                  // at 0x4
-    u16 baseShapeVtxIdx;       // at 0x8
-    u16 numKeyShape;           // at 0xA
-    ulong constFlags;            // at 0xC
-    s32 toAnmIdxToVtxIdxTable; // at 0x10
+    BE(u32) flags;                 // at 0x0
+    BE(s32) name;                  // at 0x4
+    BE(u16) baseShapeVtxIdx;       // at 0x8
+    BE(u16) numKeyShape;           // at 0xA
+    BE(u32) constFlags;            // at 0xC
+    BE(s32) toAnmIdxToVtxIdxTable; // at 0x10
     ResAnmData anms[1];        // at 0x14
 };
 
 struct ResAnmShpInfoData {
-    u16 numFrame;     // at 0x0
-    u16 numVtxName;   // at 0x2
-    AnmPolicy policy; // at 0x4
+    BE(u16) numFrame;     // at 0x0
+    BE(u16) numVtxName;   // at 0x2
+    BE(AnmPolicy) policy; // at 0x4
 };
 
 struct ResAnmShpData {
     ResBlockHeaderData header; // at 0x0
-    ulong revision;              // at 0x8
-    s32 toResFileData;         // at 0xC
-    s32 toShpDataDic;          // at 0x10
-    s32 toVtxNameArray;        // at 0x14
-    s32 toResUserData;         // at 0x18
-    s32 name;                  // at 0x1C
-    s32 original_path;         // at 0x20
+    BE(u32) revision;              // at 0x8
+    BE(s32) toResFileData;         // at 0xC
+    BE(s32) toShpDataDic;          // at 0x10
+    BE(s32) toVtxNameArray;        // at 0x14
+    BE(s32) toResUserData;         // at 0x18
+    BE(s32) name;                  // at 0x1C
+    BE(s32) original_path;         // at 0x20
     ResAnmShpInfoData info;    // at 0x24
 };
 
@@ -126,8 +127,8 @@ public:
         return ofs_to_obj<ResDic>(ref().toShpDataDic).GetNumData();
     }
 
-    const s32* GetVtxNameArray() const {
-        return ofs_to_ptr<s32>(ref().toVtxNameArray);
+    const BE(s32)* GetVtxNameArray() const {
+        return ofs_to_ptr<BE(s32)>(ref().toVtxNameArray);
     }
 
     int GetNumFrame() const {

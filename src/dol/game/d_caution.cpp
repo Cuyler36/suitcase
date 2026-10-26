@@ -52,21 +52,21 @@ void Caution_c::removeFont(nw4r::ut::ResFont *font) {
 }
 
 // 80086664
-wchar_t *Caution_c::getMessage(int msgId) {
+wchar16_t *Caution_c::getMessage(int msgId) {
     const EGG::MsgRes::MessageInfoDataBlock::Entry *entry =
         (const EGG::MsgRes::MessageInfoDataBlock::Entry *)((const u8 *)mpInfo->mContent + msgId * mpInfo->mEntrySize);
-    copyText((const wchar_t *)(mpData + entry->mDataOffset));
+    copyText((const wchar16_t *)(mpData + entry->mDataOffset));
     return mText;
 }
 
 // 800866B0
-void Caution_c::copyText(const wchar_t *text) {
-    wchar_t *dst = mText;
-    wchar_t c;
+void Caution_c::copyText(const wchar16_t *text) {
+    wchar16_t *dst = mText;
+    wchar16_t c;
     while ((c = *text) != 0) {
         if (c == EGG::MsgRes::cTagMark) {
             // skip the tag: its byte size is at +2
-            text = (const wchar_t *)((const u8 *)text + ((const u8 *)text)[2]);
+            text = (const wchar16_t *)((const u8 *)text + ((const u8 *)text)[2]);
         } else {
             *dst++ = c;
             text++;
@@ -158,6 +158,9 @@ void Caution_c::init() {
     bmg = (const EGG::MsgRes::DataBlockHeader *)g_cautionMsgJP;
 #else
     bmg = (const EGG::MsgRes::DataBlockHeader *)g_cautionMsgKR;
+#endif
+#if TARGET_PC
+    EGG::MsgRes::convertTextToHost(bmg);
 #endif
     const EGG::MsgRes::DataBlock *block =
         (const EGG::MsgRes::DataBlock *)((const u8 *)bmg + sizeof(EGG::MsgRes::MessageHeader));

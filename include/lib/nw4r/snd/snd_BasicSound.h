@@ -49,7 +49,7 @@ class SoundPlayer;
 namespace nw4r {
 namespace ut {
 namespace detail {
-class RuntimeTypeInfo;
+struct RuntimeTypeInfo;
 }
 } // namespace ut
 } // namespace nw4r
@@ -123,10 +123,10 @@ class BasicSound {
     };
 
   public:
-    typedef ut::LinkList<BasicSound, 0xec> PriorityLinkList;
-    typedef ut::LinkList<BasicSound, 0xf4> SoundPlayerPlayLinkList;
-    typedef ut::LinkList<BasicSound, 0xfc> SoundPlayerPriorityLinkList;
-    typedef ut::LinkList<BasicSound, 0x104> ExtSoundPlayerPlayLinkList;
+    typedef ut::LinkList<BasicSound, NW4R_UT_LINK_OFFSET(0xec, 0x120)> PriorityLinkList;
+    typedef ut::LinkList<BasicSound, NW4R_UT_LINK_OFFSET(0xf4, 0x130)> SoundPlayerPlayLinkList;
+    typedef ut::LinkList<BasicSound, NW4R_UT_LINK_OFFSET(0xfc, 0x140)> SoundPlayerPriorityLinkList;
+    typedef ut::LinkList<BasicSound, NW4R_UT_LINK_OFFSET(0x104, 0x150)> ExtSoundPlayerPlayLinkList;
 
   public:
     struct AmbientInfo {
@@ -325,6 +325,15 @@ class BasicSound {
     ut::LinkListNode mSoundPlayerPlayLink;     // size 0x08, offset 0xf4
     ut::LinkListNode mSoundPlayerPriorityLink; // size 0x08, offset 0xfc
     ut::LinkListNode mExtSoundPlayerPlayLink;  // size 0x08, offset 0x104
+#if TARGET_PC
+    // The PC list offsets (NW4R_UT_LINK_OFFSET)
+    static void CheckLinkOffsets() {
+        static_assert(offsetof(BasicSound, mPriorityLink) == 0x120, "mPriorityLink");
+        static_assert(offsetof(BasicSound, mSoundPlayerPlayLink) == 0x130, "mSoundPlayerPlayLink");
+        static_assert(offsetof(BasicSound, mSoundPlayerPriorityLink) == 0x140, "mSoundPlayerPriorityLink");
+        static_assert(offsetof(BasicSound, mExtSoundPlayerPlayLink) == 0x150, "mExtSoundPlayerPlayLink");
+    }
+#endif
 
   private:
     friend class snd::SoundHandle;

@@ -560,11 +560,20 @@ void ParticleManager::Calc() {
                     memcpy(&postfieldAnimParams, postfieldResource,
                            sizeof(postfieldAnimParams));
                     if (header->nameTable > 4) {
+#if TARGET_PC
+                        postfieldChildRes = static_cast<EmitterResource *>(
+                            static_cast<void *>(
+                                nameTable
+                                    ->datas[postfieldResource->mChildOption
+                                                .mNameIdx]
+                                    .work));
+#else
                         postfieldChildRes = reinterpret_cast<EmitterResource *>(
                             nameTable
                                 ->datas[postfieldResource->mChildOption
                                             .mNameIdx]
                                 .work);
+#endif
                     }
                 }
                 if (header->keyTable != 0) {

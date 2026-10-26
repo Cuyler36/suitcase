@@ -6,23 +6,23 @@
 namespace textinput {
 namespace util {
 
-extern const wchar_t *s_alphabet_map[];
+extern const wchar16_t *s_alphabet_map[];
 
-wchar_t toWLower(wchar_t ch);
-wchar_t HankakuToZenkaku(wchar_t ch);
+wchar16_t toWLower(wchar16_t ch);
+wchar16_t HankakuToZenkaku(wchar16_t ch);
 
-wchar_t KBD_ConvertDakuten(wchar_t ch);
-wchar_t KBD_ConvertHandaku(wchar_t ch);
-wchar_t KBD_ConvertSmall(wchar_t ch);
-wchar_t KBD_ConvertAll(wchar_t ch);
+wchar16_t KBD_ConvertDakuten(wchar16_t ch);
+wchar16_t KBD_ConvertHandaku(wchar16_t ch);
+wchar16_t KBD_ConvertSmall(wchar16_t ch);
+wchar16_t KBD_ConvertAll(wchar16_t ch);
 
-BOOL KBD_IsDakuten(wchar_t ch);
-BOOL KBD_IsHandaku(wchar_t ch);
-BOOL KBD_IsSmall(wchar_t ch);
+BOOL KBD_IsDakuten(wchar16_t ch);
+BOOL KBD_IsHandaku(wchar16_t ch);
+BOOL KBD_IsSmall(wchar16_t ch);
 
 bool strcmp(const char *s1, const char *s2);
 void replaceChar(char *dest, u32 destLen, const char *src, int replaceIdx, char newCh);
-bool isAlphabet(wchar_t ch);
+bool isAlphabet(wchar16_t ch);
 
 void getProjectionRect4x3(nw4r::ut::Rect *rect);
 void getProjectionRect16x9(nw4r::ut::Rect *rect);

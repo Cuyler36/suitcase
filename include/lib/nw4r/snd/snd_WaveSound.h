@@ -25,7 +25,7 @@ class WaveSound : public BasicSound {
 public:
     NW4R_UT_RTTI_DECL(WaveSound);
 
-    typedef ut::LinkList<WaveSound, 0xEC> PriorityLinkList;
+    typedef ut::LinkList<WaveSound, NW4R_UT_LINK_OFFSET(0xEC, 0x120)> PriorityLinkList;
 
   public:
     WaveSound(SoundInstanceManager<WaveSound>* pManager, int priority, int ambientPriority);

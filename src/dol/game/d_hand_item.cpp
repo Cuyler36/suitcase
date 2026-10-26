@@ -447,7 +447,7 @@ int dHandItem_c::draw() {
             if (present || mKind == KIND_WRAPPED) {
                 item.setFromIndex(dItem::ITEM_IDX_PRESENT);
             }
-            fgMngProc_callFgObjCallback(item.mId, (int)&mPos, (int)&scale,
+            fgMngProc_callFgObjCallback(item.mId, (dFgObjArg_t)&mPos, (dFgObjArg_t)&scale,
                                         present);
         }
     }

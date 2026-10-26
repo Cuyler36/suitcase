@@ -158,7 +158,7 @@ class AxVoice {
     };
 
   public:
-    typedef ut::LinkList<AxVoice, 0x40> LinkList;
+    typedef ut::LinkList<AxVoice, NW4R_UT_LINK_OFFSET(0x40, 0x58)> LinkList;
 
     typedef void Callback(AxVoice *dropVoice, AxVoiceCallbackStatus status,
                           void *callbackData);
@@ -276,6 +276,12 @@ class AxVoice {
     void *mCallbackData; // size 0x04, offset 0x3c
   public:
     ut::LinkListNode node; // size 0x08, offset 0x40
+#if TARGET_PC
+    // The PC list offsets (NW4R_UT_LINK_OFFSET)
+    static void CheckLinkOffsets() {
+        static_assert(offsetof(AxVoice, node) == 0x58, "node");
+    }
+#endif
 
   private:
     friend class AxVoiceManager;

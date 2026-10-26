@@ -600,13 +600,13 @@ void dMenuFriend03_c::updateRowWords() {
 }
 
 // .text:0x1884
-const wchar_t *dMenuFriend03_c::getTownName(int idx) {
+const wchar16_t *dMenuFriend03_c::getTownName(int idx) {
     dPrivateData_c *player = dPlayerMgr::Mgr_c::getCurrentPlayer();
     return player->mFriends.getFriend(mOrder[idx])->mPID.land.mName;
 }
 
 // .text:0x18D0
-const wchar_t *dMenuFriend03_c::getPlayerName(int idx) {
+const wchar16_t *dMenuFriend03_c::getPlayerName(int idx) {
     dPrivateData_c *player = dPlayerMgr::Mgr_c::getCurrentPlayer();
     return player->mFriends.getFriend(mOrder[idx])->mPID.player.mName;
 }

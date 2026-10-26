@@ -47,7 +47,7 @@ class SoundSystem {
     static void InitSoundSystem(s32 sndThreadPriority, s32 dvdThreadPriority);
     static void InitSoundSystem(SoundSystemParam const &param, void *workMem,
                                 u32 workMemSize);
-    static void ShutdownSoundSystem();
+    static void ShutdownSoundSystem(); // Dead-stripped from CF's DOL; the PC calls it when the game ends.
     static void WaitForResetReady();
 
     static bool IsInitializedSoundSystem();

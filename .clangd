@@ -1,3 +1,12 @@
+# Every file
+Completion:
+  # Only read by clangd 21+; older versions use --header-insertion=never
+  # from .vscode/settings.json.
+  HeaderInsertion: Never
+---
+# The decomp (MWCC) build: compile_commands.json at the root (configure.py)
+If:
+  PathExclude: (src/cf|extern/aurora|extern/borealis)/.*
 CompileFlags:
   CompilationDatabase: .
   Add:
@@ -13,7 +22,13 @@ CompileFlags:
     - -fshort-wchar
     - -D__CWCC__
     - -D__INTELLISENSE__
-Completion:
-  # Only read by clangd 21+; older versions use --header-insertion=never
-  # from .vscode/settings.json.
-  HeaderInsertion: Never
+---
+# The PC port (src/cf, aurora, borealis): the CMake build's database, from
+# CMAKE_EXPORT_COMPILE_COMMANDS in CMakePresets.json
+If:
+  PathMatch: (src/cf|extern/aurora|extern/borealis)/.*
+CompileFlags:
+  CompilationDatabase: build/pc/windows-msvc-relwithdebinfo
+  Add:
+    # cl command lines name no target: clangd would parse them as 32-bit
+    - --target=x86_64-pc-windows-msvc

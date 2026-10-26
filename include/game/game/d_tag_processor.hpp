@@ -6,7 +6,7 @@
 // ("dTagProcessor_c"); m2d::tagProcessor_c (d_m2d) derives from it. Handles the BMG system tags
 // (group 0xFF, dScript::TagSystem_e) and stops drawing at an answer list (group 7, TagSelect_e).
 // Method and member names are inferred.
-class dTagProcessor_c : public nw4r::ut::TagProcessorBase<wchar_t> {
+class dTagProcessor_c : public nw4r::ut::TagProcessorBase<wchar16_t> {
 public:
     dTagProcessor_c() {}
     virtual ~dTagProcessor_c() {}

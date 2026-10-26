@@ -92,7 +92,7 @@ Channel::Channel()
 Channel::~Channel() {
 }
 
-void Channel::InitParam(Callback *callback, u32 callbackData) {
+void Channel::InitParam(Callback *callback, uintptr_t callbackData) {
     mNextLink = nullptr;
     mCallback = callback;
     mCallbackData = callbackData;
@@ -429,7 +429,7 @@ void Channel::VoiceCallbackFunc(Voice *voice, Voice::VoiceCallbackStatus status,
 
 Channel *Channel::AllocChannel(int voiceChannelCount, int voiceOutCount,
                                int priority, Callback *callback,
-                               u32 callbackData) {
+                               uintptr_t callbackData) {
     NW4RAssertHeaderClampedLRValue_Line(606, priority, 0, 255);
 
     Channel *channel = ChannelManager::GetInstance().Alloc();

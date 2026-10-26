@@ -31,6 +31,18 @@ public:
         a = alpha;
     }
 
+#if TARGET_PC
+    // A u32 color is 0xRRGGBBAA, which is the byte order only on a big-endian host
+    Color& operator=(ulong color) {
+        Set(static_cast<u8>(color >> 24), static_cast<u8>(color >> 16),
+            static_cast<u8>(color >> 8), static_cast<u8>(color));
+        return *this;
+    }
+    Color& operator=(const GXColor& rColor) {
+        Set(rColor.r, rColor.g, rColor.b, rColor.a);
+        return *this;
+    }
+#else
     Color& operator=(ulong color) {
         ToU32ref() = color;
         return *this;
@@ -39,6 +51,7 @@ public:
         *this = *reinterpret_cast<const ulong*>(&rColor);
         return *this;
     }
+#endif
 
     Color operator|(ulong color) const {
         return Color(ToU32() | color);
@@ -54,6 +67,16 @@ public:
         return *reinterpret_cast<const ulong*>(this);
     }
 
+#if TARGET_PC
+    ulong ToU32() const {
+        return static_cast<ulong>(r) << 24 | static_cast<ulong>(g) << 16 |
+               static_cast<ulong>(b) << 8 | static_cast<ulong>(a);
+    }
+
+    operator ulong() const {
+        return ToU32();
+    }
+#else
     ulong ToU32() const {
         return ToU32ref();
     }
@@ -61,6 +84,7 @@ public:
     operator ulong() const {
         return ToU32ref();
     }
+#endif
 
     // clang-format off
     static const ulong RED   = 0xFF0000FF;

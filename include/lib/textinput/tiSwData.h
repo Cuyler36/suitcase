@@ -11,7 +11,7 @@ static const int KEY_COUNT = 20;
 struct PaneNameToCharCodeInSignMode {
     /* 0x00 */ const char *szPaneName;
     /* 0x04 */ const char *szNextPaneName;
-    /* 0x08 */ wchar_t wc[16];
+    /* 0x08 */ wchar16_t wc[16];
 }; // size 0x28
 
 extern const PaneNameToCharCodeInSignMode csSignKeyJP[KEY_COUNT];

@@ -329,14 +329,14 @@ KBDHidCode HKBManager::KeySet::GetKey() const {
     return 0;
 }
 
-wchar_t HKBManager::KeySet::GetWChar() const {
-    wchar_t wc = GetVCode();
+wchar16_t HKBManager::KeySet::GetWChar() const {
+    wchar16_t wc = GetVCode();
     wc = ConvertVCode(wc);
     wc = mpManager->FilterChar(wc);
     return wc;
 }
 
-wchar_t HKBManager::KeySet::GetVCode() const {
+wchar16_t HKBManager::KeySet::GetVCode() const {
     if (!IsValid()) {
         return 0;
     }

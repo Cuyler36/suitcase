@@ -2,6 +2,7 @@
 #define NW4R_G3D_RES_RES_SHP_H
 
 #include <nw4r/types_nw4r.h>
+#include <port/endian.h>
 
 #include <nw4r/g3d/res/g3d_rescommon.h>
 #include <nw4r/g3d/res/g3d_resmdl.h>
@@ -65,8 +66,8 @@ struct ResCacheVtxDescv {
 };
 
 struct ResMtxSetUsed {
-    ulong numMtxID;    // at 0x0
-    u16 vecMtxID[2]; // at 0x4
+    BE(u32) numMtxID;    // at 0x0
+    BE(u16) vecMtxID[2]; // at 0x4
 };
 
 struct ResShpData {
@@ -78,25 +79,25 @@ struct ResShpData {
         FLAG_INVISIBLE = (1 << 1),
     };
 
-    ulong size;                                         // at 0x0
-    s32 toResMdlData;                                 // at 0x4
-    s32 curMtxIdx;                                    // at 0x8
+    BE(u32) size;                                         // at 0x0
+    BE(s32) toResMdlData;                                 // at 0x4
+    BE(s32) curMtxIdx;                                    // at 0x8
     ResCacheVtxDescv cache;                           // at 0xC
     ResTagDLData tagPrePrimDL;                        // at 0x18
     ResTagDLData tagPrimDL;                           // at 0x24
-    ulong vcdBitmap;                                    // at 0x30
-    ulong flag;                                         // at 0x34
-    s32 name;                                         // at 0x38
-    ulong id;                                           // at 0x3C
-    ulong numVtx;                                       // at 0x40
-    ulong numPolygon;                                   // at 0x44
-    s16 idVtxPosition;                                // at 0x48
-    s16 idVtxNormal;                                  // at 0x4A
-    s16 idVtxColor[GX_VA_TEX0 - GX_VA_CLR0];          // at 0x4C
-    s16 idVtxTexCoord[GX_POS_MTX_ARRAY - GX_VA_TEX0]; // at 0x50
-    s16 idVtxFurVec;                                  // at 0x60
-    s16 idVtxFurPos;                                  // at 0x62
-    s32 toMtxSetUsed;                                 // at 0x64
+    BE(u32) vcdBitmap;                                    // at 0x30
+    BE(u32) flag;                                         // at 0x34
+    BE(s32) name;                                         // at 0x38
+    BE(u32) id;                                           // at 0x3C
+    BE(u32) numVtx;                                       // at 0x40
+    BE(u32) numPolygon;                                   // at 0x44
+    BE(s16) idVtxPosition;                                // at 0x48
+    BE(s16) idVtxNormal;                                  // at 0x4A
+    BE(s16) idVtxColor[GX_VA_TEX0 - GX_VA_CLR0];          // at 0x4C
+    BE(s16) idVtxTexCoord[GX_POS_MTX_ARRAY - GX_VA_TEX0]; // at 0x50
+    BE(s16) idVtxFurVec;                                  // at 0x60
+    BE(s16) idVtxFurPos;                                  // at 0x62
+    BE(s32) toMtxSetUsed;                                 // at 0x64
     ResMtxSetUsed msu;                                // at 0x68
 };
 
@@ -111,7 +112,12 @@ public:
 
     bool GXGetVtxDescv(GXVtxDescList* pList) const;
     bool GXGetVtxAttrFmtv(GXVtxAttrFmtList* pList) const;
+#if TARGET_PC
+    // The array's size in bytes is needed on PC (see g3d_resshp.cpp)
+    void GXSetArray(GXAttr attr, const void* pBase, u32 size, u8 stride);
+#else
     void GXSetArray(GXAttr attr, const void* pBase, u8 stride);
+#endif
     void DisableSetArray(GXAttr attr);
 
     ResVtxPos GetResVtxPos() const;

@@ -40,7 +40,7 @@ void postNotice(u16 msgId, const char *group, const dTime_c *date, const void *s
     }
     note.init(&time);
     if (sender != NULL) {
-        note.setSender((const wchar_t *)sender);
+        note.setSender((const wchar16_t *)sender);
     }
     dScript::Word_c *word = &sWord;
     note.setText(word->getBuffer());

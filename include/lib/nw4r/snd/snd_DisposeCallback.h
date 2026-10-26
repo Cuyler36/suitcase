@@ -10,11 +10,17 @@ namespace snd {
 namespace detail {
 class DisposeCallback {
   public:
-    typedef ut::LinkList<DisposeCallback, 0x00> LinkList;
+    typedef ut::LinkList<DisposeCallback, NW4R_UT_LINK_OFFSET(0x00, 0x08)> LinkList;
 
   public:
   public:
     ut::LinkListNode mDisposeLink; // size 0x08, offset 0x00
+#if TARGET_PC
+    // The PC list offsets (NW4R_UT_LINK_OFFSET)
+    static void CheckLinkOffsets() {
+        static_assert(offsetof(DisposeCallback, mDisposeLink) == 0x08, "mDisposeLink");
+    }
+#endif
     /* vtable */                   // size 0x04, offset 0x08
 
   public:

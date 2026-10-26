@@ -525,7 +525,7 @@ bool AnmObjShpRes::Bind(const ResMdl mdl) {
     }
 
     int nameNum = mRes.GetNumVtxNames();
-    const s32* pVtxNameArray = mRes.GetVtxNameArray();
+    const BE(s32)* pVtxNameArray = mRes.GetVtxNameArray();
 
     for (int i = 0; i < nameNum; i++) {
         ShpAnmVtxSet& rSet = mpVtxSetArray[i];

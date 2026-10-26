@@ -55,7 +55,10 @@ void *threadMain(void *arg) {
 
 } // namespace dMain
 
+#if !TARGET_PC
 // 800CDDEC
+// The PC build has its own main (src/cf/main.cpp), which runs the game on the main thread through
+// cf::BootGame (src/cf/game/boot.cpp).
 void main() {
     u8 stack[0xF000] ALIGN(32);
     OSThread *thread = OSGetCurrentThread();
@@ -64,3 +67,4 @@ void main() {
     OSSetThreadPriority(thread, 31);
     OSSuspendThread(thread);
 }
+#endif

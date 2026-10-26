@@ -243,7 +243,7 @@ void dMenuHan_c::subStatePush() {
             startCloseAnm();
             break;
         default:
-            memcpy(mText, mKbd.getText(), mMaxLen * sizeof(wchar_t));
+            memcpy(mText, mKbd.getText(), mMaxLen * sizeof(wchar16_t));
             mCheckHits = 0;
             mCheckText = (const u16 *)mText;
             setSubState(SUB_CHECK);
@@ -662,7 +662,7 @@ void dMenuHan_c::cancel() {
 void dMenuHan_c::apply() {
     dMenuMng_c::setResult(RESULT_CONFIRM);
     dPrivateData_c *player;
-    const wchar_t *text = mKbd.getText();
+    const wchar16_t *text = mKbd.getText();
     dMenuMng_c::setInputBuf((const u16 *)text, mMaxLen);
     player = dPlayerMgr::Mgr_c::getCurrentPlayer();
     dDesign_c *design;
@@ -738,7 +738,7 @@ void dMenuHan_c::apply() {
 // .text:0x1A94
 void dMenuHan_c::applySong() {
     static const int NAME_LEN = NAME_ITEM_LEN;
-    wchar_t name[NAME_LEN];
+    wchar16_t name[NAME_LEN];
     memset(name, 0, sizeof(name));
     memcpy(name, mKbd.getText(), sizeof(name));
     for (int i = 0; i < NAME_LEN; i++) {
@@ -764,33 +764,33 @@ void dMenuHan_c::applySong() {
 
 // .text:0x1BE8
 BOOL dMenuHan_c::checkLength() {
-    const wchar_t *text = mKbd.getText();
-    const wchar_t *input = mKbd.getInputText();
+    const wchar16_t *text = mKbd.getText();
+    const wchar16_t *input = mKbd.getInputText();
     int textLen = m2d::Word_c::getLength(text);
     int inputLen = m2d::Word_c::getLength(input);
     if (textLen + inputLen > mMaxLen) {
         return FALSE;
     }
     static int size = mMaxLen + 1;
-    static wchar_t buf[TEXT_SIZE];
+    static wchar16_t buf[TEXT_SIZE];
     memset(buf, 0, sizeof(buf));
     if (textLen != 0) {
-        memcpy(buf, text, textLen * sizeof(wchar_t));
+        memcpy(buf, text, textLen * sizeof(wchar16_t));
     }
     if (inputLen != 0) {
-        memcpy(buf + textLen, input, inputLen * sizeof(wchar_t));
+        memcpy(buf + textLen, input, inputLen * sizeof(wchar16_t));
     }
     if (mWord.calcWidth(buf, size) > mMaxWidth) {
         return FALSE;
     }
-    memcpy(mText, text, mMaxLen * sizeof(wchar_t));
+    memcpy(mText, text, mMaxLen * sizeof(wchar16_t));
     return TRUE;
 }
 
 // .text:0x1D08
 void dMenuHan_c::updateText() {
-    const wchar_t *text = mKbd.getText();
-    const wchar_t *input = mKbd.getInputText();
+    const wchar16_t *text = mKbd.getText();
+    const wchar16_t *input = mKbd.getInputText();
     int inputPos = mKbd.getInputPos();
     mWord.clear();
     mWord.set(text, 0);
@@ -815,7 +815,7 @@ void dMenuHan_c::restoreText() {
 
 // .text:0x1E40
 BOOL dMenuHan_c::hasText() {
-    const wchar_t *text = mKbd.getText();
+    const wchar16_t *text = mKbd.getText();
     if (m2d::Word_c::getLength(mKbd.getInputText()) > 0) {
         return TRUE;
     }
@@ -858,7 +858,7 @@ BOOL dMenuHan_c::hitCheckText() {
         return FALSE;
     }
     mKbd.fixInput();
-    memcpy(mText, mKbd.getText(), mMaxLen * sizeof(wchar_t));
+    memcpy(mText, mKbd.getText(), mMaxLen * sizeof(wchar16_t));
     mKbd.setCursorPos(mWord.getPosAtScreenX(pos.x));
     playSeCursor();
     return TRUE;
@@ -879,7 +879,7 @@ u32 dMenuHan_c::Word_c::getBufferSize() {
 }
 
 // .text:0x211C
-wchar_t *dMenuHan_c::Word_c::getBuffer() {
+wchar16_t *dMenuHan_c::Word_c::getBuffer() {
     return mBuffer;
 }
 

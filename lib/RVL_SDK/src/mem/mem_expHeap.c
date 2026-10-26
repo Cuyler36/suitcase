@@ -6,6 +6,9 @@
 
 #include <private/mem.h>
 
+// The smallest free block worth keeping: a block header and 4 bytes
+#define MIN_FREE_BLOCK_SIZE (sizeof(MEMiExpHeapMBlockHead) + 4)
+
 typedef struct Region {
     void* start;
     void* end;
@@ -131,7 +134,7 @@ static inline MEMHeapHandle InitExpHeap_(MEMHeapHandle heap, void* end, u16 opt)
     MEMiExpHeapMBlockHead* block;
     MEMiExpHeapHead* ext = GetExpHeapHeadPtrFromHeapHead_(heap);
 
-    MEMiInitHeapHead(heap, 'EXPH', AddU32ToPtr(ext, 0x14), end, opt);
+    MEMiInitHeapHead(heap, 'EXPH', AddU32ToPtr(ext, sizeof(MEMiExpHeapHead)), end, opt);
     ext->groupID = 0;
     ext->attribute.val = 0;
     SetAllocMode_(ext, 0);
@@ -160,13 +163,13 @@ static void* AllocUsedBlockFromFreeBlock_(MEMiExpHeapHead* ext, MEMiExpHeapMBloc
 
     prev = RemoveMBlock_(&ext->freeBlocks, block);
 
-    if (GetOffsetFromPtr(region0.start, region0.end) < 0x14) {
+    if (GetOffsetFromPtr(region0.start, region0.end) < MIN_FREE_BLOCK_SIZE) {
         region0.end = region0.start;
     } else {
         prev = InsertMBlock_(&ext->freeBlocks, InitFreeMBlock_(&region0), prev);
     }
 
-    if (GetOffsetFromPtr(region1.start, region1.end) < 0x14) {
+    if (GetOffsetFromPtr(region1.start, region1.end) < MIN_FREE_BLOCK_SIZE) {
         region1.start = region1.end;
     } else {
         InsertMBlock_(&ext->freeBlocks, InitFreeMBlock_(&region1), prev);
@@ -298,7 +301,8 @@ MEMHeapHandle MEMCreateExpHeapEx(void* startAddress, u32 size, u16 opt) {
     void* end = MEM_PTR_ROUNDDOWN(GetUIntPtr(AddU32ToPtr(startAddress, size)), 4);
     void* start = MEM_PTR_ROUNDUP(GetUIntPtr(startAddress), 4);
 
-    if (GetUIntPtr(start) > GetUIntPtr(end) || GetOffsetFromPtr(start, end) < 0x64) {
+    if (GetUIntPtr(start) > GetUIntPtr(end) ||
+        GetOffsetFromPtr(start, end) < sizeof(MEMiHeapHead) + sizeof(MEMiExpHeapHead) + MIN_FREE_BLOCK_SIZE) {
         return NULL;
     }
 

@@ -164,8 +164,8 @@ inline int TextWriterBase<char>::VSNPrintf(char* pBuffer, ulong count,
 }
 
 template <>
-inline int TextWriterBase<wchar_t>::VSNPrintf(wchar_t* pBuffer, ulong count,
-                                              const wchar_t* pStr,
+inline int TextWriterBase<wchar16_t>::VSNPrintf(wchar16_t* pBuffer, ulong count,
+                                              const wchar16_t* pStr,
                                               std::va_list args) {
 
     return std::vswprintf(pBuffer, count, pStr, args);

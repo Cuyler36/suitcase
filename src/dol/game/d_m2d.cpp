@@ -249,7 +249,7 @@ void SimpleEx_c::setNumber(const char *name, int value, int digits,
 // 80007E48
 void SimpleEx_c::setNumberSep(const char *name, int value, int digits,
                               dScript::NumberFormat_e format) {
-    wchar_t *buf;
+    wchar16_t *buf;
     nw4r::lyt::TextBox *textBox = findTextBox(name);
     dString::Word_c word;
     dScript::setNumber(&word, value, digits, format);
@@ -307,7 +307,7 @@ void SimpleEx_c::setPos(const char *name, const mVec3_c *pos) {
 }
 
 // 80008194
-f32 calcTextWidth(nw4r::lyt::TextBox *textBox, const wchar_t *str, int len) {
+f32 calcTextWidth(nw4r::lyt::TextBox *textBox, const wchar16_t *str, int len) {
     if (str == nullptr) {
         str = textBox->GetStringBuffer();
     }
@@ -315,10 +315,10 @@ f32 calcTextWidth(nw4r::lyt::TextBox *textBox, const wchar_t *str, int len) {
         len = textBox->GetStringLength();
     }
     EGG::Heap *heap = EGG::Heap::getCurrentHeap();
-    wchar_t *buf =
-        (wchar_t *)EGG::Heap::alloc(len * sizeof(wchar_t), 0x20, heap);
-    memset(buf, 0, len * sizeof(wchar_t));
-    wchar_t *dst = buf;
+    wchar16_t *buf =
+        (wchar16_t *)EGG::Heap::alloc(len * sizeof(wchar16_t), 0x20, heap);
+    memset(buf, 0, len * sizeof(wchar16_t));
+    wchar16_t *dst = buf;
     int i = 0;
     int num = 0;
     while (i < len) {
@@ -336,7 +336,7 @@ f32 calcTextWidth(nw4r::lyt::TextBox *textBox, const wchar_t *str, int len) {
     }
     const nw4r::ut::Font *font = textBox->GetFont();
     nw4r::lyt::Size size = textBox->GetFontSize();
-    nw4r::ut::TextWriterBase<wchar_t> writer;
+    nw4r::ut::TextWriterBase<wchar16_t> writer;
     writer.SetFont(*font);
     f32 sx = size.width / writer.GetFontWidth();
     f32 sy = size.height / writer.GetFontHeight();
@@ -599,10 +599,10 @@ tagProcessor_c::Operation tagProcessor_c::Process(u16 ch, ContextType *pCtx) {
             setColor(pCtx, (u8 *)data);
             break;
         }
-        pCtx->str = (const wchar_t *)((const u8 *)pCtx->str + (size & ~1));
+        pCtx->str = (const wchar16_t *)((const u8 *)pCtx->str + (size & ~1));
         return OPERATION_DEFAULT;
     }
-    return nw4r::ut::TagProcessorBase<wchar_t>::Process(ch, pCtx);
+    return nw4r::ut::TagProcessorBase<wchar16_t>::Process(ch, pCtx);
 }
 
 // 80008DE0
@@ -613,10 +613,10 @@ tagProcessor_c::Operation tagProcessor_c::CalcRect(nw4r::ut::Rect *pRect,
         u32 cmd = 0;
         void *data = nullptr;
         EGG::MsgRes::analyzeTag(ch, pCtx->str, &size, &cmd, &data);
-        pCtx->str = (const wchar_t *)((const u8 *)pCtx->str + (size & ~1));
+        pCtx->str = (const wchar16_t *)((const u8 *)pCtx->str + (size & ~1));
         return OPERATION_DEFAULT;
     }
-    return nw4r::ut::TagProcessorBase<wchar_t>::CalcRect(pRect, ch, pCtx);
+    return nw4r::ut::TagProcessorBase<wchar16_t>::CalcRect(pRect, ch, pCtx);
 }
 
 // 80008E58
@@ -636,7 +636,7 @@ void tagProcessor_c::setColor(ContextType *pCtx, u8 *data) {
 }
 
 // 80008EF4
-int writeColorTag(wchar_t *buf, const u8 *color0, const u8 *color1) {
+int writeColorTag(wchar16_t *buf, const u8 *color0, const u8 *color1) {
     u8 *p = (u8 *)buf;
     *buf = 0x1A;
     p[2] = 0xE;
@@ -674,11 +674,11 @@ void Word_c::setTextBox(nw4r::lyt::TextBox *textBox) {
 
 // 80009084
 void Word_c::toFixedSpaces() {
-    wchar_t *buf = getBuffer();
+    wchar16_t *buf = getBuffer();
     int capacity = getCapacity();
     int i = 0;
     while (i < capacity) {
-        wchar_t *p = &buf[i];
+        wchar16_t *p = &buf[i];
         if (buf[i] == 0x1A) {
             i += dScript::getTagLength(p);
         } else {
@@ -695,11 +695,11 @@ void Word_c::toFixedSpaces() {
 
 // 80009134
 void Word_c::fromFixedSpaces() {
-    wchar_t *buf = getBuffer();
+    wchar16_t *buf = getBuffer();
     int capacity = getCapacity();
     int i = 0;
     while (i < capacity) {
-        wchar_t *p = &buf[i];
+        wchar16_t *p = &buf[i];
         if (buf[i] == 0x1A) {
             i += dScript::getTagLength(p);
         } else {
@@ -721,7 +721,7 @@ void Word_c::update() {
 }
 
 // 8000924C
-f32 Word_c::calcWidth(const wchar_t *str, int len) {
+f32 Word_c::calcWidth(const wchar16_t *str, int len) {
     if (str == nullptr) {
         str = getBuffer();
     }
@@ -732,8 +732,8 @@ f32 Word_c::calcWidth(const wchar_t *str, int len) {
 }
 
 // 800092CC
-int Word_c::getLength(const wchar_t *str) {
-    const wchar_t *p = str;
+int Word_c::getLength(const wchar16_t *str) {
+    const wchar16_t *p = str;
     int len = 0;
     while (true) {
         if (*p == 0x1A) {
@@ -749,8 +749,8 @@ int Word_c::getLength(const wchar_t *str) {
 }
 
 // 80009338
-int Word_c::getSize(const wchar_t *str) {
-    const wchar_t *p = str;
+int Word_c::getSize(const wchar16_t *str) {
+    const wchar16_t *p = str;
     int size = 0;
     while (true) {
         if (*p == 0x1A) {
@@ -768,8 +768,8 @@ int Word_c::getSize(const wchar_t *str) {
 }
 
 // 800093AC
-int Word_c::getSizeAt(const wchar_t *str, int pos) {
-    const wchar_t *p = str;
+int Word_c::getSizeAt(const wchar16_t *str, int pos) {
+    const wchar16_t *p = str;
     int size = 0;
     int i = 0;
     while (i < pos) {
@@ -800,7 +800,7 @@ int Word_c::procRubyTag(int pos) {
 
 // 80009490
 int Word_c::getPosAt(f32 x) {
-    const wchar_t *str = getBuffer();
+    const wchar16_t *str = getBuffer();
     f32 prev = 0.0f;
     f32 cur = prev;
     int pos = 0;
@@ -897,9 +897,9 @@ f32 Word_c::getScreenX(int pos) {
 }
 
 // 800098A8
-BOOL Word_c::insertColored(const wchar_t *str, int pos, const u8 *color0,
+BOOL Word_c::insertColored(const wchar16_t *str, int pos, const u8 *color0,
                            const u8 *color1) {
-    wchar_t *buf = getBuffer();
+    wchar16_t *buf = getBuffer();
     int size = getSize(buf);
     int strSize = getSize(str);
     if (size < pos) {
@@ -912,11 +912,11 @@ BOOL Word_c::insertColored(const wchar_t *str, int pos, const u8 *color0,
         return FALSE;
     }
     EGG::Heap *heap = EGG::Heap::getCurrentHeap();
-    wchar_t *tmp = (wchar_t *)EGG::Heap::alloc(getBufferSize(), 0x20, heap);
+    wchar16_t *tmp = (wchar16_t *)EGG::Heap::alloc(getBufferSize(), 0x20, heap);
     memset(tmp, 0, getBufferSize());
     int n = 0;
     if (pos > 0) {
-        memcpy(tmp, buf, pos * sizeof(wchar_t));
+        memcpy(tmp, buf, pos * sizeof(wchar16_t));
         n = pos;
     }
     u8 white[4];
@@ -928,15 +928,15 @@ BOOL Word_c::insertColored(const wchar_t *str, int pos, const u8 *color0,
         if (color1 == nullptr) {
             color1 = black;
         }
-        n += writeColorTag(&tmp[n], color0, color1) / sizeof(wchar_t);
+        n += writeColorTag(&tmp[n], color0, color1) / sizeof(wchar16_t);
     }
-    memcpy(&tmp[n], str, strSize * sizeof(wchar_t));
+    memcpy(&tmp[n], str, strSize * sizeof(wchar16_t));
     n += strSize;
     if (color0 != nullptr) {
-        n += writeColorTag(&tmp[n], white, black) / sizeof(wchar_t);
+        n += writeColorTag(&tmp[n], white, black) / sizeof(wchar16_t);
     }
     if (size > pos) {
-        memcpy(&tmp[n], &buf[pos], (size - pos) * sizeof(wchar_t));
+        memcpy(&tmp[n], &buf[pos], (size - pos) * sizeof(wchar16_t));
     }
     memcpy(buf, tmp, getBufferSize());
     if (tmp != nullptr) {
@@ -948,7 +948,7 @@ BOOL Word_c::insertColored(const wchar_t *str, int pos, const u8 *color0,
 // 80009AA0
 BOOL Word_c::insertColor(int pos, const u8 *color0, const u8 *color1,
                          BOOL before) {
-    wchar_t *buf = getBuffer();
+    wchar16_t *buf = getBuffer();
     int size = getSize(buf);
     int at = getSizeAt(buf, pos);
     if (before && at > 0) {
@@ -961,16 +961,16 @@ BOOL Word_c::insertColor(int pos, const u8 *color0, const u8 *color1,
         return FALSE;
     }
     EGG::Heap *heap = EGG::Heap::getCurrentHeap();
-    wchar_t *tmp = (wchar_t *)EGG::Heap::alloc(getBufferSize(), 0x20, heap);
+    wchar16_t *tmp = (wchar16_t *)EGG::Heap::alloc(getBufferSize(), 0x20, heap);
     memset(tmp, 0, getBufferSize());
     int n = 0;
     if (at > 0) {
-        memcpy(tmp, buf, at * sizeof(wchar_t));
+        memcpy(tmp, buf, at * sizeof(wchar16_t));
         n = at;
     }
-    n += writeColorTag(&tmp[n], color0, color1) / sizeof(wchar_t);
+    n += writeColorTag(&tmp[n], color0, color1) / sizeof(wchar16_t);
     if (size > at) {
-        memcpy(&tmp[n], &buf[at], (size - at) * sizeof(wchar_t));
+        memcpy(&tmp[n], &buf[at], (size - at) * sizeof(wchar16_t));
     }
     memcpy(buf, tmp, getBufferSize());
     if (tmp != nullptr) {
@@ -981,7 +981,7 @@ BOOL Word_c::insertColor(int pos, const u8 *color0, const u8 *color1,
 
 // 80009C34
 int Word_c::getLineNum() {
-    const wchar_t *str = getBuffer();
+    const wchar16_t *str = getBuffer();
     int capacity = getCapacity();
     int i = 0;
     int lines = 0;
@@ -1021,7 +1021,7 @@ u32 itemWord_c::getBufferSize() {
 }
 
 // 80009D9C
-wchar_t *itemWord_c::getBuffer() {
+wchar16_t *itemWord_c::getBuffer() {
     return mBuffer;
 }
 
@@ -1040,7 +1040,7 @@ u32 stringWord_c::getBufferSize() {
 }
 
 // 80009E48
-wchar_t *stringWord_c::getBuffer() {
+wchar16_t *stringWord_c::getBuffer() {
     return mBuffer;
 }
 
@@ -1059,7 +1059,7 @@ u32 stringWordL_c::getBufferSize() {
 }
 
 // 80009EF4
-wchar_t *stringWordL_c::getBuffer() {
+wchar16_t *stringWordL_c::getBuffer() {
     return mBuffer;
 }
 
@@ -1078,7 +1078,7 @@ u32 stringWordLL_c::getBufferSize() {
 }
 
 // 80009FA0
-wchar_t *stringWordLL_c::getBuffer() {
+wchar16_t *stringWordLL_c::getBuffer() {
     return mBuffer;
 }
 

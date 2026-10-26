@@ -2,6 +2,8 @@
 #include <revolution/os.h>
 #include <revolution/tpl.h>
 
+#if !TARGET_PC // PC: src/cf/sdk/tpl_pc.cpp (the offsets are relocated in place, see revolution/tpl.h)
+
 void TPLBind(TPLPalette* pal) {
     u16 i;
 
@@ -46,3 +48,5 @@ void TPLGetGXTexObjFromPalette(TPLPalette* pal, GXTexObj* texObj, u32 id) {
                     GX_ANISO_1);
 }
 #endif
+
+#endif // !TARGET_PC

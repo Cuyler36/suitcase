@@ -1478,7 +1478,7 @@ BOOL dAcNpcNml_c::talk_c::reqLetter() {
 // 80031B3C
 void dAcNpcNml_c::talk_c::resHabit() {
     if (!isMenuInvalid()) {
-        const wchar_t *habit = static_cast<const wchar_t *>(getMenuWork());
+        const wchar16_t *habit = static_cast<const wchar16_t *>(getMenuWork());
         if (habit != NULL) {
             dAnimal_c *animal = getAnimal();
             if (animal != NULL) {
@@ -1496,7 +1496,7 @@ BOOL dAcNpcNml_c::talk_c::reqHabit() {
     if (animal == NULL) {
         return FALSE;
     }
-    wchar_t *habit = animal->getHabit(10);
+    wchar16_t *habit = animal->getHabit(10);
     if (habit == NULL) {
         return FALSE;
     }
@@ -1512,7 +1512,7 @@ void dAcNpcNml_c::talk_c::resNickname() {
     if (!isMenuInvalid()) {
         void *work = getMenuWork();
         if (work != NULL && mpMemory != NULL) {
-            mpMemory->setNickname((const wchar_t *)work, 8);
+            mpMemory->setNickname((const wchar16_t *)work, 8);
             mpMemory->mFlags.mNicknameWait = 14;
         }
     }
@@ -1538,7 +1538,7 @@ void dAcNpcNml_c::talk_c::resGreeting() {
     if (!isMenuInvalid()) {
         void *work = getMenuWork();
         if (work != NULL && mpMemory != NULL) {
-            mpMemory->setGreeting((const wchar_t *)work, 16);
+            mpMemory->setGreeting((const wchar16_t *)work, 16);
             mpMemory->mFlags.mGreetingWait = 6;
         }
     }
@@ -1838,7 +1838,7 @@ const char *dAcNpcNml_c::talk_c::getRememberedLabel(u16 *code, int kind) const {
 
 // 80032798
 BOOL dAcNpcNml_c::talk_c::rememberMsg(const char *label, u16 code) {
-    const wchar_t *text;
+    const wchar16_t *text;
     dNpc::msgMemorySecond_c *mem = getRememberedMsg();
     if (mem != NULL) {
         mem->set(label, code, mTopicKind, mTopicGroup, mTopicIdx);
@@ -2370,14 +2370,14 @@ int dAcNpcNml_c::talk_c::countPocketsUsed(u16 *mask, dPrivateData_c *player) {
 }
 
 // 80033770
-BOOL dAcNpcNml_c::talk_c::setMemoryText(const wchar_t *name) {
+BOOL dAcNpcNml_c::talk_c::setMemoryText(const wchar16_t *name) {
     memset(mMemoryText, 0, sizeof(mMemoryText));
     if (name != NULL) {
         u32 len = dScript::getStringLength(name, 16, 0);
         if (len > 16) {
             len = 16;
         }
-        memcpy(mMemoryText, name, len * sizeof(wchar_t));
+        memcpy(mMemoryText, name, len * sizeof(wchar16_t));
         return TRUE;
     }
     return FALSE;
@@ -3041,7 +3041,7 @@ int dAcNpcNml_c::talk_c::msgRecall(msgInfo_s *info) {
         setProcSet(&l_talkEntrySets[TALK_RECALL]);
         dSaveOtherTown_c *otherTown;
         u32 fashion;
-        const wchar_t *design;
+        const wchar16_t *design;
         dPersonalID_c *creator;
         dPersonalID_c *personal;
         dItem::Item *item0;

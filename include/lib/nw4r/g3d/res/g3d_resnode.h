@@ -1,6 +1,7 @@
 #ifndef NW4R_G3D_RES_RES_NODE_H
 #define NW4R_G3D_RES_RES_NODE_H
 #include <nw4r/types_nw4r.h>
+#include <port/endian.h>
 
 #include <nw4r/g3d/res/g3d_rescommon.h>
 
@@ -56,26 +57,26 @@ struct ResNodeData : ResNodeDataTypedef {
         FLAG_BILLBOARD_PARENT = (1 << 10)
     };
 
-    ulong size;               // at 0x0
-    s32 toResMdlData;         // at 0x4
-    s32 name;                 // at 0x8
-    ulong id;                 // at 0xC
-    ulong mtxID;              // at 0x10
-    ulong flags;              // at 0x14
-    Billboard bbmode;         // at 0x18
-    ulong bbref_nodeid;       // at 0x1C
-    math::_VEC3 scale;        // at 0x20
-    math::_VEC3 rot;          // at 0x2C
-    math::_VEC3 translate;    // at 0x38
-    math::_VEC3 volume_min;   // at 0x44
-    math::_VEC3 volume_max;   // at 0x50
-    s32 toParentNode;         // at 0x5C
-    s32 toChildNode;          // at 0x60
-    s32 toNextSibling;        // at 0x64
-    s32 toPrevSibling;        // at 0x68
-    s32 toResUserData;        // at 0x6C
-    math::_MTX34 modelMtx;    // at 0x70
-    math::_MTX34 invModelMtx; // at 0xA0
+    BE(u32) size;               // at 0x0
+    BE(s32) toResMdlData;         // at 0x4
+    BE(s32) name;                 // at 0x8
+    BE(u32) id;                 // at 0xC
+    BE(u32) mtxID;              // at 0x10
+    BE(u32) flags;              // at 0x14
+    BE(Billboard) bbmode;         // at 0x18
+    BE(u32) bbref_nodeid;       // at 0x1C
+    BE(math::_VEC3) scale;        // at 0x20
+    BE(math::_VEC3) rot;          // at 0x2C
+    BE(math::_VEC3) translate;    // at 0x38
+    BE(math::_VEC3) volume_min;   // at 0x44
+    BE(math::_VEC3) volume_max;   // at 0x50
+    BE(s32) toParentNode;         // at 0x5C
+    BE(s32) toChildNode;          // at 0x60
+    BE(s32) toNextSibling;        // at 0x64
+    BE(s32) toPrevSibling;        // at 0x68
+    BE(s32) toResUserData;        // at 0x6C
+    BE(math::_MTX34) modelMtx;    // at 0x70
+    BE(math::_MTX34) invModelMtx; // at 0xA0
 };
 
 class ResNode : public ResCommon<ResNodeData>, public ResNodeDataTypedef {

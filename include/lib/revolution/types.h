@@ -21,6 +21,35 @@ typedef unsigned long u32;
 #endif
 typedef unsigned long long u64;
 
+// UTF-16 text: wchar_t on the Wii (2 bytes); char16_t on PC, where wchar_t is 4 bytes on some hosts.
+// WSTR("...") is a literal of it. In C, wchar_t (MSL) and char16_t are both unsigned short.
+#ifndef DECOMP_WCHAR16_DEFINED
+#define DECOMP_WCHAR16_DEFINED
+#if defined(__cplusplus)
+#if TARGET_PC
+typedef char16_t wchar16_t;
+#else
+typedef wchar_t wchar16_t;
+#endif
+#else
+typedef unsigned short wchar16_t;
+#endif
+#if TARGET_PC
+#define WSTR(s) u##s
+#else
+#define WSTR(s) L##s
+#endif
+#endif
+
+// For pointer arithmetic: the SDK's C units do not see the decomp's MSL stddef.h
+#if TARGET_PC
+#include <stdint.h>
+#elif !defined(DECOMP_INTPTR_T_DEFINED)
+#define DECOMP_INTPTR_T_DEFINED // also defined by MSL/stddef.h
+typedef signed long intptr_t;
+typedef unsigned long uintptr_t;
+#endif
+
 typedef volatile u8 vu8;
 typedef volatile u16 vu16;
 typedef volatile u32 vu32;

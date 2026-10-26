@@ -67,10 +67,16 @@ class AxManager {
   public:
     struct CallbackListNode {
       public:
-        typedef ut::LinkList<CallbackListNode, 0x00> LinkList;
+        typedef ut::LinkList<CallbackListNode, NW4R_UT_LINK_OFFSET(0x00, 0x00)> LinkList;
 
       public:
         ut::LinkListNode node;  // size 0x08, offset 0x00
+#if TARGET_PC
+        // The PC list offsets (NW4R_UT_LINK_OFFSET)
+        static void CheckLinkOffsets() {
+            static_assert(offsetof(CallbackListNode, node) == 0x00, "node");
+        }
+#endif
         AXOutCallback callback; // size 0x04, offset 0x08
     }; // size 0x0c
 

@@ -38,7 +38,13 @@ template <class T> inline T &field(void *object, unsigned int offset) {
     return *reinterpret_cast<T *>(static_cast<char *>(object) + offset);
 }
 inline bool isDemoMode(void *demo, const DemoMethod &expected) {
+#if TARGET_PC
+    // +0x70 is the current state (dState::mode_c's method pointer) in the Wii's layout of Comp_c;
+    // on PC the layout and the member pointer's size differ, and the save waited forever
+    return static_cast<dMsg::Comp_c *>(demo)->isCurrentMethod(expected);
+#else
     return field<DemoMethod>(demo, 0x70) == expected;
+#endif
 }
 
 extern "C" {

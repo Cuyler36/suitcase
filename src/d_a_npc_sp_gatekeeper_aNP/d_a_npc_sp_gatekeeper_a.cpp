@@ -1575,7 +1575,7 @@ void dAcNpcSpGkA_c::talk_c::onMessageEnd(int kind) {
 // .text:0x61D0 fn_66_61D0 (0xAC):
 // dAcNpcSpGkA_c::talk_c::switchToSystemSpeaker() - (request-end hideSpeaker)
 void dAcNpcSpGkA_c::talk_c::switchToSystemSpeaker() {
-    dString::Word_c speaker((const wchar_t *)getSpeakerName());
+    dString::Word_c speaker((const wchar16_t *)getSpeakerName());
     dHmnName::Word_c name;
     dItem::Item item((u16)SP_NPC_GATEKEEPER_A);
     dNpc::getNpcName(&name, &item, LANGUAGE_NUM);
@@ -1589,7 +1589,7 @@ void dAcNpcSpGkA_c::talk_c::switchToSystemSpeaker() {
 // dAcNpcSpGkA_c::talk_c::switchToGatekeeperSpeaker() - (request-end
 // showSpeaker)
 void dAcNpcSpGkA_c::talk_c::switchToGatekeeperSpeaker() {
-    dString::Word_c speaker((const wchar_t *)getSpeakerName());
+    dString::Word_c speaker((const wchar16_t *)getSpeakerName());
     dHmnName::Word_c name;
     dItem::Item item((u16)SP_NPC_GATEKEEPER_A);
     dNpc::getNpcName(&name, &item, LANGUAGE_NUM);

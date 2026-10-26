@@ -2,6 +2,9 @@
 #include <lib/revolution/os/OSContext.h>
 #include <runtime/rel.h>
 #include <cstdio>
+#if TARGET_PC
+#include <cf/rel.h>
+#endif
 
 DynamicModuleControlBase *DynamicModuleControlBase::mFirst;
 DynamicModuleControlBase *DynamicModuleControlBase::mLast;
@@ -125,6 +128,10 @@ void DynamicModuleControl::initialize(EGG::ExpHeap *heap) {
     sDylinkHeap = heap;
     sDvdFile = EGG_NEW_ARGS(heap, 4) EGG::DvdFile();
     sAllocBytes = sizeof(EGG::DvdFile);
+#if TARGET_PC
+    // The RELs are linked statically; run their prologs' static initializers now that the heaps exist
+    cf::RunRelStaticInitializers();
+#endif
 }
 
 // 802AA554
@@ -146,6 +153,13 @@ u16 calcSum2(const u16 *data, size_t count) {
 
 // 802AA58C
 bool DynamicModuleControl::do_load() {
+#if TARGET_PC
+    // Every REL is linked into the executable, so there is nothing to load
+    if (mLoadCount < 255) {
+        mLoadCount++;
+    }
+    return true;
+#else
     // Check if already loaded
     if (mpModule != nullptr) {
         return true;
@@ -217,10 +231,14 @@ retry_load:
     }
 
     return true;
+#endif
 }
 
 // 802AA7AC
 bool DynamicModuleControl::do_load_async() {
+#if TARGET_PC
+    return do_load();
+#else
     if (mpDvdCallback == nullptr) {
         if (mpModule != nullptr) {
             return true;
@@ -235,6 +253,7 @@ bool DynamicModuleControl::do_load_async() {
     }
 
     return false;
+#endif
 }
 
 // 802AA838
@@ -251,6 +270,11 @@ void DynamicModuleControl::dump() {}
 
 // 802AA890
 bool DynamicModuleControl::do_link() {
+#if TARGET_PC
+    // The module's static constructors (its prolog) ran at process start-up, and d_profileNP's
+    // prolog (dProfile::install) runs in cf::BootGame (src/cf/game/boot.cpp)
+    return true;
+#else
     size_t fixSize;
     void *bssStart;
     size_t blockSize;
@@ -315,10 +339,15 @@ fail:
         mpModule = nullptr;
     }
     return false;
+#endif
 }
 
 // 802AAAC8
 bool DynamicModuleControl::do_unlink() {
+#if TARGET_PC
+    // Statically linked: the module's data stays, unlike an unloaded REL
+    return true;
+#else
     ((voidFctPtr) mpModule->epilog)();
 
     if (!OSUnlink(&mpModule->info)) {
@@ -331,6 +360,7 @@ bool DynamicModuleControl::do_unlink() {
         mpBss = nullptr;
     }
     return true;
+#endif
 }
 
 // 802AAB64

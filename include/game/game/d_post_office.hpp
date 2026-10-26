@@ -78,18 +78,18 @@ void sendSyncState(u8 state, int player);      // 8010330C
 void replySyncState(u8 state, int player);     // 80103354
 
 // Mail check: how a villager replies to a letter.
-BOOL isSeparator(wchar_t c);                   // 80103358
-BOOL isWord(const wchar_t *str);               // 80103404: 3 non-separators
+BOOL isSeparator(wchar16_t c);                   // 80103358
+BOOL isWord(const wchar16_t *str);               // 80103404: 3 non-separators
 int countWords(dMail_c *mail);                 // 80103464
-void replaceNewlines(wchar_t *str, int len);   // 801034EC
-void toHiragana(wchar_t *str, int len);        // 80103518
-void toLower(wchar_t *str, int len);           // 80103590
-void normalize(wchar_t *str, int len);         // 801035EC
-int getLineLength(const wchar_t *str, int max); // 80103658
-const wchar_t *nextLine(const wchar_t *str, int max); // 801036A0
-int findWord(const wchar_t *word, const wchar_t *list); // 801036E4
-int getWordId(const wchar_t *word);            // 80103784: STR_Mailcheck
-BOOL bodyContains(dMail_c *mail, const wchar_t *str); // 801038F4
+void replaceNewlines(wchar16_t *str, int len);   // 801034EC
+void toHiragana(wchar16_t *str, int len);        // 80103518
+void toLower(wchar16_t *str, int len);           // 80103590
+void normalize(wchar16_t *str, int len);         // 801035EC
+int getLineLength(const wchar16_t *str, int max); // 80103658
+const wchar16_t *nextLine(const wchar16_t *str, int max); // 801036A0
+int findWord(const wchar16_t *word, const wchar16_t *list); // 801036E4
+int getWordId(const wchar16_t *word);            // 80103784: STR_Mailcheck
+BOOL bodyContains(dMail_c *mail, const wchar16_t *str); // 801038F4
 int scoreWords(dMail_c *mail);                 // 8010397C
 int scoreNames(dMail_c *mail);                 // 80103A80
 int getLengthType(dMail_c *mail);              // 80103BC8

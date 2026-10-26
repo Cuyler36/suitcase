@@ -515,7 +515,7 @@ static const int sLowerSeItF[] = {
     SE_Keyboard_ITL_Gal_2y, SE_Keyboard_ITL_Gal_2z,
 };
 
-static const wchar_t sUmlautChars[] = {0x00E4, 0x00F6, 0x00FC, 0x00DF, 0x00C4, 0x00D6, 0x00DC};
+static const wchar16_t sUmlautChars[] = {0x00E4, 0x00F6, 0x00FC, 0x00DF, 0x00C4, 0x00D6, 0x00DC};
 
 static const int *sDigitSe[] = {sDigitSeEn, sDigitSeFr, sDigitSeEs, sDigitSeIt, sDigitSeDe, sDigitSeEnF, sDigitSeFrF, sDigitSeEsF, sDigitSeItF, sDigitSeDeF};
 static const int *sUpperSe[] = {sUpperSeEn, sUpperSeFr, sUpperSeEs, sUpperSeIt, sUpperSeDe, sUpperSeEnF, sUpperSeFrF, sUpperSeEsF, sUpperSeItF, sUpperSeDeF};
@@ -1122,7 +1122,7 @@ void playLowerKeySe(int idx) {
     }
 }
 
-void playKeySe(wchar_t c, BOOL a, BOOL b, BOOL pcKeyboard) {
+void playKeySe(wchar16_t c, BOOL a, BOOL b, BOOL pcKeyboard) {
     if (c >= 0x3041 && c <= 0x3093) {
         playKanaKeySe(c - 0x3041, b);
     } else if (c >= 0x30A1 && c <= 0x30F6) {
@@ -1151,7 +1151,7 @@ void playKeySe(wchar_t c, BOOL a, BOOL b, BOOL pcKeyboard) {
 }
 
 #elif VERSION == VERSION_RUUK01_01
-void playKeySe(wchar_t c, BOOL a, BOOL b, BOOL pcKeyboard) {
+void playKeySe(wchar16_t c, BOOL a, BOOL b, BOOL pcKeyboard) {
     playSe(SE_pupupu);
 }
 
@@ -1242,7 +1242,7 @@ void playLowerKeySe(int idx) {
 }
 
 #if VERSION == VERSION_RUUP01_00 || VERSION == VERSION_RUUP01_01
-int getUmlautIndex(wchar_t c, BOOL alt) {
+int getUmlautIndex(wchar16_t c, BOOL alt) {
     for (int i = 0; i < 7; i++) {
         if (c == sUmlautChars[i]) {
             if (alt) {
@@ -1254,7 +1254,7 @@ int getUmlautIndex(wchar_t c, BOOL alt) {
     return -1;
 }
 
-BOOL playUmlautKeySe(wchar_t c, BOOL alt) {
+BOOL playUmlautKeySe(wchar16_t c, BOOL alt) {
     if (getLanguage() != LANGUAGE_DE) {
         return FALSE;
     }
@@ -1268,7 +1268,7 @@ BOOL playUmlautKeySe(wchar_t c, BOOL alt) {
 #endif
 
 // 800CB2DC
-void playKeySe(wchar_t c, BOOL a, BOOL b, BOOL pcKeyboard) {
+void playKeySe(wchar16_t c, BOOL a, BOOL b, BOOL pcKeyboard) {
     if (c >= L'0' && c <= L'9') {
         playDigitKeySe(c - L'0', a, b);
     } else if (c >= L'A' && c <= L'Z') {
@@ -1307,7 +1307,7 @@ int getEntryNum(int kind, const char *label) {
 
 // 800CB3C8
 #if VERSION == VERSION_RUUK01_01
-BOOL loadEntry(dScript::Word_c *word, int kind, u16 idx, const char *label, wchar_t lastChar, s32 numberWord) {
+BOOL loadEntry(dScript::Word_c *word, int kind, u16 idx, const char *label, wchar16_t lastChar, s32 numberWord) {
 #else
 BOOL loadEntry(dScript::Word_c *word, int kind, u16 idx, const char *label) {
 #endif
@@ -1322,7 +1322,7 @@ BOOL loadEntry(dScript::Word_c *word, int kind, u16 idx, const char *label) {
     if (idx >= res.getCount()) {
         return FALSE;
     }
-    const wchar_t *msg = res.getMessage(idx);
+    const wchar16_t *msg = res.getMessage(idx);
     if (dScript::getStringLength(msg, 0, 0) > max) {
         return FALSE;
     }
@@ -1365,7 +1365,7 @@ BOOL loadText(dScript::Word_c *header, dScript::Word_c *body, dScript::Word_c *f
 BOOL loadTextParts(dScript::Word_c *header, dScript::Word_c *body, dScript::Word_c *footer, u16 headerIdx,
                  u16 bodyIdx, u16 footerIdx, const char *headerLabel, const char *bodyLabel, const char *footerLabel) {
 #if VERSION == VERSION_RUUK01_01
-    wchar_t lastChar = 0;
+    wchar16_t lastChar = 0;
     s32 numberWord = 0;
     const dPersonalID_c *to = getTo();
     if (to->isValid()) {
@@ -1403,7 +1403,7 @@ BOOL loadBbsText(dScript::Word_c *word, u16 msgId, const char *group) {
 BOOL loadText2(dScript::Word_c *header, dScript::Word_c *body, dScript::Word_c *footer, u16 headerIdx, u16 bodyA,
                  u16 bodyB, u16 bodyC, u16 footerIdx, const char *bodyLabel, const char *label) {
 #if VERSION == VERSION_RUUK01_01
-    wchar_t lastChar = 0;
+    wchar16_t lastChar = 0;
     s32 numberWord = 0;
     const dPersonalID_c *to = getTo();
     if (to->isValid()) {
@@ -1623,13 +1623,13 @@ u32 Word_c::getBufferSize() {
 }
 
 // 800CC368
-wchar_t *Word_c::getBuffer() {
+wchar16_t *Word_c::getBuffer() {
     return mBuffer;
 }
 
 // 800CC370
 int Word_c::procNumber(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     dScript::getTagId(tag);
     const u8 *params = dScript::getTagParams(tag);
     u8 slot = 0;
@@ -1641,7 +1641,7 @@ int Word_c::procNumber(int pos) {
 
 // 800CC418
 int Word_c::procWord(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     dScript::getTagId(tag);
     const u8 *params = dScript::getTagParams(tag);
     u8 slot = 0;
@@ -1716,7 +1716,7 @@ int Word_c::procUnit(int pos) {
 int Word_c::procPlayerChar(int pos, u32 index) {
     dHmnName::Word_c name;
     getTo()->setWord(&name);
-    wchar_t c = 0;
+    wchar16_t c = 0;
     if (!name.getChar(&c, index)) {
         return removeTag(pos);
     }
@@ -1849,7 +1849,7 @@ int Word_c::procWordElision(int pos) {
 
 // 800CCA28
 int Word_c::procNumberPlural(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     const u8 *params = dScript::getTagParams(tag);
     dScript::getTagLength(tag);
     u8 slot = 0;
@@ -1863,13 +1863,17 @@ int Word_c::procNumberPlural(int pos) {
 // 800CCAE0: Japanese only: the ruby text replaces the tag and its base text
 int Word_c::procRubyTag(int pos) {
     if (getLanguage() == LANGUAGE_JP) {
-        const wchar_t *tag = getBuffer() + pos;
+        const wchar16_t *tag = getBuffer() + pos;
         const u8 *params = dScript::getTagParams(tag);
         u8 len = dScript::getTagLength(tag);
         u8 base = 0;
         memcpy(&base, params, 1);
-        const wchar_t *reading = (const wchar_t *)(params + 1);
+        const wchar16_t *reading = (const wchar16_t *)(params + 1);
         int n = len - 4;
+#if TARGET_PC
+        wchar16_t host[TAG_TEXT_MAX];
+        reading = dScript::getTagTextHost(reading, n, host);
+#endif
         insert(reading, n, len + pos + base);
         erase(len + base, pos);
         return n;

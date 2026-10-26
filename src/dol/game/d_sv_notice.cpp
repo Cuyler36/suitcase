@@ -33,22 +33,22 @@ void dNoticeData_c::init(const dTime_c *date) {
 }
 
 // 8011AD94
-void dNoticeData_c::setSender(const wchar_t *name) {
+void dNoticeData_c::setSender(const wchar16_t *name) {
     memcpy(mSender, name, sizeof(mSender));
 }
 
 // 8011AD9C
-void dNoticeData_c::setText(const wchar_t *text) {
+void dNoticeData_c::setText(const wchar16_t *text) {
     memcpy(mText, text, sizeof(mText));
 }
 
 // 8011ADA8
-wchar_t *dNoticeData_c::getSender() {
+wchar16_t *dNoticeData_c::getSender() {
     return mSender;
 }
 
 // 8011ADAC
-wchar_t *dNoticeData_c::getText() {
+wchar16_t *dNoticeData_c::getText() {
     return mText;
 }
 
@@ -114,7 +114,7 @@ u32 noticeWord_c::getBufferSize() {
 }
 
 // 8011AF0C
-wchar_t *noticeWord_c::getBuffer() {
+wchar16_t *noticeWord_c::getBuffer() {
     return mBuffer;
 }
 

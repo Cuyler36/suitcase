@@ -1,6 +1,7 @@
 #ifndef NW4R_G3D_RES_RES_COMMON_H
 #define NW4R_G3D_RES_RES_COMMON_H
 #include <nw4r/types_nw4r.h>
+#include <port/endian.h>
 
 #include <nw4r/ut.h>
 
@@ -144,14 +145,14 @@ private:
  */
 struct ResBlockHeaderData {
     char kind[4]; // at 0x0
-    ulong size;     // at 0x4
+    BE(u32) size;     // at 0x4
 };
 
 /**
  * Name for file resource groups.
  */
 struct ResNameData27 {
-    ulong len;                    // at 0x0
+    BE(u32) len;                    // at 0x0
     char str[32 - sizeof(ulong)]; // at 0x4
 };
 
@@ -161,7 +162,7 @@ struct ResNameData27 {
  *
  ******************************************************************************/
 struct ResNameData {
-    ulong len;     // at 0x0
+    BE(u32) len;     // at 0x0
     char str[4]; // at 0x4
 };
 
@@ -186,9 +187,9 @@ public:
  *
  ******************************************************************************/
 struct ResTagDLData {
-    ulong bufSize; // at 0x0
-    ulong cmdSize; // at 0x4
-    s32 toDL;    // at 0x8
+    BE(u32) bufSize; // at 0x0
+    BE(u32) cmdSize; // at 0x4
+    BE(s32) toDL;    // at 0x8
 };
 
 class ResTagDL : public ResCommon<ResTagDLData> {

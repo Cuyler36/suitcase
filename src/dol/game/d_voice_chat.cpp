@@ -923,6 +923,11 @@ static s32 updateMic() {
     case MIC_ACTIVE:
         break;
     }
+#if TARGET_PC
+    // Falls off the end: the Wii returns whatever r3 holds (a PMIC call's result, or leftover state).
+    // update() only checks it for PMIC_ERR_FATAL; the probe's status is the meaningful one (UB-11)
+    return status;
+#endif
 }
 
 static void pmicCallback(s32 result, s32 arg) {

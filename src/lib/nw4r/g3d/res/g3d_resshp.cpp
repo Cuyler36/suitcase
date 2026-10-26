@@ -4,8 +4,37 @@
 
 #include <cstring>
 
+#if TARGET_PC
+#include <port/side_slot.h>
+#endif
+
 namespace nw4r {
 namespace g3d {
+
+#if TARGET_PC
+// The Wii writes each vertex array's base into the shape's pre-primitive display list. aurora does not
+// take array bases from display lists (and a 64-bit address does not fit the CP command), so on PC the
+// arrays are kept beside the shape, their display list slots stay empty, and
+// CallPrePrimitiveDisplayList sets them before calling the display list.
+namespace {
+
+struct ShpArrays {
+    struct Entry {
+        const void* pBase;
+        u32 size;
+        u8 stride;
+        bool set;
+    };
+
+    Entry entries[GX_POS_MTX_ARRAY - GX_VA_POS];
+};
+
+ShpArrays& GetShpArrays(const ResPrePrimDL& rDL) {
+    return *static_cast<ShpArrays*>(port::SideSlotObject(&rDL, sizeof(ShpArrays)));
+}
+
+} // namespace
+#endif
 
 ResMdl ResShp::GetParent() const {
     return ofs_to_obj<ResMdl>(ref().toResMdlData);
@@ -143,6 +172,24 @@ bool ResShp::GXGetVtxAttrFmtv(GXVtxAttrFmtList* pList) const {
     return true;
 }
 
+#if TARGET_PC
+void ResShp::GXSetArray(GXAttr attr, const void* pBase, u32 size, u8 stride) {
+    ResPrePrimDL& rDL = GetResShpPrePrim().ref();
+    std::memset(rDL.dl.array[attr - GX_VA_POS], 0, GX_CP_CMD_SZ * 2);
+
+    ShpArrays::Entry& rEntry = GetShpArrays(rDL).entries[attr - GX_VA_POS];
+    rEntry.pBase = pBase;
+    rEntry.size = size;
+    rEntry.stride = stride;
+    rEntry.set = true;
+}
+
+void ResShp::DisableSetArray(GXAttr attr) {
+    ResPrePrimDL& rDL = GetResShpPrePrim().ref();
+    std::memset(rDL.dl.array[attr - GX_VA_POS], 0, GX_CP_CMD_SZ * 2);
+    GetShpArrays(rDL).entries[attr - GX_VA_POS].set = false;
+}
+#else
 void ResShp::GXSetArray(GXAttr attr, const void* pBase, u8 stride) {
     u8* pCmd = GetResShpPrePrim().ref().dl.array[attr - GX_VA_POS];
     u32 cpAttr = attr != GX_VA_NBT ? attr - GX_VA_POS : 1;
@@ -158,6 +205,7 @@ void ResShp::DisableSetArray(GXAttr attr) {
     u8* pCmd = GetResShpPrePrim().ref().dl.array[attr - GX_VA_POS];
     std::memset(pCmd, 0, GX_CP_CMD_SZ * 2);
 }
+#endif
 
 ResVtxPos ResShp::GetResVtxPos() const {
     return GetParent().GetResVtxPos(ref().idVtxPosition);
@@ -207,6 +255,18 @@ void ResShp::Init() {
     const void* pBase;
     u8 stride;
 
+#if TARGET_PC
+    // count * stride bytes each
+    ResVtxPos pos = GetResVtxPos();
+    pos.GetArray(&pBase, &stride);
+    GXSetArray(GX_VA_POS, pBase, pos.GetNumVtxPos() * stride, stride);
+
+    ResVtxNrm nrm = GetResVtxNrm();
+    if (nrm.IsValid()) {
+        nrm.GetArray(&pBase, &stride);
+        GXSetArray(GX_VA_NRM, pBase, nrm.GetNumVtxNrm() * stride, stride);
+    }
+#else
     GetResVtxPos().GetArray(&pBase, &stride);
     GXSetArray(GX_VA_POS, pBase, stride);
 
@@ -215,6 +275,7 @@ void ResShp::Init() {
         nrm.GetArray(&pBase, &stride);
         GXSetArray(GX_VA_NRM, pBase, stride);
     }
+#endif
 
     u32 i;
 
@@ -222,8 +283,14 @@ void ResShp::Init() {
         ResVtxClr clr = GetResVtxClr(i);
 
         if (clr.IsValid()) {
+#if TARGET_PC
+            clr.GetArray(&pBase, &stride);
+            GXSetArray(static_cast<GXAttr>(GX_VA_CLR0 + i), pBase,
+                       clr.GetNumVtxClr() * stride, stride);
+#else
             clr.GetArray(&pBase, &stride);
             GXSetArray(static_cast<GXAttr>(GX_VA_CLR0 + i), pBase, stride);
+#endif
         }
     }
 
@@ -231,8 +298,14 @@ void ResShp::Init() {
         ResVtxTexCoord txc = GetResVtxTexCoord(i);
 
         if (txc.IsValid()) {
+#if TARGET_PC
+            txc.GetArray(&pBase, &stride);
+            GXSetArray(static_cast<GXAttr>(GX_VA_TEX0 + i), pBase,
+                       txc.ref().numTexCoord * stride, stride);
+#else
             txc.GetArray(&pBase, &stride);
             GXSetArray(static_cast<GXAttr>(GX_VA_TEX0 + i), pBase, stride);
+#endif
         }
     }
 
@@ -263,6 +336,19 @@ void ResShp::Terminate() {
 void ResShp::CallPrePrimitiveDisplayList(bool sync, bool cacheIsSame) const {
     // TODO(kiwi) Should be non-const, and initialized by value
     const ResTagDL& rTag = GetPrePrimDLTag();
+
+#if TARGET_PC
+    // The vertex arrays the display list sets on the Wii (resource data: big-endian)
+    const ShpArrays& rArrays = GetShpArrays(GetResShpPrePrim().ref());
+    for (int i = 0; i < GX_POS_MTX_ARRAY - GX_VA_POS; i++) {
+        const ShpArrays::Entry& rEntry = rArrays.entries[i];
+        if (rEntry.set) {
+            // aurora's (ResShp::GXSetArray hides it here)
+            ::GXSetArray(static_cast<GXAttr>(GX_VA_POS + i), rEntry.pBase, rEntry.size,
+                         rEntry.stride, false);
+        }
+    }
+#endif
 
     if (cacheIsSame) {
         if (sync) {

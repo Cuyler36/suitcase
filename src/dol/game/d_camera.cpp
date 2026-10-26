@@ -243,7 +243,7 @@ static f32 l_viewDistance;
 // 80187180
 int dCamera_c::create() {
     sInstance = this;
-    dScene::setSceneE848((u32)this);
+    dScene::setSceneE848((uintptr_t)this);
     mFrustum.SetFovy(l_hostIO.mFovy);
     mFrustum.mNearZ = l_hostIO.mNear;
     mFrustum.mFarZ = l_hostIO.mFar;

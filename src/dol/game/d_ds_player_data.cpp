@@ -9,7 +9,7 @@
 
 namespace dDsPlayerData {
 
-// Wild World character codes (one byte per character) to wchar_t, Japan.
+// Wild World character codes (one byte per character) to wchar16_t, Japan.
 static const u16 l_charTableJp[256] = {
     0x0000, 0x3042, 0x3044, 0x3046, 0x3048, 0x304A, 0x304B, 0x304D,
     0x304F, 0x3051, 0x3053, 0x3055, 0x3057, 0x3059, 0x305B, 0x305D,
@@ -133,7 +133,7 @@ u16 convertKrChar(u16 c) {
 
 void getPlayerName(const u8 *player, dScript::Word_c *word) {
     int region = getDsRegion();
-    wchar_t name[9];
+    wchar16_t name[9];
     memset(name, 0, sizeof(name));
     if (region == CONSOLE_REGION_KR) {
         const u16 *src = (const u16 *)(player + l_playerLayout[region]->mName);
@@ -229,7 +229,7 @@ const u8 *getPlayer(const u8 *save, int idx) {
 
 void getTownName(const u8 *save, dScript::Word_c *word) {
     int region = getDsRegion();
-    wchar_t name[PLAYER_NAME_LEN+1];
+    wchar16_t name[PLAYER_NAME_LEN+1];
     memset(name, 0, sizeof(name));
     if (region == CONSOLE_REGION_KR) {
         const u16 *src = (const u16 *)(save + l_saveLayout[region]->mTownName);

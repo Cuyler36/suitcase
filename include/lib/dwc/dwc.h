@@ -59,7 +59,7 @@ void DWC_InitFriendsMatch(void *control, DWCUserData *userData, int productId,
                           DWCFriendData *friendList, int friendListLen);
 void DWC_ShutdownFriendsMatch(void);
 void DWC_ProcessFriendsMatch(void);
-BOOL DWC_LoginAsync(const wchar_t *nickname, int reserved,
+BOOL DWC_LoginAsync(const wchar16_t *nickname, int reserved,
                     DWCLoginCallback callback, void *param);
 BOOL DWC_UpdateServersAsync(int reserved, DWCUpdateServersCallback callback,
                             void *param,

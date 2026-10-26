@@ -50,7 +50,7 @@ namespace res {
  ******************************************************************************/
 struct Material {
     char name[NW4R_LYT_MATERIAL_NAME_LEN]; // at 0x0
-    GXColorS10 tevCols[TEVCOLOR_MAX];      // at 0x14
+    res::ColorS10 tevCols[TEVCOLOR_MAX];      // at 0x14
     GXColor tevKCols[GX_MAX_KCOLOR];       // at 0x2C
     MaterialResourceNum resNum;            // at 0x3C
 };

@@ -19,7 +19,7 @@ enum {
     LANG_STRID_MAX,
 };
 
-extern const wchar_t *cLanguageIndependentString[LANG_STRID_MAX][LanguageEnd];
+extern const wchar16_t *cLanguageIndependentString[LANG_STRID_MAX][LanguageEnd];
 
 } // namespace langindependent
 } // namespace textinput

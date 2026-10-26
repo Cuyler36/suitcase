@@ -7,7 +7,7 @@ namespace dScData {
 
 static dScene::dSceneBaseData_c l_base[] = {{fProf::SV_DEMO, 0}};
 static ColorByte_c l_palette0 = {{0x4A, 0x63, 0x42, 0xFF}, 0x7B};
-static u32 l_setting0[] = {0x4A5242FF, 0xEFF70000}; // scene setting kind 9
+static u32 l_setting0[] = {SC_COLOR(0x4A5242FF), SC_ANGLES(0xEFF70000)}; // scene setting kind 9
 static u16 l_resources[] = {fProf::A_NPC_SP_TUNEKICHI};
 static PlayerData_c l_player = {{256.0f, 0.0f, 464.0f}, {0, -0x8000, 0}, 0, 8};
 static ActorData_c l_actors[] = {
@@ -19,8 +19,9 @@ static ActorData_c l_actors[] = {
      (void *)0x8003},
 };
 static u32 l_setting1[] ALIGN(8) = {
-    0xFFC040FF, 0x43800000, 0x42900000, 0x43C00000, 0xE0000000,
-    0x3F000000, 0x3B4CCCCD, 0x39449BA6, 0x42B40000}; // scene setting kind 0xC
+    SC_COLOR(0xFFC040FF), 0x43800000, 0x42900000, 0x43C00000, SC_ANGLES(0xE0000000),
+    0x3F000000, 0x3B4CCCCD, 0x39449BA6, 0x42B40000,
+    0x00000000 /* mSpotFn: GX_SP_OFF (the 10th word, alignment padding on the Wii) */}; // scene setting kind 0xC
 static Scene3Entry_c l_scene3[] = {
     {5, &l_palette0}, {9, l_setting0}, {0xC, l_setting1}};
 static dScene::dSceneDataEntry_c l_entries[] = {

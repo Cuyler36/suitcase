@@ -1,6 +1,7 @@
 // The structure actor (REL d_a_strNP). See include/game/game/d_a_str.hpp.
 // REL .text 0xCC..0x57B4, .ctors 0x0..0x4, .rodata 0x0..0x258, .data
 // 0x0..0x730, .bss 0x8..0x78.
+#include <port/endian.h>
 #include <game/game/d_a_str.hpp>
 #include <game/framework/f_profile.hpp>
 #include <game/game/d_a_player.hpp>
@@ -593,14 +594,14 @@ void daSTR_c::drawMdl() {
     drawShadow(&mtx);
 }
 
-// The texture shadows of a structure (shadow.bin in its brres).
+// The texture shadows of a structure (shadow.bin in its brres, big-endian).
 struct shadowTex_s {
-    f32 mX;
-    f32 mZ;
-    f32 mWidth;
-    f32 mLength;
-    f32 mParam2;
-    f32 mParam3;
+    BE(f32) mX;
+    BE(f32) mZ;
+    BE(f32) mWidth;
+    BE(f32) mLength;
+    BE(f32) mParam2;
+    BE(f32) mParam3;
     u8 mKind; // 'G'
 
     f32 getX() const {
@@ -624,7 +625,7 @@ struct shadowTex_s {
 };
 
 struct shadowBin_s {
-    u32 mNum;
+    BE(u32) mNum;
     u8 _04[0x1C];
     shadowTex_s mTex[1];
 };

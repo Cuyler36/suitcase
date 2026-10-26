@@ -39,7 +39,7 @@ class WsdPlayer : public BasicPlayer,
                                       WaveSoundNoteInfo *noteInfo,
                                       WaveData *waveData,
                                       void const *waveSoundData, int index,
-                                      int noteIndex, u32 userData) const = 0;
+                                      int noteIndex, uintptr_t userData) const = 0;
 
       private:
         /* vtable */ // size 0x04, offset 0x00
@@ -75,7 +75,7 @@ class WsdPlayer : public BasicPlayer,
     bool Prepare(void const *waveSoundBase, int index,
                  StartOffsetType startOffsetType, int startOffset,
                  int voiceOutCount, WsdCallback const *callback,
-                 u32 callbackData);
+                 uintptr_t callbackData);
 
     f32 GetPanRange() const {
         return mPanRange;
@@ -102,14 +102,14 @@ class WsdPlayer : public BasicPlayer,
   private:
     static void ChannelCallbackFunc(Channel *dropChannel,
                                     Channel::ChannelCallbackStatus status,
-                                    u32 userData);
+                                    uintptr_t userData);
 
     void InitParam(int voiceOutCount, WsdCallback const *callback,
-                   u32 callbackData);
+                   uintptr_t callbackData);
 
     void Update();
 
-    bool StartChannel(WsdCallback const *callback, u32 callbackData);
+    bool StartChannel(WsdCallback const *callback, uintptr_t callbackData);
     void UpdateChannel();
     void CloseChannel();
 
@@ -135,7 +135,7 @@ class WsdPlayer : public BasicPlayer,
     u8 mPriority;       // size 0x001, offset 0x0cc
     /* 3 bytes padding */
     WsdCallback const *mCallback;     // size 0x004, offset 0x0d0
-    u32 mCallbackData;                // size 0x004, offset 0x0d4
+    uintptr_t mCallbackData;                // size 0x004, offset 0x0d4
     void const *mWsdData;             // size 0x004, offset 0x0d8
     int mWsdIndex;                    // size 0x004, offset 0x0dc
     StartOffsetType mStartOffsetType; // size 0x004, offset 0x0e0

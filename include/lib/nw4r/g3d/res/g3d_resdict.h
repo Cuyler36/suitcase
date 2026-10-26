@@ -1,6 +1,7 @@
 #ifndef NW4R_G3D_RES_RES_DICT_H
 #define NW4R_G3D_RES_RES_DICT_H
 #include <nw4r/types_nw4r.h>
+#include <port/endian.h>
 
 #include <nw4r/g3d/res/g3d_rescommon.h>
 
@@ -8,17 +9,17 @@ namespace nw4r {
 namespace g3d {
 
 struct ResDicNodeData {
-    u16 ref;       // at 0x0
-    u16 flag;      // at 0x2
-    u16 idxLeft;   // at 0x4
-    u16 idxRight;  // at 0x6
-    s32 ofsString; // at 0x8
-    s32 ofsData;   // at 0xC
+    BE(u16) ref;       // at 0x0
+    BE(u16) flag;      // at 0x2
+    BE(u16) idxLeft;   // at 0x4
+    BE(u16) idxRight;  // at 0x6
+    BE(s32) ofsString; // at 0x8
+    BE(s32) ofsData;   // at 0xC
 };
 
 struct ResDicData {
-    ulong size;               // at 0x0
-    ulong numData;            // at 0x4
+    BE(u32) size;               // at 0x0
+    BE(u32) numData;            // at 0x4
     ResDicNodeData data[1]; // at 0x8
 };
 

@@ -66,8 +66,8 @@ template <typename T> inline bool TestBit(T t, int pos) {
  * Pointer arithmetic
  *
  ******************************************************************************/
-inline ulong GetIntPtr(const void* pPtr) {
-    return reinterpret_cast<ulong>(pPtr);
+inline uintptr_t GetIntPtr(const void* pPtr) {
+    return reinterpret_cast<uintptr_t>(pPtr);
 }
 
 template <typename T>
@@ -92,22 +92,31 @@ inline int ComparePtr(const void* pPtr1, const void* pPtr2) {
  *
  ******************************************************************************/
 template <typename T> inline T RoundUp(T t, unsigned int alignment) {
+#if TARGET_PC
+    // An unsigned int mask would clear the upper half of a 64-bit value
+    return (t + (alignment - 1)) & ~static_cast<T>(alignment - 1);
+#else
     return (t + (alignment - 1)) & ~(alignment - 1);
+#endif
 }
 
 template <typename T> inline void* RoundUp(T* pPtr, unsigned int alignment) {
-    ulong value = reinterpret_cast<ulong>(pPtr);
-    ulong rounded = (alignment + value - 1) & ~(alignment - 1);
+    uintptr_t value = reinterpret_cast<uintptr_t>(pPtr);
+    uintptr_t rounded = (alignment + value - 1) & ~static_cast<uintptr_t>(alignment - 1);
     return reinterpret_cast<void*>(rounded);
 }
 
 template <typename T> inline T RoundDown(T t, unsigned int alignment) {
+#if TARGET_PC
+    return t & ~static_cast<T>(alignment - 1);
+#else
     return t & ~(alignment - 1);
+#endif
 }
 
 template <typename T> inline void* RoundDown(T* pPtr, unsigned int alignment) {
-    ulong value = reinterpret_cast<ulong>(pPtr);
-    ulong rounded = value & ~(alignment - 1);
+    uintptr_t value = reinterpret_cast<uintptr_t>(pPtr);
+    uintptr_t rounded = value & ~static_cast<uintptr_t>(alignment - 1);
     return reinterpret_cast<void*>(rounded);
 }
 

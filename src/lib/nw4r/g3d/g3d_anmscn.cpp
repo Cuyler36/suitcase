@@ -27,7 +27,16 @@ void AnmScn::GetLightSetting(LightSetting* pSetting) {
 
         for (u32 i = 0; i < numLoadableAmb; i++) {
             AmbLightObj* pAmbObj = &pAmbObjArray[i];
+#if TARGET_PC
+            // The color's u32 form is 0xRRGGBBAA, the byte order only on a big-endian host
+            ut::Color color = GetAmbLightColor(i);
+            pAmbObj->r = color.r;
+            pAmbObj->g = color.g;
+            pAmbObj->b = color.b;
+            pAmbObj->a = color.a;
+#else
             *reinterpret_cast<u32*>(&pAmbObj->r) = GetAmbLightColor(i);
+#endif
         }
     }
 

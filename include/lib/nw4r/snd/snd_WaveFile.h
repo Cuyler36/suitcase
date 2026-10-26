@@ -15,10 +15,10 @@ namespace detail {
 struct WaveFile {
     struct FileHeader {
         ut::BinaryFileHeader fileHeader; // size 0x10, offset 0x00
-        u32 infoChunkOffset;             // size 0x04, offset 0x10
-        u32 infoChunkSize;               // size 0x04, offset 0x14
-        u32 dataChunkOffset;             // size 0x04, offset 0x18
-        u32 dataChunkSize;               // size 0x04, offset 0x1c
+        BE(u32) infoChunkOffset;             // size 0x04, offset 0x10
+        BE(u32) infoChunkSize;               // size 0x04, offset 0x14
+        BE(u32) dataChunkOffset;             // size 0x04, offset 0x18
+        BE(u32) dataChunkSize;               // size 0x04, offset 0x1c
     }; // size 0x20
 
     struct WaveInfo {
@@ -26,24 +26,24 @@ struct WaveFile {
         u8 loopFlag;         // size 0x01, offset 0x01
         u8 numChannels;      // size 0x01, offset 0x02
         u8 sampleRate24;     // size 0x01, offset 0x03
-        u16 sampleRate;      // size 0x02, offset 0x04
+        BE(u16) sampleRate;      // size 0x02, offset 0x04
         u8 dataLocationType; // size 0x01, offset 0x06
         u8 padding;
-        u32 loopStart;              // size 0x04, offset 0x08
-        u32 loopEnd;                // size 0x04, offset 0x0c
-        u32 channelInfoTableOffset; // size 0x04, offset 0x10
-        u32 dataLocation;           // size 0x04, offset 0x14
-        u32 reserved;
+        BE(u32) loopStart;              // size 0x04, offset 0x08
+        BE(u32) loopEnd;                // size 0x04, offset 0x0c
+        BE(u32) channelInfoTableOffset; // size 0x04, offset 0x10
+        BE(u32) dataLocation;           // size 0x04, offset 0x14
+        BE(u32) reserved;
     }; // size 0x1c
 
     struct WaveChannelInfo {
-        u32 channelDataOffset; // size 0x04, offset 0x00
-        u32 adpcmOffset;       // size 0x04, offset 0x04
-        u32 volumeFrontLeft;   // size 0x04, offset 0x08
-        u32 volumeFrontRight;  // size 0x04, offset 0x0c
-        u32 volumeRearLeft;    // size 0x04, offset 0x10
-        u32 volumeRearRight;   // size 0x04, offset 0x14
-        u32 reserved;
+        BE(u32) channelDataOffset; // size 0x04, offset 0x00
+        BE(u32) adpcmOffset;       // size 0x04, offset 0x04
+        BE(u32) volumeFrontLeft;   // size 0x04, offset 0x08
+        BE(u32) volumeFrontRight;  // size 0x04, offset 0x0c
+        BE(u32) volumeRearLeft;    // size 0x04, offset 0x10
+        BE(u32) volumeRearRight;   // size 0x04, offset 0x14
+        BE(u32) reserved;
     }; // size 0x1c
 
     static u32 const SIGNATURE_INFO_BLOCK = NW4R_FOUR_BYTE('I', 'N', 'F', 'O');
@@ -53,10 +53,14 @@ struct WaveFile {
         WaveInfo waveInfo;                 // size 0x1c, offset 0x08
     }; // size 0x24
 
+#if TARGET_PC
+    typedef AdpcmParamSetData AdpcmParamSet;
+#else
     struct AdpcmParamSet {
         AdpcmParam adpcmParam;         // size 0x28, offset 0x00
         AdpcmLoopParam adpcmLoopParam; // size 0x06, offset 0x28
     }; // size 0x2e
+#endif
 
     static u32 const SIGNATURE_FILE = NW4R_FOUR_BYTE('R', 'W', 'A', 'V');
     static int const FILE_VERSION;

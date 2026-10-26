@@ -41,7 +41,7 @@ public:
     void build(m2d::ResAccIf_c *res); // 801B5BF0
     void calc(f32 speed); // 801B5C68
     void draw(); // 801B5CD8
-    void set(const wchar_t *text, int title, f32 y); // 801B5CEC
+    void set(const wchar16_t *text, int title, f32 y); // 801B5CEC
     void clear() { mFlags = 0; }
     bool isActive() { return (mFlags & ACTIVE) != 0; }
 
@@ -52,10 +52,10 @@ public:
     /* 0x284 */ u16 mFlags;
 }; // size 0x288
 
-int getLineLength(const wchar_t *text); // 801B5308
-const wchar_t *getNextLine(const wchar_t *text); // 801B5340
-int getLineCount(const wchar_t *text); // 801B5384
-const wchar_t *getLine(const wchar_t *text, int line); // 801B53C8
+int getLineLength(const wchar16_t *text); // 801B5308
+const wchar16_t *getNextLine(const wchar16_t *text); // 801B5340
+int getLineCount(const wchar16_t *text); // 801B5384
+const wchar16_t *getLine(const wchar16_t *text, int line); // 801B53C8
 void start(); // 801B5B98
 void stop(); // 801B5BA8
 void startEnding(); // 801B5BB8

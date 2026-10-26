@@ -102,6 +102,13 @@ void dHR::updateRate(u32 home) {
     if (home == 4) {
         home = dSaveData_c::getRaw()->mHomes.findCurrentPlayer();
     }
+#if TARGET_PC
+    // Before the new player has a house (leaving Rover's scene) findCurrentPlayer is -1: the Wii
+    // zeroes the word before l_rates (the end of l_mail's dtor record), the PC's index is 16 GiB out
+    if (home >= 4) {
+        return;
+    }
+#endif
     dHR::rate_c *rate = &l_rates[home];
     rate->clear();
     if (dSaveData_c::getRaw()->mHomes.getHomePlayerRaw(home) != NULL) {

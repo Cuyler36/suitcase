@@ -1,6 +1,7 @@
 #pragma once
 
 #include <types.h>
+#include <port/bitfield.h>
 #include <cstring>
 #include <game/game/d_dvd.hpp>
 #include <game/game/d_fg_item.hpp>
@@ -840,7 +841,7 @@ struct BITM {
     static u16 getVersion(); // 800C1C80
     BOOL isValid() const; // 800C1C88
     int getFtrFuncType() const; // 800C1CCC
-    const wchar_t *getName() const; // 800C1CF8
+    const wchar16_t *getName() const; // 800C1CF8
     int getDefArticle() const; // 800C1D90
     int getIndefArticle() const; // 800C1E48
     int getGender() const; // 800C1F00
@@ -930,16 +931,16 @@ struct BITM {
     s16 m_ftrKind; // 0x00C
     s16 _E; // 0x00E
     s16 m_version; // 0x010
-    wchar_t m_nameJp[17]; // 0x012
-    wchar_t m_nameUs[17]; // 0x034
-    wchar_t m_nameMx[17]; // 0x056
-    wchar_t m_nameQc[17]; // 0x078
-    wchar_t m_nameEn[17]; // 0x09A
-    wchar_t m_nameDe[17]; // 0x0BC
-    wchar_t m_nameIt[17]; // 0x0DE
-    wchar_t m_nameEs[17]; // 0x100
-    wchar_t m_nameFr[17]; // 0x122
-    wchar_t m_nameKr[17]; // 0x144
+    wchar16_t m_nameJp[17]; // 0x012
+    wchar16_t m_nameUs[17]; // 0x034
+    wchar16_t m_nameMx[17]; // 0x056
+    wchar16_t m_nameQc[17]; // 0x078
+    wchar16_t m_nameEn[17]; // 0x09A
+    wchar16_t m_nameDe[17]; // 0x0BC
+    wchar16_t m_nameIt[17]; // 0x0DE
+    wchar16_t m_nameEs[17]; // 0x100
+    wchar16_t m_nameFr[17]; // 0x122
+    wchar16_t m_nameKr[17]; // 0x144
     s8 m_kind; // 0x166
     u8 m_addItem; // 0x167
     s8 m_fgobj; // 0x168
@@ -956,63 +957,36 @@ struct BITM {
     u8 m_ftrSfx; // 0x173
     s8 m_fossil; // 0x174
     u8 m_ftrHeight; // 0x175
-    // MWCC allocates u8 bit-fields from the most significant bit.
-    u8 m_region : 4; // 0x176
-    u8 m_season : 4;
-    u8 m_hideBone : 4; // 0x177
-    u8 m_style : 4;
-    u8 m_textPltt : 4; // 0x178
-    u8 m_designPltt : 4;
-    u8 m_ftrSize : 4; // 0x179
-    u8 m_ftrColorA : 4;
-    u8 m_ftrColorB : 4; // 0x17A
-    u8 m_ftrPartA : 4;
-    u8 m_ftrPartB : 4; // 0x17B
-    u8 m_defUs : 4;
-    u8 m_indefUs : 4; // 0x17C
-    u8 m_defMx : 4;
-    u8 m_indefMx : 4; // 0x17D
-    u8 m_genderMx : 4;
-    u8 m_defQc : 4; // 0x17E
-    u8 m_indefQc : 4;
-    u8 m_genderQc : 4; // 0x17F
-    u8 m_defEn : 4;
-    u8 m_indefEn : 4; // 0x180
-    u8 m_defDe : 4;
-    u8 m_indefDe : 4; // 0x181
-    u8 m_genderDe : 4;
-    u8 m_defIt : 4; // 0x182
-    u8 m_indefIt : 4;
-    u8 m_genderIt : 4; // 0x183
-    u8 m_defEs : 4;
-    u8 m_indefEs : 4; // 0x184
-    u8 m_genderEs : 4;
-    u8 m_defFr : 4; // 0x185
-    u8 m_indefFr : 4;
-    u8 m_genderFr : 4; // 0x186
-    u8 m_edibility : 2;
-    u8 m_ftrTable : 2;
-    u8 m_ftrLamp : 2; // 0x187
-    u8 m_hasRes : 1;
-    u8 m_noPurchase : 1;
-    u8 _187_3 : 1;
-    u8 m_proDesign : 1;
-    u8 m_catalogStore : 1;
+    // MWCC allocates u8 bit-fields from the most significant bit (BITFIELD_BYTE_n keeps that
+    // layout on PC, port/bitfield.h).
+    BITFIELD_BYTE_2(u8 m_region : 4, u8 m_season : 4); // 0x176
+    BITFIELD_BYTE_2(u8 m_hideBone : 4, u8 m_style : 4); // 0x177
+    BITFIELD_BYTE_2(u8 m_textPltt : 4, u8 m_designPltt : 4); // 0x178
+    BITFIELD_BYTE_2(u8 m_ftrSize : 4, u8 m_ftrColorA : 4); // 0x179
+    BITFIELD_BYTE_2(u8 m_ftrColorB : 4, u8 m_ftrPartA : 4); // 0x17A
+    BITFIELD_BYTE_2(u8 m_ftrPartB : 4, u8 m_defUs : 4); // 0x17B
+    BITFIELD_BYTE_2(u8 m_indefUs : 4, u8 m_defMx : 4); // 0x17C
+    BITFIELD_BYTE_2(u8 m_indefMx : 4, u8 m_genderMx : 4); // 0x17D
+    BITFIELD_BYTE_2(u8 m_defQc : 4, u8 m_indefQc : 4); // 0x17E
+    BITFIELD_BYTE_2(u8 m_genderQc : 4, u8 m_defEn : 4); // 0x17F
+    BITFIELD_BYTE_2(u8 m_indefEn : 4, u8 m_defDe : 4); // 0x180
+    BITFIELD_BYTE_2(u8 m_indefDe : 4, u8 m_genderDe : 4); // 0x181
+    BITFIELD_BYTE_2(u8 m_defIt : 4, u8 m_indefIt : 4); // 0x182
+    BITFIELD_BYTE_2(u8 m_genderIt : 4, u8 m_defEs : 4); // 0x183
+    BITFIELD_BYTE_2(u8 m_indefEs : 4, u8 m_genderEs : 4); // 0x184
+    BITFIELD_BYTE_2(u8 m_defFr : 4, u8 m_indefFr : 4); // 0x185
+    BITFIELD_BYTE_3(u8 m_genderFr : 4, u8 m_edibility : 2, u8 m_ftrTable : 2); // 0x186
     // The genre pairs straddle bytes and are read as separate bits
     // (0x187 bit 0 / 0x188 bit 7, 0x188 bits 6 and 5).
-    u8 m_ftrGenreA0 : 1;
-    u8 m_ftrGenreA1 : 1; // 0x188
-    u8 m_ftrGenreB0 : 1;
-    u8 m_ftrGenreB1 : 1;
-    u8 m_hraWallCheck : 1;
-    u8 m_hraLuckyBonus : 1;
-    u8 _188_2 : 1;
-    u8 m_ftrPassThru : 1;
-    u8 _188_0 : 1;
-    u8 _189_7 : 1; // 0x189
+    BITFIELD_BYTE_7(u8 m_ftrLamp : 2, u8 m_hasRes : 1, u8 m_noPurchase : 1, u8 _187_3 : 1,
+                    u8 m_proDesign : 1, u8 m_catalogStore : 1, u8 m_ftrGenreA0 : 1); // 0x187
+    BITFIELD_BYTE_8(u8 m_ftrGenreA1 : 1, u8 m_ftrGenreB0 : 1, u8 m_ftrGenreB1 : 1,
+                    u8 m_hraWallCheck : 1, u8 m_hraLuckyBonus : 1, u8 _188_2 : 1,
+                    u8 m_ftrPassThru : 1, u8 _188_0 : 1); // 0x188
+    BITFIELD_BYTE_2(u8 _189_7 : 1, u8 : 7); // 0x189
 }; // sizeof = 0x18C
 
-#ifdef __MWERKS__ // wchar_t is 16-bit on MWCC
+#ifdef __MWERKS__ // wchar16_t is 16-bit on MWCC
 STATIC_ASSERT_WII(BitmSizeCheck, sizeof(BITM) == 0x18C);
 #endif
 STATIC_ASSERT_WII(BinHeaderSizeCheck, sizeof(BinHeader) == 0x20);
@@ -1036,11 +1010,9 @@ public:
 
 // kind.bin entry (one byte per kind). MWCC allocates from the top bit.
 struct KindInfo {
-    u8 mCheckNoPurchase : 1; // bit 7: BITM::m_noPurchase applies
-    u8 mFlag6 : 1;
-    u8 mFlag5 : 1;
-    u8 mFlag4 : 1;
-    u8 _low : 4;
+    // mCheckNoPurchase (bit 7): BITM::m_noPurchase applies
+    BITFIELD_BYTE_5(u8 mCheckNoPurchase : 1, u8 mFlag6 : 1, u8 mFlag5 : 1, u8 mFlag4 : 1,
+                    u8 _low : 4);
 };
 
 // series.bin entry.
@@ -1053,27 +1025,16 @@ struct Series {
 
     s8 mId; // 0x00
     u8 _01[0x21];
-    u8 mGroup : 4; // 0x22
-    u8 _22_lo : 4;
+    BITFIELD_BYTE_2(u8 mGroup : 4, u8 _22_lo : 4); // 0x22
 }; // sizeof = 0x23
 
 // npcMsg.bin entry (3 bytes) and npcMsgBullfest.bin entry (6 bytes).
 struct NpcMsg {
     u8 mMsg; // 0x00 (read as s8)
     // Per-slot enables for the two message sets (A = first, B = second).
-    u8 mA0 : 1; // 0x01
-    u8 mB0 : 1;
-    u8 mA1 : 1;
-    u8 mB1 : 1;
-    u8 mA2 : 1;
-    u8 mB2 : 1;
-    u8 mA3 : 1;
-    u8 mB3 : 1;
-    u8 mA4 : 1; // 0x02
-    u8 mB4 : 1;
-    u8 mA5 : 1;
-    u8 mB5 : 1;
-    u8 _02_lo : 4;
+    BITFIELD_BYTE_8(u8 mA0 : 1, u8 mB0 : 1, u8 mA1 : 1, u8 mB1 : 1, u8 mA2 : 1, u8 mB2 : 1,
+                    u8 mA3 : 1, u8 mB3 : 1); // 0x01
+    BITFIELD_BYTE_5(u8 mA4 : 1, u8 mB4 : 1, u8 mA5 : 1, u8 mB5 : 1, u8 _02_lo : 4); // 0x02
 };
 struct NpcMsgBullfest {
     u8 mMsg[6];
@@ -1090,9 +1051,9 @@ public:
     // dScript::Word_c dtor) and emits a weak vtable copy.
     virtual ~name_c() {} // 8000DDF4
     virtual u32 getBufferSize() { return sizeof(mBuffer); } // 8000DE54
-    virtual wchar_t *getBuffer() { return mBuffer; } // 8000DE4C
+    virtual wchar16_t *getBuffer() { return mBuffer; } // 8000DE4C
 
-    wchar_t mBuffer[17]; // 0x24
+    wchar16_t mBuffer[17]; // 0x24
 }; // sizeof = 0x48
 
 // MWCC emits vtables in reverse class-definition order, so the order of the

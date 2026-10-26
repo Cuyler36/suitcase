@@ -51,18 +51,18 @@ class Channel {
 
   public:
     typedef void Callback(Channel *dropChannel, ChannelCallbackStatus status,
-                          u32 userData);
+                          uintptr_t userData);
 
-    typedef ut::LinkList<Channel, 0xf8> LinkList;
+    typedef ut::LinkList<Channel, NW4R_UT_LINK_OFFSET(0xf8, 0x110)> LinkList;
 
   public:
     static Channel *AllocChannel(int voiceChannelCount, int voiceOutCount,
                                  int priority, Callback *callback,
-                                 u32 callbackData);
+                                 uintptr_t callbackData);
 
     static void FreeChannel(Channel *channel);
 
-    void InitParam(Callback *callback, u32 callbackData);
+    void InitParam(Callback *callback, uintptr_t callbackData);
     void Start(WaveData const &waveParam, int length, u32 startOffset);
     void Pause(bool flag) {
         mPauseFlag = flag;
@@ -283,7 +283,7 @@ class Channel {
     PanCurve mPanCurve;   // size 0x04, offset 0xd8
     int mAlternateAssign; // size 0x04, offset 0xdc
     Callback *mCallback;  // size 0x04, offset 0xe0
-    u32 mCallbackData;    // size 0x04, offset 0xe4
+    uintptr_t mCallbackData;    // size 0x04, offset 0xe4
     WaveDataLocationCallback
         *mWaveDataLocationCallback; // size 0x04, offset 0xe8
     WaveData const *mWaveInfo;      // size 0x04, offset 0xec
@@ -291,6 +291,12 @@ class Channel {
     Channel *mNextLink;             // size 0x04, offset 0xf4
   public:
     ut::LinkListNode mLink; // size 0x08, offset 0xf8
+#if TARGET_PC
+    // The PC list offsets (NW4R_UT_LINK_OFFSET)
+    static void CheckLinkOffsets() {
+        static_assert(offsetof(Channel, mLink) == 0x110, "mLink");
+    }
+#endif
 
   private:
     template <class> friend class InstancePool;

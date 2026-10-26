@@ -11,9 +11,9 @@ public:
     stringWord_c(); // 80009DA4
     virtual ~stringWord_c(); // 80009DE8
     virtual u32 getBufferSize();
-    virtual wchar_t *getBuffer();
+    virtual wchar16_t *getBuffer();
 
-    /* 0x24 */ wchar_t mBuffer[0x68];
+    /* 0x24 */ wchar16_t mBuffer[0x68];
 }; // size 0xF4
 
 } // namespace m2d

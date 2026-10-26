@@ -14,16 +14,16 @@ namespace detail {
 struct WaveArchive {
     struct FileHeader {
         ut::BinaryFileHeader fileHeader; // size 0x10, offset 0x00
-        u32 tableChunkOffset;            // size 0x04, offset 0x10
-        u32 tableChunkSize;              // size 0x04, offset 0x14
-        u32 dataChunkOffset;             // size 0x04, offset 0x18
-        u32 dataChunkSize;               // size 0x04, offset 0x1c
+        BE(u32) tableChunkOffset;            // size 0x04, offset 0x10
+        BE(u32) tableChunkSize;              // size 0x04, offset 0x14
+        BE(u32) dataChunkOffset;             // size 0x04, offset 0x18
+        BE(u32) dataChunkSize;               // size 0x04, offset 0x1c
     }; // size 0x20
 
     struct TableItem {
         Util::DataRef<WaveFile::FileHeader>
             waveFileRef;  // size 0x08, offset 0x00
-        u32 waveFileSize; // size 0x04, offset 0x08
+        BE(u32) waveFileSize; // size 0x04, offset 0x08
     }; // size 0x0c
 
     static u32 const SIGNATURE_TABLE_BLOCK = NW4R_FOUR_BYTE('T', 'A', 'B', 'L');

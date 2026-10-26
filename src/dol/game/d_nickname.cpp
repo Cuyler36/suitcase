@@ -16,13 +16,13 @@ u32 dNicknameWord_c::getBufferSize() {
 }
 
 // 800EBA58
-wchar_t *dNicknameWord_c::getBuffer() {
+wchar16_t *dNicknameWord_c::getBuffer() {
     return mBuffer;
 }
 
 // 800EBA60
 BOOL dNicknameWord_c::hasNoLetters() {
-    const wchar_t *p = getBuffer();
+    const wchar16_t *p = getBuffer();
     int len = getTextLength(p, 0);
     for (int i = 0; i <= len; i++, p++) {
         if (dScript::isHiragana(*p)) {

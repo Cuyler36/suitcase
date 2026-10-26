@@ -48,14 +48,14 @@ class CandidateBoxCaller {
 public:
     struct Candidates {
         /* 0x000 */ s32 mNumCandidate;
-        /* 0x004 */ wchar_t mszCandidate[50][61];
+        /* 0x004 */ wchar16_t mszCandidate[50][61];
     }; // size 0x17D8
 
 #if VERSION == VERSION_RUUK01_01
     CandidateBoxCaller() : mpCandidateBox(NULL) {}
 
     virtual void resetCandidate();
-    virtual void addCandidate(const wchar_t *wcString);
+    virtual void addCandidate(const wchar16_t *wcString);
     virtual void setCandidateBox(Base *candidateBox) { mpCandidateBox = candidateBox; }
     virtual void updateCandidate();
     virtual void makeEmptyCandidate();
@@ -68,7 +68,7 @@ public:
         mCandidates.mNumCandidate = 0;
         updateCandidate();
     }
-    virtual void addCandidate(const wchar_t *wcString) { // 0x0C
+    virtual void addCandidate(const wchar16_t *wcString) { // 0x0C
         wcsncpy(mCandidates.mszCandidate[mCandidates.mNumCandidate], wcString, 61);
         mCandidates.mNumCandidate++;
     }
@@ -101,7 +101,7 @@ class Base : public CommandSender {
     virtual void updateFromReceiver(u32 command, void *data);
 #if VERSION == VERSION_RUUK01_01
     virtual void resetCandidate();
-    virtual void addCandidate(const wchar_t *wcString);
+    virtual void addCandidate(const wchar16_t *wcString);
 #endif
     virtual void updateCandidate(CandidateBoxCaller::Candidates *candidates);
     virtual void draw() {
@@ -159,7 +159,13 @@ class UIObj : public gui::EventHandler {
   public:
     class Listener {
       public:
+#if TARGET_PC
+        // Not in the original binary (every listener overrides it), but MSVC emits Listener's
+        // vtable wherever a listener is constructed, so the slot needs a definition.
+        virtual void onEvent(UIObj *, u32, void *) {}
+#else
         virtual void onEvent(UIObj *, u32, void *);
+#endif
     };
 
     UIObj(u32 id, LayoutByNW4R *layout, Listener *listener)

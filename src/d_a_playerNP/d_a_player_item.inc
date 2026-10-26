@@ -1670,7 +1670,7 @@ void dAcPlayer_c::updateShowCatch(BOOL insect) {
                 static_cast<dInsFldBase_c *>(mShowInsect)->setHeldScale(&scale);
             }
             if (frame > 76.0f) {
-                createCatchEffect(static_cast<dPlayActor_c *>(mShowInsect));
+                createCatchEffect(static_cast<dInsFldBase_c *>(mShowInsect));
             }
         } else {
             int type = dItem::seeker_c::get()->findLike(mActionItem);
@@ -1827,7 +1827,7 @@ void dAcPlayer_c::endShowCatchAt(int nextState) {
 void dAcPlayer_c::releaseCatch(BOOL insect, BOOL fromPocket) {
     if (insect) {
         if (fromPocket) {
-            dPlayActorMng_c *mng = g_playActorMng;
+            dInsectField_c *mng = g_playActorMng;
             if (mng != NULL) {
                 int type = dItem::seeker_c::get()->findLike(mActionItem);
                 mInsectLink.set(

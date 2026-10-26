@@ -322,7 +322,7 @@ class dMenuChat_c : public dMenuBase_c {
     /* 0x1400 */ KeyboardMng_c mKbd;
     /* 0x1788 */ dKbd::Cur_c mCur;
     /* 0x1940 */ dObjKeyboard_c::Word_c mWord;
-    /* 0x19C8 */ wchar_t mText[TEXT_SIZE];
+    /* 0x19C8 */ wchar16_t mText[TEXT_SIZE];
     /* 0x1A0C */ int mTimer;
     /* 0x1A10 */ u8 mMode;
     /* 0x1A11 */ u8 mNextMode;

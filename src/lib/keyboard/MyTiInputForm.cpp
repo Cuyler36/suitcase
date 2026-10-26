@@ -966,19 +966,19 @@ bool InputForm::isWholePaneInAnimation() {
     return searchAnmPane("N_Memo")->isInAnimation();
 }
 
-void InputForm::setHeaderCaption(const wchar_t *headerCaption) {
+void InputForm::setHeaderCaption(const wchar16_t *headerCaption) {
     static_cast<nw4r::lyt::TextBox *>(
         mpLayout->GetRootPane()->FindPaneByName("T_Header", true))
         ->SetString(headerCaption, 0);
 }
 
-void InputForm::setMiiName(const wchar_t *miiName) {
+void InputForm::setMiiName(const wchar16_t *miiName) {
     static_cast<nw4r::lyt::TextBox *>(
         mpLayout->GetRootPane()->FindPaneByName("T_Nigaoe", true))
         ->SetString(miiName, 0);
 }
 
-void InputForm::setTouchLetterCaption(const wchar_t *letterCaption) {
+void InputForm::setTouchLetterCaption(const wchar16_t *letterCaption) {
     static_cast<nw4r::lyt::TextBox *>(
         mpLayout->GetRootPane()->FindPaneByName("T_TouchLetter", true))
         ->SetString(letterCaption, 0);
@@ -1066,7 +1066,7 @@ void InputForm::doLineFeed() {
     inputform::Base::doLineFeed();
 }
 
-void InputForm::put(wchar_t ch) {
+void InputForm::put(wchar16_t ch) {
     if (meEditMode == EM_Disp) {
         mpSendString->pushBack(ch);
     }

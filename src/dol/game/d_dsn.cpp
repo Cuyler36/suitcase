@@ -168,7 +168,7 @@ void dDesign_c::setPalette(int idx, BOOL flush) {
 }
 
 // 8010F8C0
-void dDesign_c::setName(const wchar_t *name) {
+void dDesign_c::setName(const wchar16_t *name) {
     memcpy(mName, name, sizeof(mName));
     mName[ORG_DESIGN_NAME_LEN] = 0;
 }
@@ -204,7 +204,7 @@ BOOL dDesign_c::setFromBITM(const dItem::BITM *bitm) {
             dString::loadString(&creatorName, (s8)bitm->m_designCreatorFrom, "sys_STRING/STR_Unit");
         }
 
-        const wchar_t *landStr = static_cast<dScript::Word_c &>(landName).getBuffer();
+        const wchar16_t *landStr = static_cast<dScript::Word_c &>(landName).getBuffer();
         land.setName(landStr, getLanguage());
         creator.setPlayer(static_cast<dScript::Word_c &>(creatorName).getBuffer(), dPlayerID_c::ID_UNSET, 0);
         creator.land.copy(&land);

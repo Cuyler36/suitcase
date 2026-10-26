@@ -271,9 +271,9 @@ void Manager::configLetter() {
     mpSignWindow = mpDefaultSignWindow;
     textinput::Manager::init();
     Language language = mpToolBar->getLanguage();
-    const wchar_t *okCaption = langindependent::cLanguageIndependentString
+    const wchar16_t *okCaption = langindependent::cLanguageIndependentString
         [langindependent::LANG_STRID_OK][language];
-    const wchar_t *cancelCaption = langindependent::cLanguageIndependentString
+    const wchar16_t *cancelCaption = langindependent::cLanguageIndependentString
         [langindependent::LANG_STRID_BACK][language];
     mpToolBar->setOKButtonVisible(true);
     mpToolBar->setOKButtonCaption(okCaption);

@@ -42,7 +42,7 @@ class Voice : public DisposeCallback {
     };
 
   public:
-    typedef ut::LinkList<Voice, 0x11c> LinkList;
+    typedef ut::LinkList<Voice, NW4R_UT_LINK_OFFSET(0x11c, 0x150)> LinkList;
 
     typedef void Callback(Voice *dropVoice, VoiceCallbackStatus status,
                           void *callbackData);
@@ -224,6 +224,12 @@ class Voice : public DisposeCallback {
     PanCurve mPanCurve;       // size 0x04, offset 0x118
   public:
     ut::LinkListNode mLinkNode; // size 0x08, offset 0x11c
+#if TARGET_PC
+    // The PC list offsets (NW4R_UT_LINK_OFFSET)
+    static void CheckLinkOffsets() {
+        static_assert(offsetof(Voice, mLinkNode) == 0x150, "mLinkNode");
+    }
+#endif
 
   private:
     friend class VoiceManager;

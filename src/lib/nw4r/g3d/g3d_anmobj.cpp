@@ -40,5 +40,11 @@ bool AnmObj::TestAnmFlag(AnmFlag flag) const {
     return mFlags & flag;
 }
 
+#if TARGET_PC
+// Not in the original binary (every animation object overrides it), but MSVC emits AnmObj's vtable
+// wherever a derived object is constructed, so the slot needs a definition.
+void AnmObj::Release() {}
+#endif
+
 } // namespace g3d
 } // namespace nw4r

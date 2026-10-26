@@ -5,6 +5,9 @@
 // Include order sets the vtable / RTTI order (reverse class-definition order): dItem::name_c's
 // weak vtable must come out last, and Rcpt_c's vtable first (Rcpt_c defined after the controller).
 #include <game/game/d_item.hpp>
+#if TARGET_PC
+#include <port/endian.h>
+#endif
 #include <game/game/d_script.hpp>
 #include <cstring>
 #include <game/game/d_msg_seq.hpp>
@@ -161,7 +164,7 @@ void Seq_c::execute() {
         }
     }
 
-    wchar_t tagStart = TAG_ESCAPE;
+    wchar16_t tagStart = TAG_ESCAPE;
     while (true) {
         if (!isTypeReady()) {
             return;
@@ -169,9 +172,14 @@ void Seq_c::execute() {
         if (!procChar()) {
             return;
         }
-        wchar_t *text = mText;
+        wchar16_t *text = mText;
         // Cut the drawing after the typed characters (the rest of the line keeps the layout).
-        wchar_t cursor[3] = {tagStart, TAG_HEAD(6, dScript::TAG_GROUP_SYSTEM), dScript::TAG_SYSTEM_TYPE_END};
+        wchar16_t cursor[3] = {tagStart, TAG_HEAD(6, dScript::TAG_GROUP_SYSTEM), dScript::TAG_SYSTEM_TYPE_END};
+#if TARGET_PC
+        // Tag bodies are big-endian (as in the BMG files)
+        cursor[1] = RES_U16(cursor[1]);
+        cursor[2] = RES_U16(cursor[2]);
+#endif
         u32 len = dScript::getStringLength(mWord.getBuffer(), ARRAY_SIZE(mText), 0);
         int rest = len - (mPageStart + mPos);
         if (len + 3 > ARRAY_SIZE(mText)) {
@@ -180,13 +188,13 @@ void Seq_c::execute() {
         if (rest < 0) {
             return;
         }
-        const wchar_t *buf = mWord.getBuffer();
-        std::memcpy(text, buf + mPageStart, mPos * sizeof(wchar_t));
+        const wchar16_t *buf = mWord.getBuffer();
+        std::memcpy(text, buf + mPageStart, mPos * sizeof(wchar16_t));
         text += mPos;
         std::memcpy(text, cursor, sizeof(cursor));
         int lineLen = dScript::getLineLength((const u16 *)(mWord.getBuffer() + mPageStart + mPos), ARRAY_SIZE(mText));
         buf = mWord.getBuffer();
-        std::memcpy(text + 3, buf + mPageStart + mPos, lineLen * sizeof(wchar_t));
+        std::memcpy(text + 3, buf + mPageStart + mPos, lineLen * sizeof(wchar16_t));
         int textLen = dScript::getStringLength(mText, ARRAY_SIZE(mText), 0);
         mpTextBox->SetString(mText, 0, textLen);
     }
@@ -240,7 +248,7 @@ void Seq_c::start(int speed, int align) {
     mpComp->mVoice.mPaused = FALSE;
 }
 
-void Seq_c::setText(const wchar_t *text) {
+void Seq_c::setText(const wchar16_t *text) {
     mWord.clear();
     mWord.set(text, 0);
     mTextLen = mWord.getTextLength(mWord.getBuffer(), 0);
@@ -261,7 +269,7 @@ void Seq_c::nextPage() {
 
 BOOL Seq_c::procChar() {
     mpChar = mWord.getBuffer() + mPos + mPageStart;
-    wchar_t c = *mpChar;
+    wchar16_t c = *mpChar;
     if (c == TAG_ESCAPE) {
         u8 len = dScript::getTagLength(mpChar);
         if (len + mPos > mTextLen) {
@@ -297,7 +305,7 @@ BOOL Seq_c::procChar() {
         mTyped = TRUE;
         mPos++;
         if (mRuby.isEnd()) {
-            wchar_t ch = getChar(mpChar);
+            wchar16_t ch = getChar(mpChar);
             BOOL sep = dScript::isSeparator(getChar(mpChar + 1));
             if (ch == 0x306F && sep) { // the particle "ha" is voiced "wa" (0x308F)
                 mpComp->setVoiceChar(0x308F);
@@ -310,7 +318,7 @@ BOOL Seq_c::procChar() {
     return TRUE;
 }
 
-wchar_t Seq_c::getChar(const wchar_t *p) {
+wchar16_t Seq_c::getChar(const wchar16_t *p) {
     while (true) {
         if (*p != TAG_ESCAPE) {
             break;
@@ -547,6 +555,9 @@ void Seq_c::procWait() {
     const u8 *params = dScript::getTagParams(mpChar);
     u16 wait = 0;
     std::memcpy(&wait, params, sizeof(wait));
+#if TARGET_PC
+    wait = RES_U16(wait);
+#endif
     if (!mFast && !mNoWait) {
         mWait = wait;
         mpComp->setVoiceChar(L' ');
@@ -582,6 +593,9 @@ void Seq_c::procTimer() {
     const u8 *params = dScript::getTagParams(mpChar);
     u16 timer = 0;
     std::memcpy(&timer, params, sizeof(timer));
+#if TARGET_PC
+    timer = RES_U16(timer);
+#endif
     mTimer = timer;
     mTimerAuto = FALSE;
     mpComp->setVoiceChar(L' ');
@@ -591,6 +605,9 @@ void Seq_c::procTimerAuto() {
     const u8 *params = dScript::getTagParams(mpChar);
     u16 timer = 0;
     std::memcpy(&timer, params, sizeof(timer));
+#if TARGET_PC
+    timer = RES_U16(timer);
+#endif
     mTimer = timer;
     mTimerAuto = TRUE;
     mpComp->setVoiceChar(L' ');
@@ -612,6 +629,9 @@ void Seq_c::procPay() {
     const u8 *params = dScript::getTagParams(mpChar);
     u16 amount = 0;
     std::memcpy(&amount, params, sizeof(amount));
+#if TARGET_PC
+    amount = RES_U16(amount);
+#endif
     dPrivateData_c *player = dPlayerMgr::Mgr_c::getCurrentPlayer();
     int money = player->getPocketMoney();
     if (money >= amount) {
@@ -657,9 +677,9 @@ void Seq_c::procSelect() {
         num = id + 2;
     }
     select->mNum = num;
-    const wchar_t *p = mWord.getBuffer() + mPos + mPageStart + 1;
+    const wchar16_t *p = mWord.getBuffer() + mPos + mPageStart + 1;
     for (int i = 0; i < num; i++) {
-        const wchar_t *line = p;
+        const wchar16_t *line = p;
         while (true) {
             if (*p == TAG_ESCAPE) {
                 p += dScript::getTagLength(p);
@@ -672,6 +692,9 @@ void Seq_c::procSelect() {
         }
         u16 code = 0;
         std::memcpy(&code, params + i * sizeof(u16), sizeof(code));
+#if TARGET_PC
+        code = RES_U16(code);
+#endif
         dString::Word_c word;
         word.set(line, 1);
         dSelect::Separate_c *item = select->getSeparate(i);
@@ -690,9 +713,9 @@ void Seq_c::procAnalogSelect() {
     u16 id = dScript::getTagId(mpChar);
     const u8 *params = dScript::getTagParams(mpChar);
     mpComp->setVoiceChar(L' ');
-    const wchar_t *p = mWord.getBuffer() + mPos + mPageStart + 1;
+    const wchar16_t *p = mWord.getBuffer() + mPos + mPageStart + 1;
     for (int i = 0; i < 2; i++) {
-        const wchar_t *line = p;
+        const wchar16_t *line = p;
         while (true) {
             if (*p == TAG_ESCAPE) {
                 p += dScript::getTagLength(p);
@@ -710,6 +733,9 @@ void Seq_c::procAnalogSelect() {
     for (int i = 0; i < 8; i++) {
         u16 code = 0;
         std::memcpy(&code, params + i * sizeof(u16), sizeof(code));
+#if TARGET_PC
+        code = RES_U16(code);
+#endif
         select->setCode(i, code, 0);
     }
     mpComp->openAnalogSelect();
@@ -727,6 +753,9 @@ void Seq_c::procRndJump(int num) {
     u16 msgCode = rcpt->getMessageCode();
     for (int i = 0; i < num; i++) {
         std::memcpy(&codes[i], params + i * sizeof(u16), sizeof(u16));
+#if TARGET_PC
+        codes[i] = RES_U16(codes[i]);
+#endif
         if (!mpComp->isValidMsgCode(codes[i])) {
             mpComp->setNextMsgCode(0);
             return;
@@ -884,6 +913,9 @@ void Seq_c::procSpeciesJump() {
     const u8 *params = dScript::getTagParams(mpChar);
     u16 species = 0;
     std::memcpy(&species, params, sizeof(species));
+#if TARGET_PC
+    species = RES_U16(species);
+#endif
     dAnimal_c *animal = mpComp->mpRcpt->getSpeakerAnimal();
     int choice = 1;
     if (animal != NULL) {
@@ -896,6 +928,9 @@ void Seq_c::procMoneyJump() {
     const u8 *params = dScript::getTagParams(mpChar);
     u32 price = 0;
     std::memcpy(&price, params, sizeof(price));
+#if TARGET_PC
+    price = RES_U32(price);
+#endif
     dPrivateData_c *player = dPlayerMgr::Mgr_c::getCurrentPlayer();
     int choice = 0;
     if (player != NULL) {
@@ -1261,6 +1296,9 @@ u16 Seq_c::getJumpCode(const u8 *params, int choice, int num) {
     u16 codes[SEQ_JUMP_CHOICE_MAX];
     for (int i = 0; i < num; i++) {
         std::memcpy(&codes[i], params + i * sizeof(u16), sizeof(u16));
+#if TARGET_PC
+        codes[i] = RES_U16(codes[i]);
+#endif
         if (!mpComp->isValidMsgCode(codes[i])) {
             return 0;
         }
@@ -1351,6 +1389,9 @@ void Seq_c::procScale() {
     const u8 *params = dScript::getTagParams(mpChar);
     u16 value = 0;
     std::memcpy(&value, params, 2);
+#if TARGET_PC
+    value = RES_U16(value);
+#endif
     mpComp->mVoice.mScale = 0.01f * value;
 }
 
@@ -1359,7 +1400,7 @@ void Seq_c::procRuby() {
     u8 len = dScript::getTagLength(mpChar);
     u8 count = 0;
     std::memcpy(&count, params, 1);
-    mRuby.set(mpComp, count, len - 4, (const wchar_t *)(params + 1));
+    mRuby.set(mpComp, count, len - 4, (const wchar16_t *)(params + 1));
 }
 
 void Seq_c::procSe() {
@@ -1453,8 +1494,11 @@ void Ruby_c::clear() {
     mStep = 1;
 }
 
-void Ruby_c::set(Comp_c *comp, int baseLen, int len, const wchar_t *text) {
+void Ruby_c::set(Comp_c *comp, int baseLen, int len, const wchar16_t *text) {
     mpComp = comp;
+#if TARGET_PC
+    text = dScript::getTagTextHost(text, len, mHostText);
+#endif
     mpText = text;
     mLen = len;
     mBaseLen = baseLen;

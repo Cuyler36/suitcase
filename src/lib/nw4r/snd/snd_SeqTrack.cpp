@@ -364,7 +364,7 @@ int SeqTrack::GetChannelCount() const {
 
 void SeqTrack::ChannelCallbackFunc(Channel *dropChannel,
                                    Channel::ChannelCallbackStatus status,
-                                   u32 userData) {
+                                   uintptr_t userData) {
     SoundThread::AutoLock lock;
 
     SeqTrack *track = reinterpret_cast<SeqTrack *>(userData);
@@ -539,7 +539,7 @@ Channel *SeqTrack::NoteOn(int key, int velocity, s32 length, bool tieFlag) {
                                GetParserTrackParam().priority,
                            mSeqPlayer->GetVoiceOutCount(),
                            &ChannelCallbackFunc,
-                           reinterpret_cast<u32>(this)};
+                           reinterpret_cast<uintptr_t>(this)};
 
         channel = mSeqPlayer->NoteOn(mParserTrackParam.bankNo, info);
         if (!channel) {

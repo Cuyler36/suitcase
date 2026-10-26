@@ -148,7 +148,13 @@ struct dSceneActorData_c {
     /* 0x00 */ u16 mProfile;
     /* 0x04 */ mVec3_c mPos;
     /* 0x10 */ mAng3_c mAngle;
+#if TARGET_PC
+    // The scene tables (dScData::ActorData_c) hold some parameters as pointers, so the entries are
+    // 0x20 bytes on 64-bit; a u32 here walked them at 0x1C and read the second actor on misaligned
+    uintptr_t mParam;
+#else
     /* 0x18 */ u32 mParam;
+#endif
 }; // size 0x1C
 
 // SCENE_DATA_PLAYER: the default player position.
@@ -304,8 +310,8 @@ BOOL isSeason2(); // 80162AF0
 BOOL requestSceneChange(u8 scene, int wipeIn, int wipeOut); // 80162B1C
 BOOL forceSceneChange(u8 scene, int wipeIn, int wipeOut); // 80162B74
 u8 getNextScene(); // 80162BCC
-void setSceneE848(u32 value); // 80162BF0
-u32 getSceneE848(); // 80162BF8
+void setSceneE848(uintptr_t value); // 80162BF0: the dCamera_c (uintptr_t is u32 on the Wii)
+uintptr_t getSceneE848(); // 80162BF8
 void *getScenePlayer(); // 80162C00
 fBase_c *getSceneParent(); // 80162C08
 mVec3_c *getScenePlayerPos(); // 80162C10

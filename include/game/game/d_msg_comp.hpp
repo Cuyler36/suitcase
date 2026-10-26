@@ -14,12 +14,12 @@
 #include <game/game/d_msg_def.hpp>
 
 class dDemoActor_c;
-class dLandID_c;
+struct dLandID_c;
 class dPersonalID_c;
-class dPlayerID_c;
+struct dPlayerID_c;
 class dAnmPersonalID_c;
 namespace dItem {
-class Item;
+struct Item;
 }
 namespace dScript {
 class Word_c;
@@ -87,9 +87,9 @@ public:
 
     // A message's INF1 entry in the BMG (dScript::Res_c::getEntry).
     struct MsgInfo_s {
-        /* 0x00 */ u32 mOffset;
-        /* 0x04 */ u16 mNextCode; // the message that follows
-        /* 0x06 */ u16 mMemoryCode; // memory code (Comp_c::mMemoryCode)
+        /* 0x00 */ BE(u32) mOffset;
+        /* 0x04 */ BE(u16) mNextCode; // the message that follows
+        /* 0x06 */ BE(u16) mMemoryCode; // memory code (Comp_c::mMemoryCode)
         /* 0x08 */ u8 mFeel; // feel: group 2 tag id put in front of every word (Comp_c::mFeel)
         /* 0x09 */ u8 mStartReq; // Rcpt_c::onMessageStart request (Comp_c::mStartReq)
         /* 0x0A */ u8 mEndReq; // Rcpt_c::onMessageEnd request (Comp_c::mEndReq)
@@ -119,7 +119,7 @@ public:
     void requestStart(int mode);                           // 801A316C
     void setWindowColor(int color);                        // 801A3238
     void setVibration(int level);                          // 801A32A8
-    void setVoiceChar(wchar_t c);                           // 801A3304: Seq_c passes the typed character (0x20 after tags)
+    void setVoiceChar(wchar16_t c);                           // 801A3304: Seq_c passes the typed character (0x20 after tags)
     void setMouthOpen(BOOL open);                          // 801A331C
     void closeMouth();                                     // 801A333C
     void applyNextMessage();                               // 801A3350
@@ -269,7 +269,7 @@ public:
                                                  // (Word_c::procRandomWordTag; getRandomWord / setRandomWord)
     // The words of the message that the word checker (dPrcMng_c::startCheck) looks at.
     /* 0x8BA8 */ dScript::Word_c *mCheckWords[MSG_CHECK_WORD_NUM];
-    /* 0x8C24 */ const wchar_t *mCheckStrs[MSG_CHECK_WORD_NUM];
+    /* 0x8C24 */ const wchar16_t *mCheckStrs[MSG_CHECK_WORD_NUM];
     /* 0x8CA0 */ s8 mCheckResults[MSG_CHECK_WORD_NUM];
     /* 0x8CBF */ u8 _8CBF;
     /* 0x8CC0 */ int mCheckNum;

@@ -9,7 +9,7 @@ namespace snd {
 namespace detail {
 class Task : private ut::NonCopyable {
   public:
-    typedef ut::LinkList<Task, 0x04> LinkList;
+    typedef ut::LinkList<Task, NW4R_UT_LINK_OFFSET(0x04, 0x08)> LinkList;
 
   public:
     Task() : mBusyFlag(false) {
@@ -24,6 +24,12 @@ class Task : private ut::NonCopyable {
     /* base NonCopyable */      // size 0x00, offset 0x00
     /* vtable */                // size 0x04, offset 0x00
     ut::LinkListNode mTaskLink; // size 0x08, offset 0x04
+#if TARGET_PC
+    // The PC list offsets (NW4R_UT_LINK_OFFSET)
+    static void CheckLinkOffsets() {
+        static_assert(offsetof(Task, mTaskLink) == 0x08, "mTaskLink");
+    }
+#endif
     bool volatile mBusyFlag;    // size 0x01, offset 0x0c
                                 /* 3 bytes padding */
 

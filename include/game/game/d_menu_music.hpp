@@ -228,7 +228,7 @@ class dMenuMusic_c : public dMenuBase_c {
     void initRows();                                        // .text:0x2014
     void updateSelMarks();                                  // .text:0x209C
     void updateRowWords();                                  // .text:0x212C
-    wchar_t *getSongName(int idx);                          // .text:0x2200
+    wchar16_t *getSongName(int idx);                          // .text:0x2200
     void updatePlayingName();                               // .text:0x22C4
     dPrivateSongs_c *getSongs();                            // .text:0x2348
     void loadSongs();                                       // .text:0x2370

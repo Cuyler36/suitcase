@@ -79,9 +79,9 @@ class InputForm : public inputform::LayoutByNW4R {
     virtual void open();                                              // 0x248
     virtual void close();                                             // 0x24C
     virtual bool isWholePaneInAnimation();                            // 0x250
-    virtual void setHeaderCaption(const wchar_t *headerCaption);      // 0x254
-    virtual void setMiiName(const wchar_t *miiName);                  // 0x258
-    virtual void setTouchLetterCaption(const wchar_t *letterCaption); // 0x25C
+    virtual void setHeaderCaption(const wchar16_t *headerCaption);      // 0x254
+    virtual void setMiiName(const wchar16_t *miiName);                  // 0x258
+    virtual void setTouchLetterCaption(const wchar16_t *letterCaption); // 0x25C
     virtual void onNigaoeButtonTrig();                                // 0x260
     virtual void onNigaoeButtonPoint();                               // 0x264
     virtual void onNigaoeButtonLeft();                                // 0x268
@@ -102,7 +102,7 @@ class InputForm : public inputform::LayoutByNW4R {
     virtual f32 getScrollMin();                                         // 0x298
     virtual f32 getScrollMax();                                         // 0x29C
     virtual void beginDraw(const nw4r::ut::Rect &rect);                 // 0x2A0
-    virtual void put(wchar_t ch);                                       // 0x2A4
+    virtual void put(wchar16_t ch);                                       // 0x2A4
     virtual void createAnimation(MEMAllocator *allocator);              // 0x2A8
     virtual void drawHeader();                                          // 0x2AC
     virtual void drawBody();                                            // 0x2B0

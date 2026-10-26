@@ -29,7 +29,7 @@ BOOL loadString(dScript::Word_c *word, u16 index, const char *group) {
     if (index >= res.getCount()) {
         return FALSE;
     }
-    const wchar_t *msg = res.getMessage(index);
+    const wchar16_t *msg = res.getMessage(index);
     if (dScript::getStringLength(msg, 0, 0) > max) {
         return FALSE;
     }
@@ -107,7 +107,7 @@ int WordBase_c::procWord(int pos) {
 
 // 8016B2FC
 int WordBase_c::procPlayerChar(int pos, int index) {
-    wchar_t c = 0;
+    wchar16_t c = 0;
     if (!g_comp.mPlayerName.getChar(&c, index)) {
         g_comp.mNoChar = 1;
         return removeTag(pos);
@@ -179,7 +179,7 @@ Word_c::Word_c() {
 }
 
 // 8016B674
-Word_c::Word_c(const wchar_t *str) {
+Word_c::Word_c(const wchar16_t *str) {
     clear();
     set(str, 0);
 }
@@ -199,7 +199,7 @@ u32 Word_c::getBufferSize() {
 }
 
 // 8016B7A0
-wchar_t *Word_c::getBuffer() {
+wchar16_t *Word_c::getBuffer() {
     return mBuffer;
 }
 

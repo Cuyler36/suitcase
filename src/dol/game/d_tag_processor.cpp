@@ -1,6 +1,9 @@
 // The game's text tag processor (dTagProcessor_c). .text 8016C720..8016CCCC.
 // See include/game/game/d_tag_processor.hpp.
 #include <game/game/d_tag_processor.hpp>
+#if TARGET_PC
+#include <port/endian.h>
+#endif
 #include <game/game/d_script.hpp>
 #include <lib/egg/core/eggMsgRes.h>
 
@@ -42,13 +45,13 @@ dTagProcessor_c::Operation dTagProcessor_c::Process(u16 ch, ContextType *pCtx) {
                 break;
             case TAG_CODE(dScript::TAG_GROUP_SYSTEM, dScript::TAG_SYSTEM_TYPE_END):
                 mDrawEnd = 1;
-                pCtx->str = (const wchar_t *)((const u8 *)pCtx->str + (size & ~1));
+                pCtx->str = (const wchar16_t *)((const u8 *)pCtx->str + (size & ~1));
                 return OPERATION_END_DRAW;
             case TAG_CODE(dScript::TAG_GROUP_SYSTEM, dScript::TAG_SYSTEM_LINE_OFFSET):
                 procLineOffset(0, pCtx, size, data);
                 break;
             case TAG_CODE(dScript::TAG_GROUP_SYSTEM, dScript::TAG_SYSTEM_RUBY):
-                pCtx->str = (const wchar_t *)((const u8 *)pCtx->str + (size & ~1));
+                pCtx->str = (const wchar16_t *)((const u8 *)pCtx->str + (size & ~1));
                 return OPERATION_DEFAULT;
             case TAG_CODE(dScript::TAG_GROUP_SELECT, dScript::TAG_SELECT_2):
             case TAG_CODE(dScript::TAG_GROUP_SELECT, dScript::TAG_SELECT_3):
@@ -60,13 +63,13 @@ dTagProcessor_c::Operation dTagProcessor_c::Process(u16 ch, ContextType *pCtx) {
             case TAG_CODE(dScript::TAG_GROUP_SELECT, dScript::TAG_SELECT_5_CANCEL):
             case TAG_CODE(dScript::TAG_GROUP_SELECT, dScript::TAG_SELECT_ANALOG):
                 mDrawEnd = 1;
-                pCtx->str = (const wchar_t *)((const u8 *)pCtx->str + (size & ~1));
+                pCtx->str = (const wchar16_t *)((const u8 *)pCtx->str + (size & ~1));
                 return OPERATION_END_DRAW;
         }
-        pCtx->str = (const wchar_t *)((const u8 *)pCtx->str + (size & ~1));
+        pCtx->str = (const wchar16_t *)((const u8 *)pCtx->str + (size & ~1));
         return OPERATION_DEFAULT;
     }
-    return nw4r::ut::TagProcessorBase<wchar_t>::Process(ch, pCtx);
+    return nw4r::ut::TagProcessorBase<wchar16_t>::Process(ch, pCtx);
 }
 
 // 8016C8EC
@@ -90,16 +93,16 @@ dTagProcessor_c::Operation dTagProcessor_c::CalcRect(nw4r::ut::Rect *pRect, u16 
             case TAG_CODE(dScript::TAG_GROUP_SELECT, dScript::TAG_SELECT_5_CANCEL):
             case TAG_CODE(dScript::TAG_GROUP_SELECT, dScript::TAG_SELECT_ANALOG):
                 mRectEnd = 1;
-                pCtx->str = (const wchar_t *)((const u8 *)pCtx->str + (size & ~1));
+                pCtx->str = (const wchar16_t *)((const u8 *)pCtx->str + (size & ~1));
                 return OPERATION_END_DRAW;
             case TAG_CODE(dScript::TAG_GROUP_SYSTEM, dScript::TAG_SYSTEM_SCALE):
                 procScale(0, pCtx, size, data);
                 break;
         }
-        pCtx->str = (const wchar_t *)((const u8 *)pCtx->str + (size & ~1));
+        pCtx->str = (const wchar16_t *)((const u8 *)pCtx->str + (size & ~1));
         return OPERATION_DEFAULT;
     }
-    return nw4r::ut::TagProcessorBase<wchar_t>::CalcRect(pRect, ch, pCtx);
+    return nw4r::ut::TagProcessorBase<wchar16_t>::CalcRect(pRect, ch, pCtx);
 }
 
 // 8016C9FC
@@ -117,12 +120,20 @@ void dTagProcessor_c::procColor(int, ContextType *pCtx, u8 size, void *data) {
 
 // 8016CA98
 void dTagProcessor_c::procScale(int, ContextType *pCtx, u8 size, void *data) {
+#if TARGET_PC
+    u16 scale = RES_U16(*(u16 *)data);
+#else
     u16 scale = *(u16 *)data;
+#endif
     pCtx->writer->SetScale(0.85f * (scale / 100.0f), scale / 100.0f);
 }
 
 // 8016CAF0
 void dTagProcessor_c::procLineOffset(int, ContextType *pCtx, u8 size, void *data) {
+#if TARGET_PC
+    s16 ofs = RES_S16(*(s16 *)data);
+#else
     s16 ofs = *(s16 *)data;
+#endif
     pCtx->writer->MoveCursorY(ofs);
 }

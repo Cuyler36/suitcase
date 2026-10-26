@@ -93,7 +93,7 @@ void *Heap::alloc(size_t size, int align, Heap *heap) {
         arg.heap = heap ? heap : currentHeap;
         arg.size = size;
         arg.align = align;
-        arg.userArg = (int)sAllocCallbackArg;
+        arg.userArg = (intptr_t)sAllocCallbackArg;
         sAllocCallback(arg);
     }
 
@@ -102,13 +102,13 @@ void *Heap::alloc(size_t size, int align, Heap *heap) {
     }
 
     if (currentHeap != NULL) {
-        int arena_end;
+        intptr_t arena_end;
         void *allocated = currentHeap->alloc(size, align);
 
         if (allocated == NULL) {
-            arena_end = (int)currentHeap->mHeapHandle->heapEnd;
+            arena_end = (intptr_t)currentHeap->mHeapHandle->heapEnd;
             int max_avail = currentHeap->getAllocatableSize(4);
-            int heap_size = arena_end - (u32)currentHeap;
+            int heap_size = arena_end - (uintptr_t)currentHeap;
             OSReport("heap (%p):(%.1fMBytes free %d)->alloc(size(%d:%.1fMBytes),%d "
                      "align)\n",
                      currentHeap, static_cast<f32>(heap_size) / SIZE_MB, max_avail, size,
@@ -184,7 +184,7 @@ void Heap::dumpAll() {
 
     while ((heap = (Heap *)nw4r::ut::List_GetNext(&sHeapList, heap)) != NULL) {
         Heap *childHeap = NULL;
-        if ((u32)heap < 0x90000000) {
+        if ((uintptr_t)heap < 0x90000000) {
             mem[0] += heap->getAllocatableSize(4);
         } else {
             mem[1] += heap->getAllocatableSize(4);

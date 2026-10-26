@@ -358,7 +358,7 @@ void LayoutByNW4R::setLanguage(Language language) {
             setPredictMode(inputform::Base::PM_Sp);
         } else {
             setPredictMode(inputform::Base::PM_USSp);
-            setString("T_PRDC_title", L"Diccionario");
+            setString("T_PRDC_title", WSTR("Diccionario"));
         }
         break;
     case FR:
@@ -366,7 +366,7 @@ void LayoutByNW4R::setLanguage(Language language) {
             setPredictMode(inputform::Base::PM_Fr);
         } else {
             setPredictMode(inputform::Base::PM_USFr);
-            setString("T_PRDC_title", L"Dictionnaire");
+            setString("T_PRDC_title", WSTR("Dictionnaire"));
         }
         break;
     }

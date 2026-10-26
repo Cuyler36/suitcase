@@ -5,6 +5,8 @@ namespace nw4r {
 namespace g3d {
 
 #if TARGET_PC
+#include <port/endian.h>
+
 // psq_st through a u8 GQR: saturate to [0, 255], truncate toward zero
 static u8 QuantizeU8(f32 value) {
     if (value >= 255.0f) {
@@ -89,24 +91,25 @@ void CalcVtx(ResMdl mdl, AnmObjShp* pAnmShp, ResVtxPosData** ppVtxPosTable,
 
 #if TARGET_PC
             // psq_l of (x, y) and (z, 1.0f), ps_mul by the first weight, then ps_madd of each key:
-            // the weighted sum of the key shapes
+            // the weighted sum of the key shapes. The keys and the output buffer (a copy of the
+            // resource array that GX reads) are big-endian.
             for (; pVtxPosBuf < pVtxPosBufEnd; pVtxPosBuf++) {
                 KeyShape& rFirst = keyShape[0];
-                f32 x = rFirst.pVtx->x * rFirst.weight;
-                f32 y = rFirst.pVtx->y * rFirst.weight;
-                f32 z = rFirst.pVtx->z * rFirst.weight;
+                f32 x = RES_F32(rFirst.pVtx->x) * rFirst.weight;
+                f32 y = RES_F32(rFirst.pVtx->y) * rFirst.weight;
+                f32 z = RES_F32(rFirst.pVtx->z) * rFirst.weight;
                 rFirst.pVtx++;
 
                 for (KeyShape* pKey = &keyShape[1]; pKey < pKeyEnd; pKey++) {
-                    x = pKey->pVtx->x * pKey->weight + x;
-                    y = pKey->pVtx->y * pKey->weight + y;
-                    z = pKey->pVtx->z * pKey->weight + z;
+                    x = RES_F32(pKey->pVtx->x) * pKey->weight + x;
+                    y = RES_F32(pKey->pVtx->y) * pKey->weight + y;
+                    z = RES_F32(pKey->pVtx->z) * pKey->weight + z;
                     pKey->pVtx++;
                 }
 
-                pVtxPosBuf->x = x;
-                pVtxPosBuf->y = y;
-                pVtxPosBuf->z = z;
+                pVtxPosBuf->x = RES_F32(x);
+                pVtxPosBuf->y = RES_F32(y);
+                pVtxPosBuf->z = RES_F32(z);
             }
 #else
             for (; pVtxPosBuf < pVtxPosBufEnd; pVtxPosBuf++) {
@@ -211,24 +214,25 @@ void CalcVtx(ResMdl mdl, AnmObjShp* pAnmShp, ResVtxPosData** ppVtxPosTable,
 
 #if TARGET_PC
             // psq_l of (x, y) and (z, 1.0f), ps_mul by the first weight, then ps_madd of each key:
-            // the weighted sum of the key shapes
+            // the weighted sum of the key shapes. The keys and the output buffer (a copy of the
+            // resource array that GX reads) are big-endian.
             for (; pVtxNrmBuf < pVtxNrmBufEnd; pVtxNrmBuf++) {
                 KeyShape& rFirst = keyShape[0];
-                f32 x = rFirst.pVtx->x * rFirst.weight;
-                f32 y = rFirst.pVtx->y * rFirst.weight;
-                f32 z = rFirst.pVtx->z * rFirst.weight;
+                f32 x = RES_F32(rFirst.pVtx->x) * rFirst.weight;
+                f32 y = RES_F32(rFirst.pVtx->y) * rFirst.weight;
+                f32 z = RES_F32(rFirst.pVtx->z) * rFirst.weight;
                 rFirst.pVtx++;
 
                 for (KeyShape* pKey = &keyShape[1]; pKey < pKeyEnd; pKey++) {
-                    x = pKey->pVtx->x * pKey->weight + x;
-                    y = pKey->pVtx->y * pKey->weight + y;
-                    z = pKey->pVtx->z * pKey->weight + z;
+                    x = RES_F32(pKey->pVtx->x) * pKey->weight + x;
+                    y = RES_F32(pKey->pVtx->y) * pKey->weight + y;
+                    z = RES_F32(pKey->pVtx->z) * pKey->weight + z;
                     pKey->pVtx++;
                 }
 
-                pVtxNrmBuf->x = x;
-                pVtxNrmBuf->y = y;
-                pVtxNrmBuf->z = z;
+                pVtxNrmBuf->x = RES_F32(x);
+                pVtxNrmBuf->y = RES_F32(y);
+                pVtxNrmBuf->z = RES_F32(z);
             }
 #else
             for (; pVtxNrmBuf < pVtxNrmBufEnd; pVtxNrmBuf++) {

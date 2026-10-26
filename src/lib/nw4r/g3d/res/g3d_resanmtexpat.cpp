@@ -4,6 +4,10 @@
 
 #include <cstring>
 
+#if TARGET_PC
+#include <port/side_slot.h>
+#endif
+
 namespace nw4r {
 namespace g3d {
 
@@ -50,10 +54,36 @@ const ResAnmTexPatFrmData* SearchFrame(const ResAnmTexPatAnmData* pAnmData,
     return pFrmData;
 }
 
-inline ResName GetResNameFromOffsetArray(s32* pStringArray, int idx) {
+inline ResName GetResNameFromOffsetArray(BE(s32)* pStringArray, int idx) {
     s32 offset = pStringArray[idx];
     return NW4R_G3D_OFS_TO_RESNAME(pStringArray, offset);
 }
+
+// The texture and palette arrays are 4-byte slots in the file that Bind fills in. On PC a pointer does
+// not fit, so the slots are SidePtrs (port/side_slot.h); on the Wii they are the ResTex/ResPltt themselves.
+#if TARGET_PC
+typedef SidePtr<ResTexData> ResTexSlot;
+typedef SidePtr<ResPlttData> ResPlttSlot;
+
+inline ResTex SlotToRes(const ResTexSlot& rSlot) {
+    return ResTex(static_cast<ResTexData*>(rSlot));
+}
+inline ResPltt SlotToRes(const ResPlttSlot& rSlot) {
+    return ResPltt(static_cast<ResPlttData*>(rSlot));
+}
+inline void SetSlot(ResTexSlot& rSlot, ResTex tex) {
+    rSlot = tex.ptr();
+}
+inline void SetSlot(ResPlttSlot& rSlot, ResPltt pltt) {
+    rSlot = pltt.ptr();
+}
+#else
+// Macros, so the Wii code is the original's
+typedef ResTex ResTexSlot;
+typedef ResPltt ResPlttSlot;
+#define SlotToRes(SLOT) (SLOT)
+#define SetSlot(SLOT, RES) ((SLOT) = (RES))
+#endif
 
 } // namespace
 
@@ -66,8 +96,8 @@ void ResAnmTexPat::GetAnmResult(TexPatAnmResult* pResult, u32 idx,
     u32 flags = pMatData->flags;
 
     const ResAnmTexPatData& r = ref();
-    const ResTex* pResTexArray = ofs_to_ptr<ResTex>(r.toResTexArray);
-    const ResPltt* pResPlttArray = ofs_to_ptr<ResPltt>(r.toResPlttArray);
+    const ResTexSlot* pResTexArray = ofs_to_ptr<ResTexSlot>(r.toResTexArray);
+    const ResPlttSlot* pResPlttArray = ofs_to_ptr<ResPlttSlot>(r.toResPlttArray);
 
     pResult->bTexExist = 0;
     pResult->bPlttExist = 0;
@@ -96,7 +126,7 @@ void ResAnmTexPat::GetAnmResult(TexPatAnmResult* pResult, u32 idx,
         u32 targetBit = 1 << i;
 
         if (flags & ResAnmTexPatMatData::FLAG_ANM_TEX) {
-            ResTex tex(pResTexArray[texIndex]);
+            ResTex tex(SlotToRes(pResTexArray[texIndex]));
 
             if (tex.IsValid()) {
                 pResult->tex[i] = tex;
@@ -105,7 +135,7 @@ void ResAnmTexPat::GetAnmResult(TexPatAnmResult* pResult, u32 idx,
         }
 
         if (flags & ResAnmTexPatMatData::FLAG_ANM_PLTT) {
-            ResPltt pltt(pResPlttArray[plttIndex]);
+            ResPltt pltt(SlotToRes(pResPlttArray[plttIndex]));
 
             if (pltt.IsValid()) {
                 pResult->pltt[i] = pltt;
@@ -122,16 +152,16 @@ bool ResAnmTexPat::Bind(const ResFile file) {
     int numTexture = rInfoData.numTexture;
     int numPalette = rInfoData.numPalette;
 
-    s32* pTexNameArray = ofs_to_ptr<s32>(ref().toTexNameArray);
-    s32* pPlttNameArray = ofs_to_ptr<s32>(ref().toPlttNameArray);
+    BE(s32)* pTexNameArray = ofs_to_ptr<BE(s32)>(ref().toTexNameArray);
+    BE(s32)* pPlttNameArray = ofs_to_ptr<BE(s32)>(ref().toPlttNameArray);
 
-    ResTex* pResTexArray = ofs_to_ptr<ResTex>(ref().toResTexArray);
-    ResPltt* pResPlttArray = ofs_to_ptr<ResPltt>(ref().toResPlttArray);
+    ResTexSlot* pResTexArray = ofs_to_ptr<ResTexSlot>(ref().toResTexArray);
+    ResPlttSlot* pResPlttArray = ofs_to_ptr<ResPlttSlot>(ref().toResPlttArray);
 
     int numBound = 0;
 
     for (int i = 0; i < numTexture; i++) {
-        ResTex tex(pResTexArray[i]);
+        ResTex tex(SlotToRes(pResTexArray[i]));
 
         if (tex.IsValid()) {
             numBound++;
@@ -140,14 +170,14 @@ bool ResAnmTexPat::Bind(const ResFile file) {
                 file.GetResTex(GetResNameFromOffsetArray(pTexNameArray, i));
 
             if (found.IsValid()) {
-                pResTexArray[i] = found;
+                SetSlot(pResTexArray[i], found);
                 numBound++;
             }
         }
     }
 
     for (int i = 0; i < numPalette; i++) {
-        ResPltt pltt(pResPlttArray[i]);
+        ResPltt pltt(SlotToRes(pResPlttArray[i]));
 
         if (pltt.IsValid()) {
             numBound++;
@@ -156,7 +186,7 @@ bool ResAnmTexPat::Bind(const ResFile file) {
                 file.GetResPltt(GetResNameFromOffsetArray(pPlttNameArray, i));
 
             if (found.IsValid()) {
-                pResPlttArray[i] = found;
+                SetSlot(pResPlttArray[i], found);
                 numBound++;
             }
         }
@@ -170,15 +200,15 @@ void ResAnmTexPat::Release() {
     int numTexture = rInfoData.numTexture;
     int numPalette = rInfoData.numPalette;
 
-    ResTex* pResTexArray = ofs_to_ptr<ResTex>(ref().toResTexArray);
-    ResPltt* pResPlttArray = ofs_to_ptr<ResPltt>(ref().toResPlttArray);
+    ResTexSlot* pResTexArray = ofs_to_ptr<ResTexSlot>(ref().toResTexArray);
+    ResPlttSlot* pResPlttArray = ofs_to_ptr<ResPlttSlot>(ref().toResPlttArray);
 
     for (int i = 0; i < numTexture; i++) {
-        pResTexArray[i] = ResTex(NULL);
+        SetSlot(pResTexArray[i], ResTex(NULL));
     }
 
     for (int i = 0; i < numPalette; i++) {
-        pResPlttArray[i] = ResPltt(NULL);
+        SetSlot(pResPlttArray[i], ResPltt(NULL));
     }
 }
 
@@ -187,8 +217,8 @@ void ResAnmTexPat::ReleaseTex(const char* pName) {
     int numTexture = rInfoData.numTexture;
     u32 len = std::strlen(pName);
 
-    s32* pTexNameArray = ofs_to_ptr<s32>(ref().toTexNameArray);
-    ResTex* pResTexArray = ofs_to_ptr<ResTex>(ref().toResTexArray);
+    BE(s32)* pTexNameArray = ofs_to_ptr<BE(s32)>(ref().toTexNameArray);
+    ResTexSlot* pResTexArray = ofs_to_ptr<ResTexSlot>(ref().toResTexArray);
 
     for (int i = 0; i < numTexture; i++) {
         ResName name = GetResNameFromOffsetArray(pTexNameArray, i);
@@ -200,7 +230,7 @@ void ResAnmTexPat::ReleaseTex(const char* pName) {
         }
 
         if (same) {
-            pResTexArray[i] = ResTex(NULL);
+            SetSlot(pResTexArray[i], ResTex(NULL));
             return;
         }
     }

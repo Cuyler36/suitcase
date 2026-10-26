@@ -1,6 +1,7 @@
 #ifndef NW4R_SND_UTIL_H
 #define NW4R_SND_UTIL_H
 #include <nw4r/types_nw4r.h>
+#include <port/endian.h>
 
 #include <nw4r/snd/snd_global.h>
 
@@ -57,11 +58,12 @@ public:
 
     template <typename T0, typename T1 = void, typename T2 = void,
               typename T3 = void>
+    // In the files (big-endian). REFTYPE_ADDRESS (an absolute 32-bit pointer) is never in a file.
     struct DataRef {
-        u8 refType;   // at 0x0
-        u8 dataType;  // at 0x1
-        u16 reserved; // at 0x2
-        u32 value;    // at 0x4
+        u8 refType;       // at 0x0
+        u8 dataType;      // at 0x1
+        BE(u16) reserved; // at 0x2
+        BE(u32) value;    // at 0x4
     };
 
     template <typename T0, typename T1, typename T2, typename T3>
@@ -98,8 +100,8 @@ public:
      *
      ******************************************************************************/
     template <typename T> struct Table {
-        u32 count;  // at 0x0
-        T items[1]; // at 0x4
+        BE(u32) count; // at 0x0
+        T items[1];    // at 0x4
     };
 
     /******************************************************************************

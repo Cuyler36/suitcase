@@ -201,8 +201,8 @@ class dMenuNotice01_c : public dMenuBase_c {
     /* 0x1A80 */ int _1A80; // never used
     /* 0x1A84 */ int mCursor;
     /* 0x1A88 */ int mLine;                   // the line of the cursor
-    /* 0x1A8C */ wchar_t mText[TEXT_SIZE];    // the text being edited
-    /* 0x1C0E */ wchar_t mOldText[TEXT_SIZE]; // ... as the keyboard knew it
+    /* 0x1A8C */ wchar16_t mText[TEXT_SIZE];    // the text being edited
+    /* 0x1C0E */ wchar16_t mOldText[TEXT_SIZE]; // ... as the keyboard knew it
     /* 0x1D90 */ m2d::moveCalc_c mMove;
     /* 0x1DA8 */ mVec2_c mPos;    // of the paper
     /* 0x1DB0 */ mVec2_c mTarget; // ... where it moves

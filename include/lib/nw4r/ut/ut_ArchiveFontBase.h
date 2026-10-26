@@ -15,13 +15,13 @@ namespace nw4r {
 namespace ut {
 
 struct FontGlyphGroupData {
-    u32 sheetSize;      // at 0x0
-    u16 glyphsPerSheet; // at 0x4
-    u16 numSet;         // at 0x6
-    u16 numSheet;       // at 0x8
-    u16 numCWDH;        // at 0xA
-    u16 numCMAP;        // at 0xC
-    u16 nameOffsets[1]; // at 0xE
+    BE(u32) sheetSize;      // at 0x0
+    BE(u16) glyphsPerSheet; // at 0x4
+    BE(u16) numSet;         // at 0x6
+    BE(u16) numSheet;       // at 0x8
+    BE(u16) numCWDH;        // at 0xA
+    BE(u16) numCMAP;        // at 0xC
+    BE(u16) nameOffsets[1]; // at 0xE
 };
 
 struct FontGlyphGroupBlock {
@@ -297,18 +297,18 @@ class ArchiveFontBase : public ResFontBase {
             u32 cmapUsesPos =
                 RoundUp(cwdhUsesPos + mCWDHFlagsSize * mpBlock->body.numSet, 4);
 
-            mpSheetSizes = static_cast<const u32 *>(
+            mpSheetSizes = static_cast<const BE(u32) *>(
                 AddOffsetToPtr(mpHeader, sheetSizesPos));
-            mpCWDHSizes = static_cast<const u32 *>(
+            mpCWDHSizes = static_cast<const BE(u32) *>(
                 AddOffsetToPtr(mpHeader, cwdhSizesPos));
-            mpCMAPSizes = static_cast<const u32 *>(
+            mpCMAPSizes = static_cast<const BE(u32) *>(
                 AddOffsetToPtr(mpHeader, cmapSizesPos));
-            mpSheetUses = static_cast<const u32 *>(
+            mpSheetUses = static_cast<const BE(u32) *>(
                 AddOffsetToPtr(mpHeader, sheetUsesPos));
             mpCWDHUses =
-                static_cast<const u32 *>(AddOffsetToPtr(mpHeader, cwdhUsesPos));
+                static_cast<const BE(u32) *>(AddOffsetToPtr(mpHeader, cwdhUsesPos));
             mpCMAPUses =
-                static_cast<const u32 *>(AddOffsetToPtr(mpHeader, cmapUsesPos));
+                static_cast<const BE(u32) *>(AddOffsetToPtr(mpHeader, cmapUsesPos));
         }
 
         u16 GetNumBlock() const {
@@ -381,19 +381,19 @@ class ArchiveFontBase : public ResFontBase {
             return (x + div - 1) / div;
         }
 
-        static bool TestFlag(const u32 *pFlags, u32 bit) {
+        static bool TestFlag(const BE(u32) *pFlags, u32 bit) {
             return ((pFlags[bit / 32] << (bit % 32)) & (1u << 31)) != 0;
         }
 
         const BinaryFileHeader *mpHeader;   // at 0x0
         const FontGlyphGroupBlock *mpBlock; // at 0x4
         const u16 *mpNames;                 // at 0x8
-        const u32 *mpSheetSizes;            // at 0xC
-        const u32 *mpCWDHSizes;             // at 0x10
-        const u32 *mpCMAPSizes;             // at 0x14
-        const u32 *mpSheetUses;             // at 0x18
-        const u32 *mpCWDHUses;              // at 0x1C
-        const u32 *mpCMAPUses;              // at 0x20
+        const BE(u32) *mpSheetSizes;        // at 0xC
+        const BE(u32) *mpCWDHSizes;         // at 0x10
+        const BE(u32) *mpCMAPSizes;         // at 0x14
+        const BE(u32) *mpSheetUses;         // at 0x18
+        const BE(u32) *mpCWDHUses;          // at 0x1C
+        const BE(u32) *mpCMAPUses;          // at 0x20
         u32 mSheetFlagsSize;                // at 0x24
         u32 mCWDHFlagsSize;                 // at 0x28
         u32 mCMAPFlagsSize;                 // at 0x2C

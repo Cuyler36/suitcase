@@ -1,4 +1,5 @@
 #include <lib/egg/core/eggFrmHeap.h>
+#include <lib/egg/core/eggAllocator.h>
 
 namespace EGG {
 
@@ -46,6 +47,11 @@ FrmHeap *FrmHeap::create(size_t size, Heap *parent, u16 flags) {
     if (size == (size_t)-1) {
         size = parent->getAllocatableSize(4);
     }
+#if TARGET_PC
+    else {
+        size = pcContentSize(size) + sizeof(FrmHeap) + MEM_FRM_HEAP_MIN_SIZE + 0x20;
+    }
+#endif
 
     void *block = parent->alloc(size, 4);
     if (block) {
@@ -104,7 +110,8 @@ size_t FrmHeap::adjust() {
 }
 
 void FrmHeap::initAllocator(Allocator *allocator, long align) {
-    MEMInitAllocatorForFrmHeap((MEMAllocator *)allocator, mHeapHandle, align);
+    // A static_cast (with Allocator complete): MEMAllocator is not at offset 0 under MSVC's layout
+    MEMInitAllocatorForFrmHeap(static_cast<MEMAllocator *>(allocator), mHeapHandle, align);
 }
 
 Heap::EHeapKind FrmHeap::getHeapKind() const {

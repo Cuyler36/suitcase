@@ -245,9 +245,9 @@ public:
     } // 0x4C
     virtual void setVisible(const char *paneName, bool flag);                                           // 0x50
     virtual bool isVisible(const char *paneName, bool *result) const;                                   // 0x54
-    virtual void setString(const char *paneName, const wchar_t *wcString);                              // 0x58
+    virtual void setString(const char *paneName, const wchar16_t *wcString);                              // 0x58
     virtual AnmPane *searchAnmPane(const char *paneName);                                               // 0x5C
-    virtual AnmPane *searchAnmPane(wchar_t ch);                                                         // 0x60
+    virtual AnmPane *searchAnmPane(wchar16_t ch);                                                         // 0x60
     virtual nw4r::ut::List &getAnmPaneList() {
         return mAnmPanes;
     } // 0x64

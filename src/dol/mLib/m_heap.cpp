@@ -41,6 +41,9 @@ EGG::ExpHeap *mHeap::createExpHeap(size_t size, EGG::Heap *parent, const char *n
     }
 
     if (size != -1) {
+#if TARGET_PC
+        size = EGG::Heap::pcContentSize(size); // expHeapCost adds the PC's header sizes
+#endif
         size = expHeapCost(size, align);
     } else {
         size = parent->getAllocatableSize(align);
@@ -80,6 +83,9 @@ EGG::FrmHeap *mHeap::createFrmHeap(size_t size, EGG::Heap *parent, const char *n
     }
 
     if (size != -1) {
+#if TARGET_PC
+        size = EGG::Heap::pcContentSize(size); // frmHeapCost adds the PC's header sizes
+#endif
         size = frmHeapCost(size, align);
     } else {
         size = parent->getAllocatableSize(align);

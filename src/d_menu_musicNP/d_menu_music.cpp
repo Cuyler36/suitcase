@@ -821,7 +821,7 @@ void dMenuMusic_c::updateRowWords() {
         sprintf(name, "B_music_%02d", i);
         mRowWord[i].clear();
         if (song >= 0 && song < mCount) {
-            wchar_t *str = getSongName(song);
+            wchar16_t *str = getSongName(song);
             if (str) {
                 mRowWord[i].set(str, 0);
                 mLyt.setVisible(name, true);
@@ -834,7 +834,7 @@ void dMenuMusic_c::updateRowWords() {
 }
 
 // .text:0x2200
-wchar_t *dMenuMusic_c::getSongName(int idx) {
+wchar16_t *dMenuMusic_c::getSongName(int idx) {
     if (idx >= mCount) {
         return nullptr;
     }

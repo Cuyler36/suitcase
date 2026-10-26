@@ -7,6 +7,12 @@ NW4R_UT_RTTI_DEF_DERIVED(FileStream, IOStream);
 
 void FileStream::Cancel() {}
 
+#if TARGET_PC
+// Not in the original binary (every stream overrides it), but MSVC emits FileStream's vtable
+// wherever a derived stream is constructed, so the slot needs a definition.
+void FileStream::Seek(s32 offset, u32 origin) {}
+#endif
+
 bool FileStream::CancelAsync(StreamCallback pCallback, void* pCallbackArg) {
 #pragma unused(pCallback)
 #pragma unused(pCallbackArg)

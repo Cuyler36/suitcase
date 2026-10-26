@@ -441,10 +441,10 @@ void replySyncState(u8 state, int player) {
 }
 
 // 80103358
-BOOL isSeparator(wchar_t c) {
-    const wchar_t separators[11] = {0x3092, 0xFF01, 0xFF1F, 0x3002, 0x3001, 0x0020,
+BOOL isSeparator(wchar16_t c) {
+    const wchar16_t separators[11] = {0x3092, 0xFF01, 0xFF1F, 0x3002, 0x3001, 0x0020,
                                     0x3000, 0x000A, 0x002C, 0x002E, 0x0000};
-    const wchar_t *p = separators;
+    const wchar16_t *p = separators;
     for (int i = 0; i < 11; i++, p++) {
         if (c == *p) {
             return TRUE;
@@ -454,7 +454,7 @@ BOOL isSeparator(wchar_t c) {
 }
 
 // 80103404
-BOOL isWord(const wchar_t *str) {
+BOOL isWord(const wchar16_t *str) {
     for (int i = 0; i < 3; i++) {
         if (isSeparator(str[i])) {
             return FALSE;
@@ -465,7 +465,7 @@ BOOL isWord(const wchar_t *str) {
 
 // 80103464
 int countWords(dMail_c *mail) {
-    const wchar_t *str = mail->mBody;
+    const wchar16_t *str = mail->mBody;
     BOOL start = TRUE;
     int num = 0;
     for (int i = 0; i < MAIL_BODY_LEN - 3; i++, str++) {
@@ -481,7 +481,7 @@ int countWords(dMail_c *mail) {
 }
 
 // 801034EC
-void replaceNewlines(wchar_t *str, int len) {
+void replaceNewlines(wchar16_t *str, int len) {
     for (int i = 0; i < len; i++, str++) {
         if (*str == L'\n') {
             *str = L' ';
@@ -490,7 +490,7 @@ void replaceNewlines(wchar_t *str, int len) {
 }
 
 // 80103518
-void toHiragana(wchar_t *str, int len) {
+void toHiragana(wchar16_t *str, int len) {
     for (int i = 0; i < len; i++) {
         if (dScript::isKatakana(str[i]) && str[i] != 0x30F6) {
             str[i] -= 0x60;
@@ -499,14 +499,14 @@ void toHiragana(wchar_t *str, int len) {
 }
 
 // 80103590
-void toLower(wchar_t *str, int len) {
+void toLower(wchar16_t *str, int len) {
     for (int i = 0; i < len; i++) {
         dScript::toLower(&str[i]);
     }
 }
 
 // 801035EC
-void normalize(wchar_t *str, int len) {
+void normalize(wchar16_t *str, int len) {
     switch (getRegion()) {
     case 0:
         toHiragana(str, len);
@@ -519,7 +519,7 @@ void normalize(wchar_t *str, int len) {
 }
 
 // 80103658
-int getLineLength(const wchar_t *str, int max) {
+int getLineLength(const wchar16_t *str, int max) {
     for (int i = 0; i < max; i++) {
         if (str[i] == 0) {
             return i;
@@ -532,7 +532,7 @@ int getLineLength(const wchar_t *str, int max) {
 }
 
 // 801036A0
-const wchar_t *nextLine(const wchar_t *str, int max) {
+const wchar16_t *nextLine(const wchar16_t *str, int max) {
     str += getLineLength(str, max);
     if (*str == L'\n') {
         str++;
@@ -541,11 +541,11 @@ const wchar_t *nextLine(const wchar_t *str, int max) {
 }
 
 // 801036E4
-int findWord(const wchar_t *word, const wchar_t *list) {
+int findWord(const wchar16_t *word, const wchar16_t *list) {
     int i = 0;
     while (list != NULL && *list != 0) {
         int len = getLineLength(list, 3);
-        if (memcmp(list, word, len * sizeof(wchar_t)) == 0) {
+        if (memcmp(list, word, len * sizeof(wchar16_t)) == 0) {
             return i;
         }
         list = nextLine(list, 4);
@@ -555,7 +555,7 @@ int findWord(const wchar_t *word, const wchar_t *list) {
 }
 
 // 80103784
-int getWordId(const wchar_t *word) {
+int getWordId(const wchar16_t *word) {
     dScript::Res_c res(dScript::getBmgFile(dScript::getBank(), "sys_STRING/STR_Mailcheck"));
     u32 id;
     u16 c = *word;
@@ -575,7 +575,7 @@ int getWordId(const wchar_t *word) {
         }
     }
     for (id = 1; id < res.getCount(); id++) {
-        const wchar_t *list = res.getMessage(id);
+        const wchar16_t *list = res.getMessage(id);
         if (*list == c) {
             int idx = findWord(word, list);
             if (idx == -1) {
@@ -588,11 +588,11 @@ int getWordId(const wchar_t *word) {
 }
 
 // 801038F4
-BOOL bodyContains(dMail_c *mail, const wchar_t *str) {
+BOOL bodyContains(dMail_c *mail, const wchar16_t *str) {
     int len = dScript::getLineLength((const u16 *)str, 0);
-    const wchar_t *body = mail->mBody;
+    const wchar16_t *body = mail->mBody;
     for (int i = 0; i < MAIL_BODY_LEN - len; body++, i++) {
-        if (memcmp(body, str, len * sizeof(wchar_t)) == 0) {
+        if (memcmp(body, str, len * sizeof(wchar16_t)) == 0) {
             return TRUE;
         }
     }
@@ -605,7 +605,7 @@ int scoreWords(dMail_c *mail) {
     u16 *out = l_words;
     int total = 0;
     int unique = 0;
-    const wchar_t *str = mail->mBody;
+    const wchar16_t *str = mail->mBody;
     BOOL start = TRUE;
     for (int i = 0; i < MAIL_BODY_LEN - 3; i++, str++) {
         if (*str == 0) {
@@ -712,7 +712,7 @@ int findSpecial(dMail_c *mail) {
     replaceNewlines(copy.mBody, MAIL_BODY_LEN);
     dScript::Res_c res(dScript::getBmgFile(dScript::getBank(), "sys_STRING/STR_LetterSP"));
     for (u32 id = 1; id < res.getCount(); id++) {
-        for (const wchar_t *str = res.getMessage(id); *str != 0; str = nextLine(str, 100)) {
+        for (const wchar16_t *str = res.getMessage(id); *str != 0; str = nextLine(str, 100)) {
             if (bodyContains(&copy, str)) {
                 return id;
             }

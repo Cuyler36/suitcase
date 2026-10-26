@@ -20,11 +20,11 @@ public:
     Word_c();                                            // 8017CAC4
     virtual ~Word_c();                                   // 8017CB08
     virtual u32 getBufferSize();                         // 8017CB60
-    virtual wchar_t *getBuffer();                        // 8017CB68
+    virtual wchar16_t *getBuffer();                        // 8017CB68
     virtual int procNumber(int pos);                     // 8017CB70
     virtual int procRubyTag(int pos);                    // 8017CBEC
 
-    /* 0x024 */ wchar_t mBuffer[0x101];
+    /* 0x024 */ wchar16_t mBuffer[0x101];
 }; // size 0x228
 
 } // namespace dWifiErr

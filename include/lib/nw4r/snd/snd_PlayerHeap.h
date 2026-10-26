@@ -25,7 +25,7 @@ namespace snd {
 namespace detail {
 class PlayerHeap : public SoundMemoryAllocatable {
   public:
-    typedef ut::LinkList<PlayerHeap, 0x18> LinkList;
+    typedef ut::LinkList<PlayerHeap, NW4R_UT_LINK_OFFSET(0x18, 0x30)> LinkList;
 
   public:
     PlayerHeap();
@@ -55,6 +55,12 @@ class PlayerHeap : public SoundMemoryAllocatable {
     void *mAllocAddress;              // size 0x04, offset 0x14
   public:
     ut::LinkListNode mLink; // size 0x08, offset 0x18
+#if TARGET_PC
+    // The PC list offsets (NW4R_UT_LINK_OFFSET)
+    static void CheckLinkOffsets() {
+        static_assert(offsetof(PlayerHeap, mLink) == 0x30, "mLink");
+    }
+#endif
 }; // size 0x20
 } // namespace detail
 } // namespace snd

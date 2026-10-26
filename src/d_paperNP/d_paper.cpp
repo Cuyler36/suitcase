@@ -63,10 +63,10 @@ void dPaper_c::execute() {
 }
 // .text:0x2FC
 void dPaper_c::updateText(BOOL fixedSpaces, BOOL fixedHeader) {
-    static const wchar_t *header = mpMail->mHeader;
+    static const wchar16_t *header = mpMail->mHeader;
     int namePos = mpMail->mNamePos;
-    static const wchar_t *body = mpMail->mBody;
-    static const wchar_t *footer = mpMail->mFooter;
+    static const wchar16_t *body = mpMail->mBody;
+    static const wchar16_t *footer = mpMail->mFooter;
     updateHeader(header, namePos, fixedHeader);
     updateBody(body, fixedSpaces);
     updateFooter(footer, fixedSpaces);
@@ -248,7 +248,7 @@ void dPaper_c::setPaperOnly(BOOL paperOnly) {
     mpLayout->setVisible("ltrBase_S_00", !show);
 }
 // .text:0xBF8
-void dPaper_c::updateHeader(const wchar_t *text, int namePos,
+void dPaper_c::updateHeader(const wchar16_t *text, int namePos,
                             BOOL fixedSpaces) {
     int length = m2d::Word_c::getLength(text);
     if (length < namePos) {
@@ -299,15 +299,15 @@ void dPaper_c::updateHeader(const wchar_t *text, int namePos,
     }
 }
 // .text:0xDA8
-void dPaper_c::updateBody(const wchar_t *text, BOOL fixedSpaces) {
+void dPaper_c::updateBody(const wchar16_t *text, BOOL fixedSpaces) {
     int line;
-    const wchar_t *cursor = text;
-    static wchar_t lineText[LINE_BUFFER_LENGTH];
+    const wchar16_t *cursor = text;
+    static wchar16_t lineText[LINE_BUFFER_LENGTH];
     for (line = 1; line <= BODY_LINES; ++line) {
         int index = line - 1;
         int length = mLineLengths[index];
         if (length > 0) {
-            memcpy(lineText, cursor, length * sizeof(wchar_t));
+            memcpy(lineText, cursor, length * sizeof(wchar16_t));
         }
         lineText[length] = 0;
         mWords[line].clear();
@@ -352,7 +352,7 @@ void dPaper_c::updateBody(const wchar_t *text, BOOL fixedSpaces) {
     }
 }
 // .text:0xFFC
-void dPaper_c::updateFooter(const wchar_t *text, BOOL fixedSpaces) {
+void dPaper_c::updateFooter(const wchar16_t *text, BOOL fixedSpaces) {
     mWords[FOOTER].clear();
     mWords[FOOTER].set(text, 0);
     int start = mSelectStart;
@@ -372,7 +372,7 @@ void dPaper_c::updateFooter(const wchar_t *text, BOOL fixedSpaces) {
     }
 }
 // .text:0x10CC
-BOOL dPaper_c::fitsHeader(const wchar_t *text) {
+BOOL dPaper_c::fitsHeader(const wchar16_t *text) {
     int length = dScript::getLineLength((const u16 *)text, 0);
     if (text[length] != 0) {
         return FALSE;
@@ -388,9 +388,9 @@ BOOL dPaper_c::fitsHeader(const wchar_t *text) {
     return TRUE;
 }
 // .text:0x1188
-BOOL dPaper_c::wrapBody(const wchar_t *text, BOOL) {
+BOOL dPaper_c::wrapBody(const wchar16_t *text, BOOL) {
     int line;
-    const wchar_t *cursor = text;
+    const wchar16_t *cursor = text;
     int lengths[BODY_LINES];
     u32 newLines = 0;
     for (line = 1; line <= BODY_LINES; ++line) {
@@ -434,7 +434,7 @@ BOOL dPaper_c::wrapBody(const wchar_t *text, BOOL) {
     return FALSE;
 }
 // .text:0x12CC
-BOOL dPaper_c::fitsFooter(const wchar_t *text) {
+BOOL dPaper_c::fitsFooter(const wchar16_t *text) {
     int length = dScript::getLineLength((const u16 *)text, 0);
     if (text[length] != 0) {
         return FALSE;
@@ -508,7 +508,7 @@ u32 dPaper_c::Word_c::getBufferSize() {
     return sizeof(mBuffer);
 }
 // .text:0x16F8
-wchar_t *dPaper_c::Word_c::getBuffer() {
+wchar16_t *dPaper_c::Word_c::getBuffer() {
     return mBuffer;
 }
 // .text:0x1700

@@ -46,7 +46,7 @@ struct dSaveOption_c {
     /* 0x2 */ u8 _2_0 : 1;
 };
 
-// The save file's name and size (d_save_data .sdata / .sdata2; used by d_nand and d_sv_mgr).
+// The save file's name and size (d_save_data.cpp .sdata / .sdata2; used by d_nand and d_sv_mgr).
 extern "C" {
 extern const char *lbl_8074B010; // 8074B010: the save file's name (804EE330)
 extern const int lbl_80750AD0;   // 80750AD0: the save file's size (0x40F340, SAVE_DATA_SIZE)
@@ -243,7 +243,7 @@ public:
     static void create();                 // 8010E248
     void clear();                         // 8010EA88: memset the whole file
     // 8010EA98: player idx becomes a new player, with an id no other player has (no callers)
-    static dPrivateData_c *setupPlayer(const wchar_t *name, u8 gender, u32 idx);
+    static dPrivateData_c *setupPlayer(const wchar16_t *name, u8 gender, u32 idx);
 
     static void *operator new(size_t, void *p) { return p; }
 

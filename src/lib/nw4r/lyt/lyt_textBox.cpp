@@ -167,7 +167,7 @@ void CalcStringRectImpl(ut::Rect* pRect, ut::TextWriterBase<T>* pTextWriter,
         pRect->bottom = ut::Max(pRect->bottom, rect.bottom);
 
         if (bOver) {
-            CalcLineRectImpl(&rect, pTextWriter, L"\n", 1, maxWidth, &bOver);
+            CalcLineRectImpl(&rect, pTextWriter, WSTR("\n"), 1, maxWidth, &bOver);
 
             pRect->left = ut::Min(pRect->left, rect.left);
             pRect->top = ut::Min(pRect->top, rect.top);
@@ -198,19 +198,25 @@ NW4R_UT_RTTI_DEF_DERIVED(TextBox, Pane);
  ******************************************************************************/
 TextBox::TextBox(const res::TextBox* pBlock, const ResBlockSet& resBlockSet)
     : Pane(pBlock) {
-    u16 allocStrBufLen = pBlock->textBufBytes / sizeof(wchar_t);
+    u16 allocStrBufLen = pBlock->textBufBytes / sizeof(wchar16_t);
     if (allocStrBufLen > 0) {
         allocStrBufLen--;
     }
 
     Init(allocStrBufLen);
 
-    if (pBlock->textStrBytes >= sizeof(wchar_t) && mTextBuf != NULL) {
-        const wchar_t* const pBlockText =
-            detail::ConvertOffsToPtr<wchar_t>(pBlock, pBlock->textStrOffset);
+    if (pBlock->textStrBytes >= sizeof(wchar16_t) && mTextBuf != NULL) {
+        const wchar16_t* const pBlockText =
+            detail::ConvertOffsToPtr<wchar16_t>(pBlock, pBlock->textStrOffset);
 
-        u16 resStrLen = pBlock->textStrBytes / sizeof(wchar_t) - 1;
+        u16 resStrLen = pBlock->textStrBytes / sizeof(wchar16_t) - 1;
         SetString(pBlockText, 0, resStrLen);
+#if TARGET_PC
+        // The file's text is UTF-16BE
+        for (u16 i = 0; i < resStrLen && mTextBuf[i] != 0; i++) {
+            mTextBuf[i] = RES_U16(mTextBuf[i]);
+        }
+#endif
     }
 
     for (int i = 0; i < TEXTCOLOR_MAX; i++) {
@@ -250,7 +256,7 @@ TextBox::TextBox(const res::TextBox* pBlock, const ResBlockSet& resBlockSet)
         }
     }
 
-    const u32* const matOffsTbl = detail::ConvertOffsToPtr<u32>(
+    const BE(u32)* const matOffsTbl = detail::ConvertOffsToPtr<BE(u32)>(
         resBlockSet.pMaterialList, sizeof(res::MaterialList));
 
     const res::Material* const pResMaterial =
@@ -353,7 +359,7 @@ void TextBox::DrawSelf(const DrawInfo& drawInfo) {
     GXSetAlphaCompare(GX_ALWAYS, 0, GX_AOP_AND, GX_ALWAYS, 0);
 
     f32 hMag = GetTextAlignMag();
-    const wchar_t* strPos = mTextBuf;
+    const wchar16_t* strPos = mTextBuf;
 
     writer.SetCursor(textRect.left, -textRect.top);
 
@@ -372,7 +378,7 @@ void TextBox::DrawSelf(const DrawInfo& drawInfo) {
         writer.PrintMutable(strPos, lineStrNum);
 
         if (bOver) {
-            writer.PrintMutable(L"\n", 1);
+            writer.PrintMutable(WSTR("\n"), 1);
         }
 
         strPos += lineStrNum;
@@ -385,7 +391,7 @@ u16 TextBox::GetStringBufferLength() const {
         return 0;
     }
 
-    return mTextBufBytes / sizeof(wchar_t) - 1;
+    return mTextBufBytes / sizeof(wchar16_t) - 1;
 }
 
 void TextBox::AllocStringBuffer(u16 minLen) {
@@ -394,12 +400,12 @@ void TextBox::AllocStringBuffer(u16 minLen) {
     }
 
     ulong allocLen = minLen;
-    ulong textBufBytes = (minLen + 1) * sizeof(wchar_t);
+    ulong textBufBytes = (minLen + 1) * sizeof(wchar16_t);
 
     if (textBufBytes > mTextBufBytes) {
         FreeStringBuffer();
 
-        mTextBuf = Layout::NewArray<wchar_t>(allocLen + 1);
+        mTextBuf = Layout::NewArray<wchar16_t>(allocLen + 1);
 
         if (mTextBuf != NULL) {
             mTextBufBytes = textBufBytes;
@@ -415,15 +421,15 @@ void TextBox::FreeStringBuffer() {
     }
 }
 
-u16 TextBox::SetString(const wchar_t* str, u16 dstIdx) {
+u16 TextBox::SetString(const wchar16_t* str, u16 dstIdx) {
     return SetStringImpl(str, dstIdx, std::wcslen(str));
 }
 
-u16 TextBox::SetString(const wchar_t* str, u16 dstIdx, u16 strLen) {
+u16 TextBox::SetString(const wchar16_t* str, u16 dstIdx, u16 strLen) {
     return SetStringImpl(str, dstIdx, strLen);
 }
 
-u16 TextBox::SetStringImpl(const wchar_t* str, u16 dstIdx, ulong strLen) {
+u16 TextBox::SetStringImpl(const wchar16_t* str, u16 dstIdx, ulong strLen) {
     if (mTextBuf == NULL) {
         return 0;
     }
@@ -436,7 +442,7 @@ u16 TextBox::SetStringImpl(const wchar_t* str, u16 dstIdx, ulong strLen) {
 
     ulong cpLen = ut::Min<ulong>(strLen, bufLen - dstIdx);
 
-    std::memcpy(&mTextBuf[dstIdx], str, cpLen * sizeof(wchar_t));
+    std::memcpy(&mTextBuf[dstIdx], str, cpLen * sizeof(wchar16_t));
     mTextLen = dstIdx + cpLen;
     mTextBuf[mTextLen] = L'\0';
 

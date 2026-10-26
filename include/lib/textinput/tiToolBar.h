@@ -73,8 +73,8 @@ class LayoutByNW4R : public Base, public nw4rmanager::Layout {
     virtual nw4r::lyt::Pane *getDownArea();
     virtual void setOKButtonVisible(bool visible);
     virtual void setCancelButtonVisible(bool visible);
-    virtual void setOKButtonCaption(const wchar_t *caption);
-    virtual void setCancelButtonCaption(const wchar_t *caption);
+    virtual void setOKButtonCaption(const wchar16_t *caption);
+    virtual void setCancelButtonCaption(const wchar16_t *caption);
     virtual void cancelStateFocusIn();
 
   private:

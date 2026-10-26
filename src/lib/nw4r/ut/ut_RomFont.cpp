@@ -146,7 +146,11 @@ int RomFont::GetCharWidth(u16 ch) const {
     char buffer[CHAR_PTR_BUFFER_SIZE];
 
     MakeCharPtr(buffer, ch);
+#if TARGET_PC
+    OSGetFontWidth(buffer, reinterpret_cast<s32*>(&width)); // aurora takes s32*
+#else
     OSGetFontWidth(buffer, &width);
+#endif
 
     return width;
 }
@@ -168,7 +172,13 @@ void RomFont::GetGlyph(Glyph* pGlyph, u16 ch) const {
     char buffer[CHAR_PTR_BUFFER_SIZE];
 
     MakeCharPtr(buffer, ch);
+#if TARGET_PC
+    // aurora takes s32*
+    OSGetFontTexture(buffer, &pTexture, reinterpret_cast<s32*>(&x), reinterpret_cast<s32*>(&y),
+                     reinterpret_cast<s32*>(&width));
+#else
     OSGetFontTexture(buffer, &pTexture, &x, &y, &width);
+#endif
 
     pGlyph->pTexture = pTexture;
 

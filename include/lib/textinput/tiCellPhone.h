@@ -47,7 +47,7 @@ struct State {
 }; // size 0x14
 
 struct KeyCommand {
-    /* 0x00 */ wchar_t mChar;
+    /* 0x00 */ wchar16_t mChar;
     /* 0x04 */ u32 mFlags;
     /* 0x08 */ const PaneNameToCharCode *mpKey;
 };

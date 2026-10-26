@@ -26,7 +26,7 @@ static ActorData_c l_actors[] = {
      0,
      &l_param1},
 };
-static u32 l_setting0[] = {0xF7F7CEFF, 0xE5560000, 0x4242C6FF, 0x01000000,
+static u32 l_setting0[] = {SC_COLOR(0xF7F7CEFF), SC_ANGLES(0xE5560000), SC_COLOR(0x4242C6FF), SC_COLOR(0x01000000),
                            0x3D088889, 0x3D088889}; // scene setting kind 0xA
 static Scene3Entry_c l_scene3[] = {{5, &l_palette0}, {0xA, l_setting0}};
 static dScene::dSceneDataEntry_c l_entries[] = {

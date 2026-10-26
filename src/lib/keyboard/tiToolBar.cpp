@@ -141,11 +141,11 @@ void LayoutByNW4R::setCancelButtonVisible(bool visible) {
     setVisible("P_BT_cancel", visible);
 }
 
-void LayoutByNW4R::setOKButtonCaption(const wchar_t *caption) {
+void LayoutByNW4R::setOKButtonCaption(const wchar16_t *caption) {
     setString("T_BT_confirm", caption);
 }
 
-void LayoutByNW4R::setCancelButtonCaption(const wchar_t *caption) {
+void LayoutByNW4R::setCancelButtonCaption(const wchar16_t *caption) {
     setString("T_BT_cancel", caption);
 }
 

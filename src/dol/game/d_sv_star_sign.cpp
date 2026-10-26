@@ -32,13 +32,13 @@ void Sign_c::clear() {
 }
 
 // 80150B58
-void Sign_c::setName(const wchar_t *name) {
+void Sign_c::setName(const wchar16_t *name) {
     mName[SIGN_NAME_LEN] = 0;
-    memcpy(mName, name, SIGN_NAME_LEN * sizeof(wchar_t));
+    memcpy(mName, name, SIGN_NAME_LEN * sizeof(wchar16_t));
 }
 
 // 80150B6C
-const wchar_t *Sign_c::getName() const {
+const wchar16_t *Sign_c::getName() const {
     return mName;
 }
 

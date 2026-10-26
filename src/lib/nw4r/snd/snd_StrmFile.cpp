@@ -206,8 +206,12 @@ bool StrmFileReader::ReadAdpcmInfo(AdpcmParam *adpcmParam,
     StrmFile::AdpcmParamSet const *src = Util::GetDataRefAddress0(
         channelInfo->refAdpcmInfo, &mHeadBlock->refDataHeader);
 
+#if TARGET_PC
+    src->Read(adpcmParam, adpcmLoopParam);
+#else
     *adpcmParam = src->adpcmParam;
     *adpcmLoopParam = src->adpcmLoopParam;
+#endif
 
     return true;
 }

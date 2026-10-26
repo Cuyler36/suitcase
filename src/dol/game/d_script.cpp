@@ -8,6 +8,9 @@
 // Notes: notes/d_script.txt.
 // First pass: every function is written for equivalence; matching has not started.
 #include <game/game/d_script.hpp>
+#if TARGET_PC
+#include <port/endian.h>
+#endif
 #include <game/game/d_region.hpp>
 #include <game/game/d_string.hpp>
 #include <game/game/d_date.hpp>
@@ -25,24 +28,24 @@ namespace dScript {
 
 // Helpers defined in this TU. Names are inferred.
 BOOL isVowelSound(int c);
-u16 getSortKey(wchar_t c);
+u16 getSortKey(wchar16_t c);
 const char *getScriptDir();
-BOOL isDigit(wchar_t c);
-BOOL isHiragana(wchar_t c);
-BOOL isKatakana(wchar_t c);
-BOOL isUpperAlpha(wchar_t c);
-BOOL isLowerAlpha(wchar_t c);
-BOOL isAlpha(wchar_t c);
-BOOL isFullwidthUpper(wchar_t c);
-BOOL isFullwidthLower(wchar_t c);
-BOOL isLatin1Upper(wchar_t c);
-BOOL isLatin1Lower(wchar_t c);
-BOOL isGreekLower(wchar_t c);
-BOOL isGreekUpper(wchar_t c);
-BOOL isHangul(wchar_t c);
-BOOL isSeparator(wchar_t c);
-bool toUpper(wchar_t *c);
-bool toLower(wchar_t *c);
+BOOL isDigit(wchar16_t c);
+BOOL isHiragana(wchar16_t c);
+BOOL isKatakana(wchar16_t c);
+BOOL isUpperAlpha(wchar16_t c);
+BOOL isLowerAlpha(wchar16_t c);
+BOOL isAlpha(wchar16_t c);
+BOOL isFullwidthUpper(wchar16_t c);
+BOOL isFullwidthLower(wchar16_t c);
+BOOL isLatin1Upper(wchar16_t c);
+BOOL isLatin1Lower(wchar16_t c);
+BOOL isGreekLower(wchar16_t c);
+BOOL isGreekUpper(wchar16_t c);
+BOOL isHangul(wchar16_t c);
+BOOL isSeparator(wchar16_t c);
+bool toUpper(wchar16_t *c);
+bool toLower(wchar16_t *c);
 BOOL setNumber4(Word_c *word, int value);
 BOOL setNumber2(Word_c *word, int value);
 BOOL setMinute(Word_c *word, int value);
@@ -58,24 +61,24 @@ BOOL setDayName(Word_c *word, int day);
 BOOL setCounter(Word_c *word, int type, int count);
 BOOL setCounter2(Word_c *word, int type, int count);
 BOOL makeNickname(Word_c *out, const Word_c *name, u16 index);
-void appendMinus(wchar_t *buf);
-void writeDigits(wchar_t *buf, int value, int digits);
-void padSpacesFront(wchar_t *buf, int width);
-void padSpacesBack(wchar_t *buf, int width);
-void padZeros(wchar_t *buf, int width);
-int numLength(const wchar_t *buf);
-void shiftRight(wchar_t *buf, int pos, int n);
-void reverse(wchar_t *buf);
-void insertSeparators(wchar_t *buf, wchar_t sep);
+void appendMinus(wchar16_t *buf);
+void writeDigits(wchar16_t *buf, int value, int digits);
+void padSpacesFront(wchar16_t *buf, int width);
+void padSpacesBack(wchar16_t *buf, int width);
+void padZeros(wchar16_t *buf, int width);
+int numLength(const wchar16_t *buf);
+void shiftRight(wchar16_t *buf, int pos, int n);
+void reverse(wchar16_t *buf);
+void insertSeparators(wchar16_t *buf, wchar16_t sep);
 BOOL isSpacePadFormat(NumberFormat_e format);
 BOOL isSpacePadEndFormat(NumberFormat_e format);
 BOOL isZeroPadFormat(NumberFormat_e format);
 BOOL isSeparatorFormat(NumberFormat_e format);
 int getLineLength(const u16 *text, u32 maxSize);
-u8 getTagGroup(const wchar_t *tag);
-u16 getTagId(const wchar_t *tag);
-u8 getTagLength(const wchar_t *tag);
-const u8 *getTagParams(const wchar_t *tag);
+u8 getTagGroup(const wchar16_t *tag);
+u16 getTagId(const wchar16_t *tag);
+u8 getTagLength(const wchar16_t *tag);
+const u8 *getTagParams(const wchar16_t *tag);
 Bank_c *getBank();
 BOOL loadBank(Bank_c *bank, void *heap);
 void *getBmgFile(Bank_c *bank, const char *name);
@@ -121,7 +124,7 @@ static const u16 lbl_804767E8[][2] = {
 };
 
 // 80155B70: sort key for a character (name sorting)
-u16 getSortKey(wchar_t c) {
+u16 getSortKey(wchar16_t c) {
     u16 key = 0xD3;
     if (isDigit(c)) {
         key = c + 0x27;
@@ -175,32 +178,32 @@ const char *getScriptDir() {
 }
 
 // 80155D68: 0-9
-BOOL isDigit(wchar_t c) {
+BOOL isDigit(wchar16_t c) {
     return sLib::isInRange(c, 0x30, 0x39) != 0;
 }
 
 // 80155D9C: hiragana
-BOOL isHiragana(wchar_t c) {
+BOOL isHiragana(wchar16_t c) {
     return sLib::isInRange(c, 0x3041, 0x3093) != 0;
 }
 
 // 80155DD0: katakana
-BOOL isKatakana(wchar_t c) {
+BOOL isKatakana(wchar16_t c) {
     return sLib::isInRange(c, 0x30A1, 0x30F6) != 0;
 }
 
 // 80155E04: A-Z
-BOOL isUpperAlpha(wchar_t c) {
+BOOL isUpperAlpha(wchar16_t c) {
     return sLib::isInRange(c, 0x41, 0x5A) != 0;
 }
 
 // 80155E38: a-z
-BOOL isLowerAlpha(wchar_t c) {
+BOOL isLowerAlpha(wchar16_t c) {
     return sLib::isInRange(c, 0x61, 0x7A) != 0;
 }
 
 // 80155E6C: A-Z or a-z
-BOOL isAlpha(wchar_t c) {
+BOOL isAlpha(wchar16_t c) {
     BOOL ret = FALSE;
     if (isUpperAlpha(c) || isLowerAlpha(c)) {
         ret = TRUE;
@@ -209,17 +212,17 @@ BOOL isAlpha(wchar_t c) {
 }
 
 // 80155EC4: fullwidth A-Z
-BOOL isFullwidthUpper(wchar_t c) {
+BOOL isFullwidthUpper(wchar16_t c) {
     return sLib::isInRange(c, 0xFF21, 0xFF3A) != 0;
 }
 
 // 80155EFC: fullwidth a-z
-BOOL isFullwidthLower(wchar_t c) {
+BOOL isFullwidthLower(wchar16_t c) {
     return sLib::isInRange(c, 0xFF41, 0xFF5A) != 0;
 }
 
 // 80155F34: Latin-1 uppercase
-BOOL isLatin1Upper(wchar_t c) {
+BOOL isLatin1Upper(wchar16_t c) {
     BOOL ret = FALSE;
     if (c != 0xD7 && sLib::isInRange(c, 0xC0, 0xDE)) {
         ret = TRUE;
@@ -228,7 +231,7 @@ BOOL isLatin1Upper(wchar_t c) {
 }
 
 // 80155F80: Latin-1 lowercase
-BOOL isLatin1Lower(wchar_t c) {
+BOOL isLatin1Lower(wchar16_t c) {
     BOOL ret = FALSE;
     if (c != 0xF7 && sLib::isInRange(c, 0xE0, 0xFE)) {
         ret = TRUE;
@@ -237,17 +240,17 @@ BOOL isLatin1Lower(wchar_t c) {
 }
 
 // 80155FCC: Greek lowercase
-BOOL isGreekLower(wchar_t c) {
+BOOL isGreekLower(wchar16_t c) {
     return sLib::isInRange(c, 0x3B1, 0x3C9) != 0;
 }
 
 // 80156000: Greek uppercase
-BOOL isGreekUpper(wchar_t c) {
+BOOL isGreekUpper(wchar16_t c) {
     return sLib::isInRange(c, 0x391, 0x3A9) != 0;
 }
 
 // 80156034: Hangul
-BOOL isHangul(wchar_t c) {
+BOOL isHangul(wchar16_t c) {
     BOOL ret = FALSE;
     if (sLib::isInRange(c, 0x1100, 0x11F9) || sLib::isInRange(c, 0x3131, 0x318E) ||
         sLib::isInRange(c, 0xAC00, 0xD7A3)) {
@@ -263,7 +266,7 @@ static const u16 lbl_80476904[] = {
 };
 
 // 801560B8
-BOOL isSeparator(wchar_t c) {
+BOOL isSeparator(wchar16_t c) {
     for (int i = 0; i < ARRAY_SIZE(lbl_80476904); i++) {
         if (c == lbl_80476904[i]) {
             return TRUE;
@@ -279,7 +282,7 @@ static const u16 lbl_80476920[][2] = {
 };
 
 // 8015616C: to uppercase; FALSE if c is not a letter
-bool toUpper(wchar_t *c) {
+bool toUpper(wchar16_t *c) {
     if (isFullwidthLower(*c) || isLowerAlpha(*c) || isLatin1Lower(*c) || (isGreekLower(*c) && *c != 0x3C2)) {
         *c -= 0x20;
         return TRUE;
@@ -310,7 +313,7 @@ bool toUpper(wchar_t *c) {
 }
 
 // 80156368: to lowercase; FALSE if c is not a letter
-bool toLower(wchar_t *c) {
+bool toLower(wchar16_t *c) {
     if (isFullwidthUpper(*c) || isUpperAlpha(*c) || isLatin1Upper(*c) || isGreekUpper(*c)) {
         *c += 0x20;
         return TRUE;
@@ -446,7 +449,7 @@ BOOL formatNumber(Word_c *word, int value, int digits, NumberFormat_e format, in
         absValue = -value;
     }
 
-    wchar_t buf[0x12];
+    wchar16_t buf[0x12];
     memset(buf, 0, sizeof(buf));
     writeDigits(buf, absValue, digits);
     if (value < 0) {
@@ -475,7 +478,7 @@ BOOL formatNumber(Word_c *word, int value, int digits, NumberFormat_e format, in
 BOOL setDecimal(Word_c *word, int decimals, f64 value) {
     BOOL ret = TRUE;
     const char *p;
-    wchar_t point;
+    wchar16_t point;
     switch (getLanguage()) {
     case LANGUAGE_QC:
     case LANGUAGE_ES:
@@ -639,19 +642,19 @@ BOOL makeNickname(Word_c *out, const Word_c *name, u16 index) {
 namespace dScript {
 
 // 80156E68: appends '-'
-void appendMinus(wchar_t *buf) {
+void appendMinus(wchar16_t *buf) {
     int len = numLength(buf);
     buf[len] = '-';
 }
 
 // 80156EA0: writes value's digits in reverse order
-void writeDigits(wchar_t *buf, int value, int digits) {
+void writeDigits(wchar16_t *buf, int value, int digits) {
     if (value == 0) {
         *buf = '0';
         return;
     }
 
-    wchar_t *p = buf;
+    wchar16_t *p = buf;
     int n = value;
     for (int i = 0; i < digits && n != 0 && value != 0; i++) {
         int q = n / 10;
@@ -661,7 +664,7 @@ void writeDigits(wchar_t *buf, int value, int digits) {
 }
 
 // 80156F10: pads with spaces at the start
-void padSpacesFront(wchar_t *buf, int width) {
+void padSpacesFront(wchar16_t *buf, int width) {
     int pad = width - numLength(buf);
     shiftRight(buf, 0, pad);
     for (int i = pad - 1; i >= 0; i--) {
@@ -670,7 +673,7 @@ void padSpacesFront(wchar_t *buf, int width) {
 }
 
 // 80157038: pads with spaces at the end
-void padSpacesBack(wchar_t *buf, int width) {
+void padSpacesBack(wchar16_t *buf, int width) {
     int len = numLength(buf);
     for (int i = len; i < width; i++) {
         buf[i] = ' ';
@@ -678,7 +681,7 @@ void padSpacesBack(wchar_t *buf, int width) {
 }
 
 // 801571A0: pads with zeros at the end (the start, once reversed)
-void padZeros(wchar_t *buf, int width) {
+void padZeros(wchar16_t *buf, int width) {
     int len = numLength(buf);
     for (int i = len; i < width; i++) {
         buf[i] = '0';
@@ -686,7 +689,7 @@ void padZeros(wchar_t *buf, int width) {
 }
 
 // 80157308: length within an 18-character buffer
-int numLength(const wchar_t *buf) {
+int numLength(const wchar16_t *buf) {
     int i;
     for (i = 0; i < 18; i++) {
         if (buf[i] == 0) {
@@ -697,7 +700,7 @@ int numLength(const wchar_t *buf) {
 }
 
 // 801573B4: moves buf[pos..] right by n characters
-void shiftRight(wchar_t *buf, int pos, int n) {
+void shiftRight(wchar16_t *buf, int pos, int n) {
     if (n <= 0) {
         return;
     }
@@ -707,18 +710,18 @@ void shiftRight(wchar_t *buf, int pos, int n) {
 }
 
 // 80157580: reverses buf
-void reverse(wchar_t *buf) {
+void reverse(wchar16_t *buf) {
     int len = numLength(buf);
     for (int i = 0, j = len - 1; i < len >> 1; i++, j--) {
-        wchar_t tmp = buf[i];
+        wchar16_t tmp = buf[i];
         buf[i] = buf[j];
         buf[j] = tmp;
     }
 }
 
 // 8015771C: inserts sep after every third digit
-void insertSeparators(wchar_t *buf, wchar_t sep) {
-    wchar_t *p = buf;
+void insertSeparators(wchar16_t *buf, wchar16_t sep) {
+    wchar16_t *p = buf;
     int i = 0;
     int count = 0;
     for (; *p != 0; p++, i++) {
@@ -762,7 +765,7 @@ Res_c::Res_c(const void *data) : EGG::MsgRes(data) {}
 Res_c::~Res_c() {}
 
 // 801578E0
-const wchar_t *Res_c::getMessage(int id) {
+const wchar16_t *Res_c::getMessage(int id) {
     return getMsg(id, 0);
 }
 
@@ -780,7 +783,7 @@ u16 Res_c::getCount() {
 }
 
 // 8015790C: length in characters (a tag counts as its full size); 0 if it exceeds maxSize
-int getStringLength(const wchar_t *text, u32 maxSize, int breakOnNewLine) {
+int getStringLength(const wchar16_t *text, u32 maxSize, int breakOnNewLine) {
     u32 len = 0;
     while (true) {
         u32 n;
@@ -804,11 +807,11 @@ int getStringLength(const wchar_t *text, u32 maxSize, int breakOnNewLine) {
 
 // 801579C0
 int getLineLength(const u16 *text, u32 maxSize) {
-    return getStringLength((const wchar_t *)text, maxSize, 1);
+    return getStringLength((const wchar16_t *)text, maxSize, 1);
 }
 
 // 801579C8: tag group
-u8 getTagGroup(const wchar_t *tag) {
+u8 getTagGroup(const wchar16_t *tag) {
     u16 esc = 0;
     u8 group = 0;
     memcpy(&esc, tag, 2);
@@ -817,16 +820,19 @@ u8 getTagGroup(const wchar_t *tag) {
 }
 
 // 80157A20: tag id
-u16 getTagId(const wchar_t *tag) {
+u16 getTagId(const wchar16_t *tag) {
     u16 esc = 0;
     u16 id = 0;
     memcpy(&esc, tag, 2);
     memcpy(&id, (const u8 *)tag + 4, 2);
+#if TARGET_PC
+    id = RES_U16(id);
+#endif
     return id;
 }
 
 // 80157A78: tag length in characters
-u8 getTagLength(const wchar_t *tag) {
+u8 getTagLength(const wchar16_t *tag) {
     u16 esc = 0;
     u8 size = 0;
     memcpy(&esc, tag, 2);
@@ -835,14 +841,28 @@ u8 getTagLength(const wchar_t *tag) {
 }
 
 // 80157AD4: tag parameters
-const u8 *getTagParams(const wchar_t *tag) {
+const u8 *getTagParams(const wchar16_t *tag) {
     u16 esc = 0;
     memcpy(&esc, tag, 2);
     return (const u8 *)tag + 6;
 }
 
+#if TARGET_PC
+const wchar16_t *getTagTextHost(const void *src, u32 count, wchar16_t *out) {
+    if (count > TAG_TEXT_MAX) {
+        count = TAG_TEXT_MAX;
+    }
+    // Parameter text can start at an odd byte offset
+    const u8 *p = static_cast<const u8 *>(src);
+    for (u32 i = 0; i < count; i++) {
+        out[i] = static_cast<wchar16_t>((p[i * 2] << 8) | p[i * 2 + 1]);
+    }
+    return out;
+}
+#endif
+
 // 80157B18
-void Pacchim_c::check(wchar_t c) {
+void Pacchim_c::check(wchar16_t c) {
     if (c >= 0xAC00 && c <= 0xD7A3) {
         mLastChar = c;
     }

@@ -4,7 +4,10 @@
 #include <lib/egg/gfxe/eggGlobalDrawState.h>
 #include <lib/egg/gfxe/eggScreenEffectBase.h>
 
+#if !TARGET_PC
 // [This might be inside a different TU, not sure]
+// Dead-stripped from CF's DOL, along with the EGG functions it calls (which CF never links), so the PC
+// build leaves it out.
 void m3d::screenEffectReset(int cameraID, EGG::Screen &scr) {
     nw4r::math::MTX34 mtx;
     m3d::getCamera(cameraID).GetCameraMtx(&mtx);
@@ -12,6 +15,7 @@ void m3d::screenEffectReset(int cameraID, EGG::Screen &scr) {
     EGG::GlobalDrawState::beginDrawView(cameraID, mtx, scr);
     EGG::ScreenEffectBase::sScreen.CopyFromAnother(scr);
 }
+#endif
 
 bool m3d::capture_c::create(
     EGG::Heap *heap,

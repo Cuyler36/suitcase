@@ -6,6 +6,7 @@
 // side offset). No RTTI: names inferred.
 
 #include <types.h>
+#include <port/bitfield.h>
 #include <game/mLib/m_vec.hpp>
 
 namespace dSvNpcPos {
@@ -59,8 +60,8 @@ struct SidePos_c {
     union {
         /* 0x2 */ u8 mFlags; // SIDE_POS_FLAG_* (d_net ORs the byte; d_sv_npc_pos writes the bits)
         struct {
-            /* 0x2 */ u8 mFlag : 1;  // SIDE_POS_FLAG_EVENT
-            /* 0x2 */ u8 mValid : 1; // SIDE_POS_FLAG_VALID
+            // SIDE_POS_FLAG_EVENT, SIDE_POS_FLAG_VALID: the Wii's bit order, so the bits agree with mFlags
+            /* 0x2 */ BITFIELD_BYTE_3(u8 mFlag : 1, u8 mValid : 1, u8 _bits : 6);
         };
     };
     /* 0x3 */ u8 mSide;     // SIDE_*

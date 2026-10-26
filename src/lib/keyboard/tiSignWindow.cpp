@@ -118,7 +118,7 @@ static int getControlCode(const char *paneName) {
     return CC_None;
 }
 
-static wchar_t getSignWC(const PaneNameToCharCodeInSignMode *keys, u16 page,
+static wchar16_t getSignWC(const PaneNameToCharCodeInSignMode *keys, u16 page,
                          const char *paneName, u16 count) {
     for (u16 i = 0; i < count; i++) {
         if (util::strcmp(keys[i].szPaneName, paneName)) {
@@ -159,7 +159,7 @@ void Base::onKey(u32 key, void *data) {
                 break;
             }
         } else {
-            wchar_t wc =
+            wchar16_t wc =
                 getSignWC(mpLanguageData->pKeys, muPage, paneName, KEY_COUNT);
             if (wc != L'\0') {
                 inputform::Base::KeyInput input = {L'\0', 3,     false, 0,
@@ -283,7 +283,7 @@ void LayoutByNW4R::onKey(u32 key, void *data) {
                 break;
             }
         } else {
-            wchar_t wc =
+            wchar16_t wc =
                 getSignWC(mpLanguageData->pKeys, muPage, paneName, KEY_COUNT);
             if (wc != L'\0' && mpParentKeyboard->getType() == 0) {
                 sendCommand(0x27, NULL);
@@ -388,11 +388,11 @@ void LayoutByNW4R::setSignKeyTop(u16 topPage, u16 nextPage) {
         memset(textName, 0, sizeof(textName));
         strncpy(textName, paneName, strlen(paneName));
         textName[0] = 'T';
-        wchar_t top[2];
+        wchar16_t top[2];
         top[0] = mpLanguageData->pKeys[i].wc[topPage];
         top[1] = L'\0';
         const char *nextName = mpLanguageData->pKeys[i].szNextPaneName;
-        wchar_t next[2];
+        wchar16_t next[2];
         next[0] = mpLanguageData->pKeys[i].wc[nextPage];
         next[1] = L'\0';
         static_cast<nw4r::lyt::TextBox *>(getPane(textName))->SetString(top, 0);
@@ -411,8 +411,8 @@ void LayoutByNW4R::setSignKeyTop(u16 topPage, u16 nextPage) {
 }
 
 void LayoutByNW4R::setPageNumber(u16 page) {
-    wchar_t text[0x11];
-    swprintf(text, 0x11, L"%d/%d", page + 1, mpLanguageData->pageCount);
+    wchar16_t text[0x11];
+    swprintf(text, 0x11, WSTR("%d/%d"), page + 1, mpLanguageData->pageCount);
     static_cast<nw4r::lyt::TextBox *>(getPane("T_SGN_pageNumber"))
         ->SetString(text, 0);
 }

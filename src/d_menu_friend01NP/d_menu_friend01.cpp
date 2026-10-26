@@ -670,7 +670,7 @@ void dMenuFriend01_c::updateRowWords() {
         sprintf(name, "B_msg_%02d", i);
         if (idx >= 0 && idx < mNum) {
             mRowWord[i].clear();
-            const wchar_t *friendName = getFriendName(idx);
+            const wchar16_t *friendName = getFriendName(idx);
             if (friendName) {
                 mRowWord[i].set(friendName, 0);
                 mLyt.setVisible(name, true);
@@ -683,7 +683,7 @@ void dMenuFriend01_c::updateRowWords() {
 }
 
 // .text:0x1C68
-const wchar_t *dMenuFriend01_c::getFriendName(int idx) {
+const wchar16_t *dMenuFriend01_c::getFriendName(int idx) {
     if (!dWifi::isWc24On()) {
         return nullptr;
     }
@@ -694,7 +694,7 @@ const wchar_t *dMenuFriend01_c::getFriendName(int idx) {
 }
 
 // .text:0x1CCC
-const wchar_t *dMenuFriend01_c::getTownName(int cursor) {
+const wchar16_t *dMenuFriend01_c::getTownName(int cursor) {
     int idx = cursor + mScroll - CURSOR_TOWN;
     if (idx >= mNum) {
         return nullptr;

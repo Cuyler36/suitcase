@@ -829,7 +829,7 @@ void UITextArea::Create(nw4rmanager::Layout *layout) {
 
 void UITextArea::Init() {
     for (u32 i = 0; i < NUM_PANES; i++) {
-        mpTextBoxPane[i]->getTextPane()->SetString(L"", 0);
+        mpTextBoxPane[i]->getTextPane()->SetString(WSTR(""), 0);
         mpBoundingPane[i]->setTriggerTarget(true);
     }
     mfTextWidth = 0.0f;
@@ -850,7 +850,7 @@ s32 UITextArea::GetDispNum() const {
     return 0;
 }
 
-static f32 calcStringWidth(const wchar_t *text, nw4r::lyt::TextBox *pTextBox) {
+static f32 calcStringWidth(const wchar16_t *text, nw4r::lyt::TextBox *pTextBox) {
 
     if (text == NULL) {
         return 0.0f;
@@ -888,7 +888,7 @@ void UITextArea::CalcPaneLocate_() {
         nw4r::lyt::TextBox *textPane = mpTextBoxPane[i]->getTextPane();
         nw4r::lyt::Bounding *boundPane = mpBoundingPane[i]->getBoundPane();
         nw4r::lyt::Size sz1 = textPane->GetSize();
-        textPane->SetString(L"", 0);
+        textPane->SetString(WSTR(""), 0);
         textPane->SetVisible(false);
         boundPane->SetSize(nw4r::lyt::Size(0.0f, sz1.height));
     }
@@ -1013,7 +1013,7 @@ void UITextArea::ChangeSelectedText(s32 arg) {
 
 void UITextArea::Clear() {
     for (u32 i = 0; i < NUM_PANES; i++) {
-        mpTextBoxPane[i]->getTextPane()->SetString(L"", 0);
+        mpTextBoxPane[i]->getTextPane()->SetString(WSTR(""), 0);
     }
 }
 

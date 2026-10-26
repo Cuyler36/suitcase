@@ -332,6 +332,14 @@ class dFgObjMng_c : public fBase_c {
     /* 0xE5DC */ int mSwingNum; // swaying plants alive (addSwing / removeSwing)
 }; // size 0xE5E0
 
+// The field object draw callback's position and scale pointers travel as integers (the player, the
+// hand item, balloons, fish): pointer-sized on PC
+#if TARGET_PC
+typedef intptr_t dFgObjArg_t;
+#else
+typedef int dFgObjArg_t;
+#endif
+
 namespace dFgobjManager {
 
 EGG::FrmHeap *getAnmHeap(int idx);   // .text 56BC
@@ -348,7 +356,7 @@ void dropTreeItems(const dItem::Item *tree, int player, int x,
                    int z); // .text 65A4
 // .text 6770: the fgMngProc_setFgObjCallback callback (d_hand_item passes the
 // pointers as ints)
-void fgObjCallback(int item, int pos, int scale, mAng3_c *ang, int present);
+void fgObjCallback(int item, dFgObjArg_t pos, dFgObjArg_t scale, mAng3_c *ang, int present);
 int getTreeAnmKind(const dItem::Item *tree, int a, int b); // .text 6948
 void spawnFruitDrop(int player, u16 item, int x, int z, const mVec3_c *pos,
                     s16 drop, int idx); // .text 6DF4

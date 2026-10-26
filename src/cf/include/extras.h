@@ -13,7 +13,12 @@ extern "C" {
 int stricmp(const char* a, const char* b);
 int strnicmp(const char* a, const char* b, size_t n);
 #endif
-int __msl_wcsnicmp(const wchar_t* a, const wchar_t* b, size_t n);
+// UTF-16 text (wchar16_t: char16_t in C++, unsigned short in C, the same in memory)
+#ifdef __cplusplus
+int __msl_wcsnicmp(const char16_t* a, const char16_t* b, size_t n);
+#else
+int __msl_wcsnicmp(const unsigned short* a, const unsigned short* b, size_t n);
+#endif
 
 #ifdef __cplusplus
 }

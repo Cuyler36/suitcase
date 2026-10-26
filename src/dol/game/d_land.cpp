@@ -17,7 +17,7 @@ u16 dLandID_c::makeRandomId() {
 }
 
 // 80116638
-void dLandID_c::set(const wchar_t *name, u16 id, int region) {
+void dLandID_c::set(const wchar16_t *name, u16 id, int region) {
     clear();
     memcpy(mName, name, sizeof(mName));
     mId = id;
@@ -25,12 +25,12 @@ void dLandID_c::set(const wchar_t *name, u16 id, int region) {
 }
 
 // 801166A0
-void dLandID_c::setRandomId(const wchar_t *name, int region) {
+void dLandID_c::setRandomId(const wchar16_t *name, int region) {
     set(name, makeRandomId(), region);
 }
 
 // 801166FC
-void dLandID_c::setName(const wchar_t *name, int region) {
+void dLandID_c::setName(const wchar16_t *name, int region) {
     set(name, 0xFFFF, region);
 }
 
@@ -70,7 +70,7 @@ u32 dLandNameWord_c::getBufferSize() {
 }
 
 // 8011682C
-wchar_t *dLandNameWord_c::getBuffer() {
+wchar16_t *dLandNameWord_c::getBuffer() {
     return mBuffer;
 }
 

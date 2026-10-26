@@ -301,9 +301,14 @@ void CalcSkinning(math::MTX34* pModelMtxArray, u32* pModelMtxAttribArray,
             u32 mtxID = (pEvpMtxCmd->mtxIdHi << 8) + pEvpMtxCmd->mtxIdLo;
             u32 nodeID = (pEvpMtxCmd->nodeIdHi << 8) + pEvpMtxCmd->nodeIdLo;
 
+#if TARGET_PC
+            const math::MTX34 invModelMtx = mdl.GetResNode(nodeID).ref().invModelMtx;
+            math::MTX34Mult(&pSkinMtxArray[mtxID], &pModelMtxArray[mtxID], &invModelMtx);
+#else
             math::MTX34Mult(&pSkinMtxArray[mtxID], &pModelMtxArray[mtxID],
                             static_cast<const math::MTX34*>(
                                 &mdl.GetResNode(nodeID).ref().invModelMtx));
+#endif
 
             pByteCode += sizeof(ResByteCodeData::EvpMtxParams);
         }

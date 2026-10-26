@@ -28,26 +28,26 @@ struct AnimationTarget {
     u8 target;                 // at 0x1
     u8 curveType;              // at 0x2
     u8 PADDING_0x3;            // at 0x3
-    u16 keyNum;                // at 0x4
+    BE(u16) keyNum;                // at 0x4
     u8 PADDING_0x6[0x8 - 0x6]; // at 0x6
-    u32 keysOffset;            // at 0x8
+    BE(u32) keysOffset;            // at 0x8
 };
 
 /******************************************************************************
  * StepKey
  ******************************************************************************/
 struct StepKey {
-    f32 frame;       // at 0x0
-    u16 value;       // at 0x4
-    u16 PADDING_0x6; // at 0x6
+    BE(f32) frame;       // at 0x0
+    BE(u16) value;       // at 0x4
+    BE(u16) PADDING_0x6; // at 0x6
 };
 /******************************************************************************
  * HermiteKey
  ******************************************************************************/
 struct HermiteKey {
-    f32 frame; // at 0x0
-    f32 value; // at 0x4
-    f32 slope; // at 0x8
+    BE(f32) frame; // at 0x0
+    BE(f32) value; // at 0x4
+    BE(f32) slope; // at 0x8
 };
 
 } // namespace res
@@ -154,7 +154,7 @@ f32 GetHermiteCurveValue(f32 frame, const res::HermiteKey* pKeys, u32 numKey) {
 }
 
 void AnimatePaneSRT(Pane* pPane, const res::AnimationInfo* pAnimInfo,
-                    const u32* animTargetOffsets, f32 frame) {
+                    const BE(u32)* animTargetOffsets, f32 frame) {
     for (int i = 0; i < pAnimInfo->num; i++) {
         const res::AnimationTarget* pAnimTarget =
             detail::ConvertOffsToPtr<res::AnimationTarget>(
@@ -170,7 +170,7 @@ void AnimatePaneSRT(Pane* pPane, const res::AnimationInfo* pAnimInfo,
 }
 
 void AnimateVisibility(Pane* pPane, const res::AnimationInfo* pAnimInfo,
-                       const u32* animTargetOffsets, f32 frame) {
+                       const BE(u32)* animTargetOffsets, f32 frame) {
     for (int i = 0; i < pAnimInfo->num; i++) {
         const res::AnimationTarget* pAnimTarget =
             detail::ConvertOffsToPtr<res::AnimationTarget>(
@@ -185,7 +185,7 @@ void AnimateVisibility(Pane* pPane, const res::AnimationInfo* pAnimInfo,
 }
 
 void AnimateVertexColor(Pane* pPane, const res::AnimationInfo* pAnimInfo,
-                        const u32* animTargetOffsets, f32 frame) {
+                        const BE(u32)* animTargetOffsets, f32 frame) {
     for (int i = 0; i < pAnimInfo->num; i++) {
         const res::AnimationTarget* pAnimTarget =
             detail::ConvertOffsToPtr<res::AnimationTarget>(
@@ -206,7 +206,7 @@ void AnimateVertexColor(Pane* pPane, const res::AnimationInfo* pAnimInfo,
 
 void AnimateMaterialColor(Material* pMaterial,
                           const res::AnimationInfo* pAnimInfo,
-                          const u32* animTargetOffsets, f32 frame) {
+                          const BE(u32)* animTargetOffsets, f32 frame) {
     for (int i = 0; i < pAnimInfo->num; i++) {
         const res::AnimationTarget* pAnimTarget =
             detail::ConvertOffsToPtr<res::AnimationTarget>(
@@ -228,7 +228,7 @@ void AnimateMaterialColor(Material* pMaterial,
 }
 
 void AnimateTextureSRT(Material* pMaterial, const res::AnimationInfo* pAnimInfo,
-                       const u32* animTargetOffsets, f32 frame) {
+                       const BE(u32)* animTargetOffsets, f32 frame) {
     for (int i = 0; i < pAnimInfo->num; i++) {
         const res::AnimationTarget* pAnimTarget =
             detail::ConvertOffsToPtr<res::AnimationTarget>(
@@ -248,7 +248,7 @@ void AnimateTextureSRT(Material* pMaterial, const res::AnimationInfo* pAnimInfo,
 
 void AnimateTexturePattern(Material* pMaterial,
                            const res::AnimationInfo* pAnimInfo,
-                           const u32* animTargetOffsets, f32 frame,
+                           const BE(u32)* animTargetOffsets, f32 frame,
                            void** tpls) {
     for (int i = 0; i < pAnimInfo->num; i++) {
         const res::AnimationTarget* pAnimTarget =
@@ -270,7 +270,7 @@ void AnimateTexturePattern(Material* pMaterial,
 }
 
 void AnimateIndTexSRT(Material* pMaterial, const res::AnimationInfo* pAnimInfo,
-                      const u32* animTargetOffsets, f32 frame) {
+                      const BE(u32)* animTargetOffsets, f32 frame) {
     for (int i = 0; i < pAnimInfo->num; i++) {
         const res::AnimationTarget* pAnimTarget =
             detail::ConvertOffsToPtr<res::AnimationTarget>(
@@ -352,8 +352,8 @@ void AnimTransformBasic::SetResource(const res::AnimationBlock* pRes,
         mpFileResAry = Layout::NewArray<void*>(mpRes->fileNum);
 
         if (mpFileResAry != NULL) {
-            const u32* fileNameOffsets =
-                detail::ConvertOffsToPtr<u32>(mpRes, sizeof(*mpRes));
+            const BE(u32)* fileNameOffsets =
+                detail::ConvertOffsToPtr<BE(u32)>(mpRes, sizeof(*mpRes));
 
             for (int i = 0; i < mpRes->fileNum; i++) {
                 const char* const fileName =
@@ -373,8 +373,8 @@ void AnimTransformBasic::SetResource(const res::AnimationBlock* pRes,
 
 void AnimTransformBasic::Bind(Pane* pPane, bool bRecursive, bool bDisable) {
     AnimationLink* pCrAnimLink = NULL;
-    const u32* const animContOffsets =
-        detail::ConvertOffsToPtr<u32>(mpRes, mpRes->animContOffsetsOffset);
+    const BE(u32)* const animContOffsets =
+        detail::ConvertOffsToPtr<BE(u32)>(mpRes, mpRes->animContOffsetsOffset);
 
     for (u16 i = 0; i < mpRes->animContNum; i++) {
         const res::AnimationContent& animCont =
@@ -407,8 +407,8 @@ void AnimTransformBasic::Bind(Pane* pPane, bool bRecursive, bool bDisable) {
 
 void AnimTransformBasic::Bind(Material* pMaterial, bool bDisable) {
     AnimationLink* pCrAnimLink = NULL;
-    const u32* const animContOffsets =
-        detail::ConvertOffsToPtr<u32>(mpRes, mpRes->animContOffsetsOffset);
+    const BE(u32)* const animContOffsets =
+        detail::ConvertOffsToPtr<BE(u32)>(mpRes, mpRes->animContOffsetsOffset);
 
     for (u16 i = 0; i < mpRes->animContNum; i++) {
         const res::AnimationContent& animCont =
@@ -430,21 +430,21 @@ void AnimTransformBasic::Bind(Material* pMaterial, bool bDisable) {
 
 void AnimTransformBasic::Animate(ulong idx, Pane* pPane) {
     ulong animContOffsets =
-        detail::ConvertOffsToPtr<u32>(mpRes, mpRes->animContOffsetsOffset)[idx];
+        detail::ConvertOffsToPtr<BE(u32)>(mpRes, mpRes->animContOffsetsOffset)[idx];
 
     const res::AnimationContent* pAnimCont =
         detail::ConvertOffsToPtr<res::AnimationContent>(mpRes,
                                                         animContOffsets);
 
-    const u32* animInfoOffsets =
-        detail::ConvertOffsToPtr<u32>(pAnimCont, sizeof(res::AnimationContent));
+    const BE(u32)* animInfoOffsets =
+        detail::ConvertOffsToPtr<BE(u32)>(pAnimCont, sizeof(res::AnimationContent));
 
     for (int i = 0; i < pAnimCont->num; i++) {
         const res::AnimationInfo* pAnimInfo =
             detail::ConvertOffsToPtr<res::AnimationInfo>(pAnimCont,
                                                          animInfoOffsets[i]);
 
-        const u32* animTargetOffsets = detail::ConvertOffsToPtr<u32>(
+        const BE(u32)* animTargetOffsets = detail::ConvertOffsToPtr<BE(u32)>(
             pAnimInfo, sizeof(res::AnimationInfo));
 
         switch (pAnimInfo->kind) {
@@ -468,21 +468,21 @@ void AnimTransformBasic::Animate(ulong idx, Pane* pPane) {
 
 void AnimTransformBasic::Animate(ulong idx, Material* pMaterial) {
     ulong animContOffsets =
-        detail::ConvertOffsToPtr<u32>(mpRes, mpRes->animContOffsetsOffset)[idx];
+        detail::ConvertOffsToPtr<BE(u32)>(mpRes, mpRes->animContOffsetsOffset)[idx];
 
     const res::AnimationContent* pAnimCont =
         detail::ConvertOffsToPtr<res::AnimationContent>(mpRes,
                                                         animContOffsets);
 
-    const u32* animInfoOffsets =
-        detail::ConvertOffsToPtr<u32>(pAnimCont, sizeof(res::AnimationContent));
+    const BE(u32)* animInfoOffsets =
+        detail::ConvertOffsToPtr<BE(u32)>(pAnimCont, sizeof(res::AnimationContent));
 
     for (int i = 0; i < pAnimCont->num; i++) {
         const res::AnimationInfo* pAnimInfo =
             detail::ConvertOffsToPtr<res::AnimationInfo>(pAnimCont,
                                                          animInfoOffsets[i]);
 
-        const u32* animTargetOffsets = detail::ConvertOffsToPtr<u32>(
+        const BE(u32)* animTargetOffsets = detail::ConvertOffsToPtr<BE(u32)>(
             pAnimInfo, sizeof(res::AnimationInfo));
 
         switch (pAnimInfo->kind) {
@@ -633,7 +633,7 @@ const AnimationShareInfo* AnimResource::GetAnimationShareInfoArray() const {
 
 u16 AnimResource::CalcAnimationNum(Pane* pPane, bool bRecursive) const {
     u16 linkNum = 0;
-    const u32* const animContOffsets = detail::ConvertOffsToPtr<u32>(
+    const BE(u32)* const animContOffsets = detail::ConvertOffsToPtr<BE(u32)>(
         mpResBlock, mpResBlock->animContOffsetsOffset);
 
     for (u16 i = 0; i < mpResBlock->animContNum; i++) {
@@ -682,7 +682,7 @@ namespace detail {
  ******************************************************************************/
 u16 AnimPaneTree::FindAnimContent(const res::AnimationBlock* pAnimBlock,
                                   const char* animContName, u8 animContType) {
-    const u32* const animContOffsets = detail::ConvertOffsToPtr<u32>(
+    const BE(u32)* const animContOffsets = detail::ConvertOffsToPtr<BE(u32)>(
         pAnimBlock, pAnimBlock->animContOffsetsOffset);
 
     for (u16 i = 0; i < pAnimBlock->animContNum; i++) {

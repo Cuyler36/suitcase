@@ -10,13 +10,13 @@ static const int KEY_COUNT = 12;
 
 struct PaneNameToCharCode {
     /* 0x00 */ const char *szPaneName;
-    /* 0x04 */ wchar_t szPaneDisp[8];
-    /* 0x14 */ wchar_t wc[16];
+    /* 0x04 */ wchar16_t szPaneDisp[8];
+    /* 0x14 */ wchar16_t wc[16];
 }; // size 0x34
 
 struct KeySet {
     /* 0x00 */ const PaneNameToCharCode *pPaneNameToCharCode;
-    /* 0x04 */ wchar_t szKeySetName[17];
+    /* 0x04 */ wchar16_t szKeySetName[17];
     /* 0x26 */ u16 uNum;
     /* 0x28 */ u16 uType;
 }; // size 0x2C
@@ -48,8 +48,8 @@ extern const KeySet csKeySetABCJP;
 extern const KeySet csKeySetabcJP;
 extern const KeySet csKeySetNumber;
 
-extern const wchar_t *csSpaceZero;
-extern const wchar_t *csSpace[2];
+extern const wchar16_t *csSpaceZero;
+extern const wchar16_t *csSpace[2];
 
 } // namespace cellphonetype
 } // namespace keyboard

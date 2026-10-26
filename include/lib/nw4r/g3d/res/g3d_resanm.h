@@ -1,6 +1,7 @@
 #ifndef NW4R_G3D_RES_RES_ANM_H
 #define NW4R_G3D_RES_RES_ANM_H
 #include <nw4r/types_nw4r.h>
+#include <port/endian.h>
 
 namespace nw4r {
 namespace g3d {
@@ -11,15 +12,15 @@ namespace g3d {
  *
  ******************************************************************************/
 struct ResKeyFrameData {
-    f32 frame; // at 0x0
-    f32 value; // at 0x4
-    f32 slope; // at 0x8
+    BE(f32) frame; // at 0x0
+    BE(f32) value; // at 0x4
+    BE(f32) slope; // at 0x8
 };
 
 struct ResKeyFrameAnmData {
-    u16 numKeyFrame;              // at 0x0
+    BE(u16) numKeyFrame;              // at 0x0
     u8 PADDING_0x2[0x4 - 0x2];    // at 0x2
-    f32 invKeyFrameRange;         // at 0x4
+    BE(f32) invKeyFrameRange;         // at 0x4
     ResKeyFrameData keyFrames[1]; // at 0x8
 };
 
@@ -37,8 +38,8 @@ f32 GetResKeyFrameAnmResult(const ResKeyFrameAnmData* pData, f32 frame);
 enum AnmPolicy { ANM_POLICY_ONETIME, ANM_POLICY_LOOP, ANM_POLICY_MAX };
 
 union ResAnmData {
-    f32 constValue;           // at 0x0
-    s32 toResKeyFrameAnmData; // at 0x0
+    BE(f32) constValue;           // at 0x0
+    BE(s32) toResKeyFrameAnmData; // at 0x0
 };
 
 namespace detail {
@@ -75,11 +76,11 @@ template <typename T> inline f32 ClipFrame(const T& rInfo, f32 frame) {
  *
  ******************************************************************************/
 union ResColorAnmData {
-    ulong constValue;              // at 0x0
-    s32 toResColorAnmFramesData; // at 0x0
+    BE(u32) constValue;              // at 0x0
+    BE(s32) toResColorAnmFramesData; // at 0x0
 };
 struct ResColorAnmFramesData {
-    ulong frameColors[1]; // at 0x0
+    BE(u32) frameColors[1]; // at 0x0
 };
 
 namespace detail {
@@ -108,17 +109,17 @@ inline ulong GetResColorAnmResult(const ResColorAnmData* pData, f32 frame,
  *
  ******************************************************************************/
 union ResBoolAnmData {
-    s32 toResBoolAnmFramesData; // at 0x0
+    BE(s32) toResBoolAnmFramesData; // at 0x0
 };
 struct ResBoolAnmFramesData {
-    ulong boolBits[1]; // at 0x0
+    BE(u32) boolBits[1]; // at 0x0
 };
 
 namespace detail {
 
 inline bool GetResBoolAnmFramesResult(const ResBoolAnmFramesData* pData,
                                       int frame) {
-    const ulong* pBits = pData->boolBits;
+    const BE(u32)* pBits = pData->boolBits;
     ulong index = static_cast<ulong>(frame);
 
     ulong wordIdx = index / 32;

@@ -74,7 +74,13 @@ void AsyncDisplay::beginFrame() {
     GXDrawDone();
 
     if (mFlag.onBit(1)) {
+#if TARGET_PC
+        // No VI interrupt on PC: run the retrace (VIWaitForRetrace calls postVRetrace) instead of
+        // waiting for one on this, the only game thread
+        VIWaitForRetrace();
+#else
         OSSleepThread(&mSyncQueue);
+#endif
     }
 
     bool clear = false;
@@ -91,7 +97,11 @@ void AsyncDisplay::beginFrame() {
         XfbManager *xfb;
         while (!((xfb = BaseSystem::mConfigData->getXfbMgr(), 1 < xfb->m_0c - mPendingFrames) &&
                  (BaseSystem::mConfigData->getXfbMgr()->m_04 != 0 || clear))) {
+#if TARGET_PC
+            VIWaitForRetrace(); // as above: the retrace posts the message
+#else
             OSReceiveMessage(&mMsgQueue, mMsgBuf, OS_MESSAGE_BLOCK);
+#endif
             while (OSReceiveMessage(&mMsgQueue, mMsgBuf, 0)) {
             }
         }

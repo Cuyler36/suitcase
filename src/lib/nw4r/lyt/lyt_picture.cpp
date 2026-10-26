@@ -25,7 +25,7 @@ Picture::Picture(const res::Picture* pResPic, const ResBlockSet& resBlockSet)
         mTexCoordAry.Copy(&pResPic[1], texCoordNum);
     }
 
-    const u32* const matOffsTbl = detail::ConvertOffsToPtr<u32>(
+    const BE(u32)* const matOffsTbl = detail::ConvertOffsToPtr<BE(u32)>(
         resBlockSet.pMaterialList, sizeof(res::MaterialList));
 
     const res::Material* const pResMaterial =

@@ -27,30 +27,30 @@ namespace res {
  ******************************************************************************/
 struct AnimationBlock {
     DataBlockHeader blockHeader; // at 0x0
-    u16 frameSize;               // at 0x8
+    BE(u16) frameSize;               // at 0x8
     u8 loop;                     // at 0xA
     u8 PADDING_0xB;              // at 0xB
-    u16 fileNum;                 // at 0xC
-    u16 animContNum;             // at 0xE
-    ulong animContOffsetsOffset;   // at 0x10
+    BE(u16) fileNum;                 // at 0xC
+    BE(u16) animContNum;             // at 0xE
+    BE(u32) animContOffsetsOffset;   // at 0x10
 };
 
 struct AnimationTagBlock {
     DataBlockHeader blockHeader; // at 0x00
-    u16 tagOrder;                // at 0x08
-    u16 groupNum;                // at 0x0A
-    ulong nameOffset;              // at 0x0C
-    ulong groupsOffset;            // at 0x10
-    u16 startFrame;              // at 0x14
-    u16 endFrame;                // at 0x16
+    BE(u16) tagOrder;                // at 0x08
+    BE(u16) groupNum;                // at 0x0A
+    BE(u32) nameOffset;              // at 0x0C
+    BE(u32) groupsOffset;            // at 0x10
+    BE(u16) startFrame;              // at 0x14
+    BE(u16) endFrame;                // at 0x16
     u8 flag;                     // at 0x18
     u8 padding[3];               // at 0x19
 };
 
 struct AnimationShareBlock {
     DataBlockHeader blockHeader; // at 0x00
-    ulong animShareInfoOffset;     // at 0x04
-    u16 shareNum;                // at 0x0C
+    BE(u32) animShareInfoOffset;     // at 0x04
+    BE(u16) shareNum;                // at 0x0C
     u8 padding[2];               // at 0x0E
 };
 
@@ -60,7 +60,7 @@ struct AnimationShareBlock {
  *
  ******************************************************************************/
 struct AnimationInfo {
-    ulong kind;                  // at 0x0
+    BE(u32) kind;                  // at 0x0
     u8 num;                    // at 0x4
     u8 PADDING_0x5[0x8 - 0x5]; // at 0x5
 

@@ -7,7 +7,7 @@
 namespace nw4r {
 namespace ut {
 
-typedef TextWriterBase<wchar_t> WideTextWriter;
+typedef TextWriterBase<wchar16_t> WideTextWriter;
 
 } // namespace ut
 } // namespace nw4r

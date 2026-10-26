@@ -16,6 +16,10 @@
 #include <game/mLib/m_perf.hpp>
 #include <lib/revolution/os.h>
 #include <string.h>
+#if TARGET_PC
+#include <cf/save_codec.h>
+#include <vector>
+#endif
 
 #define NAND_STACK_SIZE 0xA000
 #define NAND_SAFE_BUFFER_SIZE 0x4000
@@ -25,6 +29,14 @@
 #define PLAYER_SIZE 0x86C0      // sizeof(dPrivateData_c)
 #define ANIMALS_SIZE 0x3C740    // sizeof(dAnimalSave_c)
 #define DL_ITEMS_SIZE 0x200004
+
+#if TARGET_PC
+// The save file is the Wii's layout: the blocks written at these sizes must keep it on PC
+static_assert(sizeof(dPrivateData_c) == PLAYER_SIZE, "dPrivateData_c save layout");
+static_assert(sizeof(dFriendList_c) == FRIEND_LIST_SIZE, "dFriendList_c save layout");
+static_assert(sizeof(dAnimalSave_c) == ANIMALS_SIZE, "dAnimalSave_c save layout");
+static_assert(sizeof(dSaveData_c) == SAVE_DATA_SIZE, "dSaveData_c save layout");
+#endif
 
 namespace dNand {
 
@@ -480,6 +492,15 @@ int write(NANDFileInfo *info, const void *buffer, s32 size) {
 
 // 800D2FCC
 int writeFile(const char *path, u32 offset, const void *data, u32 size) {
+#if TARGET_PC
+    // The save file is in the Wii's format: written from a converted copy (src/cf/include/cf/save_codec.h)
+    std::vector<u8> fileData;
+    if (strcmp(path, lbl_8074B010) == 0) {
+        fileData.resize(size);
+        cf::save::Encode(offset, data, fileData.data(), size);
+        data = fileData.data();
+    }
+#endif
     NANDFileInfo info;
     u8 buffer[NAND_SAFE_BUFFER_SIZE] ALIGN(32);
     int result;
@@ -605,6 +626,12 @@ int readFile(const char *path, u32 offset, void *data, u32 size) {
     if (closeResult != RESULT_OK) {
         result = closeResult;
     }
+#if TARGET_PC
+    // The save file is in the Wii's format (src/cf/include/cf/save_codec.h)
+    if (result == RESULT_OK && strcmp(path, lbl_8074B010) == 0) {
+        cf::save::Decode(offset, data, data, size);
+    }
+#endif
     return result;
 }
 

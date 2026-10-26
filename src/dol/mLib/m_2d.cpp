@@ -11,13 +11,22 @@
 #include <constants/sjis_constants.h>
 #include <string.h>
 
+#if TARGET_PC
+#include <port/base_offset.h>
+#endif
+
 namespace m2d {
 
 nw4r::ut::List l_list;
 mAllocator_c *l_allocator;
 
 void reset() {
+#if TARGET_PC
+    // Base_c's Link base is not at offset 0 under MSVC's layout (port/base_offset.h)
+    nw4r::ut::List_Init(&l_list, PORT_BASE_OFFSET(Base_c, nw4r::ut::Link));
+#else
     nw4r::ut::List_Init(&l_list, 0);
+#endif
 }
 
 bool create(EGG::Heap *parentHeap, size_t size) {
@@ -241,7 +250,7 @@ void Anm_c::play() {
 
 void Anm_c::changeTargetName(const char *oldName, const char *newName) {
     const nw4r::lyt::res::AnimationBlock *block = mpTransform->GetAnimResource();
-    const u32 *offsets = (const u32 *)((u8 *)block + block->animContOffsetsOffset);
+    const BE(u32) *offsets = (const BE(u32) *)((u8 *)block + block->animContOffsetsOffset); // big-endian file data
     for (u16 i = 0; i < block->animContNum; i++) {
         char *target = (char *)block + offsets[i];
         if (strncmp(target, oldName, 20) == 0) {
@@ -252,7 +261,7 @@ void Anm_c::changeTargetName(const char *oldName, const char *newName) {
 
 void Anm_c::patrolTargetName(patrolNameFunc func, void *arg) {
     const nw4r::lyt::res::AnimationBlock *block = mpTransform->GetAnimResource();
-    const u32 *offsets = (const u32 *)((u8 *)block + block->animContOffsetsOffset);
+    const BE(u32) *offsets = (const BE(u32) *)((u8 *)block + block->animContOffsetsOffset); // big-endian file data
     for (u16 i = 0; i < block->animContNum; i++) {
         func((char *)block + offsets[i], arg);
     }

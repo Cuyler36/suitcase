@@ -47,6 +47,11 @@ AssertHeap *AssertHeap::create(size_t size, Heap *parent) {
     } else if (size == 0) {
         size = getMinSizeForCreate();
     }
+#if TARGET_PC
+    else {
+        size = pcContentSize(size) + getMinSizeForCreate();
+    }
+#endif
 
     void *block = parent->alloc(size, 4);
     if (block) {
@@ -96,7 +101,12 @@ size_t AssertHeap::adjust() {
 void AssertHeap::initAllocator(Allocator *allocator, long align) {}
 
 size_t AssertHeap::getMinSizeForCreate() {
+#if TARGET_PC
+    // The Wii's 0x80 covers the AssertHeap, the frame heap's headers and alignment; all grow on 64-bit
+    return ROUND_UP(sizeof(AssertHeap) + MEM_FRM_HEAP_MIN_SIZE + 4, 0x20);
+#else
     return 0x80;
+#endif
 }
 
 Heap::EHeapKind AssertHeap::getHeapKind() const {

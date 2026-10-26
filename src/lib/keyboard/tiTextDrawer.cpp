@@ -24,7 +24,7 @@ void Base::setAspectRatio(bool aspect4x3) {
     }
 }
 
-void Base::setDrawString(const wchar_t *wcString, u32 startPos, u32 endPos) {
+void Base::setDrawString(const wchar16_t *wcString, u32 startPos, u32 endPos) {
     mpwcString = wcString;
     muStartPos = startPos;
     muEndPos = endPos;
@@ -70,9 +70,9 @@ bool Base::onCursor(CursorPos *cursorPos) {
 
 void Base::makeUpCursorPos(CursorPos *cursorPos, u32 pos, s32 line,
                            s32 endLine) {
-    const wchar_t *wcString = mpwcString;
+    const wchar16_t *wcString = mpwcString;
     if (wcString != NULL) {
-        const wchar_t *wc = &wcString[pos];
+        const wchar16_t *wc = &wcString[pos];
         s32 lineNum = line;
         f32 prevY = GetCursorY();
         while (*wc != 0) {
@@ -104,7 +104,7 @@ void Base::makeUpCursorPos(CursorPos *cursorPos, u32 pos, s32 line,
     }
 }
 
-void Base::doBeforeDrawProcess(const wchar_t *wcString, u32 pos,
+void Base::doBeforeDrawProcess(const wchar16_t *wcString, u32 pos,
                                const DrawInfo &drawInfo) {
 }
 
@@ -112,11 +112,11 @@ void Base::doLineFeed() {
     miLineFeedNum++;
 }
 
-void Base::doAfterDrawProcess(const wchar_t *wcString, u32 pos,
+void Base::doAfterDrawProcess(const wchar16_t *wcString, u32 pos,
                               const DrawInfo &drawInfo) {
 }
 
-void Base::put(wchar_t wc) {
+void Base::put(wchar16_t wc) {
     if (!mbSecretMode) {
         Print(wc);
     } else {
@@ -125,7 +125,7 @@ void Base::put(wchar_t wc) {
 }
 
 void Base::draw(CursorPos *cursorPos) {
-    const wchar_t *wc = mpwcString;
+    const wchar16_t *wc = mpwcString;
     if (GetFont() == NULL) {
         return;
     }
@@ -189,7 +189,7 @@ void Base::setFont(const nw4r::ut::Font &font) {
     for (int i = 0; i < 0x180 - 0x20; i++) {
         snWidthTable[i] = -1;
     }
-    for (wchar_t wc = 0x20; wc <= 0x17F; wc++) {
+    for (wchar16_t wc = 0x20; wc <= 0x17F; wc++) {
         DrawInfo drawInfo;
         drawInfo.wc = wc;
         calcRect(drawInfo);
@@ -200,7 +200,7 @@ void Base::setFont(const nw4r::ut::Font &font) {
 
 void Base::calcRect(DrawInfo &drawInfo) {
     drawInfo.rect.left = 0.0f;
-    wchar_t wc = drawInfo.wc;
+    wchar16_t wc = drawInfo.wc;
     drawInfo.rect.right = 0.0f;
     drawInfo.rect.top = 0.0f;
     drawInfo.rect.bottom = getLineHeight();
@@ -219,7 +219,7 @@ void Base::calcRect(DrawInfo &drawInfo) {
     drawInfo.rect.right = nw4r::ut::Max(drawInfo.rect.right, right);
 }
 
-f32 Base::getWidth(const wchar_t *wcString) {
+f32 Base::getWidth(const wchar16_t *wcString) {
     f32 width = 0.0f;
     DrawInfo drawInfo;
     while (*wcString != 0) {

@@ -41,6 +41,11 @@ typedef struct {
     GXTexObj* maskTexObj[RFLExp_Max];  // 0x6C
 } RFLiCharModel;
 
+#if TARGET_PC
+// The public opaque type must hold this one (it grows on 64-bit)
+typedef char RFLi_CharModel_fits[(sizeof(RFLiCharModel) <= sizeof(RFLCharModel)) ? 1 : -1];
+#endif
+
 typedef struct {
     u8 dlNose[192];      // 0x00
     u8 dlCap[1376];      // 0xC0

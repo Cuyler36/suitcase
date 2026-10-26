@@ -442,6 +442,9 @@ static void updateHiddenRandom_(RFLiMiddleDatabase* db, BOOL use_cache) {
     }
 }
 
+#if !TARGET_PC
+// Dead-stripped from CF's DOL (RFLiUpdateMiddleDBAsync is too), along with RFLi_MakeRandomFace, which
+// CF never links, so the PC build leaves it out.
 static void updateRandom_(RFLiMiddleDatabase* db) {
     int count = 0;
     RFL_RANDOM_PARAM* mask = (RFL_RANDOM_PARAM*)&db->userdata1;
@@ -473,6 +476,7 @@ static void updateRandom_(RFLiMiddleDatabase* db) {
 
     RFLiEndWorking(RFLErrcode_Success);
 }
+#endif
 
 static void startUpdateDB_(RFLiMiddleDatabase* db) {
     db->storedSize = 0;
@@ -572,10 +576,12 @@ RFLErrcode RFLiUpdateMiddleDBAsync(RFLMiddleDatabase* db, RFLSimpleCB cb, BOOL u
             updateHiddenOld_(idb, TRUE, use_cache);
             break;
         }
+#if !TARGET_PC
         case RFLMiddleDBType_Random: {
             updateRandom_(idb);
             break;
         }
+#endif
         default: {
             break;
         }

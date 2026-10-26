@@ -44,9 +44,9 @@ public:
         Word_c();
         virtual ~Word_c();
         virtual u32 getBufferSize();
-        virtual wchar_t *getBuffer();
+        virtual wchar16_t *getBuffer();
 
-        /* 0x28 */ wchar_t mBuffer[0x2F];
+        /* 0x28 */ wchar16_t mBuffer[0x2F];
     }; // size 0x88
 
     virtual int create();
@@ -91,7 +91,7 @@ public:
     /* 0x328 */ u8 mState;
     /* 0x32C */ int mTimer;
     /* 0x330 */ Word_c mWord;
-    /* 0x3B8 */ wchar_t mText[TEXT_LEN + 1];
+    /* 0x3B8 */ wchar16_t mText[TEXT_LEN + 1];
     /* 0x3FC */ dKbd::Mng_c mKbd;
     /* 0x774 */ dKbd::Cur_c mCur;
     /* 0x92C */ int mEmotionSlot;

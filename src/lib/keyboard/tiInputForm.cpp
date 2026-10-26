@@ -51,7 +51,7 @@ static const AnimationFile csAnimationFile[] = {
     {7, "fs_VK_textBox_a_Off.brlan"},
 };
 
-static const wchar_t scURLHeads[2][10] = {L"http://", L"https://"};
+static const wchar16_t scURLHeads[2][10] = {WSTR("http://"), WSTR("https://")};
 
 static const PaneToAnimation csPaneToAnimation[] = {
     {0,
@@ -71,7 +71,7 @@ static const PaneToAnimation csPaneToAnimation[] = {
 };
 
 struct CharTable {
-    /* 0x00 */ wchar_t chars[16];
+    /* 0x00 */ wchar16_t chars[16];
 }; // size 0x20
 
 static CharTable sInvalidChars = {
@@ -79,7 +79,7 @@ static CharTable sInvalidChars = {
      0xDE, 0xF0, 0xFE, 0x00},
 };
 
-inline bool isValidInputChar(wchar_t ch, CharTable table) {
+inline bool isValidInputChar(wchar16_t ch, CharTable table) {
     if (ch < table.chars[0] || ch > table.chars[14]) {
         return true;
     }
@@ -91,7 +91,7 @@ inline bool isValidInputChar(wchar_t ch, CharTable table) {
     return true;
 }
 
-wchar_t DeadKeyStream::ToCombineClass(Language language, wchar_t ch) {
+wchar16_t DeadKeyStream::ToCombineClass(Language language, wchar16_t ch) {
     switch (language) {
     case DE:
         if (ch == 0xB4) {
@@ -147,7 +147,7 @@ wchar_t DeadKeyStream::ToCombineClass(Language language, wchar_t ch) {
     return ch;
 }
 
-wchar_t DeadKeyStream::ToIndependentClass(wchar_t ch) {
+wchar16_t DeadKeyStream::ToIndependentClass(wchar16_t ch) {
     if (ch < 0x300 || ch > 0x330) {
         return ch;
     }
@@ -362,9 +362,9 @@ Base::PredictMode Base::getPredictMode() {
 
 void Base::onCommand(INPUT_COMMAND command, void *data) {
     CommandReceiver::onCommand(command, data);
-    wchar_t atokPredicted[62];
-    wchar_t ziPredicted[62];
-    wchar_t ziInput[64];
+    wchar16_t atokPredicted[62];
+    wchar16_t ziPredicted[62];
+    wchar16_t ziInput[64];
     tistring::Decolated *string = getCurrentString(false);
     bool isMainString = string == mpString;
     switch (command) {
@@ -389,7 +389,7 @@ void Base::onCommand(INPUT_COMMAND command, void *data) {
             mpUnfixString->isConverting();
         }
         for (;;) {
-            wchar_t ch = KPRGetChar(&mDKStream.mKPRQueue);
+            wchar16_t ch = KPRGetChar(&mDKStream.mKPRQueue);
             if (sbFilterInvalidChars) {
                 while (!isValidInputChar(ch, sInvalidChars)) {
                     ch = KPRGetChar(&mDKStream.mKPRQueue);
@@ -407,7 +407,7 @@ void Base::onCommand(INPUT_COMMAND command, void *data) {
         break;
     case 0: {
         CharInput *input = static_cast<CharInput *>(data);
-        wchar_t ch = input->ch;
+        wchar16_t ch = input->ch;
         u32 flags = input->flags;
         InputState prevState;
         if (input->usePCKeyboardMode) {
@@ -434,7 +434,7 @@ void Base::onCommand(INPUT_COMMAND command, void *data) {
             mpUnfixString->isConverting();
         }
         for (;;) {
-            wchar_t c = KPRGetChar(&mDKStream.mKPRQueue);
+            wchar16_t c = KPRGetChar(&mDKStream.mKPRQueue);
             if (sbFilterInvalidChars) {
                 while (!isValidInputChar(c, sInvalidChars)) {
                     c = KPRGetChar(&mDKStream.mKPRQueue);
@@ -749,7 +749,7 @@ void Base::onCommand(INPUT_COMMAND command, void *data) {
                 if (mpUnfixString->isDictionaryOpen() &&
                     string == mpUnfixString) {
                     mpUnfixString->confirm(NULL);
-                    const wchar_t *confirmed =
+                    const wchar16_t *confirmed =
                         mpUnfixString->getConfirmedWCString();
                     mpString->getCursorPos();
                     mpString->confirm(confirmed);
@@ -803,7 +803,7 @@ void Base::onCommand(INPUT_COMMAND command, void *data) {
     }
     case 30: {
         mpUnfixString->confirm(NULL);
-        const wchar_t *confirmed = mpUnfixString->getConfirmedWCString();
+        const wchar16_t *confirmed = mpUnfixString->getConfirmedWCString();
         mpString->getCursorPos();
         mpString->confirm(confirmed);
         mpString->getCursorPos();
@@ -873,13 +873,13 @@ inline void Base::changeInputState(const InputState &state, InputState &prev) {
 }
 
 void Base::update() {
-    wchar_t predicted[61];
+    wchar16_t predicted[61];
     if (!mbPredictOn) {
         return;
     }
     if (mePredictMode == PM_Atok) {
         if (mpUnfixString->hasConfirmedString()) {
-            const wchar_t *confirmed = mpUnfixString->getConfirmedWCString();
+            const wchar16_t *confirmed = mpUnfixString->getConfirmedWCString();
             mpString->getCursorPos();
             mpString->confirm(confirmed);
             mpString->getCursorPos();
@@ -1046,7 +1046,7 @@ void Base::setFont(const nw4r::ut::Font &font) {
     textdrawer::Base::setFont(font);
 }
 
-void Base::setString(const wchar_t *string) {
+void Base::setString(const wchar16_t *string) {
     mpString->set(string);
 }
 
@@ -1060,11 +1060,11 @@ void Base::preDraw(u32 pos) {
     sbWordHead = false;
 }
 
-bool Base::findURL(u32 *start, u32 *end, const wchar_t *string, u32 pos,
+bool Base::findURL(u32 *start, u32 *end, const wchar16_t *string, u32 pos,
                    u32 length) {
     bool found = false;
     bool separated = true;
-    const wchar_t(*heads)[10] = scURLHeads;
+    const wchar16_t(*heads)[10] = scURLHeads;
     for (u32 i = pos; i < length; i++) {
         switch (string[i]) {
         case L'\0':
@@ -1171,7 +1171,7 @@ bool Base::findURL(u32 *start, u32 *end, const wchar_t *string, u32 pos,
     return found;
 }
 
-bool Base::doWordWrap(const wchar_t *string, u32 pos, f32 x) {
+bool Base::doWordWrap(const wchar16_t *string, u32 pos, f32 x) {
     if (!mbDoWordWrap) {
         return false;
     }
@@ -1186,7 +1186,7 @@ bool Base::doWordWrap(const wchar_t *string, u32 pos, f32 x) {
     u32 start = muWordWrapCounter;
     int prevType = 0;
     if (start != 0 && start != getDrawCacheStartPos()) {
-        wchar_t prev = string[start - 1];
+        wchar16_t prev = string[start - 1];
         if (prev == L'-') {
             prevType = 1;
         } else if (prev != L' ') {
@@ -1248,7 +1248,7 @@ bool Base::doWordWrap(const wchar_t *string, u32 pos, f32 x) {
     return false;
 }
 
-void Base::doBeforeDrawProcess(const wchar_t *wcString, u32 pos,
+void Base::doBeforeDrawProcess(const wchar16_t *wcString, u32 pos,
                                const DrawInfo &drawInfo) {
     if (doWordWrap(wcString, pos, GetCursorX())) {
         doLineFeed();
@@ -1278,10 +1278,10 @@ bool Base::onCursor(CursorPos *cursorPos) {
     bool ret = false;
     nw4r::ut::Color textColor = GetTextColor();
     SetupGX();
-    wchar_t *kana = mpString->getKanaBuffer();
-    wchar_t candidate = mpString->getCandidate();
+    wchar16_t *kana = mpString->getKanaBuffer();
+    wchar16_t candidate = mpString->getCandidate();
     if (mbPredictOn && mePredictMode != PM_Atok) {
-        wchar_t *input = mpZiString->getCurrentInput();
+        wchar16_t *input = mpZiString->getCurrentInput();
         if (input != NULL) {
             u16 i = 0;
             SetTextColor(sZiInputColor);
@@ -1355,7 +1355,7 @@ bool Base::onCursor(CursorPos *cursorPos) {
     }
 
     if (meDestination != DST_JP) {
-        wchar_t ch = mpString->getCandidate();
+        wchar16_t ch = mpString->getCandidate();
         if (ch != L'\0') {
             SetTextColor(sCandidateColor);
             if (ch == L' ') {
@@ -1368,7 +1368,7 @@ bool Base::onCursor(CursorPos *cursorPos) {
     }
 
     for (; *kana != L'\0'; kana++) {
-        wchar_t ch = *kana;
+        wchar16_t ch = *kana;
         if (mbPredictOn) {
             ch = util::HankakuToZenkaku(ch);
         }
@@ -1414,7 +1414,7 @@ void Base::drawCursor(f32 x, f32 y) {
 
 u32 Base::calcCursorPos(f32 x, f32 y) {
     y -= mfScrollY;
-    const wchar_t *string = mpString->getWCString();
+    const wchar16_t *string = mpString->getWCString();
     if (*string == L'\0') {
         return 0;
     }
@@ -1584,14 +1584,14 @@ void Base::confirmInput_() {
             onCommand((INPUT_COMMAND)21, &selected);
         } else {
             mpUnfixString->confirm(NULL);
-            const wchar_t *confirmed = mpUnfixString->getConfirmedWCString();
+            const wchar16_t *confirmed = mpUnfixString->getConfirmedWCString();
             mpString->getCursorPos();
             mpString->confirm(confirmed);
             mpString->getCursorPos();
             mpUnfixString->enableConfirmedString(false);
         }
     } else {
-        wchar_t *input = mpZiString->getCurrentInput();
+        wchar16_t *input = mpZiString->getCurrentInput();
         mpString->getCursorPos();
         mpString->inputString(input);
         mpString->getCursorPos();
@@ -1605,10 +1605,10 @@ inline void Base::initZiString() {
     mbZuSelected = false;
 }
 
-void Base::inputInputting_(wchar_t ch) {
-    wchar_t atokPredicted[62];
-    wchar_t ziPredicted[62];
-    wchar_t ziInput[64];
+void Base::inputInputting_(wchar16_t ch) {
+    wchar16_t atokPredicted[62];
+    wchar16_t ziPredicted[62];
+    wchar16_t ziInput[64];
     tistring::Decolated *string = getCurrentString(false);
     if (mbPredictOn && mePredictMode == PM_Atok) {
         if (ch == 0x309B || ch == 0x309C) {
@@ -1630,7 +1630,7 @@ void Base::inputInputting_(wchar_t ch) {
     meScrollFlag = SF_ScrollOn;
 }
 
-void Base::confirmInputting_(wchar_t ch, bool direct, u16 letterMode,
+void Base::confirmInputting_(wchar16_t ch, bool direct, u16 letterMode,
                              bool checkCandidate, void *holdingKey) {
     tistring::Decolated *string = getCurrentString(true);
     if (ch == L'\0') {
@@ -1676,7 +1676,7 @@ void Base::confirmInputting_(wchar_t ch, bool direct, u16 letterMode,
     onSE((sound::SE)10);
 }
 
-void Base::inputCharZi_(wchar_t ch, u32 flags) {
+void Base::inputCharZi_(wchar16_t ch, u32 flags) {
     u32 caseMode = flags & 3;
     if (caseMode != 0) {
         ch = util::toWLower(ch);
@@ -1711,7 +1711,7 @@ void Base::inputCharZi_(wchar_t ch, u32 flags) {
     meScrollFlag = SF_ScrollOn;
 }
 
-void Base::inputCharDefault_(wchar_t ch) {
+void Base::inputCharDefault_(wchar16_t ch) {
     tistring::Decolated *string = getCurrentString(true);
     if (getCurrentString(false) == mpUnfixString &&
         !mpUnfixString->isConverting() &&
@@ -1827,7 +1827,7 @@ void Base::onHKBCtrlCode(HVKCode code, u32 flags) {
                 if (!(mbCursorSelected | mbZuSelected) &&
                     mpManager->getToolBar()->isQwerty()) {
                     if (mbPredictOn && mePredictMode != PM_Atok) {
-                        wchar_t input[64];
+                        wchar16_t input[64];
                         mpZiString->getCurrentInput(input, 64);
                         mpString->getCursorPos();
                         mpString->inputString(input);
@@ -1884,7 +1884,7 @@ void Base::onHKBCtrlCode(HVKCode code, u32 flags) {
         }
         if (isZiActive()) {
             for (;;) {
-                wchar_t ch = KPRGetChar(&mDKStream.mKPRQueue);
+                wchar16_t ch = KPRGetChar(&mDKStream.mKPRQueue);
                 if (sbFilterInvalidChars) {
                     while (!isValidInputChar(ch, sInvalidChars)) {
                         ch = KPRGetChar(&mDKStream.mKPRQueue);
@@ -1897,7 +1897,7 @@ void Base::onHKBCtrlCode(HVKCode code, u32 flags) {
             }
         } else {
             for (;;) {
-                wchar_t ch = KPRGetChar(&mDKStream.mKPRQueue);
+                wchar16_t ch = KPRGetChar(&mDKStream.mKPRQueue);
                 if (sbFilterInvalidChars) {
                     while (!isValidInputChar(ch, sInvalidChars)) {
                         ch = KPRGetChar(&mDKStream.mKPRQueue);
@@ -1982,9 +1982,9 @@ void Base::moveCursorDown() {
 }
 
 void Base::onPressUp() {
-    wchar_t atokPredicted[62];
-    wchar_t ziPredicted[62];
-    wchar_t ziInput[64];
+    wchar16_t atokPredicted[62];
+    wchar16_t ziPredicted[62];
+    wchar16_t ziInput[64];
     tistring::Decolated *string = getCurrentString(false);
     if (mpZiString == string) {
         return;
@@ -2028,9 +2028,9 @@ void Base::onPressUp() {
 }
 
 void Base::onPressDown() {
-    wchar_t atokPredicted[62];
-    wchar_t ziPredicted[62];
-    wchar_t ziInput[64];
+    wchar16_t atokPredicted[62];
+    wchar16_t ziPredicted[62];
+    wchar16_t ziInput[64];
     tistring::Decolated *string = getCurrentString(false);
     if (mpZiString == string) {
         return;
@@ -2074,9 +2074,9 @@ void Base::onPressDown() {
 }
 
 void Base::onPressLeft() {
-    wchar_t atokPredicted[62];
-    wchar_t ziPredicted[62];
-    wchar_t ziInput[64];
+    wchar16_t atokPredicted[62];
+    wchar16_t ziPredicted[62];
+    wchar16_t ziInput[64];
     tistring::Decolated *string = getCurrentString(false);
     string->getCursorPos();
     if (string == mpString) {
@@ -2101,9 +2101,9 @@ void Base::onPressLeft() {
 }
 
 void Base::onPressRight() {
-    wchar_t atokPredicted[62];
-    wchar_t ziPredicted[62];
-    wchar_t ziInput[64];
+    wchar16_t atokPredicted[62];
+    wchar16_t ziPredicted[62];
+    wchar16_t ziInput[64];
     tistring::Decolated *string = getCurrentString(false);
     string->getCursorPos();
     if (string == mpString) {
@@ -2303,7 +2303,7 @@ void Base::moveCandidateToIdx(s32 index) {
             if (mpUnfixString->getFixedPredictionNum() != 0 &&
                 !mpUnfixString->isConverting()) {
                 mpUnfixString->confirm(NULL);
-                const wchar_t *confirmed =
+                const wchar16_t *confirmed =
                     mpUnfixString->getConfirmedWCString();
                 mpString->getCursorPos();
                 mpString->confirm(confirmed);
@@ -2449,7 +2449,7 @@ void LayoutByNW4R::create(MEMAllocator *allocator) {
         setFont(*mpMultiArcResourceAccessor->GetFont(mpszFontName));
     }
     nw4r::lyt::TextBox &textBox = getTextBox_();
-    textBox.SetString(L"", 0);
+    textBox.SetString(WSTR(""), 0);
     mfCharSpace = textBox.GetCharSpace();
     mfLineSpace = textBox.GetLineSpace();
     mfFontWidth = textBox.GetFontSize().width;
@@ -2510,7 +2510,7 @@ void LayoutByNW4R::init() {
     visibleSeparator(false);
     nw4r::lyt::TextBox *textBox = static_cast<nw4r::lyt::TextBox *>(
         mpLayout->GetRootPane()->FindPaneByName(mpszTextBoxName, true));
-    textBox->SetString(L"", 0);
+    textBox->SetString(WSTR(""), 0);
     mfCharSpace = textBox->GetCharSpace();
     mfLineSpace = textBox->GetLineSpace();
     mfFontWidth = textBox->GetFontSize().width;
@@ -2709,8 +2709,8 @@ void LayoutByNW4R::onCommand(INPUT_COMMAND command, void *data) {
     }
 }
 
-u32 Base::isOverRowLimit(u32 limitRowNum, const wchar_t *string) {
-    const wchar_t *p = string;
+u32 Base::isOverRowLimit(u32 limitRowNum, const wchar16_t *string) {
+    const wchar16_t *p = string;
     if (*string == L'\0') {
         return 0;
     }

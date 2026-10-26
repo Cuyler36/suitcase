@@ -101,13 +101,13 @@ class Word_c : public dString::WordBase_c {
     void toFixedSpaces();                         // 80009084
     void fromFixedSpaces();                       // 80009134
     void update();                                // 800091E0
-    f32 calcWidth(const wchar_t *str, int len);   // 8000924C
+    f32 calcWidth(const wchar16_t *str, int len);   // 8000924C
 
     static int
-    getLength(const wchar_t *str); // 800092CC: characters, tags not counted
+    getLength(const wchar16_t *str); // 800092CC: characters, tags not counted
     static int
-    getSize(const wchar_t *str); // 80009338: characters, tags counted
-    static int getSizeAt(const wchar_t *str,
+    getSize(const wchar16_t *str); // 80009338: characters, tags counted
+    static int getSizeAt(const wchar16_t *str,
                          int pos); // 800093AC: size of the first pos characters
 
     virtual int procColor(int pos);   // 80009444
@@ -118,7 +118,7 @@ class Word_c : public dString::WordBase_c {
     f32 getScreenXLeft(int pos);  // 800096E0
     f32 getScreenXRight(int pos); // 80009790
     f32 getScreenX(int pos);      // 8000986C
-    BOOL insertColored(const wchar_t *str, int pos, const u8 *color0,
+    BOOL insertColored(const wchar16_t *str, int pos, const u8 *color0,
                        const u8 *color1); // 800098A8
     BOOL insertColor(int pos, const u8 *color0, const u8 *color1,
                      BOOL before); // 80009AA0
@@ -132,9 +132,9 @@ class itemWord_c : public Word_c {
     itemWord_c();                 // 80009CF8
     virtual ~itemWord_c();        // 80009D3C
     virtual u32 getBufferSize();  // 80009D94
-    virtual wchar_t *getBuffer(); // 80009D9C
+    virtual wchar16_t *getBuffer(); // 80009D9C
 
-    /* 0x28 */ wchar_t mBuffer[0x11];
+    /* 0x28 */ wchar16_t mBuffer[0x11];
 };
 
 class stringWord_c : public Word_c {
@@ -142,9 +142,9 @@ class stringWord_c : public Word_c {
     stringWord_c();               // 80009DA4
     virtual ~stringWord_c();      // 80009DE8
     virtual u32 getBufferSize();  // 80009E40
-    virtual wchar_t *getBuffer(); // 80009E48
+    virtual wchar16_t *getBuffer(); // 80009E48
 
-    /* 0x28 */ wchar_t mBuffer[0x65];
+    /* 0x28 */ wchar16_t mBuffer[0x65];
 };
 
 class stringWordL_c : public Word_c {
@@ -152,9 +152,9 @@ class stringWordL_c : public Word_c {
     stringWordL_c();              // 80009E50
     virtual ~stringWordL_c();     // 80009E94
     virtual u32 getBufferSize();  // 80009EEC
-    virtual wchar_t *getBuffer(); // 80009EF4
+    virtual wchar16_t *getBuffer(); // 80009EF4
 
-    /* 0x28 */ wchar_t mBuffer[0xC9];
+    /* 0x28 */ wchar16_t mBuffer[0xC9];
 };
 
 class stringWordLL_c : public Word_c {
@@ -162,9 +162,9 @@ class stringWordLL_c : public Word_c {
     stringWordLL_c();             // 80009EFC
     virtual ~stringWordLL_c();    // 80009F40
     virtual u32 getBufferSize();  // 80009F98
-    virtual wchar_t *getBuffer(); // 80009FA0
+    virtual wchar16_t *getBuffer(); // 80009FA0
 
-    /* 0x28 */ wchar_t mBuffer[0x190];
+    /* 0x28 */ wchar16_t mBuffer[0x190];
 };
 
 // An animation that switches between a table of animation files.
@@ -279,7 +279,7 @@ int getNameNumber(const char *name, int digits); // 800077CC
 int isInPane(nw4r::lyt::Pane *pane, void *arg);  // 80007878
 bool isCircleButton(nw4r::lyt::Pane *pane);      // 80007A44
 bool isRectButton(nw4r::lyt::Pane *pane);        // 80007B14
-f32 calcTextWidth(nw4r::lyt::TextBox *textBox, const wchar_t *str,
+f32 calcTextWidth(nw4r::lyt::TextBox *textBox, const wchar16_t *str,
                   int len);                                     // 80008194
 mVec3_c getTotalPos(nw4r::lyt::Pane *pane);                     // 80008308
 void setNameNumber(char *name, void *arg);                      // 8000837C
@@ -302,6 +302,6 @@ int hitButton(const mVec2_c *pos, Simple_c *lyt, int rectBase, int rectMax,
               int circleBase, int circleMax, f32 scale); // 80008ADC
 void setVisible(nw4r::lyt::Pane *root, const char **names, int num,
                 bool visible);                                       // 80008BF4
-int writeColorTag(wchar_t *buf, const u8 *color0, const u8 *color1); // 80008EF4
+int writeColorTag(wchar16_t *buf, const u8 *color0, const u8 *color1); // 80008EF4
 
 } // namespace m2d

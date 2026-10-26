@@ -193,7 +193,7 @@ u32 Word_c::getBufferSize() {
 }
 
 // 8017CB68
-wchar_t *Word_c::getBuffer() {
+wchar16_t *Word_c::getBuffer() {
     return mBuffer;
 }
 

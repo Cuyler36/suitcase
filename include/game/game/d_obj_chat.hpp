@@ -134,14 +134,14 @@ public:
     bool isExpired(); // 801B1EB8
     BOOL isSystem(); // 801B1ECC
     void startTimer(); // 801B1EF4
-    void setText(const wchar_t *text, u32 length, u32 kind); // 801B1F14: TextKind_e
+    void setText(const wchar16_t *text, u32 length, u32 kind); // 801B1F14: TextKind_e
     void setPreset(int group, int index); // 801B1FC0: PresetGroup_e
     bool hasSound(); // 801B1FE4
     void getWord(dScript::Word_c *word); // 801B1FF8
 
     /* 0x00 */ int mTimer;
     /* 0x04 */ int mDepthOrder;
-    /* 0x08 */ wchar_t mText[TEXT_BUFFER_SIZE];
+    /* 0x08 */ wchar16_t mText[TEXT_BUFFER_SIZE];
     /* 0xD2 */ u16 mFlags;
     /* 0xD4 */ u16 mOrder;
     /* 0xD6 */ u8 mGroup; // PresetGroup_e
@@ -187,7 +187,7 @@ public:
     void updateEnabled(); // 801B2D2C
     void updateText(); // 801B2DDC
     void setWidth(); // 801B2F60
-    void setName(const wchar_t *name); // 801B3014
+    void setName(const wchar16_t *name); // 801B3014
     void setColor(int color); // 801B3138: Color_e, same order as network members
     void setTextStyle(int style); // 801B3188: TextStyle_e
     void initAnm(); // 801B31D4
@@ -217,11 +217,11 @@ public:
 void clear(); // 801B1164
 void fixPositions(); // 801B11B4
 void unfixPositions(); // 801B11F0
-void postText(const wchar_t *text, u8 kind); // 801B122C: TextKind_e, one-byte packet field
+void postText(const wchar16_t *text, u8 kind); // 801B122C: TextKind_e, one-byte packet field
 void receiveText(const void *data, u32 size, int member); // 801B12B0
 void postPreset(int group, int index); // 801B133C: PresetGroup_e
 void receivePreset(const void *data, int member); // 801B13C8
-void setText(int member, const wchar_t *text, u32 length, int kind); // 801B13DC
+void setText(int member, const wchar16_t *text, u32 length, int kind); // 801B13DC
 void setPreset(int member, int group, int index); // 801B144C
 void updateOrder(int member); // 801B14AC
 void expireAll(); // 801B1544

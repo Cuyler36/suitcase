@@ -308,7 +308,7 @@ void sndSetVoiceType(int type) {
 }
 
 // 8000FE90: the voice works on the font codes (sort keys) of the character and the next one
-void sndSpeakVoice(int mode, int tone, wchar_t c, wchar_t next, f32 volume) {
+void sndSpeakVoice(int mode, int tone, wchar16_t c, wchar16_t next, f32 volume) {
     u16 code = dScript::getSortKey(c);
     u16 nextCode = dScript::getSortKey(next);
     SoundSystem::getInstance()->speakVoice(mode, tone, code, nextCode, volume);

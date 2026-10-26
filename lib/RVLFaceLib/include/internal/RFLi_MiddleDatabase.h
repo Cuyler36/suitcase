@@ -23,6 +23,11 @@ typedef struct {
     u32 userdata2;  // 0x14
 } RFLiMiddleDatabase;
 
+#if TARGET_PC
+// The public opaque type must hold this one (it grows on 64-bit)
+typedef char RFLi_MiddleDatabase_fits[(sizeof(RFLiMiddleDatabase) <= sizeof(RFLMiddleDatabase)) ? 1 : -1];
+#endif
+
 RFLErrcode RFLiUpdateMiddleDB(RFLMiddleDatabase* db);
 RFLErrcode RFLiUpdateMiddleDBAsync(RFLMiddleDatabase* db, RFLSimpleCB cb, BOOL use_cache);
 

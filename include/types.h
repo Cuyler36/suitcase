@@ -48,6 +48,27 @@ typedef unsigned long u32;
 #endif
 typedef unsigned int byte4_t;
 typedef unsigned long long u64;
+
+// UTF-16 text: wchar_t on the Wii (2 bytes); char16_t on PC, where wchar_t is 4 bytes on some hosts.
+// WSTR("...") is a literal of it. In C, wchar_t (MSL) and char16_t are both unsigned short.
+#ifndef DECOMP_WCHAR16_DEFINED
+#define DECOMP_WCHAR16_DEFINED
+#if defined(__cplusplus)
+#if TARGET_PC
+typedef char16_t wchar16_t;
+#else
+typedef wchar_t wchar16_t;
+#endif
+#else
+typedef unsigned short wchar16_t;
+#endif
+#if TARGET_PC
+#define WSTR(s) u##s
+#else
+#define WSTR(s) L##s
+#endif
+#endif
+
 typedef signed char s8;
 typedef signed short s16;
 #if TARGET_PC
@@ -91,8 +112,14 @@ typedef int BOOL;
 #define ARRAY_LAST(a) (a[ARRAY_SIZE(a) - 1])
 #define BIT_FLAG(bit) ((bit) < 0 ? 0 : 1 << (bit))
 #define ROUND_UP(x, align) (((x) + (align) - 1) & (-(align)))
+#if TARGET_PC
+// PC: the mask must be pointer-sized; ~(align - 1) of an unsigned 32-bit align clears the upper half
 #define ROUND_UP_PTR(x, align)                                                 \
-    ((void *)((((u32)(x)) + (align) - 1) & (~((align) - 1))))
+    ((void *)((((uintptr_t)(x)) + (align) - 1) & (~(uintptr_t)((align) - 1))))
+#else
+#define ROUND_UP_PTR(x, align)                                                 \
+    ((void *)((((uintptr_t)(x)) + (align) - 1) & (~((align) - 1))))
+#endif
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define CLAMP(v, min, max) ((v) < (min) ? (min) : ((v) > (max) ? (max) : (v)))
@@ -129,6 +156,7 @@ typedef int BOOL;
 #if defined(__CWCC__) && !defined(__INTELLISENSE__)
 #define NOINLINE __attribute__((noinline))
 #define ALIGN(x) __attribute__((aligned(x)))
+#define PC_ALIGNAS(x)
 #define DECOMP_INLINE inline
 #define DECOMP_DONT_INLINE __attribute__((never_inline))
 #define DONT_INLINE __attribute__((never_inline))
@@ -148,6 +176,10 @@ typedef int BOOL;
 #define NOINLINE __declspec(noinline)
 #define ALIGN(x)
 #endif
+// MSVC has no attribute that goes after a declaration, so ALIGN is empty there. A class whose layout
+// depends on an ALIGN member or on its own ALIGN (save data, file formats) also gets the alignment
+// at class level: class PC_ALIGNAS(32) dDesign_c { ... };
+#define PC_ALIGNAS(x) alignas(x)
 #define DECOMP_INLINE
 #define DECOMP_DONT_INLINE
 #define DONT_INLINE
@@ -156,6 +188,7 @@ typedef int BOOL;
 #else
 #define NOINLINE
 #define ALIGN(x)
+#define PC_ALIGNAS(x)
 #define DECOMP_INLINE
 #define DECOMP_DONT_INLINE
 #define DONT_INLINE
@@ -191,9 +224,11 @@ typedef int BOOL;
 // MSVC and clang do not. As there, the pointer is valid until the end of the full expression.
 #if TARGET_PC && defined(__cplusplus)
 #include <type_traits>
+extern "C++" { // types.h can be included inside an extern "C" block
 template <typename T>
 inline std::remove_reference_t<T> *TempAddr(T &&value) {
     return &value;
+}
 }
 #define TEMP_ADDR(x) TempAddr(x)
 #else
@@ -211,3 +246,8 @@ inline std::remove_reference_t<T> *TempAddr(T &&value) {
 #include <decomp/compat.h>
 #include <decomp/decomp.h>
 #include <decomp/lang.h>
+
+// PC: the C library's wide-character functions for wchar16_t text
+#if TARGET_PC && defined(__cplusplus)
+#include <port/wchar16.h>
+#endif

@@ -18,11 +18,11 @@ void ConfigurationData::initMemory() {
     void *mem1Arena = OSInitAlloc(mem1Lo, mem1Hi, 2);
     void *mem2Arena = OSInitAlloc(mem2Lo, mem2Hi, 2);
 
-    mem1Lo = (void *)(((u32)mem1Arena + 31) & ~31);
-    mem2Lo = (void *)(((u32)mem2Arena + 31) & ~31);
+    mem1Lo = (void *)(((uintptr_t)mem1Arena + 31) & ~31);
+    mem2Lo = (void *)(((uintptr_t)mem2Arena + 31) & ~31);
 
-    mem1Arena = (void *)((u32)mem1Hi & ~31);
-    mem2Arena = (void *)((u32)mem2Hi & ~31);
+    mem1Arena = (void *)((uintptr_t)mem1Hi & ~31);
+    mem2Arena = (void *)((uintptr_t)mem2Hi & ~31);
 
     OSBootInfo *bootInfo = (OSBootInfo *)OSPhysicalToCached(0);
 
@@ -45,11 +45,16 @@ void ConfigurationData::initMemory() {
 
     Heap::initialize();
 
-    u32 heapSizeMem1 = (u32)mMem1End - (u32)mMem1Start;
-    u32 heapSizeMem2 = (u32)mMem2End - (u32)mMem2Start;
+    u32 heapSizeMem1 = (uintptr_t)mMem1End - (uintptr_t)mMem1Start;
+    u32 heapSizeMem2 = (uintptr_t)mMem2End - (uintptr_t)mMem2Start;
     u32 heapSizeDebug;
 
+#if TARGET_PC
+    // PC: MEM2 is larger than a retail Wii's to fit 64-bit data; keep the retail layout (no debug heap)
+    if (false) {
+#else
     if (heapSizeMem2 >= 0x4000000) {
+#endif
         heapSizeDebug = 0x4000000;
         heapSizeMem2 = (heapSizeMem2 - heapSizeDebug) & ~31;
     } else {

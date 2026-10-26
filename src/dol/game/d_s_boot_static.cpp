@@ -61,6 +61,10 @@
 #include <game/game/d_uki.hpp>
 #include <game/game/d_wifi.hpp>
 
+#if TARGET_PC
+#include <cf/game_config.h>
+#endif
+
 static const char *l_fgItemName = "/FgObj/fgItem.brres";
 
 inline BOOL dFgObj::alwaysBank_c::load(void *heap) {
@@ -404,6 +408,19 @@ void dScBootStatic_c::preExecute() {
 // 80108940
 void dScBootStatic_c::execute() {
     l_bootPhase.callMethod(NULL);
+
+#if TARGET_PC
+    if (cf::config::game::SkipSplashScreens()) {
+        dSys::setClearColor(nw4r::ut::Color::BLACK);
+        mStrap.mDone = true;
+#if VERSION == VERSION_RUUE01_00 || VERSION == VERSION_RUUE01_01
+        mEsrb.mDone = true;
+#endif
+        dSys::sBootComplete = true;
+        dScene::requestSceneChange(dScene::SCENE_DM_TITLE, 0, 2);
+        return;
+    }
+#endif
     if (mState == STATE_END) {
         dScene::requestSceneChange(dScene::SCENE_DM_TITLE, 0, 2);
     }
@@ -437,6 +454,12 @@ void dScBootStatic_c::execute() {
 
 // 80108A74
 void dScBootStatic_c::draw() {
+#if TARGET_PC
+    if (cf::config::game::SkipSplashScreens()) {
+        return;
+    }
+#endif
+
 #if VERSION == VERSION_RUUE01_00 || VERSION == VERSION_RUUE01_01
     if (mScreen == SCREEN_STRAP) {
         mStrap.draw();

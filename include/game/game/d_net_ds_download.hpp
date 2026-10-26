@@ -21,13 +21,13 @@ class Application_c {
     u32 execute();                                    // 800E4344
     void start(u32 id, const char *path, int banner); // 800E4550
     void stop();                                      // 800E46AC
-    void copyBannerText(const wchar_t *src, wchar_t *dst); // 800E46F8
+    void copyBannerText(const wchar16_t *src, wchar16_t *dst); // 800E46F8
     /* 0x000 */ dDvd::bank_c mBank;
     /* 0x058 */ const char *mPath;
     /* 0x05C */ u32 mState;
-    /* 0x060 */ wchar_t mTitle[11];
-    /* 0x076 */ wchar_t mName[49];
-    /* 0x0D8 */ wchar_t mDescription[98];
+    /* 0x060 */ wchar16_t mTitle[11];
+    /* 0x076 */ wchar16_t mName[49];
+    /* 0x0D8 */ wchar16_t mDescription[98];
 }; // 0x19C
 class Connection_c {
   public:

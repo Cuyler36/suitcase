@@ -50,8 +50,8 @@ public:
             : mpManager(manager), muType(type), msIndex(-1), muChannel(0), mwcVCode(0) {}
 
         KBDHidCode GetKey() const;
-        wchar_t GetWChar() const;
-        wchar_t GetVCode() const;
+        wchar16_t GetWChar() const;
+        wchar16_t GetVCode() const;
         bool IsValid() const;
         KeySet GetNext() const;
 
@@ -59,7 +59,7 @@ public:
         /* 0x04 */ u8 muType;
         /* 0x05 */ s8 msIndex;
         /* 0x06 */ u8 muChannel;
-        /* 0x08 */ mutable wchar_t mwcVCode;
+        /* 0x08 */ mutable wchar16_t mwcVCode;
     }; // size 0xC
 
     class KeyState_ {
@@ -149,7 +149,7 @@ public:
 
     KBDListener *getListenerRoot() { return &mListener; }
 
-    static wchar_t ConvertVCode(wchar_t wc) {
+    static wchar16_t ConvertVCode(wchar16_t wc) {
         if (wc >= 0xF130 && wc <= 0xF139) {
             wc = wc - 0xF100;
         } else if (wc == 0xF10D) {
@@ -169,7 +169,7 @@ public:
         return wc;
     }
 
-    wchar_t FilterChar(wchar_t wc) const {
+    wchar16_t FilterChar(wchar16_t wc) const {
         if (mpwcFilter == NULL) {
             return wc;
         }
@@ -224,7 +224,7 @@ public:
     /* 0x01 */ bool mbAttached[CHANNEL_NUM];
     /* 0x04 */ u32 muLockState;
     /* 0x08 */ u32 muLedRetryMask;
-    /* 0x0C */ const wchar_t *mpwcFilter;
+    /* 0x0C */ const wchar16_t *mpwcFilter;
     /* 0x10 */ u32 muFilterNum;
     /* 0x14 */ KeyState_ mKeyState[CHANNEL_NUM];
     /* 0xEC */ KBDListenerOwn mListener;

@@ -229,10 +229,10 @@ class dMenuFriend04_c : public dMenuBase_c {
     void initRowWords();                         // .text:0x1D08
     void updateRowWords();                       // .text:0x1DB8
     void updateRowIcons();                       // .text:0x1F4C
-    const wchar_t *getTownName(int idx);         // .text:0x20D8
-    const wchar_t *getPlayerName(int idx);       // .text:0x2110
-    const wchar_t *getComment(int idx);          // .text:0x2148
-    const wchar_t *getCursorComment(int cursor); // .text:0x2180
+    const wchar16_t *getTownName(int idx);         // .text:0x20D8
+    const wchar16_t *getPlayerName(int idx);       // .text:0x2110
+    const wchar16_t *getComment(int idx);          // .text:0x2148
+    const wchar16_t *getCursorComment(int cursor); // .text:0x2180
     int getCmntAnm(int cursor);                  // .text:0x21B8
     int getRowState(int idx);                    // .text:0x2218
     int getCursorRowState(int cursor);           // .text:0x22A8

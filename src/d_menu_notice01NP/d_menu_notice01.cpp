@@ -553,7 +553,7 @@ void dMenuNotice01_c::initPreviewBtnText() {
 // .text:0x165C
 // The keyboard's text was changed: takes it over if it fits on the paper.
 bool dMenuNotice01_c::checkText() {
-    static wchar_t text[KBD_MAX_LENGTH];
+    static wchar16_t text[KBD_MAX_LENGTH];
     if (!mKbd.getComposedText(text, TEXT_SIZE)) {
         return false;
     }

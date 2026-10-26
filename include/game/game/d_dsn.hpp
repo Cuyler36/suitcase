@@ -38,7 +38,7 @@ enum {
     ORG_DESIGN_TEX_NUM
 };
 
-struct dDesignTex_c {
+struct PC_ALIGNAS(32) dDesignTex_c {
     u8 mData[ORG_DESIGN_4BPP_SIZE] ALIGN(32);
 };
 
@@ -50,7 +50,7 @@ struct BITM;
 
 // An original design (pattern). Source: src/dol/game/d_dsn.cpp
 // (.text 8010F124..8010FB6C). Names are inferred unless noted.
-class dDesign_c {
+class PC_ALIGNAS(32) dDesign_c {
 public:
     dDesign_c(); // 8010F124
 
@@ -74,7 +74,7 @@ public:
     static const u16 *getPaletteData(int idx);     // 8010F804
     u16 *getPalette();                             // 8010F850
     void setPalette(int idx, BOOL flush);          // 8010F858
-    void setName(const wchar_t *name);             // 8010F8C0
+    void setName(const wchar16_t *name);             // 8010F8C0
     int getStyle() const;                           // 8010F8FC
     void setStyle(u32 style);                       // 8010F914
     BOOL setFromBITM(const dItem::BITM *bitm);           // 8010F930
@@ -95,7 +95,7 @@ public:
     /* 0x000 */ dDesignTex_c mTexture[ORG_DESIGN_TEX_NUM] ALIGN(32);
     /* 0x800 */ u16 mPalette[ORG_DESIGN_PALETTE_COUNT] ALIGN(32);
     /* 0x820 */ dPersonalID_c mCreator;
-    /* 0x84C */ wchar_t mName[ORG_DESIGN_NAME_LEN+1];
+    /* 0x84C */ wchar16_t mName[ORG_DESIGN_NAME_LEN+1];
     /* 0x86E */ u8 mStyle;      // < STYLE_NUM
     /* 0x86F */ u8 mPaletteIdx; // < ORG_DESIGN_PALETTE_NUM
     /* 0x870 */ u8 mIsPro;      // BITM::m_proDesign, set by setFromBITM

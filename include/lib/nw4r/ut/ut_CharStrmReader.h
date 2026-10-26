@@ -31,7 +31,7 @@ public:
     void Set(const char* pStrm) {
         mCharStrm = pStrm;
     }
-    void Set(const wchar_t* pStrm) {
+    void Set(const wchar16_t* pStrm) {
         mCharStrm = pStrm;
     }
 

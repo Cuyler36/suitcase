@@ -7,7 +7,7 @@ void ResAnmShp::GetAnmResult(ShpAnmResult* pResult, u32 idx, f32 frame,
                              const ShpAnmVtxSet* pShapeArray) const {
     const ResAnmShpAnmData* pAnmData = GetShapeAnm(idx);
 
-    const u16* pAnmIdxToVtxIdxTable = static_cast<const u16*>(
+    const BE(u16)* pAnmIdxToVtxIdxTable = static_cast<const BE(u16)*>(
         ut::AddOffsetToPtr(pAnmData, pAnmData->toAnmIdxToVtxIdxTable));
 
     u32 flags = pAnmData->flags;

@@ -196,7 +196,7 @@ void unfixPositions() {
 }
 
 // 801B122C
-void postText(const wchar_t *text, u8 kind) {
+void postText(const wchar16_t *text, u8 kind) {
     setText(dNet::getMyNo(), text, l_textLength, kind);
     if (dNet::isSessionActive() && dNet::getMemberNum() > 1) {
         dNet::beginPacket();
@@ -210,7 +210,7 @@ void postText(const wchar_t *text, u8 kind) {
 void receiveText(const void *data, u32 size, int member) {
     int length = (size - 1) / 2;
     if (length < TEXT_BUFFER_SIZE) {
-        wchar_t text[TEXT_BUFFER_SIZE];
+        wchar16_t text[TEXT_BUFFER_SIZE];
         memset(text, 0, sizeof(text));
         u8 kind = *(const u8 *)data;
         cLib::memCpy(text, (const u8 *)data + 1, length * 2);
@@ -238,7 +238,7 @@ void receivePreset(const void *data, int member) {
 }
 
 // 801B13DC
-void setText(int member, const wchar_t *text, u32 length, int kind) {
+void setText(int member, const wchar16_t *text, u32 length, int kind) {
     updateOrder(member);
     l_requests[member].setText(text, length, kind);
 }
@@ -652,7 +652,7 @@ void Request_c::startTimer() {
 }
 
 // 801B1F14
-void Request_c::setText(const wchar_t *text, u32 length, u32 kind) {
+void Request_c::setText(const wchar16_t *text, u32 length, u32 kind) {
     memset(mText, 0, sizeof(mText));
     memcpy(mText, text, length * sizeof(*text));
     mTimer = 0;
@@ -1111,7 +1111,7 @@ void Balloon_c::setWidth() {
 }
 
 // 801B3014
-void Balloon_c::setName(const wchar_t *name) {
+void Balloon_c::setName(const wchar16_t *name) {
     nw4r::lyt::TextBox *box = mLyt.findTextBox("T_name_00");
     m2d::stringWord_c word;
     word.setTextBox(box);

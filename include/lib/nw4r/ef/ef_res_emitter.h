@@ -9,6 +9,10 @@
 
 #include <revolution/gx.h>
 
+#if TARGET_PC
+#include <port/side_slot.h>
+#endif
+
 namespace nw4r {
 namespace ef {
 
@@ -299,7 +303,11 @@ struct EmitterDesc {
 
 struct EmitterResource {
   private:
+#if TARGET_PC
+    SidePtr<char> name; // at 0x0 (4-byte pointer slot)
+#else
     char *name;     // at 0x0
+#endif
     u32 headersize; // at 0x4
 
   public:
@@ -319,6 +327,11 @@ struct EmitterResource {
     const char *GetName() const {
         return name;
     }
+#if TARGET_PC
+    void SetName(char *pName) {
+        name = pName;
+    }
+#endif
 
     EmitterDrawSetting *GetEmitterDrawSetting() {
         return &GetEmitterDesc()->drawSetting;
@@ -385,6 +398,17 @@ struct EmitterResource {
         return ppTbl;
     }
 
+#if TARGET_PC
+    // The track tables hold each track's offset from this resource (LocateTracks)
+    u8 *GetPtclTrack(u16 idx) {
+        u32 *pTbl = reinterpret_cast<u32 *>(GetPtclTrackTbl());
+        return reinterpret_cast<u8 *>(this) + pTbl[idx];
+    }
+    u8 *GetEmitTrack(u16 idx) {
+        u32 *pTbl = reinterpret_cast<u32 *>(GetEmitTrackTbl());
+        return reinterpret_cast<u8 *>(this) + pTbl[idx];
+    }
+#else
     u8 *GetPtclTrack(u16 idx) {
         u8 **ppTbl = GetPtclTrackTbl();
         return ppTbl[idx];
@@ -393,6 +417,7 @@ struct EmitterResource {
         u8 **ppTbl = GetEmitTrackTbl();
         return ppTbl[idx];
     }
+#endif
 
     void LocateTracks() {
         u8 *pTail = SkipParticleParameterDesc();
@@ -408,6 +433,17 @@ struct EmitterResource {
             reinterpret_cast<u32 *>(GetEmitTrackTbl()) + NumEmitTrack();
 
         int i;
+#if TARGET_PC
+        for (i = 0; i < NumPtclTrack(); i++) {
+            pPtclPtrTbl[i] = static_cast<u32>(pTail - reinterpret_cast<u8 *>(this));
+            pTail += pPtclSizeTbl[i];
+        }
+
+        for (i = 0; i < NumEmitTrack(); i++) {
+            pEmitPtrTbl[i] = static_cast<u32>(pTail - reinterpret_cast<u8 *>(this));
+            pTail += pEmitSizeTbl[i];
+        }
+#else
         for (i = 0; i < NumPtclTrack(); i++) {
             pPtclPtrTbl[i] = reinterpret_cast<u32>(pTail);
             pTail += pPtclSizeTbl[i];
@@ -417,6 +453,7 @@ struct EmitterResource {
             pEmitPtrTbl[i] = reinterpret_cast<u32>(pTail);
             pTail += pEmitSizeTbl[i];
         }
+#endif
     }
 };
 

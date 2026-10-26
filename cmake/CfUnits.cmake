@@ -20,8 +20,14 @@ set(_cf_lib_targets
 )
 # RVL_SDK modules that are plain software and compile as-is; the rest are aurora or shims
 set(CF_RVL_SOFTWARE_MODULES arc cx enc kpr mem tpl)
-# REL loader glue; the PC build links the RELs statically
-set(CF_EXCLUDE_SOURCE_REGEX "^src/runtime/|/rel_init\\.cpp$")
+# Single files from otherwise replaced modules: the AXFX reverbs run on the software AX
+# (src/cf/sdk/ax_rvl.cpp, hooks in axfx_rvl.cpp). Message queues are the PC thread layer's
+# (src/cf/sdk/os_message.cpp): OSMessage.c relies on disabled interrupts to check and sleep at once.
+set(CF_AXFX_FILES lib/RVL_SDK/src/axfx/AXFXReverbHiExp.c lib/RVL_SDK/src/axfx/AXFXReverbHiExpDpl2.c)
+set(CF_RVL_SOFTWARE_FILES ${CF_AXFX_FILES})
+# REL loader glue; the PC build links the RELs statically. d_balloon_managerNP is a leftover REL
+# whose balloon manager is also built into d_a_balloonNP, which the PC build keeps.
+set(CF_EXCLUDE_SOURCE_REGEX "^src/runtime/|/rel_init\\.cpp$|^src/d_balloon_managerNP/")
 set(CF_DROP_DEFINE_REGEX "^(MUST_MATCH|NULL)(=|$)")
 set(CF_DROP_INCLUDE_REGEX "MSL|PowerPC_EABI_Support")
 
@@ -45,7 +51,7 @@ function(_cf_unit_target lib source out)
     if (target STREQUAL "cf_rvl")
         # lib/RVL_SDK/src/<module>/...
         string(REGEX MATCH "^lib/RVL_SDK/src/([^/]+)/" _ "${source}")
-        if (NOT CMAKE_MATCH_1 IN_LIST CF_RVL_SOFTWARE_MODULES)
+        if (NOT CMAKE_MATCH_1 IN_LIST CF_RVL_SOFTWARE_MODULES AND NOT source IN_LIST CF_RVL_SOFTWARE_FILES)
             set(target "")
         endif ()
     endif ()
@@ -65,15 +71,27 @@ function(cf_unit)
 
     set(defines ${U_DEFINES})
     list(FILTER defines EXCLUDE REGEX "${CF_DROP_DEFINE_REGEX}")
+    if (U_SOURCE IN_LIST CF_AXFX_FILES OR U_SOURCE MATCHES "^lib/RVLFaceLib/")
+        # Disabling interrupts is a no-op on PC, while their callbacks run on other threads (the
+        # reverbs' on the software AX's, RVLFaceLib's NAND callbacks on the NAND worker's): take the
+        # interrupt lock instead (src/cf/sdk/os_thread.cpp)
+        list(APPEND defines "OSDisableInterrupts=CFDisableInterruptsLocked"
+                "OSRestoreInterrupts=CFRestoreInterruptsLocked")
+    endif ()
     # PC overrides first (src/cf/include/README.md)
-    set(includes "${PROJECT_SOURCE_DIR}/src/cf/include")
+    set(includes "${PROJECT_SOURCE_DIR}/src/cf/include" "${PROJECT_SOURCE_DIR}/extern/aurora/include")
     foreach (dir IN LISTS U_INCLUDES)
         if (NOT dir MATCHES "${CF_DROP_INCLUDE_REGEX}")
             list(APPEND includes "${PROJECT_SOURCE_DIR}/${dir}")
         endif ()
     endforeach ()
     set(options "")
-    foreach (header IN LISTS U_PREFIX_HEADERS)
+    # REL units: their static initializers run when d_dylink starts, not before main
+    set(prefix_headers ${U_PREFIX_HEADERS})
+    if (U_SOURCE MATCHES "^src/[^/]+NP/")
+        list(PREPEND prefix_headers "${PROJECT_SOURCE_DIR}/src/cf/include/cf/rel_static_init.h")
+    endif ()
+    foreach (header IN LISTS prefix_headers)
         if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
             list(APPEND options "/FI${header}")
         else ()

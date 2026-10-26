@@ -229,7 +229,7 @@ u32 dGreetingWord_c::getBufferSize() {
 }
 
 // 8011B4A4
-wchar_t *dGreetingWord_c::getBuffer() {
+wchar16_t *dGreetingWord_c::getBuffer() {
     return mBuffer;
 }
 
@@ -247,7 +247,7 @@ u32 dHabitWord_c::getBufferSize() {
 }
 
 // 8011B550
-wchar_t *dHabitWord_c::getBuffer() {
+wchar16_t *dHabitWord_c::getBuffer() {
     return mBuffer;
 }
 
@@ -953,18 +953,18 @@ u32 dAnimalMemory_c::hasLetter() {
 }
 
 // 8011D050
-void dAnimalMemory_c::setNickname(const wchar_t *name, u32 len) {
+void dAnimalMemory_c::setNickname(const wchar16_t *name, u32 len) {
     memset(mNickname, 0, sizeof(mNickname));
     if (len >= PLAYER_NAME_LEN + 1) {
         len = PLAYER_NAME_LEN;
     }
-    memcpy(mNickname, name, len * sizeof(wchar_t));
+    memcpy(mNickname, name, len * sizeof(wchar16_t));
     mFlags.mHasNickname = 1;
 }
 
 // 8011D0C8
 void dAnimalMemory_c::setNickname(dScript::Word_c *word) {
-    wchar_t *buf = word->getBuffer();
+    wchar16_t *buf = word->getBuffer();
     setNickname(buf, word->getCapacity());
 }
 
@@ -1000,12 +1000,12 @@ u32 dAnimalMemory_c::hasGreeting() {
 }
 
 // 8011D200
-void dAnimalMemory_c::setGreeting(const wchar_t *str, u32 len) {
+void dAnimalMemory_c::setGreeting(const wchar16_t *str, u32 len) {
     memset(mGreeting, 0, sizeof(mGreeting));
     if (len >= 17) {
         len = 16;
     }
-    memcpy(mGreeting, str, len * sizeof(wchar_t));
+    memcpy(mGreeting, str, len * sizeof(wchar16_t));
     mFlags.mHasGreeting = 1;
 }
 
@@ -3267,7 +3267,7 @@ void dAnimal_c::getHabitWord(dScript::Word_c *word, int arg, BOOL itchy) {
         u16 idx = num >= 1 ? (u16)(cM::rndInt(num - 1) + 1) : 1;
         dString::loadString(word, idx, sItchy);
     } else {
-        const wchar_t *str = getHabit(arg);
+        const wchar16_t *str = getHabit(arg);
         if (str != NULL) {
             word->set(str, 0);
         }
@@ -5235,7 +5235,7 @@ BOOL dAnimal_c::sendMoveLetters() {
 }
 
 // 80127330
-wchar_t *dAnimal_c::getHabit(int language) {
+wchar16_t *dAnimal_c::getHabit(int language) {
     if (language == LANGUAGE_NUM) {
         language = getLanguage();
     }
@@ -5265,7 +5265,7 @@ wchar_t *dAnimal_c::getHabit(int language) {
     }
 }
 
-static inline int habitLen(const wchar_t *s) {
+static inline int habitLen(const wchar16_t *s) {
     int i;
     for (i = 0; i <= ANIMAL_HABIT_LEN; s++, i++) {
         if (*s == 0) {
@@ -5276,7 +5276,7 @@ static inline int habitLen(const wchar_t *s) {
 }
 
 // Clears dst and copies at most ANIMAL_HABIT_LEN characters of src.
-static inline void copyHabit(wchar_t *dst, const wchar_t *src) {
+static inline void copyHabit(wchar16_t *dst, const wchar16_t *src) {
     for (int i = 0; i < ANIMAL_HABIT_LEN + 1; i++) {
         dst[i] = 0;
     }
@@ -5289,7 +5289,7 @@ static inline void copyHabit(wchar_t *dst, const wchar_t *src) {
 }
 
 // 801273D4
-void dAnimal_c::setHabit(const wchar_t *habit, int language) {
+void dAnimal_c::setHabit(const wchar16_t *habit, int language) {
     dAnimalTemplate_c *tmpl = &mTemplate;
     if (language == LANGUAGE_NUM) {
         language = getLanguage();
@@ -8220,7 +8220,7 @@ dItem::Item dAnimalBlock_c::pickStylePresent(dPrivateData_c *player) {
 
 // 8012E87C
 // Sends the style quest letter to one of the two players.
-BOOL dAnimalBlock_c::sendStyleLetter(const dPersonalID_c *pid0, const dPersonalID_c *pid1, dAnimal_c *animal, const wchar_t *topic, const dItem::Item *present, u32 which, BOOL flag) {
+BOOL dAnimalBlock_c::sendStyleLetter(const dPersonalID_c *pid0, const dPersonalID_c *pid1, dAnimal_c *animal, const wchar16_t *topic, const dItem::Item *present, u32 which, BOOL flag) {
     static const u8 sPartBase[2] = {4, 1};
 
     dAnmPersonalID_c *id = &animal->mID;

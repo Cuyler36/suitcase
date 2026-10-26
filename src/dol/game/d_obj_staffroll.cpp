@@ -184,7 +184,7 @@ void dObjStaffroll_c::calcEnding() {
 
 namespace dObjStaffroll {
 // 801B5308
-int getLineLength(const wchar_t *text) {
+int getLineLength(const wchar16_t *text) {
     int length = 0;
     while (*text) {
         if (*text != L'\n') {
@@ -197,7 +197,7 @@ int getLineLength(const wchar_t *text) {
     return length;
 }
 // 801B5340
-const wchar_t *getNextLine(const wchar_t *text) {
+const wchar16_t *getNextLine(const wchar16_t *text) {
     text += getLineLength(text);
     if (*text == L'\n') {
         text++;
@@ -205,7 +205,7 @@ const wchar_t *getNextLine(const wchar_t *text) {
     return text;
 }
 // 801B5384
-int getLineCount(const wchar_t *text) {
+int getLineCount(const wchar16_t *text) {
     int count = 0;
     while (*text) {
         text = getNextLine(text);
@@ -214,7 +214,7 @@ int getLineCount(const wchar_t *text) {
     return count;
 }
 // 801B53C8
-const wchar_t *getLine(const wchar_t *text, int line) {
+const wchar16_t *getLine(const wchar16_t *text, int line) {
     for (int i = 0; i < line; i++) {
         text = getNextLine(text);
     }
@@ -285,7 +285,7 @@ BOOL dObjStaffroll_c::addEntry(const Line_c *line) {
     }
     dScript::Res_c res(
         dScript::getBmgFile(dScript::getBank(), "sys_2D/SYS_Stafflist"));
-    const wchar_t *text = getLine(res.getMessage(line->mMessage), line->mLine);
+    const wchar16_t *text = getLine(res.getMessage(line->mMessage), line->mLine);
     mEntries[entry].set(text, line->mMessage & 1, line->mY + mScrollY);
     return TRUE;
 }
@@ -351,7 +351,7 @@ void Entry_c::draw() {
     }
 }
 // 801B5CEC
-void Entry_c::set(const wchar_t *text, int title, f32 y) {
+void Entry_c::set(const wchar16_t *text, int title, f32 y) {
     bool name = !title;
     mLyt.setVisible("T_name_00", name);
     mLyt.setVisible("T_title_00", !name);

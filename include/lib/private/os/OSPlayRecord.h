@@ -18,7 +18,7 @@ extern "C" {
 
 typedef struct OSPlayRecord {
     u32 checkSum;                                  // 0x00
-    wchar_t titleName[2][OS_RECORD_TITLE_LENGTH];  // 0x04
+    wchar16_t titleName[2][OS_RECORD_TITLE_LENGTH];  // 0x04
 
     OSTime playStartTime;  // 0x58
     OSTime playTime;       // 0x60
@@ -41,7 +41,7 @@ enum {
     OS_RECORD_STATE_STOPPED
 };
 
-void __OSCreatePlayRecord(wchar_t* titleName, char* gameCode, char* makerCode);
+void __OSCreatePlayRecord(wchar16_t* titleName, char* gameCode, char* makerCode);
 BOOL __OSReadPlayRecord(OSPlayRecord* record);
 
 void __OSStartPlayRecord();

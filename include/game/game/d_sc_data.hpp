@@ -13,6 +13,19 @@
 #include <game/game/d_scene.hpp>
 #include <revolution/gx.h>
 
+// Scene light settings (Scene3Entry_c data) are u32 word arrays that the lights read through their
+// Data_c structs (d_environment.hpp). Words of bytes (GXColor, u8 flags) and of s16s (angle pairs)
+// hold their fields in big-endian order, so on PC they are stored so that memory has the Wii's
+// layout: SC_COLOR byte-swaps a word of bytes, SC_ANGLES swaps the s16 halves of a word.
+#if TARGET_PC
+#define SC_COLOR(w) \
+    ((((w) >> 24) & 0xFFu) | (((w) >> 8) & 0xFF00u) | (((w) << 8) & 0xFF0000u) | (((w) << 24) & 0xFF000000u))
+#define SC_ANGLES(w) ((((w) >> 16) & 0xFFFFu) | (((w) << 16) & 0xFFFF0000u))
+#else
+#define SC_COLOR(w) (w)
+#define SC_ANGLES(w) (w)
+#endif
+
 // Scene descriptors consumed by d_scene.cpp. Each is stored in the scene's
 // .sdata.
 extern dScene::dSceneData_c *sScDataField;
@@ -81,6 +94,11 @@ struct ActorData_c {
     /* 0x16 */ u16 _16;
     /* 0x18 */ void *mParam;
 }; // size 0x1C
+#if TARGET_PC
+// createSceneActors walks these tables as dScene::dSceneActorData_c
+static_assert(sizeof(ActorData_c) == sizeof(dScene::dSceneActorData_c), "scene actor stride");
+static_assert(offsetof(ActorData_c, mParam) == offsetof(dScene::dSceneActorData_c, mParam), "scene actor param");
+#endif
 
 // A panel actor's parameter: its item ids and the layout pane it shows them on.
 struct PanelData_c {
@@ -119,8 +137,19 @@ struct ExitData_c {
 // The scene's exit info (dScene::dSceneData_c's extra word): a list of ids and
 // flags.
 struct ExitInfo_c {
+#if TARGET_PC
+    // dField_c::create reads this as its dFieldSceneMap_c (the block ids, then the size in blocks as
+    // two bytes): the Wii's packed word ((w << 24) | (h << 16)) only lays out that way on a 32-bit
+    // big-endian target, so the PC unpacks it into the map's layout
+    constexpr ExitInfo_c(u16 *list, u32 flags)
+        : mList(list), mBlockW(static_cast<u8>(flags >> 24)), mBlockH(static_cast<u8>(flags >> 16)) {}
+    u16 *mList;
+    u8 mBlockW;
+    u8 mBlockH;
+#else
     /* 0x0 */ u16 *mList;
     /* 0x4 */ u32 mFlags;
+#endif
 };
 
 // A scene's dScene::dSceneData_c and its exit info.

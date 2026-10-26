@@ -54,13 +54,23 @@
 #define ROUND_UP(x, align) (((x) + (align) - 1) & (-(align)))
 #endif
 #ifndef ROUND_UP_PTR
+#if TARGET_PC
+// PC: the mask must be pointer-sized; ~(align - 1) of an unsigned 32-bit align clears the upper half
 #define ROUND_UP_PTR(x, align)                                                 \
-    ((void*)((((u32)(x)) + (align) - 1) & (~((align) - 1))))
+    ((void*)((((uintptr_t)(x)) + (align) - 1) & (~(uintptr_t)((align) - 1))))
+#else
+#define ROUND_UP_PTR(x, align)                                                 \
+    ((void*)((((uintptr_t)(x)) + (align) - 1) & (~((align) - 1))))
+#endif
 #endif
 
 // Round down value
 #define ROUND_DOWN(x, align) ((x) & (-(align)))
-#define ROUND_DOWN_PTR(x, align) ((void*)(((u32)(x)) & (~((align) - 1))))
+#if TARGET_PC
+#define ROUND_DOWN_PTR(x, align) ((void*)(((uintptr_t)(x)) & (~(uintptr_t)((align) - 1))))
+#else
+#define ROUND_DOWN_PTR(x, align) ((void*)(((uintptr_t)(x)) & (~((align) - 1))))
+#endif
 
 // Distance between pointers
 #define PTR_DISTANCE(start, end) ((u8*)(end) - (u8*)(start))

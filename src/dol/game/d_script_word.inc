@@ -16,24 +16,24 @@ namespace dScript {
 // TODO: remove these when no longer needed
 // Helpers defined in this TU. Names are inferred.
 BOOL isVowelSound(int c);
-u16 getSortKey(wchar_t c);
+u16 getSortKey(wchar16_t c);
 const char *getScriptDir();
-BOOL isDigit(wchar_t c);
-BOOL isHiragana(wchar_t c);
-BOOL isKatakana(wchar_t c);
-BOOL isUpperAlpha(wchar_t c);
-BOOL isLowerAlpha(wchar_t c);
-BOOL isAlpha(wchar_t c);
-BOOL isFullwidthUpper(wchar_t c);
-BOOL isFullwidthLower(wchar_t c);
-BOOL isLatin1Upper(wchar_t c);
-BOOL isLatin1Lower(wchar_t c);
-BOOL isGreekLower(wchar_t c);
-BOOL isGreekUpper(wchar_t c);
-BOOL isHangul(wchar_t c);
-BOOL isSeparator(wchar_t c);
-bool toUpper(wchar_t *c);
-bool toLower(wchar_t *c);
+BOOL isDigit(wchar16_t c);
+BOOL isHiragana(wchar16_t c);
+BOOL isKatakana(wchar16_t c);
+BOOL isUpperAlpha(wchar16_t c);
+BOOL isLowerAlpha(wchar16_t c);
+BOOL isAlpha(wchar16_t c);
+BOOL isFullwidthUpper(wchar16_t c);
+BOOL isFullwidthLower(wchar16_t c);
+BOOL isLatin1Upper(wchar16_t c);
+BOOL isLatin1Lower(wchar16_t c);
+BOOL isGreekLower(wchar16_t c);
+BOOL isGreekUpper(wchar16_t c);
+BOOL isHangul(wchar16_t c);
+BOOL isSeparator(wchar16_t c);
+bool toUpper(wchar16_t *c);
+bool toLower(wchar16_t *c);
 BOOL setNumber4(Word_c *word, int value);
 BOOL setNumber2(Word_c *word, int value);
 BOOL setMinute(Word_c *word, int value);
@@ -49,24 +49,24 @@ BOOL setDayName(Word_c *word, int day);
 BOOL setCounter(Word_c *word, int type, int count);
 BOOL setCounter2(Word_c *word, int type, int count);
 BOOL makeNickname(Word_c *out, const Word_c *name, u16 index);
-void appendMinus(wchar_t *buf);
-void writeDigits(wchar_t *buf, int value, int digits);
-void padSpacesFront(wchar_t *buf, int width);
-void padSpacesBack(wchar_t *buf, int width);
-void padZeros(wchar_t *buf, int width);
-int numLength(const wchar_t *buf);
-void shiftRight(wchar_t *buf, int pos, int n);
-void reverse(wchar_t *buf);
-void insertSeparators(wchar_t *buf, wchar_t sep);
+void appendMinus(wchar16_t *buf);
+void writeDigits(wchar16_t *buf, int value, int digits);
+void padSpacesFront(wchar16_t *buf, int width);
+void padSpacesBack(wchar16_t *buf, int width);
+void padZeros(wchar16_t *buf, int width);
+int numLength(const wchar16_t *buf);
+void shiftRight(wchar16_t *buf, int pos, int n);
+void reverse(wchar16_t *buf);
+void insertSeparators(wchar16_t *buf, wchar16_t sep);
 BOOL isSpacePadFormat(NumberFormat_e format);
 BOOL isSpacePadEndFormat(NumberFormat_e format);
 BOOL isZeroPadFormat(NumberFormat_e format);
 BOOL isSeparatorFormat(NumberFormat_e format);
 int getLineLength(const u16 *text, u32 maxSize);
-u8 getTagGroup(const wchar_t *tag);
-u16 getTagId(const wchar_t *tag);
-u8 getTagLength(const wchar_t *tag);
-const u8 *getTagParams(const wchar_t *tag);
+u8 getTagGroup(const wchar16_t *tag);
+u16 getTagId(const wchar16_t *tag);
+u8 getTagLength(const wchar16_t *tag);
+const u8 *getTagParams(const wchar16_t *tag);
 Bank_c *getBank();
 BOOL loadBank(Bank_c *bank, void *heap);
 void *getBmgFile(Bank_c *bank, const char *name);
@@ -106,7 +106,7 @@ void Word_c::clear() {
 // 80157E60: runs the group 4 tags before the real parse
 void Word_c::preParse() {
     u32 max = getCapacity();
-    const wchar_t *p = getBuffer();
+    const wchar16_t *p = getBuffer();
     u32 pos = 0;
     while (true) {
         u32 n;
@@ -137,7 +137,7 @@ void Word_c::parse() {
     u32 max = getCapacity();
     getTextLength(getBuffer(), 0);
     u32 pos = getParseStart();
-    const wchar_t *p = getBuffer() + pos;
+    const wchar16_t *p = getBuffer() + pos;
     while (true) {
         u32 n;
         if (*p == 0x1A) {
@@ -159,7 +159,7 @@ void Word_c::parse() {
 
 // 80158088
 int Word_c::procTag(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     u8 group = getTagGroup(tag);
     getTagId(tag);
     u8 len = getTagLength(tag);
@@ -196,7 +196,7 @@ int Word_c::procEnd(int pos) {
 
 // 80158268
 int Word_c::procChar(int pos) {
-    wchar_t *p = getBuffer() + pos;
+    wchar16_t *p = getBuffer() + pos;
     mPacchim.check(*p);
     if (_20 && toUpper(p) == TRUE) {
         _20 = 0;
@@ -214,7 +214,7 @@ static const Word_c::TagFunc lbl_80476970[] = {
 
 // 801582E8
 int Word_c::procIconTag(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     u16 id = getTagId(tag);
     u8 len = getTagLength(tag);
     TagFunc func = lbl_80476970[id];
@@ -233,7 +233,7 @@ static const Word_c::TagFunc lbl_80476A24[] = {
 
 // 801583B4
 int Word_c::procIconTag2(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     u16 id = getTagId(tag);
     u8 len = getTagLength(tag);
     TagFunc func = lbl_80476A24[id];
@@ -253,7 +253,7 @@ static const Word_c::TagFunc lbl_80476AA8[] = {
 
 // 80158480
 int Word_c::procTimeTag(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     u16 id = getTagId(tag);
     u8 len = getTagLength(tag);
     TagFunc func = lbl_80476AA8[id];
@@ -270,7 +270,7 @@ int Word_c::preParseWordTag(int pos) {
         &Word_c::procObject, &Word_c::procSweets, &Word_c::procSports, &Word_c::procMusic, &Word_c::procFood,
         &Word_c::procHobby, NULL,          NULL,          NULL,          NULL,
     };
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     u16 id = getTagId(tag);
     u8 len = getTagLength(tag);
     TagFunc func = sFuncs[id];
@@ -289,7 +289,7 @@ static const Word_c::TagFunc lbl_80476B50[] = {
 
 // 801586B0
 int Word_c::procWordTag(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     u16 id = getTagId(tag);
     u8 len = getTagLength(tag);
     TagFunc func = lbl_80476B50[id];
@@ -306,7 +306,7 @@ int Word_c::procNameTag(int pos) {
         &Word_c::procTownName, &Word_c::procCatchphrase, &Word_c::procPlayerNickname, NULL,                  &Word_c::procWeekday,
         &Word_c::procImpression, NULL,          &Word_c::procPlayerStarSign, &Word_c::procAnimalStarSign,
     };
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     u16 id = getTagId(tag);
     u8 len = getTagLength(tag);
     TagFunc func = sFuncs[id];
@@ -323,7 +323,7 @@ int Word_c::procBlockTag(int pos) {
         &Word_c::procAnimalFlagEnd, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
         NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &Word_c::procPageEnd,
     };
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     u16 id = getTagId(tag);
     u8 len = getTagLength(tag);
     TagFunc func = sFuncs[id];
@@ -341,7 +341,7 @@ static const Word_c::TagFunc lbl_80476C04[] = {
 
 // 80158AA8
 int Word_c::procGroup7Tag(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     u16 id = getTagId(tag);
     u8 len = getTagLength(tag);
     TagFunc func = lbl_80476C04[id];
@@ -362,7 +362,7 @@ static const Word_c::TagFunc lbl_80476C70[] = {
 
 // 80158B74
 int Word_c::procGrammarTag(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     u16 id = getTagId(tag);
     u8 len = getTagLength(tag);
     TagFunc func = lbl_80476C70[id];
@@ -375,7 +375,7 @@ int Word_c::procGrammarTag(int pos) {
 // 80158C40
 int Word_c::procSystemTag(int pos) {
     static TagFunc sFuncs[] = {&Word_c::procColor, &Word_c::procScale, &Word_c::procRubyTag, NULL};
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     u16 id = getTagId(tag);
     u8 len = getTagLength(tag);
     TagFunc func = sFuncs[id];
@@ -386,14 +386,14 @@ int Word_c::procSystemTag(int pos) {
 }
 
 // 80476D60: button icon characters for tag group 0
-static const wchar_t lbl_80476D60[] = {
+static const wchar16_t lbl_80476D60[] = {
     0xE06C, 0xE06D, 0xE06E, 0xE06F, 0xE037, 0xE038, 0xE039, 0xE03A,
     0xE03B, 0xE021, 0xE03D, 0xE01D, 0xE01E, 0xE01F, 0xE036, 0x0000,
 };
 
 // 80158D48
 int Word_c::insertIcon(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     u8 len = getTagLength(tag);
     u16 id = getTagId(tag);
     insert(&lbl_80476D60[id], 1, pos + len);
@@ -402,13 +402,13 @@ int Word_c::insertIcon(int pos) {
 }
 
 // 80476D80: button icon characters for tag group 1
-static const wchar_t lbl_80476D80[] = {
+static const wchar16_t lbl_80476D80[] = {
     0xE041, 0xE042, 0xE043, 0xE046, 0xE044, 0xE045, 0xE047, 0xE048, 0xE04A, 0xE04B, 0xE049, 0x0000,
 };
 
 // 80158DF0
 int Word_c::insertIcon2(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     u8 len = getTagLength(tag);
     u16 id = getTagId(tag);
     insert(&lbl_80476D80[id], 1, pos + len);
@@ -427,7 +427,7 @@ u32 Word_c::getCapacity() {
 }
 
 // 80158EF8
-u32 Word_c::getTextLength(const wchar_t *str, int breakOnNewLine) {
+u32 Word_c::getTextLength(const wchar16_t *str, int breakOnNewLine) {
     u32 max = getCapacity() - 1;
     return getStringLength(str, max, breakOnNewLine);
 }
@@ -445,14 +445,14 @@ BOOL Word_c::isSame(Word_c *other) {
     if (len != otherLen) {
         return FALSE;
     }
-    const wchar_t *buf = getBuffer();
-    const wchar_t *otherBuf = other->getBuffer();
+    const wchar16_t *buf = getBuffer();
+    const wchar16_t *otherBuf = other->getBuffer();
     return memcmp(otherBuf, buf, len * 2) == 0;
 }
 
 // 80159060
-BOOL Word_c::getChar(wchar_t *out, u32 index) {
-    const wchar_t *buf = getBuffer();
+BOOL Word_c::getChar(wchar16_t *out, u32 index) {
+    const wchar16_t *buf = getBuffer();
     if (index >= getLength(0)) {
         return FALSE;
     }
@@ -462,12 +462,12 @@ BOOL Word_c::getChar(wchar_t *out, u32 index) {
 
 // 801590F0
 #if VERSION == VERSION_RUUK01_01
-BOOL Word_c::set(const wchar_t *str, int breakOnNewLine, wchar_t lastChar, s32 numberWord) {
+BOOL Word_c::set(const wchar16_t *str, int breakOnNewLine, wchar16_t lastChar, s32 numberWord) {
     clear();
     mPacchim.check(lastChar);
     _18 = numberWord;
 #else
-BOOL Word_c::set(const wchar_t *str, int breakOnNewLine) {
+BOOL Word_c::set(const wchar16_t *str, int breakOnNewLine) {
     clear();
 #endif
     if (!writeText(str, 0, breakOnNewLine)) {
@@ -496,7 +496,7 @@ BOOL Word_c::copy(const Word_c *src, int breakOnNewLine) {
 }
 
 // 8015926C
-BOOL Word_c::appendText(const wchar_t *str, int breakOnNewLine) {
+BOOL Word_c::appendText(const wchar16_t *str, int breakOnNewLine) {
     if (!appendRaw(str, breakOnNewLine)) {
         return FALSE;
     }
@@ -505,8 +505,8 @@ BOOL Word_c::appendText(const wchar_t *str, int breakOnNewLine) {
 }
 
 // 801592B4
-BOOL Word_c::appendChar(wchar_t c) {
-    wchar_t buf = c;
+BOOL Word_c::appendChar(wchar16_t c) {
+    wchar16_t buf = c;
     if (!append(&buf, 1)) {
         return FALSE;
     }
@@ -520,21 +520,21 @@ BOOL Word_c::appendWord(Word_c *other, int breakOnNewLine) {
 }
 
 // 80159360
-BOOL Word_c::writeText(const wchar_t *str, u32 pos, int breakOnNewLine) {
+BOOL Word_c::writeText(const wchar16_t *str, u32 pos, int breakOnNewLine) {
     return write(str, getTextLength(str, breakOnNewLine), pos);
 }
 
 // 801593BC
-BOOL Word_c::appendRaw(const wchar_t *str, int breakOnNewLine) {
+BOOL Word_c::appendRaw(const wchar16_t *str, int breakOnNewLine) {
     return append(str, getTextLength(str, breakOnNewLine));
 }
 
 // 80159404
-BOOL Word_c::write(const wchar_t *str, u32 len, u32 pos) {
+BOOL Word_c::write(const wchar16_t *str, u32 len, u32 pos) {
     u32 max = getCapacity() - 1;
-    wchar_t *buf = getBuffer();
-    wchar_t *dst = buf + pos;
-    wchar_t *end = buf + max;
+    wchar16_t *buf = getBuffer();
+    wchar16_t *dst = buf + pos;
+    wchar16_t *end = buf + max;
     if (pos + len > max) {
         return FALSE;
     }
@@ -544,8 +544,8 @@ BOOL Word_c::write(const wchar_t *str, u32 len, u32 pos) {
 }
 
 // 80159498
-BOOL Word_c::insert(const wchar_t *str, u32 len, u32 pos) {
-    wchar_t *buf = getBuffer();
+BOOL Word_c::insert(const wchar16_t *str, u32 len, u32 pos) {
+    wchar16_t *buf = getBuffer();
     u32 cur = getLength(0);
     u32 end = pos + len;
     u32 max = getCapacity() - 1;
@@ -558,8 +558,8 @@ BOOL Word_c::insert(const wchar_t *str, u32 len, u32 pos) {
     if (pos > cur) {
         return FALSE;
     }
-    wchar_t *src = buf + cur;
-    wchar_t *dst = src + len;
+    wchar16_t *src = buf + cur;
+    wchar16_t *dst = src + len;
     for (int i = 0; i <= cur - pos; i++) {
         *dst-- = *src--;
     }
@@ -568,7 +568,7 @@ BOOL Word_c::insert(const wchar_t *str, u32 len, u32 pos) {
 }
 
 // 801595EC
-BOOL Word_c::append(const wchar_t *str, u32 len) {
+BOOL Word_c::append(const wchar16_t *str, u32 len) {
     getBuffer();
     u32 cur = getLength(0);
     if (cur + len > getCapacity() - 1) {
@@ -580,7 +580,7 @@ BOOL Word_c::append(const wchar_t *str, u32 len) {
 
 // 8015968C
 BOOL Word_c::erase(u32 len, u32 pos) {
-    wchar_t *buf = getBuffer();
+    wchar16_t *buf = getBuffer();
     u32 max = getCapacity() - 1;
     u32 end = len + pos;
     u32 cur = getLength(0);
@@ -588,8 +588,8 @@ BOOL Word_c::erase(u32 len, u32 pos) {
         return FALSE;
     }
     int rest = cur - end;
-    wchar_t *src = buf + end;
-    wchar_t *dst = buf + pos;
+    wchar16_t *src = buf + end;
+    wchar16_t *dst = buf + pos;
     if (end > max) {
         return FALSE;
     }
@@ -604,7 +604,7 @@ BOOL Word_c::erase(u32 len, u32 pos) {
 
 // 80159848
 int Word_c::removeTag(int pos) {
-    const wchar_t *p = getBuffer() + pos;
+    const wchar16_t *p = getBuffer() + pos;
     if (*p == 0x1A) {
         u8 len = getTagLength(p);
         erase(len, pos);
@@ -614,7 +614,7 @@ int Word_c::removeTag(int pos) {
 
 // 801598B8
 int Word_c::setTagWord(int pos, Word_c *word) {
-    const wchar_t* str;
+    const wchar16_t* str;
 
     mPacchim.check(word->mPacchim.mLastChar);
     getTagLength(getBuffer() + pos);
@@ -642,8 +642,8 @@ int Word_c::setTagWord(int pos, Word_c *word) {
 }
 
 // 80159A30
-u32 Word_c::insertWord(u32 pos, const wchar_t *str, int len, BOOL isArticle) {
-    wchar_t *p = getBuffer() + pos;
+u32 Word_c::insertWord(u32 pos, const wchar16_t *str, int len, BOOL isArticle) {
+    wchar16_t *p = getBuffer() + pos;
     insert(str, len, pos);
     if (_21) {
         BOOL capNext = TRUE;
@@ -974,11 +974,15 @@ int Word_c::procByPlayerGender(int pos, const dPersonalID_c *pid) {
 
 // 8015A4A8
 int Word_c::procSelect2(int pos, int select) {
-    const wchar_t *tag = getBuffer() + pos;
-    const wchar_t *str0 = (const wchar_t *)getTagParams(tag);
+    const wchar16_t *tag = getBuffer() + pos;
+    const wchar16_t *str0 = (const wchar16_t *)getTagParams(tag);
     u8 len = getTagLength(tag);
+#if TARGET_PC
+    wchar16_t host[TAG_TEXT_MAX];
+    str0 = getTagTextHost(str0, len - 3, host);
+#endif
     u32 n0 = getTextLength(str0, 0);
-    const wchar_t *str1 = str0 + (n0 + 1);
+    const wchar16_t *str1 = str0 + (n0 + 1);
     u32 n1 = (len - 3) - (n0 + 1);
     u32 n;
     if (select == 0) {
@@ -999,21 +1003,25 @@ int Word_c::procWordGender(int pos) {
 
 // 8015A584
 int Word_c::procByWordGender(int pos, const Word_c *word) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     const u8 *params = getTagParams(tag);
     u8 len = getTagLength(tag);
     u32 skip;
-    const wchar_t *str0;
+    const wchar16_t *str0;
     u32 n0;
-    const wchar_t *str = (const wchar_t *)(params + 1);
+    const wchar16_t *str = (const wchar16_t *)(params + 1);
+#if TARGET_PC
+    wchar16_t host[TAG_TEXT_MAX];
+    str = getTagTextHost(str, len - 4, host);
+#endif
     str0 = str;
     n0 = getTextLength(str, 0);
     skip = n0 + 1;
     str += skip;
-    const wchar_t *str1 = str;
+    const wchar16_t *str1 = str;
     u32 n1 = getTextLength(str, 0);
     skip += n1 + 1;
-    const wchar_t *str2 = str + (n1 + 1);
+    const wchar16_t *str2 = str + (n1 + 1);
     u32 n2 = (len - 4) - skip;
     u32 n = 0;
     if (word->mInflect.mGender == GENDER_MALE && str0 != NULL) {
@@ -1032,7 +1040,7 @@ int Word_c::procCounterJP(int pos) {
     if (getLanguage() != LANGUAGE_JP) {
         return removeTag(pos);
     }
-    const wchar_t *p = getBuffer() + pos;
+    const wchar16_t *p = getBuffer() + pos;
     int last = 0;
     int count = 0;
     for (u32 i = 0; i < pos; i++, p--) {
@@ -1055,7 +1063,7 @@ int Word_c::procCounterJP(int pos) {
 }
 
 // 80476D98: Korean particles after a final consonant
-static const wchar_t lbl_80476D98[][4] = {
+static const wchar16_t lbl_80476D98[][4] = {
     {0xC740, 0x0000}, {0xC744, 0x0000}, {0xC774, 0x0000}, {0xC544, 0x0000}, {0xC774, 0x0000},
     {0xACFC, 0x0000}, {0xC73C, 0xB85C}, {0xC758, 0x0000}, {0xC774, 0xAD70}, {0xC5D0, 0xAC8C},
     {0xB3C4, 0x0000}, {0xC774, 0xB77C, 0xB294}, {0xC774, 0xB77C, 0xACE0}, {0xC774, 0xB77C, 0xB124},
@@ -1063,7 +1071,7 @@ static const wchar_t lbl_80476D98[][4] = {
 };
 
 // 80476E10: Korean particles after a vowel
-static const wchar_t lbl_80476E10[][4] = {
+static const wchar16_t lbl_80476E10[][4] = {
     {0xB294, 0x0000}, {0xB97C, 0x0000}, {0xAC00, 0x0000}, {0xC57C, 0x0000}, {0x0000, 0x0000},
     {0xC640, 0x0000}, {0xB85C, 0x0000}, {0xC758, 0x0000}, {0xAD70, 0x0000}, {0xC5D0, 0xAC8C},
     {0xB3C4, 0x0000}, {0xB77C, 0xB294}, {0xB77C, 0xACE0}, {0xB77C, 0xB124}, {0xB791, 0x0000},
@@ -1071,7 +1079,7 @@ static const wchar_t lbl_80476E10[][4] = {
 
 // 8015A810
 int Word_c::procParticleKR(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     const u8 *params = getTagParams(tag);
     u8 len = getTagLength(tag);
     u8 type = 0;
@@ -1081,7 +1089,7 @@ int Word_c::procParticleKR(int pos) {
         type--;
     }
 #endif
-    const wchar_t *particle;
+    const wchar16_t *particle;
     u16 last = mPacchim.mLastChar;
 #if VERSION != VERSION_RUUK01_01
     s32 numberWord = _18;
@@ -1148,7 +1156,7 @@ int Word_c::procElisionAnimal(int pos, dAnmPersonalID_c *id) {
 // 8015AAEC
 int Word_c::procElisionWord(int pos, int offset, Word_c *word) {
     u8 len = getTagLength(getBuffer() + pos);
-    const wchar_t *next = getBuffer() + pos + len;
+    const wchar16_t *next = getBuffer() + pos + len;
     if (*next == 0x1A) {
         u8 group = getTagGroup(next);
         u16 id = getTagId(next);
@@ -1157,7 +1165,7 @@ int Word_c::procElisionWord(int pos, int offset, Word_c *word) {
         }
     }
     dString::Word_c article;
-    const wchar_t *first = word->getBuffer();
+    const wchar16_t *first = word->getBuffer();
     if (_1C == 0) {
         if (word->mInflect.mIndefArticle != 0) {
             dString::loadString(&article, word->mInflect.mIndefArticle, "sys_STRING/STR_Article");
@@ -1173,13 +1181,17 @@ int Word_c::procElisionWord(int pos, int offset, Word_c *word) {
 }
 
 // 8015AC64
-int Word_c::procElision(int pos, int offset, wchar_t first) {
-    const wchar_t *tag = getBuffer() + pos;
+int Word_c::procElision(int pos, int offset, wchar16_t first) {
+    const wchar16_t *tag = getBuffer() + pos;
     const u8 *params = getTagParams(tag);
     u8 len = getTagLength(tag);
-    const wchar_t *str0 = (const wchar_t *)(params + offset);
+    const wchar16_t *str0 = (const wchar16_t *)(params + offset);
+#if TARGET_PC
+    wchar16_t host[TAG_TEXT_MAX];
+    str0 = getTagTextHost(str0, len - (offset + 3), host);
+#endif
     u32 n0 = getTextLength(str0, 0);
-    const wchar_t *str1 = str0 + (n0 + 1);
+    const wchar16_t *str1 = str0 + (n0 + 1);
     u32 n1 = (len - (offset + 3)) - (n0 + 1);
     u32 n = !isVowelSound(first) ? insertWord(pos + len, str0, n0, FALSE) : insertWord(pos + len, str1, n1, FALSE);
 
@@ -1236,7 +1248,7 @@ int Word_c::procNumberPlural(int pos) {
 
 // 8015AE18
 int Word_c::procPlural(int pos, Word_c *word) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     const u8 *params = getTagParams(tag);
     u8 len = getTagLength(tag);
     u8 type = 0;
@@ -1244,15 +1256,19 @@ int Word_c::procPlural(int pos, Word_c *word) {
     if (type >= 10) {
         return removeTag(pos);
     }
-    const wchar_t *str;
+    const wchar16_t *str;
     u32 skip;
-    const wchar_t *str0;
+    const wchar16_t *str0;
     u32 n0;
-    const wchar_t *str1;
+    const wchar16_t *str1;
     u32 n1;
-    const wchar_t *str2;
+    const wchar16_t *str2;
     u32 n2;
-    str = (const wchar_t *)(params + 1);
+    str = (const wchar16_t *)(params + 1);
+#if TARGET_PC
+    wchar16_t host[TAG_TEXT_MAX];
+    str = getTagTextHost(str, len - 4, host);
+#endif
     str0 = str;
     n0 = getTextLength(str, 0);
     skip = n0 + 1;
@@ -1287,7 +1303,7 @@ int Word_c::procCounterJP2(int pos) {
     if (getLanguage() != LANGUAGE_JP) {
         return removeTag(pos);
     }
-    const wchar_t *p = getBuffer() + pos;
+    const wchar16_t *p = getBuffer() + pos;
     int last = 0;
     int count = 0;
     for (u32 i = 0; i < pos; i++, p--) {
@@ -1327,13 +1343,17 @@ int Word_c::procRubyTag(int pos) {
 // 8015B138: furigana: the reading replaces the base text when kana mode is on
 int Word_c::procRubyJP(int pos) {
     if (getLanguage() == LANGUAGE_JP) {
-        const wchar_t *tag = getBuffer() + pos;
+        const wchar16_t *tag = getBuffer() + pos;
         const u8 *params = getTagParams(tag);
         u8 len = getTagLength(tag);
         u8 baseLen = 0;
         memcpy(&baseLen, params, sizeof(baseLen));
-        const wchar_t *reading = (const wchar_t *)(params + 1);
+        const wchar16_t *reading = (const wchar16_t *)(params + 1);
         int n = len - 4;
+#if TARGET_PC
+        wchar16_t host[TAG_TEXT_MAX];
+        reading = getTagTextHost(reading, n, host);
+#endif
         if (dSaveOption::getKana() == 1) {
             if (n != 0) {
                 insert(reading, n, len + pos + baseLen);
@@ -1351,13 +1371,17 @@ int Word_c::procRubyJP(int pos) {
 
 // 8015B240
 int Word_c::procRuby(int pos) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     const u8 *params = getTagParams(tag);
     u8 len = getTagLength(tag);
     u8 baseLen = 0;
     memcpy(&baseLen, params, 1);
-    const wchar_t *reading = (const wchar_t *)(params + 1);
+    const wchar16_t *reading = (const wchar16_t *)(params + 1);
     int n = len - 4;
+#if TARGET_PC
+    wchar16_t host[TAG_TEXT_MAX];
+    reading = getTagTextHost(reading, n, host);
+#endif
     if (dSaveOption::getKana() == 1) {
         insert(reading, n, len + pos + baseLen);
         erase(len + baseLen, pos);
@@ -1369,8 +1393,8 @@ int Word_c::procRuby(int pos) {
 }
 
 // 8015B324
-BOOL Word_c::fill(wchar_t c, u32 len, u32 pos) {
-    wchar_t ch = c;
+BOOL Word_c::fill(wchar16_t c, u32 len, u32 pos) {
+    wchar16_t ch = c;
     u32 max = getCapacity() - 1;
     if (pos > max) {
         return FALSE;
@@ -1378,9 +1402,9 @@ BOOL Word_c::fill(wchar_t c, u32 len, u32 pos) {
     if (len + pos > max) {
         return FALSE;
     }
-    wchar_t *p = getBuffer() + pos;
+    wchar16_t *p = getBuffer() + pos;
     for (u32 i = 0; i < len; p++, i++) {
-        memcpy(p, &ch, sizeof(wchar_t)); // cursed way to do operator=, huh Nintendo?
+        memcpy(p, &ch, sizeof(wchar16_t)); // cursed way to do operator=, huh Nintendo?
     }
     return TRUE;
 }
@@ -1392,7 +1416,7 @@ BOOL Word_c::censor() {
 
 // 8015B420: picks a random string from a group, avoiding the ones in used
 int Word_c::procRandomWord(int pos, int kind, dAnmPersonalID_c *id, u16 *used) {
-    const wchar_t *tag = getBuffer() + pos;
+    const wchar16_t *tag = getBuffer() + pos;
     const u8 *params = getTagParams(tag);
     u8 len = getTagLength(tag);
     u8 slot = 0;

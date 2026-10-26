@@ -76,10 +76,16 @@ G3DState::IndMtxOp* GetIndMtxOp(ResMat mat, ResNode node, ResShp shp) {
 
                     ResNode shpNode = mdl.GetResNode(shpNodeID);
 
+#if TARGET_PC
+                    math::MTX34 shpInvModelMtx = shpNode.ref().invModelMtx;
+                    math::MTX34 nodeModelMtx = node.ref().modelMtx;
+                    math::MTX34Mult(&nrmMtx, &shpInvModelMtx, &nodeModelMtx);
+#else
                     math::MTX34Mult(
                         &nrmMtx,
                         static_cast<math::MTX34*>(&shpNode.ref().invModelMtx),
                         static_cast<math::MTX34*>(&node.ref().modelMtx));
+#endif
 
                     const math::MTX33* pViewNrm =
                         G3DState::GetViewNrmMtxPtr(shp.ptr()->curMtxIdx);
@@ -544,8 +550,14 @@ void DrawResMdlDirectly(const ResMdl mdl, const math::MTX34* pViewPosMtxArray,
                         const u8* pByteCodeOpa, const u8* pByteCodeXlu,
                         DrawResMdlReplacement* pReplacement, u32 drawMode) {
 
+#if TARGET_PC
+    G3DState::SetViewPosNrmMtxArray(pViewPosMtxArray, pViewNrmMtxArray,
+                                    pViewEnvMtxArray,
+                                    mdl.GetResMdlInfo().GetNumViewMtx());
+#else
     G3DState::SetViewPosNrmMtxArray(pViewPosMtxArray, pViewNrmMtxArray,
                                     pViewEnvMtxArray);
+#endif
 
     if (!(drawMode & RESMDL_DRAWMODE_NOPPCSYNC)) {
         ut::LC::QueueWait(0);

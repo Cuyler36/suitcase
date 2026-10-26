@@ -1,6 +1,7 @@
 #ifndef NW4R_G3D_RES_RES_VTX_H
 #define NW4R_G3D_RES_RES_VTX_H
 #include <nw4r/types_nw4r.h>
+#include <port/endian.h>
 
 #include <nw4r/g3d/res/g3d_rescommon.h>
 
@@ -17,18 +18,18 @@ namespace g3d {
  *
  ******************************************************************************/
 struct ResVtxPosData {
-    ulong size;          // at 0x0
-    s32 toResMdlData;  // at 0x4
-    s32 toVtxPosArray; // at 0x8
-    s32 name;          // at 0xC
-    ulong id;            // at 0x10
-    GXCompCnt cmpcnt;  // at 0x14
-    GXCompType tp;     // at 0x18
+    BE(u32) size;          // at 0x0
+    BE(s32) toResMdlData;  // at 0x4
+    BE(s32) toVtxPosArray; // at 0x8
+    BE(s32) name;          // at 0xC
+    BE(u32) id;            // at 0x10
+    BE(GXCompCnt) cmpcnt;  // at 0x14
+    BE(GXCompType) tp;     // at 0x18
     u8 frac;           // at 0x1C
     u8 stride;         // at 0x1D
-    u16 numPos;        // at 0x1E
-    math::_VEC3 min;   // at 0x20
-    math::_VEC3 max;   // at 0x2C
+    BE(u16) numPos;        // at 0x1E
+    BE(math::_VEC3) min;   // at 0x20
+    BE(math::_VEC3) max;   // at 0x2C
 };
 
 class ResVtxPos : public ResCommon<ResVtxPosData> {
@@ -77,16 +78,16 @@ public:
  *
  ******************************************************************************/
 struct ResVtxNrmData {
-    ulong size;          // at 0x0
-    s32 toResMdlData;  // at 0x4
-    s32 toVtxNrmArray; // at 0x8
-    s32 name;          // at 0xC
-    ulong id;            // at 0x10
-    GXCompCnt cmpcnt;  // at 0x14
-    GXCompType tp;     // at 0x18
+    BE(u32) size;          // at 0x0
+    BE(s32) toResMdlData;  // at 0x4
+    BE(s32) toVtxNrmArray; // at 0x8
+    BE(s32) name;          // at 0xC
+    BE(u32) id;            // at 0x10
+    BE(GXCompCnt) cmpcnt;  // at 0x14
+    BE(GXCompType) tp;     // at 0x18
     u8 frac;           // at 0x1C
     u8 stride;         // at 0x1D
-    u16 numNrm;        // at 0x1E
+    BE(u16) numNrm;        // at 0x1E
 };
 
 class ResVtxNrm : public ResCommon<ResVtxNrmData> {
@@ -129,16 +130,16 @@ public:
  *
  ******************************************************************************/
 struct ResVtxClrData {
-    ulong size;          // at 0x0
-    s32 toResMdlData;  // at 0x4
-    s32 toVtxClrArray; // at 0x8
-    s32 name;          // at 0xC
-    ulong id;            // at 0x10
-    GXCompCnt cmpcnt;  // at 0x14
-    GXCompType tp;     // at 0x18
+    BE(u32) size;          // at 0x0
+    BE(s32) toResMdlData;  // at 0x4
+    BE(s32) toVtxClrArray; // at 0x8
+    BE(s32) name;          // at 0xC
+    BE(u32) id;            // at 0x10
+    BE(GXCompCnt) cmpcnt;  // at 0x14
+    BE(GXCompType) tp;     // at 0x18
     u8 stride;         // at 0x1C
     u8 PADDING_0x1D;   // at 0x1D
-    u16 numClr;        // at 0x1E
+    BE(u16) numClr;        // at 0x1E
 };
 
 class ResVtxClr : public ResCommon<ResVtxClrData> {
@@ -181,18 +182,18 @@ public:
  *
  ******************************************************************************/
 struct ResVtxTexCoordData {
-    ulong size;            // at 0x0
-    s32 toResMdlData;    // at 0x4
-    s32 toTexCoordArray; // at 0x8
-    s32 name;            // at 0xC
-    ulong id;              // at 0x10
-    GXCompCnt cmpcnt;    // at 0x14
-    GXCompType tp;       // at 0x18
+    BE(u32) size;            // at 0x0
+    BE(s32) toResMdlData;    // at 0x4
+    BE(s32) toTexCoordArray; // at 0x8
+    BE(s32) name;            // at 0xC
+    BE(u32) id;              // at 0x10
+    BE(GXCompCnt) cmpcnt;    // at 0x14
+    BE(GXCompType) tp;       // at 0x18
     u8 frac;             // at 0x1C
     u8 stride;           // at 0x1D
-    u16 numTexCoord;     // at 0x1E
-    math::_VEC2 min;     // at 0x20
-    math::_VEC2 max;     // at 0x2C
+    BE(u16) numTexCoord;     // at 0x1E
+    BE(math::_VEC2) min;     // at 0x20
+    BE(math::_VEC2) max;     // at 0x2C
 };
 
 class ResVtxTexCoord : public ResCommon<ResVtxTexCoordData> {
@@ -227,12 +228,12 @@ public:
 };
 
 struct ResVtxFurVecData {
-    ulong size;          // at 0x0
-    s32 toResMdlData;    // at 0x4
-    s32 toFurVecArray;   // at 0x8
-    s32 name;            // at 0xC
-    ulong id;            // at 0x10
-    u16 numFurVec;       // at 0x14
+    BE(u32) size;          // at 0x0
+    BE(s32) toResMdlData;    // at 0x4
+    BE(s32) toFurVecArray;   // at 0x8
+    BE(s32) name;            // at 0xC
+    BE(u32) id;            // at 0x10
+    BE(u16) numFurVec;       // at 0x14
 };
 
 class ResVtxFurVec : public ResCommon<ResVtxFurVecData> {
@@ -251,18 +252,18 @@ public:
 };
 
 struct ResVtxFurPosData {
-    ulong size;          // at 0x0
-    s32 toResMdlData;    // at 0x4
-    s32 toFurPosArray;   // at 0x8
-    s32 name;            // at 0xC
-    ulong id;            // at 0x10
-    GXCompCnt cmpcnt;    // at 0x14
-    GXCompType tp;       // at 0x18
+    BE(u32) size;          // at 0x0
+    BE(s32) toResMdlData;    // at 0x4
+    BE(s32) toFurPosArray;   // at 0x8
+    BE(s32) name;            // at 0xC
+    BE(u32) id;            // at 0x10
+    BE(GXCompCnt) cmpcnt;    // at 0x14
+    BE(GXCompType) tp;       // at 0x18
     u8 frac;             // at 0x1C
     u8 stride;           // at 0x1D
-    u16 numFurPos;       // at 0x1E
-    ulong numLayer;      // at 0x20
-    ulong ofsLayer;      // at 0x24
+    BE(u16) numFurPos;       // at 0x1E
+    BE(u32) numLayer;      // at 0x20
+    BE(u32) ofsLayer;      // at 0x24
 };
 
 class ResVtxFurPos : public ResCommon<ResVtxFurPosData> {

@@ -404,7 +404,7 @@ int dAcNpcNml_c::talk_c::msgFreeAlways(msgInfo_s *info) {
 }
 
 // 8003A894
-void dAcNpcNml_c::talk_c::setDesignWords(const dPersonalID_c *creator, const wchar_t *designName, dAnimal_c *animal) {
+void dAcNpcNml_c::talk_c::setDesignWords(const dPersonalID_c *creator, const wchar16_t *designName, dAnimal_c *animal) {
     setPersonalName(creator, 0);
     u8 gender = creator->player.mGender;
     setUnitMsg(this, 1, dNpc::getPlayerUnitMessage(gender, animal->mID.getLooks(1)));

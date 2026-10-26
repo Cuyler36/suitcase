@@ -47,12 +47,38 @@ private:
  * AutoInterruptLock
  *
  ******************************************************************************/
+#if TARGET_PC
+} // namespace ut
+} // namespace nw4r
+namespace cf {
+namespace sdk {
+// The PC stand-in for disabled interrupts around nw4r's shared state: the software AX
+// (src/cf/sdk/ax_rvl.cpp) runs its frame under it, as the Wii runs AX in interrupt context, and
+// OSSleepThread releases it while sleeping (src/cf/sdk/os_thread.cpp).
+void InterruptLockAcquire();
+void InterruptLockRelease();
+} // namespace sdk
+} // namespace cf
+namespace nw4r {
+namespace ut {
+#endif
+
 class AutoInterruptLock : private NonCopyable {
 public:
+#if TARGET_PC
+    AutoInterruptLock() : mOldState(OSDisableInterrupts()) {
+        cf::sdk::InterruptLockAcquire();
+    }
+    ~AutoInterruptLock() {
+        cf::sdk::InterruptLockRelease();
+        OSRestoreInterrupts(mOldState);
+    }
+#else
     AutoInterruptLock() : mOldState(OSDisableInterrupts()) {}
     ~AutoInterruptLock() {
         OSRestoreInterrupts(mOldState);
     }
+#endif
 
 private:
     BOOL mOldState; // at 0x0

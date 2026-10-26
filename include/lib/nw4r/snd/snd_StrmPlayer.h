@@ -74,7 +74,7 @@ class StrmPlayer : public BasicPlayer, public SoundThread::PlayerCallback {
 
     class StrmDataLoadTask : public Task {
       public:
-        typedef ut::LinkList<StrmDataLoadTask, 0x2c> LinkList;
+        typedef ut::LinkList<StrmDataLoadTask, NW4R_UT_LINK_OFFSET(0x2c, 0x48)> LinkList;
 
       public:
         StrmDataLoadTask();
@@ -94,6 +94,12 @@ class StrmPlayer : public BasicPlayer, public SoundThread::PlayerCallback {
         bool mNeedUpdateAdpcmLoop;  // size 0x01, offset 0x28
         /* 3 bytes padding */
         ut::LinkListNode link; // size 0x08, offset 0x2c
+#if TARGET_PC
+        // The PC list offsets (NW4R_UT_LINK_OFFSET)
+        static void CheckLinkOffsets() {
+            static_assert(offsetof(StrmDataLoadTask, link) == 0x48, "link");
+        }
+#endif
     }; // size 0x34
 
   public:

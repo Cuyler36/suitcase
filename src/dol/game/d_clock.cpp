@@ -213,8 +213,8 @@ void dClock_c::updateClock() {
 void dClock_c::setDateSeparator(int type) {
     mClockLyt.setVisible("T_slsh", type != DATE_SEP_PERIOD);
     mClockLyt.setVisible("N_period", type == DATE_SEP_PERIOD);
-    static const wchar_t l_slash[] = L"/";
-    static const wchar_t l_dash[] = L"\x30FC";
+    static const wchar16_t l_slash[] = WSTR("/");
+    static const wchar16_t l_dash[] = WSTR("\x30FC");
     m2d::stringWord_c word;
     if (type != DATE_SEP_PERIOD) {
         if (type == DATE_SEP_SLASH) {

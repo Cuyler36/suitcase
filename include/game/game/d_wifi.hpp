@@ -7,9 +7,9 @@
 #include <lib/dwc/dwc.h>
 
 class dFriend_c;
-class dLandID_c;
+struct dLandID_c;
 class dPersonalID_c;
-class dPlayerID_c;
+struct dPlayerID_c;
 class dPrivateData_c;
 
 
@@ -57,7 +57,7 @@ BOOL registerFriendReq(int idx, const DWCFriendData *data, const dFriend_c *fr);
 BOOL removeFriend(int idx);                              // 8017C29C: offline only
 BOOL removeFriendReq(int idx);                           // 8017C2EC
 void updateReq();                                        // 8017C35C: d_net_mgr execute, after copying the friend data
-void updateFriend(u32 idx, const dPersonalID_c *pid, const wchar_t *message, const u64 *key); // 8017C3EC
+void updateFriend(u32 idx, const dPersonalID_c *pid, const wchar16_t *message, const u64 *key); // 8017C3EC
 BOOL updateSave();                                       // 8017C478: saves a changed list; TRUE when nothing is pending
 
 } // namespace dWifi
@@ -202,7 +202,7 @@ int startDaily();                                        // 801782EC: (d_sv_mgr)
 int getNetErrorMessage();                                // 80178448: a SYS_Save_and_Load code (SV_MSG_NAND_DAMAGED)
 BOOL hasRoster();                                        // 8017AF60: the NWC24 friend list was read (dWifi::updateRosterThread)
 u32 getRosterType(int i);                                // 8017AF7C: roster entry i's type (1: a friend with a key)
-wchar_t *getRosterInfo(int i);                            // 8017AF90: roster entry i's name
+wchar16_t *getRosterInfo(int i);                            // 8017AF90: roster entry i's name
 int getNandResourceSize();                               // 8017B18C: dNetWc24 dNetWc24::getDownloadResourceSize (d_sv_mgr: NAND resource size)
 int getNandAuxSize();                                    // 8017B190: dNetWc24 dNetWc24::getDownloadAuxSize (d_sv_mgr: NAND auxiliary size)
 

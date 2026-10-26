@@ -113,7 +113,7 @@ class SoundArchivePlayer : public detail::DisposeCallback,
                                       detail::WaveSoundNoteInfo *noteInfo,
                                       detail::WaveData *waveData,
                                       void const *waveSoundData, int index,
-                                      int noteIndex, u32 userData) const;
+                                      int noteIndex, uintptr_t userData) const;
 
       private:
         /* base detail::WsdPlayer::WsdCallback */      // size 0x04, offset 0x00

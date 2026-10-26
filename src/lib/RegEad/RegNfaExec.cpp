@@ -2284,503 +2284,503 @@ void RegNfa::buildPredefinedClass(CharSet &out, u32 classId) {
 // 801F6A48
 int RegNfa::lookupClassName(const u16 *name, int len, bool shortForm) {
     if (!shortForm) {
-        if (equalsName(name, (const u16 *)L"Lower", len)) {
+        if (equalsName(name, (const u16 *)WSTR("Lower"), len)) {
             return CLASS_LOWER;
         }
-        if (equalsName(name, (const u16 *)L"Upper", len)) {
+        if (equalsName(name, (const u16 *)WSTR("Upper"), len)) {
             return CLASS_UPPER;
         }
-        if (equalsName(name, (const u16 *)L"ASCII", len)) {
+        if (equalsName(name, (const u16 *)WSTR("ASCII"), len)) {
             return CLASS_ASCII;
         }
-        if (equalsName(name, (const u16 *)L"Alpha", len)) {
+        if (equalsName(name, (const u16 *)WSTR("Alpha"), len)) {
             return CLASS_ALPHA;
         }
-        if (equalsName(name, (const u16 *)L"Digit", len)) {
+        if (equalsName(name, (const u16 *)WSTR("Digit"), len)) {
             return CLASS_DIGIT;
         }
-        if (equalsName(name, (const u16 *)L"Alnum", len)) {
+        if (equalsName(name, (const u16 *)WSTR("Alnum"), len)) {
             return CLASS_ALNUM;
         }
-        if (equalsName(name, (const u16 *)L"Punct", len)) {
+        if (equalsName(name, (const u16 *)WSTR("Punct"), len)) {
             return CLASS_PUNCT;
         }
-        if (equalsName(name, (const u16 *)L"Graph", len)) {
+        if (equalsName(name, (const u16 *)WSTR("Graph"), len)) {
             return CLASS_GRAPH;
         }
-        if (equalsName(name, (const u16 *)L"Print", len)) {
+        if (equalsName(name, (const u16 *)WSTR("Print"), len)) {
             return CLASS_PRINT;
         }
-        if (equalsName(name, (const u16 *)L"Blank", len)) {
+        if (equalsName(name, (const u16 *)WSTR("Blank"), len)) {
             return CLASS_BLANK;
         }
-        if (equalsName(name, (const u16 *)L"Cntrl", len)) {
+        if (equalsName(name, (const u16 *)WSTR("Cntrl"), len)) {
             return CLASS_CNTRL;
         }
-        if (equalsName(name, (const u16 *)L"XDigit", len)) {
+        if (equalsName(name, (const u16 *)WSTR("XDigit"), len)) {
             return CLASS_XDIGIT;
         }
-        if (equalsName(name, (const u16 *)L"Space", len)) {
+        if (equalsName(name, (const u16 *)WSTR("Space"), len)) {
             return CLASS_SPACE;
         }
-        if (equalsName(name, (const u16 *)L"InBasicLatin", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InBasicLatin"), len)) {
             return CLASS_ASCII;
         }
-        if (equalsName(name, (const u16 *)L"InLatin-1Supplement", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InLatin-1Supplement"), len)) {
             return CLASS_IN_LATIN_1_SUPPLEMENT;
         }
-        if (equalsName(name, (const u16 *)L"InLatinExtended-A", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InLatinExtended-A"), len)) {
             return CLASS_IN_LATIN_EXTENDED_A;
         }
-        if (equalsName(name, (const u16 *)L"InIPAExtensions", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InIPAExtensions"), len)) {
             return CLASS_IN_IPA_EXTENSIONS;
         }
-        if (equalsName(name, (const u16 *)L"InSpacingModifierLetters", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InSpacingModifierLetters"), len)) {
             return CLASS_IN_SPACING_MODIFIER_LETTERS;
         }
-        if (equalsName(name, (const u16 *)L"InCombiningDiacriticalMarks", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InCombiningDiacriticalMarks"), len)) {
             return CLASS_IN_COMBINING_DIACRITICAL_MARKS;
         }
-        if (equalsName(name, (const u16 *)L"InGreek", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InGreek"), len)) {
             return CLASS_IN_GREEK;
         }
-        if (equalsName(name, (const u16 *)L"InCyrillic", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InCyrillic"), len)) {
             return CLASS_IN_CYRILLIC;
         }
-        if (equalsName(name, (const u16 *)L"InArmenian", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InArmenian"), len)) {
             return CLASS_IN_ARMENIAN;
         }
-        if (equalsName(name, (const u16 *)L"InHebrew", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InHebrew"), len)) {
             return CLASS_IN_HEBREW;
         }
-        if (equalsName(name, (const u16 *)L"InArabic", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InArabic"), len)) {
             return CLASS_IN_ARABIC;
         }
-        if (equalsName(name, (const u16 *)L"InSyriac", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InSyriac"), len)) {
             return CLASS_IN_SYRIAC;
         }
-        if (equalsName(name, (const u16 *)L"InThaana", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InThaana"), len)) {
             return CLASS_IN_THAANA;
         }
-        if (equalsName(name, (const u16 *)L"InDevanagari", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InDevanagari"), len)) {
             return CLASS_IN_DEVANAGARI;
         }
-        if (equalsName(name, (const u16 *)L"InBengali", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InBengali"), len)) {
             return CLASS_IN_BENGALI;
         }
-        if (equalsName(name, (const u16 *)L"InGurmukhi", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InGurmukhi"), len)) {
             return CLASS_IN_GURMUKHI;
         }
-        if (equalsName(name, (const u16 *)L"InGujarati", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InGujarati"), len)) {
             return CLASS_IN_GUJARATI;
         }
-        if (equalsName(name, (const u16 *)L"InOriya", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InOriya"), len)) {
             return CLASS_IN_ORIYA;
         }
-        if (equalsName(name, (const u16 *)L"InTamil", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InTamil"), len)) {
             return CLASS_IN_TAMIL;
         }
-        if (equalsName(name, (const u16 *)L"InTelugu", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InTelugu"), len)) {
             return CLASS_IN_TELUGU;
         }
-        if (equalsName(name, (const u16 *)L"InKannada", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InKannada"), len)) {
             return CLASS_IN_KANNADA;
         }
-        if (equalsName(name, (const u16 *)L"InMalayalam", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InMalayalam"), len)) {
             return CLASS_IN_MALAYALAM;
         }
-        if (equalsName(name, (const u16 *)L"InSinhala", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InSinhala"), len)) {
             return CLASS_IN_SINHALA;
         }
-        if (equalsName(name, (const u16 *)L"InThai", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InThai"), len)) {
             return CLASS_IN_THAI;
         }
-        if (equalsName(name, (const u16 *)L"InLao", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InLao"), len)) {
             return CLASS_IN_LAO;
         }
-        if (equalsName(name, (const u16 *)L"InTibetan", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InTibetan"), len)) {
             return CLASS_IN_TIBETAN;
         }
-        if (equalsName(name, (const u16 *)L"InMyanmar", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InMyanmar"), len)) {
             return CLASS_IN_MYANMAR;
         }
-        if (equalsName(name, (const u16 *)L"InGeorgian", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InGeorgian"), len)) {
             return CLASS_IN_GEORGIAN;
         }
-        if (equalsName(name, (const u16 *)L"InHangulJamo", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InHangulJamo"), len)) {
             return CLASS_IN_HANGUL_JAMO;
         }
-        if (equalsName(name, (const u16 *)L"InEthiopic", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InEthiopic"), len)) {
             return CLASS_IN_ETHIOPIC;
         }
-        if (equalsName(name, (const u16 *)L"InCherokee", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InCherokee"), len)) {
             return CLASS_IN_CHEROKEE;
         }
-        if (equalsName(name, (const u16 *)L"InUnifiedCanadianAboriginalSyllabics", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InUnifiedCanadianAboriginalSyllabics"), len)) {
             return CLASS_IN_UNIFIED_CANADIAN_ABORIGINAL_SYLLABICS;
         }
-        if (equalsName(name, (const u16 *)L"InOgham", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InOgham"), len)) {
             return CLASS_IN_OGHAM;
         }
-        if (equalsName(name, (const u16 *)L"InRunic", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InRunic"), len)) {
             return CLASS_IN_RUNIC;
         }
-        if (equalsName(name, (const u16 *)L"InKhmer", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InKhmer"), len)) {
             return CLASS_IN_KHMER;
         }
-        if (equalsName(name, (const u16 *)L"InMongolian", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InMongolian"), len)) {
             return CLASS_IN_MONGOLIAN;
         }
-        if (equalsName(name, (const u16 *)L"InLatinExtendedAdditional", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InLatinExtendedAdditional"), len)) {
             return CLASS_IN_LATIN_EXTENDED_ADDITIONAL;
         }
-        if (equalsName(name, (const u16 *)L"InGreekExtended", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InGreekExtended"), len)) {
             return CLASS_IN_GREEK_EXTENDED;
         }
-        if (equalsName(name, (const u16 *)L"InGeneralPunctuation", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InGeneralPunctuation"), len)) {
             return CLASS_IN_GENERAL_PUNCTUATION;
         }
-        if (equalsName(name, (const u16 *)L"InSuperscriptsandSubscripts", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InSuperscriptsandSubscripts"), len)) {
             return CLASS_IN_SUPERSCRIPTS_AND_SUBSCRIPTS;
         }
-        if (equalsName(name, (const u16 *)L"InCurrencySymbols", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InCurrencySymbols"), len)) {
             return CLASS_IN_CURRENCY_SYMBOLS;
         }
-        if (equalsName(name, (const u16 *)L"InLetterlikeSymbols", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InLetterlikeSymbols"), len)) {
             return CLASS_IN_LETTERLIKE_SYMBOLS;
         }
-        if (equalsName(name, (const u16 *)L"InNumberForms", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InNumberForms"), len)) {
             return CLASS_IN_NUMBER_FORMS;
         }
-        if (equalsName(name, (const u16 *)L"InArrows", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InArrows"), len)) {
             return CLASS_IN_ARROWS;
         }
-        if (equalsName(name, (const u16 *)L"InMathematicalOperators", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InMathematicalOperators"), len)) {
             return CLASS_IN_MATHEMATICAL_OPERATORS;
         }
-        if (equalsName(name, (const u16 *)L"InMiscellaneousTechnical", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InMiscellaneousTechnical"), len)) {
             return CLASS_IN_MISCELLANEOUS_TECHNICAL;
         }
-        if (equalsName(name, (const u16 *)L"InControlPictures", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InControlPictures"), len)) {
             return CLASS_IN_CONTROL_PICTURES;
         }
-        if (equalsName(name, (const u16 *)L"InOpticalCharacterRecognition", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InOpticalCharacterRecognition"), len)) {
             return CLASS_IN_OPTICAL_CHARACTER_RECOGNITION;
         }
-        if (equalsName(name, (const u16 *)L"InEnclosedAlphanumerics", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InEnclosedAlphanumerics"), len)) {
             return CLASS_IN_ENCLOSED_ALPHANUMERICS;
         }
-        if (equalsName(name, (const u16 *)L"InBoxDrawing", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InBoxDrawing"), len)) {
             return CLASS_IN_BOX_DRAWING;
         }
-        if (equalsName(name, (const u16 *)L"InBlockElements", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InBlockElements"), len)) {
             return CLASS_IN_BLOCK_ELEMENTS;
         }
-        if (equalsName(name, (const u16 *)L"InGeometricShapes", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InGeometricShapes"), len)) {
             return CLASS_IN_GEOMETRIC_SHAPES;
         }
-        if (equalsName(name, (const u16 *)L"InMiscellaneousSymbols", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InMiscellaneousSymbols"), len)) {
             return CLASS_IN_MISCELLANEOUS_SYMBOLS;
         }
-        if (equalsName(name, (const u16 *)L"InDingbats", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InDingbats"), len)) {
             return CLASS_IN_DINGBATS;
         }
-        if (equalsName(name, (const u16 *)L"InBraillePatterns", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InBraillePatterns"), len)) {
             return CLASS_IN_BRAILLE_PATTERNS;
         }
-        if (equalsName(name, (const u16 *)L"InCJKRadicalsSupplement", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InCJKRadicalsSupplement"), len)) {
             return CLASS_IN_CJK_RADICALS_SUPPLEMENT;
         }
-        if (equalsName(name, (const u16 *)L"InKangxiRadicals", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InKangxiRadicals"), len)) {
             return CLASS_IN_KANGXI_RADICALS;
         }
-        if (equalsName(name, (const u16 *)L"InIdeographicDescriptionCharacters", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InIdeographicDescriptionCharacters"), len)) {
             return CLASS_IN_IDEOGRAPHIC_DESCRIPTION_CHARACTERS;
         }
-        if (equalsName(name, (const u16 *)L"InCJKSymbolsandPunctuation", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InCJKSymbolsandPunctuation"), len)) {
             return CLASS_IN_CJK_SYMBOLS_AND_PUNCTUATION;
         }
-        if (equalsName(name, (const u16 *)L"InHiragana", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InHiragana"), len)) {
             return CLASS_IN_HIRAGANA;
         }
-        if (equalsName(name, (const u16 *)L"InKatakana", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InKatakana"), len)) {
             return CLASS_IN_KATAKANA;
         }
-        if (equalsName(name, (const u16 *)L"InBopomofo", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InBopomofo"), len)) {
             return CLASS_IN_BOPOMOFO;
         }
-        if (equalsName(name, (const u16 *)L"InHangulCompatibilityJamo", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InHangulCompatibilityJamo"), len)) {
             return CLASS_IN_HANGUL_COMPATIBILITY_JAMO;
         }
-        if (equalsName(name, (const u16 *)L"InKanbun", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InKanbun"), len)) {
             return CLASS_IN_KANBUN;
         }
-        if (equalsName(name, (const u16 *)L"InBopomofoExtended", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InBopomofoExtended"), len)) {
             return CLASS_IN_BOPOMOFO_EXTENDED;
         }
-        if (equalsName(name, (const u16 *)L"InEnclosedCJKLettersandMonths", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InEnclosedCJKLettersandMonths"), len)) {
             return CLASS_IN_ENCLOSED_CJK_LETTERS_AND_MONTHS;
         }
-        if (equalsName(name, (const u16 *)L"InCJKCompatibility", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InCJKCompatibility"), len)) {
             return CLASS_IN_CJK_COMPATIBILITY;
         }
-        if (equalsName(name, (const u16 *)L"InCJKUnifiedIdeographsExtensionA", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InCJKUnifiedIdeographsExtensionA"), len)) {
             return CLASS_IN_CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A;
         }
-        if (equalsName(name, (const u16 *)L"InCJKUnifiedIdeographs", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InCJKUnifiedIdeographs"), len)) {
             return CLASS_IN_CJK_UNIFIED_IDEOGRAPHS;
         }
-        if (equalsName(name, (const u16 *)L"InYiSyllables", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InYiSyllables"), len)) {
             return CLASS_IN_YI_SYLLABLES;
         }
-        if (equalsName(name, (const u16 *)L"InYiRadicals", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InYiRadicals"), len)) {
             return CLASS_IN_YI_RADICALS;
         }
-        if (equalsName(name, (const u16 *)L"InHangulSyllables", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InHangulSyllables"), len)) {
             return CLASS_IN_HANGUL_SYLLABLES;
         }
-        if (equalsName(name, (const u16 *)L"InHighSurrogates", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InHighSurrogates"), len)) {
             return CLASS_IN_HIGH_SURROGATES;
         }
-        if (equalsName(name, (const u16 *)L"InHighPrivateUseSurrogates", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InHighPrivateUseSurrogates"), len)) {
             return CLASS_IN_HIGH_PRIVATE_USE_SURROGATES;
         }
-        if (equalsName(name, (const u16 *)L"InLowSurrogates", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InLowSurrogates"), len)) {
             return CLASS_IN_LOW_SURROGATES;
         }
-        if (equalsName(name, (const u16 *)L"InCJKCompatibilityIdeographs", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InCJKCompatibilityIdeographs"), len)) {
             return CLASS_IN_CJK_COMPATIBILITY_IDEOGRAPHS;
         }
-        if (equalsName(name, (const u16 *)L"InAlphabeticPresentationForms", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InAlphabeticPresentationForms"), len)) {
             return CLASS_IN_ALPHABETIC_PRESENTATION_FORMS;
         }
-        if (equalsName(name, (const u16 *)L"InArabicPresentationForms-A", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InArabicPresentationForms-A"), len)) {
             return CLASS_IN_ARABIC_PRESENTATION_FORMS_A;
         }
-        if (equalsName(name, (const u16 *)L"InCombiningHalfMarks", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InCombiningHalfMarks"), len)) {
             return CLASS_IN_COMBINING_HALF_MARKS;
         }
-        if (equalsName(name, (const u16 *)L"InCJKCompatibilityForms", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InCJKCompatibilityForms"), len)) {
             return CLASS_IN_CJK_COMPATIBILITY_FORMS;
         }
-        if (equalsName(name, (const u16 *)L"InSmallFormVariants", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InSmallFormVariants"), len)) {
             return CLASS_IN_SMALL_FORM_VARIANTS;
         }
-        if (equalsName(name, (const u16 *)L"InHalfwidthandFullwidthForms", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InHalfwidthandFullwidthForms"), len)) {
             return CLASS_IN_HALFWIDTH_AND_FULLWIDTH_FORMS;
         }
-        if (equalsName(name, (const u16 *)L"InSpecials", len)) {
+        if (equalsName(name, (const u16 *)WSTR("InSpecials"), len)) {
             return CLASS_IN_SPECIALS;
         }
-        if (equalsName(name, (const u16 *)L"IsL", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsL"), len)) {
             return CLASS_L;
         }
-        if (equalsName(name, (const u16 *)L"IsLl", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsLl"), len)) {
             return CLASS_LL;
         }
-        if (equalsName(name, (const u16 *)L"IsLu", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsLu"), len)) {
             return CLASS_LU;
         }
-        if (equalsName(name, (const u16 *)L"IsLt", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsLt"), len)) {
             return CLASS_LT;
         }
-        if (equalsName(name, (const u16 *)L"IsLm", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsLm"), len)) {
             return CLASS_LM;
         }
-        if (equalsName(name, (const u16 *)L"IsLo", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsLo"), len)) {
             return CLASS_LO;
         }
-        if (equalsName(name, (const u16 *)L"IsM", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsM"), len)) {
             return CLASS_M;
         }
-        if (equalsName(name, (const u16 *)L"IsMn", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsMn"), len)) {
             return CLASS_MN;
         }
-        if (equalsName(name, (const u16 *)L"IsMc", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsMc"), len)) {
             return CLASS_MC;
         }
-        if (equalsName(name, (const u16 *)L"IsMe", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsMe"), len)) {
             return CLASS_ME;
         }
-        if (equalsName(name, (const u16 *)L"IsZ", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsZ"), len)) {
             return CLASS_Z;
         }
-        if (equalsName(name, (const u16 *)L"IsZs", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsZs"), len)) {
             return CLASS_ZS;
         }
-        if (equalsName(name, (const u16 *)L"IsZl", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsZl"), len)) {
             return CLASS_ZL;
         }
-        if (equalsName(name, (const u16 *)L"IsZp", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsZp"), len)) {
             return CLASS_ZP;
         }
-        if (equalsName(name, (const u16 *)L"IsS", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsS"), len)) {
             return CLASS_S;
         }
-        if (equalsName(name, (const u16 *)L"IsSm", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsSm"), len)) {
             return CLASS_SM;
         }
-        if (equalsName(name, (const u16 *)L"IsSc", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsSc"), len)) {
             return CLASS_SC;
         }
-        if (equalsName(name, (const u16 *)L"IsSk", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsSk"), len)) {
             return CLASS_SK;
         }
-        if (equalsName(name, (const u16 *)L"IsSo", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsSo"), len)) {
             return CLASS_SO;
         }
-        if (equalsName(name, (const u16 *)L"IsN", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsN"), len)) {
             return CLASS_N;
         }
-        if (equalsName(name, (const u16 *)L"IsNd", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsNd"), len)) {
             return CLASS_ND;
         }
-        if (equalsName(name, (const u16 *)L"IsNl", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsNl"), len)) {
             return CLASS_NL;
         }
-        if (equalsName(name, (const u16 *)L"IsNo", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsNo"), len)) {
             return CLASS_NO;
         }
-        if (equalsName(name, (const u16 *)L"IsP", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsP"), len)) {
             return CLASS_P;
         }
-        if (equalsName(name, (const u16 *)L"IsPd", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsPd"), len)) {
             return CLASS_PD;
         }
-        if (equalsName(name, (const u16 *)L"IsPs", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsPs"), len)) {
             return CLASS_PS;
         }
-        if (equalsName(name, (const u16 *)L"IsPe", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsPe"), len)) {
             return CLASS_PE;
         }
-        if (equalsName(name, (const u16 *)L"IsPc", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsPc"), len)) {
             return CLASS_PC;
         }
-        if (equalsName(name, (const u16 *)L"IsPo", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsPo"), len)) {
             return CLASS_PO;
         }
-        if (equalsName(name, (const u16 *)L"IsC", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsC"), len)) {
             return CLASS_C;
         }
-        if (equalsName(name, (const u16 *)L"IsCc", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsCc"), len)) {
             return CLASS_CC;
         }
-        if (equalsName(name, (const u16 *)L"IsCf", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsCf"), len)) {
             return CLASS_CF;
         }
-        if (equalsName(name, (const u16 *)L"IsCo", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsCo"), len)) {
             return CLASS_CO;
         }
-        if (equalsName(name, (const u16 *)L"IsCn", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsCn"), len)) {
             return CLASS_CN;
         }
-        if (equalsName(name, (const u16 *)L"IsCs", len)) {
+        if (equalsName(name, (const u16 *)WSTR("IsCs"), len)) {
             return CLASS_CS;
         }
     }
-    if (equalsName(name, (const u16 *)L"L", len)) {
+    if (equalsName(name, (const u16 *)WSTR("L"), len)) {
         return CLASS_L;
     }
-    if (equalsName(name, (const u16 *)L"Ll", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Ll"), len)) {
         return CLASS_LL;
     }
-    if (equalsName(name, (const u16 *)L"Lu", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Lu"), len)) {
         return CLASS_LU;
     }
-    if (equalsName(name, (const u16 *)L"Lt", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Lt"), len)) {
         return CLASS_LT;
     }
-    if (equalsName(name, (const u16 *)L"Lm", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Lm"), len)) {
         return CLASS_LM;
     }
-    if (equalsName(name, (const u16 *)L"Lo", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Lo"), len)) {
         return CLASS_LO;
     }
-    if (equalsName(name, (const u16 *)L"M", len)) {
+    if (equalsName(name, (const u16 *)WSTR("M"), len)) {
         return CLASS_M;
     }
-    if (equalsName(name, (const u16 *)L"Mn", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Mn"), len)) {
         return CLASS_MN;
     }
-    if (equalsName(name, (const u16 *)L"Mc", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Mc"), len)) {
         return CLASS_MC;
     }
-    if (equalsName(name, (const u16 *)L"Me", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Me"), len)) {
         return CLASS_ME;
     }
-    if (equalsName(name, (const u16 *)L"Z", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Z"), len)) {
         return CLASS_Z;
     }
-    if (equalsName(name, (const u16 *)L"Zs", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Zs"), len)) {
         return CLASS_ZS;
     }
-    if (equalsName(name, (const u16 *)L"Zl", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Zl"), len)) {
         return CLASS_ZL;
     }
-    if (equalsName(name, (const u16 *)L"Zp", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Zp"), len)) {
         return CLASS_ZP;
     }
-    if (equalsName(name, (const u16 *)L"S", len)) {
+    if (equalsName(name, (const u16 *)WSTR("S"), len)) {
         return CLASS_S;
     }
-    if (equalsName(name, (const u16 *)L"Sm", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Sm"), len)) {
         return CLASS_SM;
     }
-    if (equalsName(name, (const u16 *)L"Sc", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Sc"), len)) {
         return CLASS_SC;
     }
-    if (equalsName(name, (const u16 *)L"Sk", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Sk"), len)) {
         return CLASS_SK;
     }
-    if (equalsName(name, (const u16 *)L"So", len)) {
+    if (equalsName(name, (const u16 *)WSTR("So"), len)) {
         return CLASS_SO;
     }
-    if (equalsName(name, (const u16 *)L"N", len)) {
+    if (equalsName(name, (const u16 *)WSTR("N"), len)) {
         return CLASS_N;
     }
-    if (equalsName(name, (const u16 *)L"Nd", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Nd"), len)) {
         return CLASS_ND;
     }
-    if (equalsName(name, (const u16 *)L"Nl", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Nl"), len)) {
         return CLASS_NL;
     }
-    if (equalsName(name, (const u16 *)L"No", len)) {
+    if (equalsName(name, (const u16 *)WSTR("No"), len)) {
         return CLASS_NO;
     }
-    if (equalsName(name, (const u16 *)L"P", len)) {
+    if (equalsName(name, (const u16 *)WSTR("P"), len)) {
         return CLASS_P;
     }
-    if (equalsName(name, (const u16 *)L"Pd", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Pd"), len)) {
         return CLASS_PD;
     }
-    if (equalsName(name, (const u16 *)L"Ps", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Ps"), len)) {
         return CLASS_PS;
     }
-    if (equalsName(name, (const u16 *)L"Pe", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Pe"), len)) {
         return CLASS_PE;
     }
-    if (equalsName(name, (const u16 *)L"Pc", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Pc"), len)) {
         return CLASS_PC;
     }
-    if (equalsName(name, (const u16 *)L"Po", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Po"), len)) {
         return CLASS_PO;
     }
-    if (equalsName(name, (const u16 *)L"C", len)) {
+    if (equalsName(name, (const u16 *)WSTR("C"), len)) {
         return CLASS_C;
     }
-    if (equalsName(name, (const u16 *)L"Cc", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Cc"), len)) {
         return CLASS_CC;
     }
-    if (equalsName(name, (const u16 *)L"Cf", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Cf"), len)) {
         return CLASS_CF;
     }
-    if (equalsName(name, (const u16 *)L"Co", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Co"), len)) {
         return CLASS_CO;
     }
-    if (equalsName(name, (const u16 *)L"Cn", len)) {
+    if (equalsName(name, (const u16 *)WSTR("Cn"), len)) {
         return CLASS_CN;
     }
-    return equalsName(name, (const u16 *)L"Cs", len) ? CLASS_CS : CLASS_NONE;
+    return equalsName(name, (const u16 *)WSTR("Cs"), len) ? CLASS_CS : CLASS_NONE;
 }
 
 // 801F7F50

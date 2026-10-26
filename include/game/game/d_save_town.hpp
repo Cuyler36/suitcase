@@ -5,6 +5,7 @@
 // dSaveData_c::getTown() returns it once the town has been transferred.
 
 #include <types.h>
+#include <port/bitfield.h>
 #include <game/game/d_item.hpp>
 #include <game/game/d_dsn.hpp>
 #include <game/game/d_home.hpp>
@@ -103,11 +104,11 @@ struct dWifiTownMsg_c {
     /* 0x00B0 */ dSvVillagerMove::Info_c mTown;
 }; // size 0x2724
 
-class dSaveTown_c {
+class PC_ALIGNAS(32) dSaveTown_c {
 public:
     struct RegionInfo_c {
-        u8 language : 4;
-        u8 region : 4;
+        // The Wii's bit order (language in the high nibble), so it agrees with the byte view _0735C2
+        BITFIELD_BYTE_2(u8 language : 4, u8 region : 4);
     };
     dPersonalID_c *getFriendPlayer() { return &mFriendPlayer; }
     dSvTownList::List_c *getTownList() { return &mTownList; }

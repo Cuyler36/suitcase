@@ -10,6 +10,10 @@
 
 #include <revolution/gx.h>
 
+#if TARGET_PC
+#include <port/side_slot.h>
+#endif
+
 namespace nw4r {
 namespace ef {
 
@@ -25,7 +29,11 @@ struct ParticleParameterDesc {
     math::VEC2 textureScale[TEX_LAYER_MAX];         // at 0x2C
     f32 textureRotate[TEX_LAYER_MAX];               // at 0x44
     math::VEC2 textureTranslate[TEX_LAYER_MAX];     // at 0x50
+#if TARGET_PC
+    SidePtr<TextureData> mTexture[TEX_LAYER_MAX];   // at 0x68 (4-byte pointer slots)
+#else
     TextureData *mTexture[TEX_LAYER_MAX];           // at 0x68
+#endif
     u16 textureWrap;                                // at 0x74
     u8 textureReverse;                              // at 0x76
     u8 mACmpRef0;                                   // at 0x77

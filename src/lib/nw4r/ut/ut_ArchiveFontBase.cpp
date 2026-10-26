@@ -279,8 +279,13 @@ ArchiveFontBase::ConstructOpAnalyzeTGLP(ConstructContext *pContext,
     }
     pContext->pFontInfo->pGlyph->sheetNum = numLoaded;
 
+#if TARGET_PC
+    // Still the file's offset (it is replaced below)
+    u32 sheetPos = static_cast<u32>(pContext->pFontInfo->pGlyph->sheetImage.raw());
+#else
     u32 sheetPos =
         reinterpret_cast<u32>(pContext->pFontInfo->pGlyph->sheetImage);
+#endif
 
     pContext->AlignBuffer(32);
     pContext->pFontInfo->pGlyph->sheetImage = pContext->GetBuffer<u8 *>();

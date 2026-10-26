@@ -2276,7 +2276,7 @@ int dFishFldShadow_c::draw() {
         mVec3_c ofs(sItemOfs);
         pos += ofs;
         mAng3_c angle(0, 0, 0);
-        dFgobjManager::fgObjCallback(item.mId, (int)&pos, (int)&mScale, &angle,
+        dFgobjManager::fgObjCallback(item.mId, (dFgObjArg_t)&pos, (dFgObjArg_t)&mScale, &angle,
                                      0);
     }
     return TRUE;

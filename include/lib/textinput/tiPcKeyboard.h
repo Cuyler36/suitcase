@@ -52,7 +52,7 @@ enum ControlKey {
 
 struct PaneNameToCharCodeWithMode {
     /* 0x00 */ char szPaneName[0x12];
-    /* 0x12 */ wchar_t wc[4];
+    /* 0x12 */ wchar16_t wc[4];
 }; // size 0x1A
 
 struct PaneNameToControlKey {
@@ -68,8 +68,8 @@ struct VisiblePanes {
 }; // size 0xC4
 
 struct CharCodeToAblaut {
-    /* 0x0 */ wchar_t wc;
-    /* 0x2 */ wchar_t ablaut[5];
+    /* 0x0 */ wchar16_t wc;
+    /* 0x2 */ wchar16_t ablaut[5];
 }; // size 0xC
 
 struct LanguageDependency {
@@ -121,8 +121,8 @@ class Base : public KeyboardBase {
         void refreshText(nw4r::lyt::Pane *pane);
         void setABCFlag(u32 flag);
         void setInputMode(u32 mode);
-        wchar_t getWCCode(u32 key);
-        wchar_t getWCCode(char *paneName);
+        wchar16_t getWCCode(u32 key);
+        wchar16_t getWCCode(char *paneName);
         ControlKey getControlKey(char *paneName);
 
         int getTranslateMode() const {
@@ -220,7 +220,7 @@ class Base : public KeyboardBase {
     }
     virtual void setLanguage(Language language);
     virtual void onActive();
-    virtual void inputCharCode(wchar_t ch); // 0x38
+    virtual void inputCharCode(wchar16_t ch); // 0x38
     virtual void *getState() {
         return &mState;
     } // 0x3C
@@ -266,9 +266,9 @@ class Base : public KeyboardBase {
     virtual void changeABCInputMode(InputMode mode);      // 0x6C
     virtual void changeAIUInputMode(InputMode mode);      // 0x70
     virtual void onClose();                               // 0x74
-    virtual wchar_t getWCCode(char *paneName);            // 0x78
+    virtual wchar16_t getWCCode(char *paneName);            // 0x78
     virtual ControlKey getControlKey(char *paneName);     // 0x7C
-    virtual void sendInputWChar(wchar_t ch, bool direct); // 0x80
+    virtual void sendInputWChar(wchar16_t ch, bool direct); // 0x80
     virtual void goSignInputMode();                       // 0x84
     virtual void changePredictLanguage();                 // 0x88
     virtual void updateFixMode();                         // 0x8C
@@ -376,14 +376,14 @@ class LayoutByNW4R : public Base,
     virtual void onKey(u32 key, void *data);
     virtual void setLanguage(Language language);
     virtual void onActive();
-    virtual void inputCharCode(wchar_t ch);
+    virtual void inputCharCode(wchar16_t ch);
     virtual void setABC(bool abc);
     virtual void setTranslateMode(TranslateMode mode);
     virtual void setLangKeyActive(bool active);
     virtual void setInputModeJP(bool abc, u32 abcMode, u32 aiuMode);
     virtual void refreshState();
     virtual void onClose();
-    virtual void sendInputWChar(wchar_t ch, bool direct);
+    virtual void sendInputWChar(wchar16_t ch, bool direct);
     virtual void goSignInputMode();
     virtual void changePredictLanguage();
     virtual void draw(); // 0x110

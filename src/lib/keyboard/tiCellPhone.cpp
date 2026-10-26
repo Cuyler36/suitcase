@@ -76,8 +76,8 @@ static const LanguageDependency csLanguageDependencyData[LanguageEnd] = {
      {&csKeySetNLAbc, &csKeySetNLabc, &csKeySetNLABC, &csKeySetNumber, NULL}},
 };
 
-const wchar_t *csszPredictLanguage[] = {
-    L"", L"", L"Eng", L"Fra", L"Esp", L"EN", L"DE", L"FR", L"ES", L"IT", L"NL",
+const wchar16_t *csszPredictLanguage[] = {
+    WSTR(""), WSTR(""), WSTR("Eng"), WSTR("Fra"), WSTR("Esp"), WSTR("EN"), WSTR("DE"), WSTR("FR"), WSTR("ES"), WSTR("IT"), WSTR("NL"),
 };
 
 const char *csPaneNameNormalKey[] = {
@@ -300,7 +300,7 @@ void Base::onKey(u32 key, void *data) {
                     if (util::strcmp(
                             csKeySetNumber.pPaneNameToCharCode[i].szPaneName,
                             paneName)) {
-                        wchar_t ch =
+                        wchar16_t ch =
                             csKeySetNumber.pPaneNameToCharCode[i].wc[0];
                         bool converting;
                         inputform::Base::KeyInput input = {0};
@@ -340,7 +340,7 @@ void Base::onKey(u32 key, void *data) {
         }
         if (key == 1 && mState.mpKey != NULL &&
             util::strcmp(paneName, mState.mpKey->szPaneName)) {
-            wchar_t ch = mState.mpKey->wc[mState.mIndex];
+            wchar16_t ch = mState.mpKey->wc[mState.mIndex];
             if (ch != 0x309B && ch != 0x309C) {
                 if (getLanguage() == JP && ch == L' ' &&
                     getInputMode() != IM_AlphabetLower &&
@@ -876,7 +876,7 @@ void LayoutByNW4R::doNumericMode(bool enable) {
 
 void LayoutByNW4R::doNumericWithDotMode(bool enable) {
     doNumericMode(enable);
-    setString("T_CPkey_11", L".");
+    setString("T_CPkey_11", WSTR("."));
     setVisible("W_CPkey_11", enable);
     mState.mbNumericWithDot = true;
 }
@@ -942,7 +942,7 @@ bool LayoutByNW4R::updateInput(input::HKBManager &hkbManager) {
         for (; keySet.IsValid(); keySet = keySet.GetNext()) {
             nw4rmanager::AnmPane *anmPane = NULL;
             u8 key = keySet.GetKey();
-            wchar_t wc = keySet.GetWChar();
+            wchar16_t wc = keySet.GetWChar();
             switch (key) {
             case 0x28:
             case 0x58:

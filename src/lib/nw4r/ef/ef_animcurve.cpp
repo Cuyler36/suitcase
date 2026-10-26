@@ -1470,8 +1470,13 @@ void AnimCurveExecuteTexture(u8 *mCmdList, Particle *pp, u32 origTick,
             }
         }
 
+#if TARGET_PC
+        *target = static_cast<TextureData *>(
+            static_cast<void *>(nameTable->datas[key.nameIdx].work));
+#else
         *target =
             reinterpret_cast<TextureData *>(nameTable->datas[key.nameIdx].work);
+#endif
 
         pp->mParameter.mTextureWrap &= ~(0xF << (layer * 4));
         pp->mParameter.mTextureWrap |= (key.wrap & 0xF) << (layer * 4);
@@ -1515,8 +1520,13 @@ static void createChild(u8 *ptrFixed, u16 randomSeed, AnimCurveHeader *header,
         }
     }
 
+#if TARGET_PC
+    EmitterResource *eh = static_cast<EmitterResource *>(
+        static_cast<void *>(nameTable->datas[childData->name].work));
+#else
     EmitterResource *eh = reinterpret_cast<EmitterResource *>(
         nameTable->datas[childData->name].work);
+#endif
 
     if (eh != NULL) {
         if (childData->inheritSetting.type == CHILDTYPE_PARTICLE) {

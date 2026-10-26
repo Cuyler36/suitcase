@@ -5,10 +5,10 @@
 
 namespace textinput {
 namespace util {
-static wchar_t ConvertDakutenEtc(const wchar_t *map[], wchar_t ch);
+static wchar16_t ConvertDakutenEtc(const wchar16_t *map[], wchar16_t ch);
 
-wchar_t toWLower(wchar_t ch) {
-    const wchar_t *first = wcschr((wchar_t *)s_alphabet_map[1], ch);
+wchar16_t toWLower(wchar16_t ch) {
+    const wchar16_t *first = wcschr((wchar16_t *)s_alphabet_map[1], ch);
     if (first != NULL) {
         u32 index = (u32)(first - s_alphabet_map[1]);
         return s_alphabet_map[0][index];
@@ -17,23 +17,23 @@ wchar_t toWLower(wchar_t ch) {
     }
 }
 
-wchar_t HankakuToZenkaku(wchar_t ch) {
+wchar16_t HankakuToZenkaku(wchar16_t ch) {
     if (ch >= L'a' && ch <= L'z') {
-        return static_cast<wchar_t>(ch + 0xFEE0);
+        return static_cast<wchar16_t>(ch + 0xFEE0);
     }
     if (ch >= L'A' && ch <= L'Z') {
-        return static_cast<wchar_t>(ch + 0xFEE0);
+        return static_cast<wchar16_t>(ch + 0xFEE0);
     }
     if (ch >= L'0' && ch <= L'9') {
-        return static_cast<wchar_t>(ch + 0xFEE0);
+        return static_cast<wchar16_t>(ch + 0xFEE0);
     }
 
-    const wchar_t *map[] = {
-        L"，．！？：　＠／＿－",
-        L",.!?: @/_-",
+    const wchar16_t *map[] = {
+        WSTR("，．！？：　＠／＿－"),
+        WSTR(",.!?: @/_-"),
     };
 
-    const wchar_t *first = wcschr((wchar_t *)map[1], ch);
+    const wchar16_t *first = wcschr((wchar16_t *)map[1], ch);
     if (first != NULL) {
         u32 index = (u32)(first - map[1]);
         return map[0][index];
@@ -42,31 +42,31 @@ wchar_t HankakuToZenkaku(wchar_t ch) {
     }
 }
 
-static const wchar_t *s_all_map[] = {
-    L"あいうえおかきくけこさしすせそたちつてとはひふへほやゆよわアイウエオカキ"
-    L"クケコサシスセソタチツテトハヒフヘホヤユヨワ",
-    L"　　　　　がぎぐげござじずぜぞだぢづでどばびぶべぼ　　　　　　ヴ　　ガギ"
-    L"グゲゴザジズゼゾダヂヅデドバビブベボ　　　　",
-    L"　　　　　　　　　　　　　　　　　　　　ぱぴぷぺぽ　　　　　　　　　　　"
-    L"　　　　　　　　　　　　　パピプペポ　　　　",
-    L"ぁぃぅぇぉ　　　　　　　　　　　　っ　　　　　　　ゃゅょゎァィゥェォヵ　"
-    L"　ヶ　　　　　　　　ッ　　　　　　　ャュョヮ",
+static const wchar16_t *s_all_map[] = {
+    WSTR("あいうえおかきくけこさしすせそたちつてとはひふへほやゆよわアイウエオカキ")
+    WSTR("クケコサシスセソタチツテトハヒフヘホヤユヨワ"),
+    WSTR("　　　　　がぎぐげござじずぜぞだぢづでどばびぶべぼ　　　　　　ヴ　　ガギ")
+    WSTR("グゲゴザジズゼゾダヂヅデドバビブベボ　　　　"),
+    WSTR("　　　　　　　　　　　　　　　　　　　　ぱぴぷぺぽ　　　　　　　　　　　")
+    WSTR("　　　　　　　　　　　　　パピプペポ　　　　"),
+    WSTR("ぁぃぅぇぉ　　　　　　　　　　　　っ　　　　　　　ゃゅょゎァィゥェォヵ　")
+    WSTR("　ヶ　　　　　　　　ッ　　　　　　　ャュョヮ"),
 };
 
-static const wchar_t *s_dakuten_map[] = {s_all_map[0], s_all_map[1]};
+static const wchar16_t *s_dakuten_map[] = {s_all_map[0], s_all_map[1]};
 
-static const wchar_t *s_handaku_map[] = {s_all_map[0], s_all_map[2]};
+static const wchar16_t *s_handaku_map[] = {s_all_map[0], s_all_map[2]};
 
-static const wchar_t *s_small_map[] = {s_all_map[0], s_all_map[3]};
+static const wchar16_t *s_small_map[] = {s_all_map[0], s_all_map[3]};
 
-wchar_t KBD_ConvertDakuten(wchar_t ch) {
+wchar16_t KBD_ConvertDakuten(wchar16_t ch) {
     if (ch == L'　') {
         return ch;
     }
 
     if (KBD_IsHandaku(ch)) {
-        wchar_t ch1 = KBD_ConvertHandaku(ch);
-        wchar_t ch2 = ConvertDakutenEtc(s_dakuten_map, ch1);
+        wchar16_t ch1 = KBD_ConvertHandaku(ch);
+        wchar16_t ch2 = ConvertDakutenEtc(s_dakuten_map, ch1);
         if (ch2 != ch1) {
             return ch2;
         } else {
@@ -75,8 +75,8 @@ wchar_t KBD_ConvertDakuten(wchar_t ch) {
     }
 
     if (KBD_IsSmall(ch)) {
-        wchar_t ch1 = KBD_ConvertSmall(ch);
-        wchar_t ch2 = ConvertDakutenEtc(s_dakuten_map, ch1);
+        wchar16_t ch1 = KBD_ConvertSmall(ch);
+        wchar16_t ch2 = ConvertDakutenEtc(s_dakuten_map, ch1);
         if (ch2 != ch1) {
             return ch2;
         } else {
@@ -87,14 +87,14 @@ wchar_t KBD_ConvertDakuten(wchar_t ch) {
     return ConvertDakutenEtc(s_dakuten_map, ch);
 }
 
-wchar_t KBD_ConvertHandaku(wchar_t ch) {
+wchar16_t KBD_ConvertHandaku(wchar16_t ch) {
     if (ch == L'　') {
         return ch;
     }
 
     if (KBD_IsDakuten(ch)) {
-        wchar_t ch1 = KBD_ConvertDakuten(ch);
-        wchar_t ch2 = ConvertDakutenEtc(s_handaku_map, ch1);
+        wchar16_t ch1 = KBD_ConvertDakuten(ch);
+        wchar16_t ch2 = ConvertDakutenEtc(s_handaku_map, ch1);
         if (ch2 != ch1) {
             return ch2;
         } else {
@@ -105,14 +105,14 @@ wchar_t KBD_ConvertHandaku(wchar_t ch) {
     return ConvertDakutenEtc(s_handaku_map, ch);
 }
 
-wchar_t KBD_ConvertSmall(wchar_t ch) {
+wchar16_t KBD_ConvertSmall(wchar16_t ch) {
     if (ch == L'　') {
         return ch;
     }
 
     if (KBD_IsDakuten(ch)) {
-        wchar_t ch1 = KBD_ConvertDakuten(ch);
-        wchar_t ch2 = ConvertDakutenEtc(s_small_map, ch1);
+        wchar16_t ch1 = KBD_ConvertDakuten(ch);
+        wchar16_t ch2 = ConvertDakutenEtc(s_small_map, ch1);
         if (ch2 != ch1) {
             return ch2;
         } else {
@@ -123,7 +123,7 @@ wchar_t KBD_ConvertSmall(wchar_t ch) {
     return ConvertDakutenEtc(s_small_map, ch);
 }
 
-wchar_t KBD_ConvertAll(wchar_t ch) {
+wchar16_t KBD_ConvertAll(wchar16_t ch) {
     int offset;
 
     if (ch == L'　') {
@@ -132,7 +132,7 @@ wchar_t KBD_ConvertAll(wchar_t ch) {
 
     int i, j;
     for (i = 0; i < 4; i++) {
-        wchar_t *first = wcschr((wchar_t *)s_all_map[i], ch);
+        wchar16_t *first = wcschr((wchar16_t *)s_all_map[i], ch);
         if (first != NULL) {
             offset = first - s_all_map[i];
             break;
@@ -152,18 +152,18 @@ wchar_t KBD_ConvertAll(wchar_t ch) {
     return ch;
 }
 
-BOOL KBD_IsDakuten(wchar_t ch) {
-    wchar_t *first = wcschr((wchar_t *)s_dakuten_map[1], ch);
+BOOL KBD_IsDakuten(wchar16_t ch) {
+    wchar16_t *first = wcschr((wchar16_t *)s_dakuten_map[1], ch);
     return first != NULL;
 }
 
-BOOL KBD_IsHandaku(wchar_t ch) {
-    wchar_t *first = wcschr((wchar_t *)s_handaku_map[1], ch);
+BOOL KBD_IsHandaku(wchar16_t ch) {
+    wchar16_t *first = wcschr((wchar16_t *)s_handaku_map[1], ch);
     return first != NULL;
 }
 
-BOOL KBD_IsSmall(wchar_t ch) {
-    wchar_t *first = wcschr((wchar_t *)s_small_map[1], ch);
+BOOL KBD_IsSmall(wchar16_t ch) {
+    wchar16_t *first = wcschr((wchar16_t *)s_small_map[1], ch);
     return first != NULL;
 }
 
@@ -188,13 +188,13 @@ void replaceChar(char *dest, u32 destLen, const char *src, int replaceIdx,
     dest[replaceIdx] = newCh;
 }
 
-bool isAlphabet(wchar_t ch) {
+bool isAlphabet(wchar16_t ch) {
     return true;
 }
 
-static wchar_t ConvertDakutenEtc(const wchar_t *map[], wchar_t ch) {
+static wchar16_t ConvertDakutenEtc(const wchar16_t *map[], wchar16_t ch) {
     for (int i = 0; i < 2; i++) {
-        const wchar_t *first = wcschr((wchar_t *)map[i], ch);
+        const wchar16_t *first = wcschr((wchar16_t *)map[i], ch);
 
         if (first != NULL) {
             u32 offset = (u32)(first - map[i]);

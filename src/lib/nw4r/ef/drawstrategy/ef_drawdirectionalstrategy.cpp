@@ -476,7 +476,7 @@ void DrawDirectionalStrategy::InitGraphics(const DrawInfo& drawInfo,
 
     GXEnableTexOffsets(GX_TEXCOORD0, GX_TRUE, GX_TRUE);
 
-    GXSetArray(GX_VA_TEX0, directional_tex0_u8, 2);
+    GXSETARRAY(GX_VA_TEX0, directional_tex0_u8, sizeof(directional_tex0_u8), 2, true);
 
     GXClearVtxDesc();
     GXSetVtxDesc(GX_VA_POS, GX_DIRECT);

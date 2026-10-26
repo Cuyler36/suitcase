@@ -456,12 +456,12 @@ void dMenuFriend_c::clearEntry() {
 }
 
 // .text:0x1088
-void dMenuFriend_c::setEntryPlayerName(const wchar_t *name) {
+void dMenuFriend_c::setEntryPlayerName(const wchar16_t *name) {
     sInstance->mFriend.mPID.setPlayerName(name);
 }
 
 // .text:0x109C
-void dMenuFriend_c::setEntryTown(const wchar_t *townName) {
+void dMenuFriend_c::setEntryTown(const wchar16_t *townName) {
     dLandID_c *land = &sInstance->mFriend.mPID.land;
     land->setRandomId(townName, getLanguage());
 }
@@ -489,7 +489,7 @@ u64 dMenuFriend_c::getFriendKey() {
 }
 
 // .text:0x1180
-void dMenuFriend_c::setEntryMessage(const wchar_t *message) {
+void dMenuFriend_c::setEntryMessage(const wchar16_t *message) {
     memcpy(sInstance->mFriend.mMessage, message,
            sizeof(sInstance->mFriend.mMessage));
     if (message[0] != 0) {

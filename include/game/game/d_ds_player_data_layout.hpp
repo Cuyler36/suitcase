@@ -44,14 +44,23 @@ static const saveLayout_s l_saveLayoutUs = {0x4, 0xC, 0x2BFBC, 0x2BFBE,
 static const saveLayout_s l_saveLayoutKr = {0x4, 0x14, 0x2E7F4, 0x2E7F6,
                                             0x2E7F7};
 
+#if TARGET_PC
+// Each module (the DOL and d_a_npc_sp_player_selectNP) has its own copy; one copy when statically linked.
+inline const playerLayout_s *l_playerLayout[4] = {
+#else
 const playerLayout_s *l_playerLayout[4] = {
+#endif
     &l_playerLayoutJp,
     &l_playerLayoutUs,
     &l_playerLayoutUs,
     &l_playerLayoutKr,
 };
 
+#if TARGET_PC
+inline const saveLayout_s *l_saveLayout[4] = {
+#else
 const saveLayout_s *l_saveLayout[4] = {
+#endif
     &l_saveLayoutJp,
     &l_saveLayoutUs,
     &l_saveLayoutUs,

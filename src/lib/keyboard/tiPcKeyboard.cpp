@@ -33,8 +33,8 @@ struct BoolArg {
     /* 0x0 */ bool flag;
 }; // size 0x1
 
-const wchar_t *csszPredictLanguage[] = {
-    L"", L"", L"Eng", L"Fra", L"Esp", L"EN", L"DE", L"FR", L"ES", L"IT", L"NL",
+const wchar16_t *csszPredictLanguage[] = {
+    WSTR(""), WSTR(""), WSTR("Eng"), WSTR("Fra"), WSTR("Esp"), WSTR("EN"), WSTR("DE"), WSTR("FR"), WSTR("ES"), WSTR("IT"), WSTR("NL"),
 };
 
 static const PaneNameToCharCodeWithMode csGridKeyboard[GRID_KEY_COUNT] = {
@@ -1207,12 +1207,12 @@ void Base::init() {
     sendCommand(0x12, &arg);
 }
 
-void Base::inputCharCode(wchar_t ch) {
+void Base::inputCharCode(wchar16_t ch) {
     sendInputWChar(ch, false);
 }
 
 void Base::onKey(u32 key, void *data) {
-    wchar_t ch = getWCCode(static_cast<char *>(data));
+    wchar16_t ch = getWCCode(static_cast<char *>(data));
     if (key == 4) {
         if (ch == 0) {
             switch (getControlKey(static_cast<char *>(data))) {
@@ -1354,7 +1354,7 @@ void Base::onActive() {
 void Base::onClose() {
 }
 
-wchar_t Base::getWCCode(char *paneName) {
+wchar16_t Base::getWCCode(char *paneName) {
     return mKeyState.getWCCode(paneName);
 }
 
@@ -1400,7 +1400,7 @@ void Base::changeAIUInputMode(InputMode mode) {
     }
 }
 
-void Base::sendInputWChar(wchar_t ch, bool direct) {
+void Base::sendInputWChar(wchar16_t ch, bool direct) {
     mState.bInputReceived = false;
     u32 flags = 0;
     if (mKeyState.muFlag & 0x40) {
@@ -1565,7 +1565,7 @@ void Base::KeyState::refreshText(nw4r::lyt::Pane *pane) {
             nw4r::ut::DynamicCast<nw4r::lyt::TextBox *>(
                 pane->FindPaneByName(textName, true));
         if (textBox != NULL) {
-            wchar_t str[2];
+            wchar16_t str[2];
             str[0] = getWCCode(i);
             str[1] = 0;
             textBox->SetString(str, 0);
@@ -1579,7 +1579,7 @@ void Base::KeyState::refreshText(nw4r::lyt::Pane *pane) {
             nw4r::ut::DynamicCast<nw4r::lyt::TextBox *>(
                 pane->FindPaneByName(textName, true));
         if (textBox != NULL) {
-            wchar_t str[2];
+            wchar16_t str[2];
             str[0] =
                 mpLanguageData->pGridKeyboard[i].wc[getKanaMode() == 0 ? 2 : 3];
             str[1] = 0;
@@ -1606,7 +1606,7 @@ void Base::KeyState::setInputMode(u32 mode) {
     refresh_();
 }
 
-wchar_t Base::KeyState::getWCCode(u32 key) {
+wchar16_t Base::KeyState::getWCCode(u32 key) {
     u32 mode = 0;
     if (muFlag & 0x40) {
         mode |= 1;
@@ -1614,7 +1614,7 @@ wchar_t Base::KeyState::getWCCode(u32 key) {
     if (muFlag & 0x80) {
         mode |= 2;
     }
-    wchar_t wc = mpLanguageData->pKeyboard[key].wc[mode];
+    wchar16_t wc = mpLanguageData->pKeyboard[key].wc[mode];
     if (mInputType == 0 && muTranslateMode == 0) {
         if (wc == 0x3001) {
             wc = L',';
@@ -1631,8 +1631,8 @@ wchar_t Base::KeyState::getWCCode(u32 key) {
     return wc;
 }
 
-wchar_t Base::KeyState::getWCCode(char *paneName) {
-    wchar_t wc = 0;
+wchar16_t Base::KeyState::getWCCode(char *paneName) {
+    wchar16_t wc = 0;
     for (u16 i = 0; i < KEY_COUNT; i++) {
         if (util::strcmp(mpLanguageData->pKeyboard[i].szPaneName, paneName)) {
             wc = getWCCode(i);
@@ -1854,7 +1854,7 @@ void LayoutByNW4R::draw() {
     nw4rmanager::Layout::draw();
 }
 
-void LayoutByNW4R::inputCharCode(wchar_t ch) {
+void LayoutByNW4R::inputCharCode(wchar16_t ch) {
     sendInputWChar(ch, false);
 }
 
@@ -2096,7 +2096,7 @@ void LayoutByNW4R::updatePredictLanguage(
     }
 }
 
-void LayoutByNW4R::sendInputWChar(wchar_t ch, bool direct) {
+void LayoutByNW4R::sendInputWChar(wchar16_t ch, bool direct) {
     bool shift = false;
     nw4r::lyt::Pane *pane = NULL;
     if (mKeyState.muFlag & 0x80) {
@@ -2245,7 +2245,7 @@ bool LayoutByNW4R::updateInput(input::HKBManager &hkbManager) {
     for (; keySet.IsValid(); keySet = keySet.GetNext()) {
         nw4rmanager::AnmPane *anmPane = NULL;
         u8 key = keySet.GetKey();
-        wchar_t wc = keySet.GetWChar();
+        wchar16_t wc = keySet.GetWChar();
         switch (key) {
         case 0x2C:
             break;
@@ -2325,10 +2325,10 @@ void LayoutByNW4R::refreshState() {
     if (getLanguage() == JP) {
         if (mKeyState.getKanaMode() == 0) {
             static_cast<nw4r::lyt::TextBox *>(getPane("T_JP_Chng_KANA"))
-                ->SetString(L"\x3042\x3044\x3046", 0);
+                ->SetString(WSTR("\x3042\x3044\x3046"), 0);
         } else if (mKeyState.getKanaMode() == 1) {
             static_cast<nw4r::lyt::TextBox *>(getPane("T_JP_Chng_KANA"))
-                ->SetString(L"\x30A2\x30A4\x30A6", 0);
+                ->SetString(WSTR("\x30A2\x30A4\x30A6"), 0);
         }
     }
     if (!isShiftOn()) {

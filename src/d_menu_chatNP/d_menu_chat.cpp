@@ -514,32 +514,32 @@ void dMenuChat_c::executeSubState() {
 
 // .text:0x1718
 BOOL dMenuChat_c::checkLength() {
-    const wchar_t *text = mKbd.getText();
-    const wchar_t *input = mKbd.getInputText();
+    const wchar16_t *text = mKbd.getText();
+    const wchar16_t *input = mKbd.getInputText();
     int textLen = m2d::Word_c::getLength(text);
     int inputLen = m2d::Word_c::getLength(input);
     if (textLen + inputLen > TEXT_MAX) {
         return FALSE;
     }
-    wchar_t buf[TEXT_SIZE];
+    wchar16_t buf[TEXT_SIZE];
     memset(buf, 0, sizeof(buf));
     if (textLen != 0) {
-        memcpy(buf, text, textLen * sizeof(wchar_t));
+        memcpy(buf, text, textLen * sizeof(wchar16_t));
     }
     if (inputLen != 0) {
-        memcpy(buf + textLen, input, inputLen * sizeof(wchar_t));
+        memcpy(buf + textLen, input, inputLen * sizeof(wchar16_t));
     }
     if (mWord.calcWidth(buf, TEXT_SIZE) >= 402.0f) {
         return FALSE;
     }
-    memcpy(mText, text, TEXT_MAX * sizeof(wchar_t));
+    memcpy(mText, text, TEXT_MAX * sizeof(wchar16_t));
     return TRUE;
 }
 
 // .text:0x1814
 void dMenuChat_c::updateText() {
-    const wchar_t *text = mKbd.getText();
-    const wchar_t *input = mKbd.getInputText();
+    const wchar16_t *text = mKbd.getText();
+    const wchar16_t *input = mKbd.getInputText();
     int inputLen = m2d::Word_c::getLength(input);
     int inputPos = mKbd.getInputPos();
     mWord.clear();
@@ -676,7 +676,7 @@ BOOL dMenuChat_c::checkPointerCursor() {
         return FALSE;
     }
     mKbd.fixInput();
-    memcpy(mText, mKbd.getText(), TEXT_MAX * sizeof(wchar_t));
+    memcpy(mText, mKbd.getText(), TEXT_MAX * sizeof(wchar16_t));
     mKbd.setCursorPos(mWord.getPosAtScreenX(pos.x));
     playSeCursor();
     return TRUE;
@@ -832,7 +832,7 @@ BOOL dMenuChat_c::hitKbdEnter() {
 // .text:0x23D4
 BOOL dMenuChat_c::sendText(BOOL kbd) {
     mKbd.fixInput();
-    memcpy(mText, mKbd.getText(), TEXT_MAX * sizeof(wchar_t));
+    memcpy(mText, mKbd.getText(), TEXT_MAX * sizeof(wchar16_t));
     if (mText[0] == 0) {
         return FALSE;
     }

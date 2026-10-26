@@ -7,12 +7,12 @@ namespace tistring {
 
 void StringBase::create(MEMAllocator *allocator) {
     mpAllocator = allocator;
-    mpszString = (wchar_t *)MEMAllocFromAllocator(
-        allocator, muMaxLength * sizeof(wchar_t));
+    mpszString = (wchar16_t *)MEMAllocFromAllocator(
+        allocator, muMaxLength * sizeof(wchar16_t));
     wmemset(mpszString, 0, muMaxLength);
     muLength = 0;
-    mpszTmpString = (wchar_t *)MEMAllocFromAllocator(
-        allocator, muMaxLength * sizeof(wchar_t));
+    mpszTmpString = (wchar16_t *)MEMAllocFromAllocator(
+        allocator, muMaxLength * sizeof(wchar16_t));
     wmemset(mpszTmpString, 0, muMaxLength);
 }
 
@@ -21,8 +21,8 @@ StringBase::~StringBase() {
     MEMFreeToAllocator(mpAllocator, mpszTmpString);
 }
 
-void StringBase::pushBack(wchar_t ch) {
-    wchar_t str[16];
+void StringBase::pushBack(wchar16_t ch) {
+    wchar16_t str[16];
     str[0] = ch;
     str[1] = 0;
     wcsncat(mpszString, str, wcslen(str));
@@ -36,7 +36,7 @@ void StringBase::popBack() {
     mpszString[muLength] = 0;
 }
 
-bool StringBase::append(const wchar_t *string) {
+bool StringBase::append(const wchar16_t *string) {
     u32 len = wcslen(string);
     if (len + getLength() > muMaxLength) {
         return false;
@@ -53,7 +53,7 @@ bool StringBase::append(const wchar_t *string) {
     return true;
 }
 
-bool StringBase::insert(u16 index, const wchar_t *string) {
+bool StringBase::insert(u16 index, const wchar16_t *string) {
     u32 len = wcslen(string);
     if ((u16)len + getLength() > muMaxLength) {
         return false;
@@ -84,7 +84,7 @@ void StringBase::remove(u16 index, u16 num) {
     }
 }
 
-void StringBase::replace(u16 index, u16 num, const wchar_t *string) {
+void StringBase::replace(u16 index, u16 num, const wchar16_t *string) {
     if (index + num >= getLength()) {
         num = getLength() - index;
     }
@@ -92,12 +92,12 @@ void StringBase::replace(u16 index, u16 num, const wchar_t *string) {
     insert(index, string);
 }
 
-void StringBase::set(const wchar_t *string) {
+void StringBase::set(const wchar16_t *string) {
     clear();
     append(string);
 }
 
-void StringBase::setAt(u16 index, wchar_t ch) {
+void StringBase::setAt(u16 index, wchar16_t ch) {
     if (muMaxLength > index) {
         mpszString[index] = ch;
     }
@@ -115,7 +115,7 @@ void StringBase::clear() {
     muLength = 0;
 }
 
-wchar_t StringBase::getLastWChar() {
+wchar16_t StringBase::getLastWChar() {
     int last = muLength - 1;
     if (last >= 0) {
         return mpszString[last];
@@ -123,12 +123,12 @@ wchar_t StringBase::getLastWChar() {
     return 0;
 }
 
-void Decolated::inputChar(wchar_t ch) {
+void Decolated::inputChar(wchar16_t ch) {
     if (ch == 0xFFFE) {
         return;
     }
 
-    wchar_t kana[5];
+    wchar16_t kana[5];
     kana[0] = kana[1] = kana[2] = kana[3] = kana[4] = 0;
     u16 num;
     if (meTranslateMode != TM_Direct) {
@@ -168,15 +168,15 @@ void Decolated::confirmKana() {
     inputChar('\n');
 }
 
-void Decolated::inputString(const wchar_t *string) {
+void Decolated::inputString(const wchar16_t *string) {
     if (string != NULL) {
-        for (const wchar_t *p = string; *p != 0; p++) {
+        for (const wchar16_t *p = string; *p != 0; p++) {
             inputChar(*p);
         }
     }
 }
 
-void Decolated::inputString(const wchar_t *string, TranslateMode mode) {
+void Decolated::inputString(const wchar16_t *string, TranslateMode mode) {
     TranslateMode prevMode = meTranslateMode;
     setTranslateMode(mode);
     inputString(string);
@@ -207,14 +207,14 @@ void Decolated::backSpace() {
             remove(muCursorPos, 1);
         }
     } else {
-        wchar_t empty = 0;
+        wchar16_t empty = 0;
         replace(start, end - start, &empty);
         muCursorPos = start;
     }
     muAnchorPos = muCursorPos;
 }
 
-void Decolated::confirm(const wchar_t *string) {
+void Decolated::confirm(const wchar16_t *string) {
     if (string != NULL) {
         insert(muCursorPos, string);
         muCursorPos += wcslen(string);
@@ -294,7 +294,7 @@ void Decolated::getSelected(u32 &start, u32 &end) {
     }
 }
 
-wchar_t Decolated::getWCharAtCursor() {
+wchar16_t Decolated::getWCharAtCursor() {
     u32 start, end;
     getSelected(start, end);
     if (end == 0) {
@@ -303,7 +303,7 @@ wchar_t Decolated::getWCharAtCursor() {
     return mpszString[end - 1];
 }
 
-void Decolated::replaceAtCursor(wchar_t ch) {
+void Decolated::replaceAtCursor(wchar16_t ch) {
     u32 start, end;
     getSelected(start, end);
     if (end != 0) {

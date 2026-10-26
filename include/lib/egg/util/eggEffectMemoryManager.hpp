@@ -49,7 +49,12 @@ public:
     }
 
     virtual void AssignObjectID(void *obj) {
+#if TARGET_PC
+        // Through T*: the LinkedObject base is not at offset 0 under MSVC's layout (PC-15)
+        static_cast<nw4r::ef::LinkedObject *>(static_cast<T *>(obj))->mObjectID += OBJECT_ID_BASE;
+#else
         static_cast<nw4r::ef::LinkedObject *>(obj)->mObjectID += OBJECT_ID_BASE;
+#endif
     } // at 0x8
 
     void GarbageCollection();
@@ -218,7 +223,7 @@ public:
         mAllChain = NULL;
 
         mHeapEndAddr = static_cast<u8 *>(pStartAddr) + size;
-        mHeapStartAddr = reinterpret_cast<u8 *>(ROUND_UP(reinterpret_cast<u32>(pStartAddr), 32));
+        mHeapStartAddr = reinterpret_cast<u8 *>(ROUND_UP(reinterpret_cast<uintptr_t>(pStartAddr), 32));
 
         mFreeMem = static_cast<MemInfo *>(mHeapStartAddr);
         mFreeMem->prev = NULL;

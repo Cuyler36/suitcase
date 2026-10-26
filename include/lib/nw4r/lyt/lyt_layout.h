@@ -43,7 +43,7 @@ struct Layout {
     DataBlockHeader blockHeader; // at 0x0
     u8 originType;               // at 0x8
     u8 PADDING_0x9[0xC - 0x9];   // at 0x9
-    Size layoutSize;             // at 0xC
+    res::Size layoutSize;             // at 0xC
 };
 
 } // namespace res

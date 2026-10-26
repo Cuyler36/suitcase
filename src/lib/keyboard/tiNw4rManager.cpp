@@ -30,7 +30,7 @@ AnmPane *Layout::searchAnmPane(const char *paneName) {
     return NULL;
 }
 
-AnmPane *Layout::searchAnmPane(wchar_t ch) {
+AnmPane *Layout::searchAnmPane(wchar16_t ch) {
     AnmPane *anmPane = NULL;
 
     for (anmPane = static_cast<AnmPane *>(nw4r::ut::List_GetFirst(&mAnmPanes));
@@ -42,7 +42,7 @@ AnmPane *Layout::searchAnmPane(wchar_t ch) {
             nw4r::ut::DynamicCast<nw4r::lyt::TextBox *>(&*it);
 
         if (textBox != NULL) {
-            const wchar_t *str = textBox->GetString();
+            const wchar16_t *str = textBox->GetString();
 
             if (str[0] == ch && str[1] == 0) {
                 return anmPane;
@@ -224,7 +224,7 @@ bool Layout::isVisible(const char *paneName, bool *result) const {
     }
 }
 
-void Layout::setString(const char *paneName, const wchar_t *wcString) {
+void Layout::setString(const char *paneName, const wchar16_t *wcString) {
     nw4r::lyt::TextBox *textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox *>(
         mpLayout->GetRootPane()->FindPaneByName(paneName, true));
 

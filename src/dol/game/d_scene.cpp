@@ -281,7 +281,7 @@ static s32 sSeasonOverride = -1; // 8074B338: -1: from the date
 static u8 sCurScene = SCENE_NUM; // 8074B33C
 static u8 sPrevScene = SCENE_NUM; // 8074B33D
 
-static u32 sE848; // 8074E848
+static uintptr_t sE848; // 8074E848 (the dCamera_c)
 static void *sPlayer; // 8074E84C
 static fBase_c *sParent; // 8074E850
 static u8 sCreated; // 8074E854
@@ -732,12 +732,12 @@ u8 getNextScene() {
 }
 
 // 80162BF0
-void setSceneE848(u32 value) {
+void setSceneE848(uintptr_t value) {
     sE848 = value;
 }
 
 // 80162BF8
-u32 getSceneE848() {
+uintptr_t getSceneE848() {
     return sE848;
 }
 

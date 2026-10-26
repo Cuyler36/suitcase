@@ -184,8 +184,8 @@ class dMenuFriend01_c : public dMenuBase_c {
     void calcAnms();                         // .text:0x1A00
     void initRowWords();                     // .text:0x1B0C
     void updateRowWords();                   // .text:0x1B94
-    const wchar_t *getFriendName(int idx);   // .text:0x1C68
-    const wchar_t *getTownName(int cursor);  // .text:0x1CCC
+    const wchar16_t *getFriendName(int idx);   // .text:0x1C68
+    const wchar16_t *getTownName(int cursor);  // .text:0x1CCC
     void initSlider();                       // .text:0x1D94
     void calcSldrAnm();                      // .text:0x1E28
     void updateSlider();                     // .text:0x1E6C

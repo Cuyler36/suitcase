@@ -7,6 +7,13 @@
 namespace mEf {
 
 // The end sentinel is an object pointer whose link fields overlay this list's root.
+#if TARGET_PC
+// Offset is the Wii's offset of T::mPrev; on PC (8-byte pointers, MSVC puts the vtable pointer
+// before effectCB_c's link base) the root has to overlay the PC offset
+#define EFFECT_LIST_ROOT_OFFSET offsetof(T, mPrev)
+#else
+#define EFFECT_LIST_ROOT_OFFSET Offset
+#endif
 template <typename T, int Offset> class effectList_c {
 public:
     class iterator {
@@ -19,15 +26,19 @@ public:
         T *ptr;
     };
 
+#if TARGET_PC
+    effectList_c() { CheckRootOverlay(); mLast = mFirst = end(); mCount = 0; }
+#else
     effectList_c() { mLast = mFirst = end(); mCount = 0; }
-    T *end() { return (T *)((u8 *)this - Offset); }
+#endif
+    T *end() { return (T *)((u8 *)this - EFFECT_LIST_ROOT_OFFSET); }
     iterator begin() const {
         T *root = head();
         if (root != mFirst) return iterator(mFirst);
         return iterator(root);
     }
     void pushBack(T *object) {
-        T *sentinel = (T *)((u8 *)this - Offset);
+        T *sentinel = (T *)((u8 *)this - EFFECT_LIST_ROOT_OFFSET);
         if (sentinel == mFirst) {
             object->mNext = sentinel;
             object->mPrev = sentinel;
@@ -73,6 +84,12 @@ private:
     T *mLast;
     T *mFirst;
     int mCount;
+#if TARGET_PC
+    // The root (mLast, mFirst) overlays (mPrev, mNext)
+    static void CheckRootOverlay() {
+        static_assert(offsetof(T, mNext) == offsetof(T, mPrev) + sizeof(T *), "mPrev / mNext");
+    }
+#endif
 };
 
 static effectList_c<levelEffect_c, 0x7C> l_levelEffects;
@@ -265,7 +282,7 @@ bool effect_c::follow(const mMtx_c *mtx) {
 }
 
 // 802B84C8
-static void applyCallback(void *object, u32 param) {
+static void applyCallback(void *object, nw4r::ef::ForEachParam param) {
     nw4r::ef::ParticleManager *manager = (nw4r::ef::ParticleManager *)object;
     nw4r::ut::List *list = &manager->mActivityList.mActiveList;
     effectCB_c *callback = (effectCB_c *)param;
@@ -281,7 +298,7 @@ static void applyCallback(void *object, u32 param) {
 // 802B854C
 void effectCB_c::execute() {
     if (mHandle.IsValid() && mCallback != NULL) {
-        mHandle.GetPtr()->ForeachParticleManager(applyCallback, (u32)this, true);
+        mHandle.GetPtr()->ForeachParticleManager(applyCallback, (uintptr_t)this, true);
     }
 }
 
@@ -321,7 +338,7 @@ bool levelEffect_c::createEffect(const char *name, ulong creator, const mMtx_c *
 }
 
 // 802B87E0
-static void applyLevelCallback(void *object, u32 param) {
+static void applyLevelCallback(void *object, nw4r::ef::ForEachParam param) {
     nw4r::ef::ParticleManager *manager = (nw4r::ef::ParticleManager *)object;
     nw4r::ut::List *list = &manager->mActivityList.mActiveList;
     levelEffect_c *effect = (levelEffect_c *)param;
@@ -336,7 +353,7 @@ static void applyLevelCallback(void *object, u32 param) {
 // 802B885C
 void levelEffect_c::update() {
     if (mHandle.IsValid() && _88 != NULL) {
-        static_cast<nw4r::ef::Effect *>(mHandle.GetPtr())->ForeachParticleManager(applyLevelCallback, (u32)this, true);
+        static_cast<nw4r::ef::Effect *>(mHandle.GetPtr())->ForeachParticleManager(applyLevelCallback, (uintptr_t)this, true);
     }
     EGG::Effect::update();
 }

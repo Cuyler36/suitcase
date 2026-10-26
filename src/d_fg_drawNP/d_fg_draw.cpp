@@ -257,7 +257,7 @@ void setupTexture(const mMtx_c &view, nw4r::g3d::ResTex tex,
     u16 texWidth, texHeight;
     GXCITexFmt format;
     f32 minLod, maxLod;
-    u8 mipmap;
+    GXBool mipmap;
     tex.GetTexObjCIParam(&data, &texWidth, &texHeight, &format, &minLod,
                          &maxLod, &mipmap);
 
@@ -729,6 +729,7 @@ void entry_c::drawTexture(const mMtx_c &view) {
                 GXNormal3f32(normal.x, normal.y, normal.z);
                 GXTexCoord2f32(s, t);
             }
+            GXEnd();
         } else {
             drawUtDtcb_c cb(mPos, mScale, mTexture, mPalette, view, mTexWidth,
                             mTexHeight, isSpecialGround());
@@ -1409,6 +1410,7 @@ void drawUtDtcb_c::checkFloor(dBGCF::floorList_c *floors) {
         GXNormal3f32(na.x, na.y, na.z);
         GXTexCoord2f32(sa, ta);
     }
+    GXEnd();
 }
 // .text 4024
 fgHostIO_c::~fgHostIO_c() {

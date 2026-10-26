@@ -126,13 +126,13 @@ int daBalloon_c::draw() {
         dItem::Item item(dItem::ITEM_IDX_GOLDEN_SLINGSHOT);
         mVec3_c scale(1.0f, 1.0f, 1.0f);
         mAng3_c ang(0, 0, 0);
-        dFgobjManager::fgObjCallback(item.mId, (int)&mItemPos, (int)&scale,
+        dFgobjManager::fgObjCallback(item.mId, (dFgObjArg_t)&mItemPos, (dFgObjArg_t)&scale,
                                      &ang, 0);
     } else {
         dItem::Item item(dItem::ITEM_IDX_PRESENT);
         mVec3_c scale(1.0f, 1.0f, 1.0f);
         mAng3_c ang(0, 0, 0);
-        dFgobjManager::fgObjCallback(item.mId, (int)&mItemPos, (int)&scale,
+        dFgobjManager::fgObjCallback(item.mId, (dFgObjArg_t)&mItemPos, (dFgObjArg_t)&scale,
                                      &ang, 0);
     }
     return SUCCEEDED;

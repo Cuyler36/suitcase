@@ -1,6 +1,7 @@
 #ifndef NW4R_G3D_RES_RES_ANM_SCN_H
 #define NW4R_G3D_RES_RES_ANM_SCN_H
 #include <nw4r/types_nw4r.h>
+#include <port/endian.h>
 
 #include <nw4r/g3d/res/g3d_resanm.h>
 #include <nw4r/g3d/res/g3d_resanmamblight.h>
@@ -14,29 +15,29 @@ namespace nw4r {
 namespace g3d {
 
 struct ResAnmScnInfoData {
-    u16 numFrame;                 // at 0x0
-    u16 numSpecularLight;         // at 0x2
-    AnmPolicy policy;             // at 0x4
-    u16 numResLightSetData;       // at 0x8
-    u16 numResAnmAmbLightData;    // at 0xA
-    u16 numResAnmLightData;       // at 0xC
-    u16 numResAnmFogData;         // at 0xE
-    u16 numResAnmCameraData;      // at 0x10
+    BE(u16) numFrame;                 // at 0x0
+    BE(u16) numSpecularLight;         // at 0x2
+    BE(AnmPolicy) policy;             // at 0x4
+    BE(u16) numResLightSetData;       // at 0x8
+    BE(u16) numResAnmAmbLightData;    // at 0xA
+    BE(u16) numResAnmLightData;       // at 0xC
+    BE(u16) numResAnmFogData;         // at 0xE
+    BE(u16) numResAnmCameraData;      // at 0x10
     u8 PADDING_0x12[0x14 - 0x12]; // at 0x12
 };
 
 struct ResAnmScnData {
     ResBlockHeaderData header;     // at 0x0
-    ulong revision;                  // at 0x8
-    s32 toResFileData;             // at 0xC
-    s32 toScnTopLevelDic;          // at 0x10
-    s32 toResLightSetDataArray;    // at 0x14
-    s32 toResAnmAmbLightDataArray; // at 0x18
-    s32 toResAnmLightDataArray;    // at 0x1C
-    s32 toResAnmFogDataArray;      // at 0x20
-    s32 toResAnmCameraDataArray;   // at 0x24
-    s32 name;                      // at 0x28
-    s32 original_path;             // at 0x2C
+    BE(u32) revision;                  // at 0x8
+    BE(s32) toResFileData;             // at 0xC
+    BE(s32) toScnTopLevelDic;          // at 0x10
+    BE(s32) toResLightSetDataArray;    // at 0x14
+    BE(s32) toResAnmAmbLightDataArray; // at 0x18
+    BE(s32) toResAnmLightDataArray;    // at 0x1C
+    BE(s32) toResAnmFogDataArray;      // at 0x20
+    BE(s32) toResAnmCameraDataArray;   // at 0x24
+    BE(s32) name;                      // at 0x28
+    BE(s32) original_path;             // at 0x2C
     ResAnmScnInfoData info;        // at 0x30
 };
 

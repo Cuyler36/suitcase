@@ -223,32 +223,32 @@ BOOL dObjKeyboard_c::canOpen() {
 }
 
 BOOL dObjKeyboard_c::checkLength() {
-    const wchar_t *text = mKbd.getText();
-    const wchar_t *input = mKbd.getInputText();
+    const wchar16_t *text = mKbd.getText();
+    const wchar16_t *input = mKbd.getInputText();
     int textLen = m2d::Word_c::getLength(text);
     int inputLen = m2d::Word_c::getLength(input);
     if (textLen + inputLen >= TEXT_LEN) {
         return FALSE;
     }
-    wchar_t buf[TEXT_LEN + 1];
+    wchar16_t buf[TEXT_LEN + 1];
     memset(buf, 0, sizeof(buf));
     if (textLen != 0) {
-        memcpy(buf, text, textLen * sizeof(wchar_t));
+        memcpy(buf, text, textLen * sizeof(wchar16_t));
     }
     if (inputLen != 0) {
-        memcpy(buf + textLen, input, inputLen * sizeof(wchar_t));
+        memcpy(buf + textLen, input, inputLen * sizeof(wchar16_t));
     }
     if (mWord.calcWidth(buf, TEXT_LEN + 1) >= 402.0f) {
         return FALSE;
     }
-    memcpy(mText, text, TEXT_LEN * sizeof(wchar_t));
+    memcpy(mText, text, TEXT_LEN * sizeof(wchar16_t));
     return TRUE;
 }
 
 void dObjKeyboard_c::updateText() {
     static mColor l_inputColor(0x18, 0xF7, 0xFF, 0xFF);
-    const wchar_t *text = mKbd.getText();
-    const wchar_t *input = mKbd.getInputText();
+    const wchar16_t *text = mKbd.getText();
+    const wchar16_t *input = mKbd.getInputText();
     int inputLen = m2d::Word_c::getLength(input);
     int inputPos = mKbd.getInputPos();
     mWord.clear();
@@ -281,7 +281,7 @@ BOOL dObjKeyboard_c::send() {
         return FALSE;
     }
     mKbd.fixInput();
-    memcpy(mText, mKbd.getText(), TEXT_LEN * sizeof(wchar_t));
+    memcpy(mText, mKbd.getText(), TEXT_LEN * sizeof(wchar16_t));
     if (mText[0] == 0) {
         return FALSE;
     }
@@ -403,7 +403,7 @@ u32 dObjKeyboard_c::Word_c::getBufferSize() {
     return sizeof(mBuffer);
 }
 
-wchar_t *dObjKeyboard_c::Word_c::getBuffer() {
+wchar16_t *dObjKeyboard_c::Word_c::getBuffer() {
     return mBuffer;
 }
 

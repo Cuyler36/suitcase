@@ -145,6 +145,7 @@ bool BankFileReader::ReadInstInfo(InstInfo *instInfo, int prgNo, int key,
         instInfo->waveDataLocation.type =
             InstInfo::WaveDataLocation::WAVE_DATA_LOCATION_INDEX;
         instInfo->waveDataLocation.index = instParam->waveIndex;
+#if !TARGET_PC
     } else if (instParam->waveDataLocationType ==
                InstInfo::WaveDataLocation::WAVE_DATA_LOCATION_ADDRESS) {
         if (!instParam->waveInfoAddress) {
@@ -164,6 +165,7 @@ bool BankFileReader::ReadInstInfo(InstInfo *instInfo, int prgNo, int key,
             InstInfo::WaveDataLocation::WAVE_DATA_LOCATION_CALLBACK;
         instInfo->waveDataLocation.callback =
             instParam->waveDataLocationCallback;
+#endif
     } else {
         NW4RPanicMessage_Line(210, "Invalid waveDataLocationType %d",
                               instParam->waveDataLocationType);
@@ -237,9 +239,14 @@ BankFileReader::GetReferenceToSubRegion(BankFile::DataRegion const *ref,
         u32 refOffset = sizeof(BankFile::DataRegion) * index +
                         ut::RoundUp(table->tableSize + 1, 4);
 
+#if TARGET_PC
+        subRef = static_cast<BankFile::DataRegion const *>(
+            ut::AddOffsetToPtr(table, refOffset));
+#else
         subRef = static_cast<BankFile::DataRegion const *>(
             ut::AddOffsetToPtr(reinterpret_cast<void const *>(refOffset),
                                reinterpret_cast<u32>(table)));
+#endif
     } break;
 
     case 3: {

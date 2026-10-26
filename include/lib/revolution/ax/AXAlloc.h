@@ -12,7 +12,7 @@ extern "C" {
 #define AX_PRIORITY_MAX 31
 
 void AXFreeVoice(AXVPB* p);
-AXVPB* AXAcquireVoice(u32 priority, AXVoiceCallback callback, u32 userContext);
+AXVPB* AXAcquireVoice(u32 priority, AXVoiceCallback callback, AXUserContext userContext);
 void AXSetVoicePriority(AXVPB* p, u32 priority);
 
 #ifdef __cplusplus

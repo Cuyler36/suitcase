@@ -61,7 +61,11 @@ void TexMap::Set(const GXTexObj& texObj) {
 }
 
 void TexMap::Set(TPLPalette* pal, ulong id) {
+#if TARGET_PC
+    if (!pal->descriptorArray.isRelocated()) { // bound: see revolution/tpl.h
+#else
     if (reinterpret_cast<ulong>(pal->descriptorArray) < 0x80000000) {
+#endif
         TPLBind(pal);
     }
 
@@ -73,11 +77,11 @@ void TexMap::Set(const TPLDescriptor* pTPLDesc) {
 
     SetImage(tplHead.data);
     SetSize(tplHead.width, tplHead.height);
-    SetTexelFormat(static_cast<GXTexFmt>(tplHead.format));
-    SetWrapMode(tplHead.wrapS, tplHead.wrapT);
+    SetTexelFormat(static_cast<GXTexFmt>((u32)tplHead.format));
+    SetWrapMode(static_cast<GXTexWrapMode>((u32)tplHead.wrapS), static_cast<GXTexWrapMode>((u32)tplHead.wrapT));
 
     SetMipMap(tplHead.minLOD != tplHead.maxLOD);
-    SetFilter(tplHead.minFilter, tplHead.magFilter);
+    SetFilter(static_cast<GXTexFilter>((u32)tplHead.minFilter), static_cast<GXTexFilter>((u32)tplHead.magFilter));
     SetLOD(static_cast<f32>(tplHead.minLOD), static_cast<f32>(tplHead.maxLOD));
     SetLODBias(tplHead.LODBias);
     SetEdgeLODEnable(tplHead.edgeLODEnable);
@@ -86,7 +90,7 @@ void TexMap::Set(const TPLDescriptor* pTPLDesc) {
 
     if (pTPLCLUTHeader != NULL) {
         SetPalette(pTPLCLUTHeader->data);
-        SetPaletteFormat(pTPLCLUTHeader->format);
+        SetPaletteFormat(static_cast<GXTlutFmt>((u32)pTPLCLUTHeader->format));
         SetPaletteEntryNum(pTPLCLUTHeader->numEntries);
     } else {
         SetPalette(NULL);
@@ -96,7 +100,11 @@ void TexMap::Set(const TPLDescriptor* pTPLDesc) {
 }
 
 void TexMap::ReplaceImage(TPLPalette* pal, ulong id) {
+#if TARGET_PC
+    if (!pal->descriptorArray.isRelocated()) { // bound: see revolution/tpl.h
+#else
     if (reinterpret_cast<ulong>(pal->descriptorArray) < 0x80000000) {
+#endif
         TPLBind(pal);
     }
 
@@ -108,13 +116,13 @@ void TexMap::ReplaceImage(const TPLDescriptor* pTPLDesc) {
 
     SetImage(tplHead.data);
     SetSize(tplHead.width, tplHead.height);
-    SetTexelFormat(static_cast<GXTexFmt>(tplHead.format));
+    SetTexelFormat(static_cast<GXTexFmt>((u32)tplHead.format));
 
     const TPLClutHeader* const pTPLCLUTHeader = pTPLDesc->CLUTHeader;
 
     if (pTPLCLUTHeader != NULL) {
         SetPalette(pTPLCLUTHeader->data);
-        SetPaletteFormat(pTPLCLUTHeader->format);
+        SetPaletteFormat(static_cast<GXTlutFmt>((u32)pTPLCLUTHeader->format));
         SetPaletteEntryNum(pTPLCLUTHeader->numEntries);
     } else {
         SetPalette(NULL);

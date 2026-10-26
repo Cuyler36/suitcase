@@ -116,7 +116,7 @@ public:
     static int getSelItemNum();
     static void removeSelItems();
 
-    static wchar_t *getInputBuf();
+    static wchar16_t *getInputBuf();
     static void setInputBuf(const u16 *str, int len);
     static void clearInputBuf();
     static BOOL openInput(u8 menu, const u16 *str, int len);
@@ -296,10 +296,10 @@ public:
     static dTime_c getTime();
 
     static void setFriendIdx(int idx);
-    static wchar_t *getFriendInfo();
+    static wchar16_t *getFriendInfo();
     static void setPostType(int type);
-    static wchar_t *getPostMsg();
-    static wchar_t *getPostTitle();
+    static wchar16_t *getPostMsg();
+    static wchar16_t *getPostTitle();
     static void setupPost(BOOL withPhoto);
     static void clearPost();
     static BOOL sendPost();

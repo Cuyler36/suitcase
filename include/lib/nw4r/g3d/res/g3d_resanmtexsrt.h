@@ -1,6 +1,7 @@
 #ifndef NW4R_G3D_RES_RES_ANM_TEX_SRT_H
 #define NW4R_G3D_RES_RES_ANM_TEX_SRT_H
 #include <nw4r/types_nw4r.h>
+#include <port/endian.h>
 
 #include <nw4r/g3d/res/g3d_resanm.h>
 #include <nw4r/g3d/res/g3d_rescommon.h>
@@ -51,6 +52,38 @@ struct TexSrt : TexSrtTypedef {
     f32 Tv; // at 0x10
 };
 
+} // namespace g3d
+} // namespace nw4r
+
+#if TARGET_PC
+// TexSrt as stored in materials (ResTexSrtData), big-endian. (The BE(T) macro would expand the
+// constructors' names.)
+#pragma push_macro("BE")
+#undef BE
+extern "C++" {
+template <>
+struct BE<nw4r::g3d::TexSrt> {
+    BE<f32> Su, Sv, R, Tu, Tv;
+
+    constexpr BE() noexcept = default;
+    BE(const nw4r::g3d::TexSrt& v) noexcept : Su(v.Su), Sv(v.Sv), R(v.R), Tu(v.Tu), Tv(v.Tv) {}
+    operator nw4r::g3d::TexSrt() const noexcept {
+        nw4r::g3d::TexSrt v;
+        v.Su = Su;
+        v.Sv = Sv;
+        v.R = R;
+        v.Tu = Tu;
+        v.Tv = Tv;
+        return v;
+    }
+};
+} // extern "C++"
+#pragma pop_macro("BE")
+#endif
+
+namespace nw4r {
+namespace g3d {
+
 struct TexSrtAnmResult : ResAnmTexSrtDataTypedef, TexSrtTypedef {
     enum Flag {
         FLAG_ANM_EXISTS = (1 << 0),
@@ -89,7 +122,7 @@ struct ResAnmTexSrtTexData {
         FLAG_TRANS_V_CONST = (1 << 9),
     };
 
-    ulong flags;          // at 0x0
+    BE(u32) flags;          // at 0x0
     ResAnmData anms[1]; // at 0x4
 };
 
@@ -100,27 +133,27 @@ struct ResAnmTexSrtMatData : ResAnmTexSrtDataTypedef {
         NUM_OF_FLAGS = 1
     };
 
-    s32 name;                     // at 0x0
-    ulong flags;                    // at 0x4
-    ulong indFlags;                 // at 0x8
-    s32 toResAnmTexSrtTexData[1]; // at 0xC
+    BE(s32) name;                     // at 0x0
+    BE(u32) flags;                    // at 0x4
+    BE(u32) indFlags;                 // at 0x8
+    BE(s32) toResAnmTexSrtTexData[1]; // at 0xC
 };
 
 struct ResAnmTexSrtInfoData : TexSrtTypedef {
-    u16 numFrame;             // at 0x0
-    u16 numMaterial;          // at 0x2
-    TexMatrixMode texMtxMode; // at 0x4
-    AnmPolicy policy;         // at 0x8
+    BE(u16) numFrame;             // at 0x0
+    BE(u16) numMaterial;          // at 0x2
+    BE(TexMatrixMode) texMtxMode; // at 0x4
+    BE(AnmPolicy) policy;         // at 0x8
 };
 
 struct ResAnmTexSrtData {
     ResBlockHeaderData header; // at 0x0
-    ulong revision;              // at 0x8
-    s32 toResFileData;         // at 0xC
-    s32 toTexSrtDataDic;       // at 0x10
-    s32 toResUserData;         // at 0x14
-    s32 name;                  // at 0x18
-    s32 original_path;         // at 0x1C
+    BE(u32) revision;              // at 0x8
+    BE(s32) toResFileData;         // at 0xC
+    BE(s32) toTexSrtDataDic;       // at 0x10
+    BE(s32) toResUserData;         // at 0x14
+    BE(s32) name;                  // at 0x18
+    BE(s32) original_path;         // at 0x1C
     ResAnmTexSrtInfoData info; // at 0x20
 };
 

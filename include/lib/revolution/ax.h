@@ -17,6 +17,7 @@ extern "C" {
 
 void AXInit();
 void AXInitEx(u32 outputBufferMode);
+void AXQuit(void);
 
 #ifdef __cplusplus
 }

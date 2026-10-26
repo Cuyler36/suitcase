@@ -4642,8 +4642,9 @@ void dAcPlayer_c::setupHeadModel(nw4r::g3d::ResFile file) {
     if (region != 0 && region != 9) {
         u16 *data = pltt.GetResPltt("skin").GetPlttData();
         const u8 *color = l_faceColors[pd->mFace];
-        data[0] = ((color[0] & 0xF8) << 7) | ((color[1] & 0xF8) << 2) | ((color[2] & 0xF8) >> 3) | 0x8000;
-        data[1] = ((color[3] & 0xF8) << 7) | ((color[4] & 0xF8) << 2) | ((color[5] & 0xF8) >> 3) | 0x8000;
+        // RGB5A3 palette entries: big-endian in memory, as the GPU (and aurora) reads them
+        data[0] = RES_U16(((color[0] & 0xF8) << 7) | ((color[1] & 0xF8) << 2) | ((color[2] & 0xF8) >> 3) | 0x8000);
+        data[1] = RES_U16(((color[3] & 0xF8) << 7) | ((color[4] & 0xF8) << 2) | ((color[5] & 0xF8) >> 3) | 0x8000);
         DCStoreRangeNoSync(data, 0x20);
     }
     mdl.Bind(mPaletteMng.getResFile(1));

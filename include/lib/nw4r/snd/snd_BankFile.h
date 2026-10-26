@@ -15,18 +15,23 @@ namespace detail {
 struct BankFile {
     struct Header {
         ut::BinaryFileHeader fileHeader; // size 0x10, offset 0x00
-        u32 dataBlockOffset;             // size 0x04, offset 0x10
-        u32 dataBlockSize;               // size 0x04, offset 0x14
-        u32 waveBlockOffset;             // size 0x04, offset 0x18
-        u32 waveBlockSize;               // size 0x04, offset 0x1c
+        BE(u32) dataBlockOffset;             // size 0x04, offset 0x10
+        BE(u32) dataBlockSize;               // size 0x04, offset 0x14
+        BE(u32) waveBlockOffset;             // size 0x04, offset 0x18
+        BE(u32) waveBlockSize;               // size 0x04, offset 0x1c
     }; // size 0x20
 
     struct InstParam {
+#if TARGET_PC
+        // The address and callback locations hold 32-bit pointers, which no PC file can use
+        BE(s32) waveIndex; // size 0x04, offset 0x00
+#else
         union {
             s32 waveIndex;                                      // size 0x04
             WaveData const *waveInfoAddress;                    // size 0x04
             WaveDataLocationCallback *waveDataLocationCallback; // size 0x04
         }; // size 0x04, offset 0x00
+#endif
         u8 attack;               // size 0x01, offset 0x04
         u8 decay;                // size 0x01, offset 0x05
         u8 sustain;              // size 0x01, offset 0x06
@@ -39,12 +44,12 @@ struct BankFile {
         u8 volume;               // size 0x01, offset 0x0d
         u8 pan;                  // size 0x01, offset 0x0e
         u8 padding2;
-        f32 tune; // size 0x04, offset 0x10
+        BE(f32) tune; // size 0x04, offset 0x10
 
         Util::DataRef<void> lfoTableRef;        // size 0x08, offset 0x14
         Util::DataRef<void> graphEnvTablevRef;  // size 0x08, offset 0x1c
         Util::DataRef<void> randomizerTableRef; // size 0x08, offset 0x24
-        u32 reserved;
+        BE(u32) reserved;
     }; // size 0x30
 
     struct RangeTable {
@@ -55,7 +60,7 @@ struct BankFile {
     struct IndexTable {
         u8 min; // size 0x01, offset 0x00
         u8 max; // size 0x01, offset 0x01
-        u16 reserved;
+        BE(u16) reserved;
         byte_t ref[];
     }; // size 0x04
 

@@ -1,6 +1,7 @@
 #ifndef NW4R_G3D_RES_RES_LIGHT_SET_H
 #define NW4R_G3D_RES_RES_LIGHT_SET_H
 #include <nw4r/types_nw4r.h>
+#include <port/endian.h>
 
 #include <nw4r/g3d/g3d_state.h>
 #include <nw4r/g3d/res/g3d_resanmscn.h>
@@ -15,17 +16,17 @@ class ResAnmScn;
 struct ResLightSetData {
     static const ulong INVALID_ID = 0xFFFF;
 
-    ulong size;                                         // at 0x0
-    s32 toResAnmScnData;                              // at 0x4
-    s32 name;                                         // at 0x8
-    ulong id;                                           // at 0xC
-    ulong refNumber;                                    // at 0x10
-    s32 ambLightName;                                 // at 0x14
-    u16 ambLightId;                                   // at 0x18
+    BE(u32) size;                                         // at 0x0
+    BE(s32) toResAnmScnData;                              // at 0x4
+    BE(s32) name;                                         // at 0x8
+    BE(u32) id;                                           // at 0xC
+    BE(u32) refNumber;                                    // at 0x10
+    BE(s32) ambLightName;                                 // at 0x14
+    BE(u16) ambLightId;                                   // at 0x18
     u8 numLight;                                      // at 0x1A
     u8 PADDING_0x1B[0x1C - 0x1B];                     // at 0x1B
-    s32 lightNames[G3DState::NUM_LIGHT_IN_LIGHT_SET]; // at 0x1C
-    u16 lightId[G3DState::NUM_LIGHT_IN_LIGHT_SET];    // at 0x3C
+    BE(s32) lightNames[G3DState::NUM_LIGHT_IN_LIGHT_SET]; // at 0x1C
+    BE(u16) lightId[G3DState::NUM_LIGHT_IN_LIGHT_SET];    // at 0x3C
 };
 
 class ResLightSet : public ResCommon<ResLightSetData> {
@@ -63,7 +64,7 @@ public:
     ResName GetLightResName(ulong idx) const {
         const ResLightSetData& r = ref();
 
-        const s32* pNames = r.lightNames;
+        const BE(s32)* pNames = r.lightNames;
         return NW4R_G3D_OFS_TO_RESNAME(pNames, pNames[idx]);
     }
 };

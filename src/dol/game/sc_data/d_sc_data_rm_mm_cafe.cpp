@@ -30,11 +30,11 @@ static ActorData_c l_actors[] = {
      0,
      (void *)0x802A},
 };
-static u32 l_setting0[] = {0xEF9C7BFF, 0xE5560800, 0x52297BFF, 0x01000000,
+static u32 l_setting0[] = {SC_COLOR(0xEF9C7BFF), SC_ANGLES(0xE5560800), SC_COLOR(0x52297BFF), SC_COLOR(0x01000000),
                            0x3C360B61, 0x3C360B61}; // scene setting kind 0xA
-static u32 l_setting1[] = {0xEFFF20FF, 0x43800000, 0x42BC0000, 0x43AC0000,
-                           0xDC720000, 0x3F400000, 0x00000000, 0x389D4952,
-                           0x41F00000, 0x00000002, 0x00000000, 0x3C360B61,
+static u32 l_setting1[] = {SC_COLOR(0xEFFF20FF), 0x43800000, 0x42BC0000, 0x43AC0000,
+                           SC_ANGLES(0xDC720000), 0x3F400000, 0x00000000, 0x389D4952,
+                           0x41F00000, 0x00000002, SC_COLOR(0x00000000), 0x3C360B61,
                            0x3C360B61}; // scene setting kind 0xD
 static Scene3Entry_c l_scene3[] = {
     {5, &l_palette0}, {0xA, l_setting0}, {0xD, l_setting1}};

@@ -142,11 +142,11 @@ inline bool IsCITexelFormat(GXTexFmt format) {
 }
 
 inline s32 GetSignatureInt(const char* pSignature) {
-    return *reinterpret_cast<const s32*>(pSignature);
+    return RES_S32(*reinterpret_cast<const s32*>(pSignature)); // big-endian in the files
 }
 
 inline const char* GetStrTableStr(const void* pTable, int index) {
-    const ulong* pOffsetTbl = static_cast<const ulong*>(pTable);
+    const BE(u32)* pOffsetTbl = static_cast<const BE(u32)*>(pTable);
     const char* pStringPool = static_cast<const char*>(pTable);
     return pStringPool + pOffsetTbl[index];
 }

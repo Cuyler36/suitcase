@@ -37,6 +37,8 @@ bool SoundThread::Create(s32 priority, void *pStack, u32 stackSize) {
     return success;
 }
 
+// Dead-stripped from CF's DOL, along with OSJamMessage, which CF never links. The PC calls it when the
+// game ends (SoundSystem::ShutdownSoundSystem).
 void SoundThread::Shutdown() {
     if (!mCreateFlag) {
         return;

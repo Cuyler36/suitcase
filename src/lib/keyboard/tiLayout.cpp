@@ -13,8 +13,8 @@ void AnimTransformPane::SetResource(const nw4r::lyt::res::AnimationBlock *pRes,
             sizeof(*mpFileResAry) * pRes->fileNum));
 
         if (mpFileResAry != NULL) {
-            const u32 *fileNameOffsets =
-                nw4r::lyt::detail::ConvertOffsToPtr<u32>(mpRes, sizeof(*mpRes));
+            const BE(u32) *fileNameOffsets =
+                nw4r::lyt::detail::ConvertOffsToPtr<BE(u32)>(mpRes, sizeof(*mpRes));
 
             for (int i = 0; i < mpRes->fileNum; i++) {
                 mpFileResAry[i] = pResAccessor->GetResource(
@@ -33,7 +33,7 @@ u32 AnimTransformPane::CountAnimForPane_(const char *name) {
 
     u32 count = 0;
 
-    const u32 *animContOffsets = nw4r::lyt::detail::ConvertOffsToPtr<u32>(
+    const BE(u32) *animContOffsets = nw4r::lyt::detail::ConvertOffsToPtr<BE(u32)>(
         mpRes, mpRes->animContOffsetsOffset);
     for (u16 i = 0; i < mpRes->animContNum; i++) {
         const nw4r::lyt::res::AnimationContent *cnt =
@@ -90,7 +90,7 @@ void AnimTransformPane::Bind(nw4r::lyt::Pane *pane, bool bRecursive,
         new (&mAnimLinkAry[i]) nw4r::lyt::AnimationLink();
     }
 
-    const u32 *animContOffsets = nw4r::lyt::detail::ConvertOffsToPtr<u32>(
+    const BE(u32) *animContOffsets = nw4r::lyt::detail::ConvertOffsToPtr<BE(u32)>(
         mpRes, mpRes->animContOffsetsOffset);
 
     int linkIdx = 0;
@@ -140,7 +140,7 @@ void AnimTransformPane::ForceBind(nw4r::lyt::Pane *pane, const char *name) {
         }
     }
 
-    const u32 *animContOffsets = nw4r::lyt::detail::ConvertOffsToPtr<u32>(
+    const BE(u32) *animContOffsets = nw4r::lyt::detail::ConvertOffsToPtr<BE(u32)>(
         mpRes, mpRes->animContOffsetsOffset);
 
     int linkIdx = 0;

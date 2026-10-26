@@ -1,6 +1,7 @@
 #pragma once
 
 #include <types.h>
+#include <port/endian.h>
 
 namespace EGG {
 
@@ -24,19 +25,21 @@ public:
     };
 
     struct DataBlockHeader {
-        u32 mSignature; // at 0x0: 'MESG'
-        u32 mType;      // at 0x4: 'bmg1'
-        u32 mDataSize;  // at 0x8
-        u32 mNumBlocks; // at 0xC
+        BE(u32) mSignature; // at 0x0: 'MESG'
+        BE(u32) mType;      // at 0x4: 'bmg1'
+        BE(u32) mDataSize;  // at 0x8
+        BE(u32) mNumBlocks; // at 0xC
     };
 
     struct DataBlock {
-        u32 mKind;     // at 0x0
-        u32 mDataSize; // at 0x4
+        BE(u32) mKind;     // at 0x0
+        BE(u32) mDataSize; // at 0x4
     };
 
     struct MessageHeader : DataBlockHeader {
+        // As stored in the files: CF's are all ENCODING_2BYTE (UTF-16)
         enum EEncoding {
+            ENCODING_UNDEFINED,
             ENCODING_1BYTE,
             ENCODING_2BYTE,
             ENCODING_SJIS,
@@ -50,28 +53,29 @@ public:
     struct MessageInfoDataBlock : DataBlock {
         // The first 8 bytes of an entry; the rest (mEntrySize) are game-specific attributes.
         struct Entry {
-            u32 mDataOffset; // at 0x0
-            u32 mAttribute;  // at 0x4
+            BE(u32) mDataOffset; // at 0x0
+            BE(u32) mAttribute;  // at 0x4
         };
 
-        u16 mNumEntries;   // at 0x8
-        u16 mEntrySize;    // at 0xA
-        u16 mGroupID;      // at 0xC
-        Entry mContent[1]; // at 0x10
+        BE(u16) mNumEntries; // at 0x8
+        BE(u16) mEntrySize;  // at 0xA
+        BE(u16) mGroupID;    // at 0xC
+        Entry mContent[1];   // at 0x10
     };
 
+    // PC: the text is UTF-16BE in the file and host order once MsgRes::convertTextToHost has run
     struct MessageDataBlock : DataBlock {
-        wchar_t mContent[1]; // at 0x8
+        wchar16_t mContent[1]; // at 0x8
     };
 
     struct StringAttributeDataBlock : DataBlock {};
 
     struct MessageIDDataBlock : DataBlock {
-        u16 mNumEntries;    // at 0x8
-        u8 mForm;           // at 0xA
-        u8 mFormSupplement; // at 0xB
+        BE(u16) mNumEntries; // at 0x8
+        u8 mForm;            // at 0xA
+        u8 mFormSupplement;  // at 0xB
         char UNK_0xC[0x10 - 0xC];
-        u32 mContent[1]; // at 0x10
+        BE(u32) mContent[1]; // at 0x10
     };
 
     struct FlowChartInfoDataBlock : DataBlock {};
@@ -104,10 +108,16 @@ public:
     virtual ~MsgRes();         // 80449E94
 
     // 80449ED4: splits a cTagMark tag into its length, id (group/id word) and parameters
-    static void analyzeTag(u16 code, const wchar_t *pTag, u8 *pTagLength, u32 *pTagID, void **ppParam);
+    static void analyzeTag(u16 code, const wchar16_t *pTag, u8 *pTagLength, u32 *pTagID, void **ppParam);
 
-    const wchar_t *getMsg(u32 group, u32 idx); // 80449F10
+    const wchar16_t *getMsg(u32 group, u32 idx); // 80449F10
     BOOL isExistMsg(u32 group, u32 idx);       // 80449F4C (not in ogws)
+
+#if TARGET_PC
+    // Converts a BMG's UTF-16 message text (DAT1) to host order in place, leaving each tag's body
+    // (size, group, ID, parameters) big-endian. Only the first call on the same data does anything.
+    static void convertTextToHost(const void *pData);
+#endif
 
 protected:
     const MessageInfoDataBlock::Entry *getMsgEntry(u32 group, u32 idx); // 8044A034

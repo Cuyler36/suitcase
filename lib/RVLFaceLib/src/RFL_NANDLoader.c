@@ -11,6 +11,9 @@
 
 #include <string.h>
 
+// The resource is big-endian (RES_* convert on PC)
+#include <port/endian.h>
+
 const char* RFLGetResourceFileName() {
     return "/RFL_Res.dat";
 }
@@ -51,23 +54,23 @@ static void parseOnmemoryRes_() {
     ptr = (u16*)offset;
 
     // Check version
-    loader->mVersion = ptr[1];
+    loader->mVersion = RES_U16(ptr[1]);
     RFLi_REPORT("RFL: Load Resource Version = %06d\n", loader->mVersion);
     RFLi_ASSERTLINE_MSG(loader->mVersion >= 0x39D, 78, "RFL : resource is old.");
 
     offset++;
-    headerpos = *offset;
+    headerpos = RES_S32(*offset);
     for (i = 0; i < RFLiArcID_Max; i++) {
         s32* offset2;
         u16* head;
 
         offset2 = loader->mCacheBuffer;
         offset2 += i + 1;
-        head = (u16*)((u8*)loader->mCacheBuffer + *offset2);
+        head = (u16*)((u8*)loader->mCacheBuffer + RES_S32(*offset2));
 
-        loader->archive[i].num = head[0];
-        loader->archive[i].maxsize = head[1];
-        loader->archive[i].offset = *offset2 + 4;
+        loader->archive[i].num = RES_U16(head[0]);
+        loader->archive[i].maxsize = RES_U16(head[1]);
+        loader->archive[i].offset = RES_S32(*offset2) + 4;
     }
 }
 
@@ -86,14 +89,14 @@ static void loadResRead2ndcallback_() {
             u16* head = (u16*)loader->mHeaderBuf2;
             offset += count + 1;
 
-            loader->archive[count].num = head[0];
-            loader->archive[count].maxsize = head[1];
-            loader->archive[count].offset = *offset + 4;
+            loader->archive[count].num = RES_U16(head[0]);
+            loader->archive[count].maxsize = RES_U16(head[1]);
+            loader->archive[count].offset = RES_S32(*offset) + 4;
 
             loader->mReadCount++;
             offset++;
 
-            switch (RFLiReadAsync(RFLiFileType_Resource, loader->mHeaderBuf2, scTmpSize2, loadResRead2ndcallback_, *offset)) {
+            switch (RFLiReadAsync(RFLiFileType_Resource, loader->mHeaderBuf2, scTmpSize2, loadResRead2ndcallback_, RES_S32(*offset))) {
                 case RFLErrcode_Busy:
                 case RFLErrcode_Success: {
                     break;
@@ -138,7 +141,7 @@ static void loadResRead1stcallback_() {
         u16* ptr = (u16*)offset;
 
         // Check version
-        loader->mVersion = ptr[1];
+        loader->mVersion = RES_U16(ptr[1]);
         RFLi_REPORT("RFL: Load Resource Version = %06d\n", loader->mVersion);
         RFLi_ASSERTLINE_MSG(loader->mVersion >= 0x39D, 208, "RFL : resource is old.");
 
@@ -149,7 +152,7 @@ static void loadResRead1stcallback_() {
         loader->mHeaderBuf2 = RFLiAlloc32(scTmpSize2);
         loader->mReadCount = 0;
 
-        switch (RFLiReadAsync(RFLiFileType_Resource, loader->mHeaderBuf2, scTmpSize2, loadResRead2ndcallback_, *offset)) {
+        switch (RFLiReadAsync(RFLiFileType_Resource, loader->mHeaderBuf2, scTmpSize2, loadResRead2ndcallback_, RES_S32(*offset))) {
             case RFLErrcode_Busy:
             case RFLErrcode_Success: {
                 break;
@@ -252,7 +255,7 @@ static u32 getSafetyLength_(NANDFileInfo* info) {
     u8 buffer[RFL_BUFFER_ALIGN] ATTRIBUTE_ALIGN(RFL_BUFFER_ALIGN);
 
     if (NANDRead(info, buffer, sizeof(buffer)) == (s32)sizeof(buffer)) {
-        return *(u16*)&buffer[0];
+        return RES_U16(*(u16*)&buffer[0]);
     } else {
         return 0;
     }
@@ -267,7 +270,7 @@ static u32 getCachedLength_(RFLiNANDLoader* loader, RFLiArcID arcID, u16 index) 
     arc = &loader->archive[arcID];
     pos = (u32*)(head + arc->offset);
 
-    return pos[index + 1] - pos[index];
+    return RES_U32(pos[index + 1]) - RES_U32(pos[index]);
 }
 
 static u32 getNANDLength_(RFLiNANDLoader* loader, RFLiArcID arcID, u16 index) {
@@ -289,7 +292,7 @@ static u32 getNANDLength_(RFLiNANDLoader* loader, RFLiArcID arcID, u16 index) {
 
         if (NANDRead(&file, buffer, readSize) == readSize) {
             u32* pos = buffer;
-            ret = pos[index + 1] - pos[index];
+            ret = RES_U32(pos[index + 1]) - RES_U32(pos[index]);
         }
 
         NANDClose(&file);
@@ -333,8 +336,8 @@ static void* getCachedFile_(void* dst, RFLiNANDLoader* loader, RFLiArcID arcID, 
     arc = &loader->archive[arcID];
     pos = (u32*)(head + arc->offset);
 
-    glbOffset = (arc->offset + (arc->num * 4)) + 4 + pos[index];
-    fileSize = pos[index + 1] - pos[index];
+    glbOffset = (arc->offset + (arc->num * 4)) + 4 + RES_U32(pos[index]);
+    fileSize = RES_U32(pos[index + 1]) - RES_U32(pos[index]);
     memcpy(dst, head + glbOffset, fileSize);
 
     ret = dst;
@@ -371,8 +374,8 @@ static void* getNANDFile_(void* dst, RFLiNANDLoader* loader, RFLiArcID arcID, u1
 
         if (NANDRead(&file, buffer1, readSize) == readSize) {
             pos = (u32*)buffer1;
-            fileSize = pos[index + 1] - pos[index];
-            fileOffset = pos[index];
+            fileSize = RES_U32(pos[index + 1]) - RES_U32(pos[index]);
+            fileOffset = RES_U32(pos[index]);
         } else {
             RFLiSetFileBroken(RFLiFileBrokenType_ResBroken);
             RFLiFree(buffer1);

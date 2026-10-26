@@ -21,6 +21,10 @@
 #include <game/game/d_sv_proc.hpp>
 #include <game/game/d_wifi.hpp>
 
+#if TARGET_PC
+#include <cf/game_config.h>
+#endif
+
 // Unrecovered dependency interfaces; the implementations are outside this TU.
 BOOL sendVisitorLetter(dPrivateData_c *player);
 
@@ -236,7 +240,11 @@ BOOL dSvProc_c::finishLoad() {
         }
         dSaveData_c::getExtra()->mDesignBoard.update();
         dNpcInfo::resetsan_c::get()->init();
+#if TARGET_PC
+        if (!cf::config::game::IsResettiDisabled() && !mWasVisitor && !dNpcMng_c::isPlayerSelectVisitor()) {
+#else
         if (!mWasVisitor && !dNpcMng_c::isPlayerSelectVisitor()) {
+#endif
             if (player->getResetCount() == 0) {
                 dNpcInfo::resetsan_c::get()->set(1);
             } else if (player->isFlag0(PRIVATE_FLAG0_PLAYING_UNSAVED)) {
@@ -269,7 +277,7 @@ BOOL dSvProc_c::createTitleTown() {
         return FALSE;
     }
     loadResources();
-    wchar_t name[9] = L"タイトルデモ"; // Title Demo
+    wchar16_t name[9] = WSTR("タイトルデモ"); // Title Demo
     dSaveData_c::getTown()->mHeader.setState(0);
     dSaveTown_c *town = dSaveData_c::getTown();
     town->mLandID.setRandomId(name, getLanguage());

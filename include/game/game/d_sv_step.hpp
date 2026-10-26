@@ -188,6 +188,13 @@ template <class Owner, class Step> void dSvStep_c<Owner, Step>::waitTownSave() {
 
 template <class Owner, class Step>
 void dSvStep_c<Owner, Step>::initializeDownloadBox() {
+#if TARGET_PC
+    // Before the first save the Wii sets up the WiiConnect24 download box (a local VFF; it works
+    // offline). The PC has no WiiConnect24 (the NWC24 calls are stubs that fail), so the save would
+    // fail here every time: there is no box to make.
+    this->nextStep();
+    return;
+#endif
     if (dNand::getType(lbl_8074B010) == 1) {
         this->nextStep();
     } else if (dWifi::startSetupDownload()) {
@@ -197,6 +204,11 @@ void dSvStep_c<Owner, Step>::initializeDownloadBox() {
 
 template <class Owner, class Step>
 void dSvStep_c<Owner, Step>::createDownloadBox() {
+#if TARGET_PC
+    // No download box on PC (initializeDownloadBox)
+    this->nextStep();
+    return;
+#endif
     if (dNand::getType(lbl_8074B010) == 1) {
         this->nextStep();
     } else {

@@ -34,7 +34,7 @@ class Base : public nw4r::ut::CharWriter {
         }
 
         /* 0x00 */ nw4r::ut::Rect rect;
-        /* 0x10 */ wchar_t wc;
+        /* 0x10 */ wchar16_t wc;
     }; // size 0x14
 
     virtual void create(MEMAllocator *allocator); // 0x08
@@ -54,7 +54,7 @@ class Base : public nw4r::ut::CharWriter {
     }
 
     virtual void draw(); // 0x10
-    virtual void setDrawString(const wchar_t *wcString, u32 startPos,
+    virtual void setDrawString(const wchar16_t *wcString, u32 startPos,
                                u32 endPos);      // 0x14
     virtual void setAspectRatio(bool aspect4x3); // 0x18
     virtual void setVIWidth(f32 viWidth) {
@@ -64,7 +64,7 @@ class Base : public nw4r::ut::CharWriter {
     virtual void endDraw();                             // 0x24
     virtual f32 getLineHeight();                        // 0x28
     virtual void setFont(const nw4r::ut::Font &font);   // 0x2C
-    virtual f32 getWidth(const wchar_t *wcString);      // 0x30
+    virtual f32 getWidth(const wchar16_t *wcString);      // 0x30
     virtual int getLine() {
         return miLineFeedNum + 1;
     }                                        // 0x34
@@ -72,14 +72,14 @@ class Base : public nw4r::ut::CharWriter {
     virtual void setSecretModeOn(bool secretMode) {
         mbSecretMode = secretMode;
     } // 0x3C
-    virtual void doBeforeDrawProcess(const wchar_t *wcString, u32 pos,
+    virtual void doBeforeDrawProcess(const wchar16_t *wcString, u32 pos,
                                      const DrawInfo &drawInfo); // 0x40
-    virtual void doAfterDrawProcess(const wchar_t *wcString, u32 pos,
+    virtual void doAfterDrawProcess(const wchar16_t *wcString, u32 pos,
                                     const DrawInfo &drawInfo); // 0x44
     virtual void preDraw(u32 pos);                             // 0x48
     virtual void finishDraw(u32 pos);                          // 0x4C
     virtual void doLineFeed();                                 // 0x50
-    virtual void put(wchar_t wc);                              // 0x54
+    virtual void put(wchar16_t wc);                              // 0x54
     virtual void procCursor(CursorPos *cursorPos, s32 line);   // 0x58
     virtual bool onCursor(CursorPos *cursorPos);               // 0x5C
     virtual void makeUpCursorPos(CursorPos *cursorPos, u32 pos, s32 line,
@@ -119,7 +119,7 @@ class Base : public nw4r::ut::CharWriter {
     } // 0x94
 
   protected:
-    /* 0x050 */ const wchar_t *mpwcString;
+    /* 0x050 */ const wchar16_t *mpwcString;
     /* 0x054 */ ViewPort mViewPort;
     /* 0x06C */ f32 mafProjection[7];
     /* 0x088 */ nw4r::ut::Rect mProjectionRect;

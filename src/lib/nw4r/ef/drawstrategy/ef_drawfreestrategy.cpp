@@ -218,7 +218,7 @@ void DrawFreeStrategy::InitGraphics(const DrawInfo& rInfo,
 
     GXEnableTexOffsets(GX_TEXCOORD0, TRUE, TRUE);
 
-    GXSetArray(GX_VA_TEX0, free_tex0_u8, 2);
+    GXSETARRAY(GX_VA_TEX0, free_tex0_u8, sizeof(free_tex0_u8), 2, true);
 
     GXClearVtxDesc();
     GXSetVtxDesc(GX_VA_POS, GX_DIRECT);

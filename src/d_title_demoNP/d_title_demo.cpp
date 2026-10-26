@@ -47,7 +47,7 @@ inline bool isTrigger(u32 button) {
 
 // The width of a word in a text box.
 inline f32 calcWordWidth(nw4r::lyt::TextBox *textBox, dScript::Word_c *word) {
-    const wchar_t *str = word->getBuffer();
+    const wchar16_t *str = word->getBuffer();
     return m2d::calcTextWidth(textBox, str, word->getCapacity());
 }
 

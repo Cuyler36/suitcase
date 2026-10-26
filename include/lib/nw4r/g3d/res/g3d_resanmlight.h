@@ -1,6 +1,7 @@
 #ifndef NW4R_G3D_RES_RES_ANM_LIGHT_H
 #define NW4R_G3D_RES_RES_ANM_LIGHT_H
 #include <nw4r/types_nw4r.h>
+#include <port/endian.h>
 
 #include <nw4r/g3d/res/g3d_resanm.h>
 #include <nw4r/g3d/res/g3d_rescommon.h>
@@ -90,14 +91,14 @@ struct ResAnmLightData : ResAnmLightDataTypedef {
         FLAG_SHININESS_CONST = (1 << 31)
     };
 
-    ulong size;                  // at 0x0
-    s32 toResAnmScnData;       // at 0x4
-    s32 name;                  // at 0x8
-    ulong id;                    // at 0xC
-    ulong refNumber;             // at 0x10
-    ulong specLightObjIdx;       // at 0x14
-    s32 toResUserData;         // at 0x18
-    ulong flags;                 // at 0x1C
+    BE(u32) size;                  // at 0x0
+    BE(s32) toResAnmScnData;       // at 0x4
+    BE(s32) name;                  // at 0x8
+    BE(u32) id;                    // at 0xC
+    BE(u32) refNumber;             // at 0x10
+    BE(u32) specLightObjIdx;       // at 0x14
+    BE(s32) toResUserData;         // at 0x18
+    BE(u32) flags;                 // at 0x1C
     ResBoolAnmData enable;     // at 0x20
     ResAnmData posX;           // at 0x24
     ResAnmData posY;           // at 0x28
@@ -106,10 +107,10 @@ struct ResAnmLightData : ResAnmLightDataTypedef {
     ResAnmData aimX;           // at 0x34
     ResAnmData aimY;           // at 0x38
     ResAnmData aimZ;           // at 0x3C
-    GXDistAttnFn distFunc;     // at 0x40
+    BE(GXDistAttnFn) distFunc;     // at 0x40
     ResAnmData refDistance;    // at 0x44
     ResAnmData refBrightness;  // at 0x48
-    GXSpotFn spotFunc;         // at 0x4C
+    BE(GXSpotFn) spotFunc;         // at 0x4C
     ResAnmData cutoff;         // at 0x50
     ResColorAnmData specColor; // at 0x54
     ResAnmData shininess;      // at 0x58

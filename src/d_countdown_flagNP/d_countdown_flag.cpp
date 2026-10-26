@@ -96,7 +96,7 @@ void dCountDownFlag_c::drawProc_c::setupGX() {
     GXCITexFmt format;
     f32 minLod;
     f32 maxLod;
-    u8 mipmap;
+    GXBool mipmap;
     tex.GetTexObjCIParam(&data, &width, &height, &format, &minLod, &maxLod,
                          &mipmap);
     GXTlutObj tlut;
@@ -138,9 +138,9 @@ void dCountDownFlag_c::drawProc_c::drawCloth() {
     GXSetVtxDesc(GX_VA_POS, GX_INDEX8);
     GXSetVtxDesc(GX_VA_NRM, GX_INDEX8);
     GXSetVtxDesc(GX_VA_TEX0, GX_INDEX8);
-    GXSetArray(GX_VA_POS, mPos[mBuf], sizeof(mVec3_c));
-    GXSetArray(GX_VA_NRM, mNrm[mBuf], sizeof(mVec3_c));
-    GXSetArray(GX_VA_TEX0, mTexCoord, sizeof(mTexCoord[0]));
+    GXSETARRAY(GX_VA_POS, mPos[mBuf], sizeof(mPos[mBuf]), sizeof(mVec3_c), true);
+    GXSETARRAY(GX_VA_NRM, mNrm[mBuf], sizeof(mNrm[mBuf]), sizeof(mVec3_c), true);
+    GXSETARRAY(GX_VA_TEX0, mTexCoord, sizeof(mTexCoord), sizeof(mTexCoord[0]), true);
     for (int y = 0; y < CDFLAG_POINT_Y - 1; y++) {
         GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, CDFLAG_POINT_X * 2);
         int top = y * CDFLAG_POINT_X;
@@ -151,6 +151,7 @@ void dCountDownFlag_c::drawProc_c::drawCloth() {
             sendPoint(bottomIndex);
             sendPoint(topIndex);
         }
+        GXEnd();
     }
 }
 

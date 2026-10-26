@@ -2,13 +2,22 @@
 #include <game/mLib/m_allocator.hpp>
 #include <revolution/arc.h>
 
+#if TARGET_PC
+#include <port/base_offset.h>
+#endif
+
 namespace mFace {
 
 static nw4r::ut::List l_entries;
 
 // 802B39E4
 void create() {
+#if TARGET_PC
+    // obj_c's Link base is not at offset 0 under MSVC's layout (port/base_offset.h)
+    nw4r::ut::List_Init(&l_entries, PORT_BASE_OFFSET(obj_c, nw4r::ut::Link));
+#else
     nw4r::ut::List_Init(&l_entries, 0);
+#endif
 }
 
 // 802B39F4

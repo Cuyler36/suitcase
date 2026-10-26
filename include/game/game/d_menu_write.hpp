@@ -236,8 +236,8 @@ class dMenuWrite_c : public dMenuBase_c {
     /* 0x2478 */ int mPart; // dPaper_c::TextPart_e: the part being edited
     /* 0x247C */ int mLine; // the line of the cursor (dPaper_c line numbers)
     /* 0x2480 */ dMail_c *mpMail;
-    /* 0x2484 */ wchar_t mText[TEXT_SIZE];    // the part being edited
-    /* 0x2606 */ wchar_t mOldText[TEXT_SIZE]; // ... as the keyboard knew it
+    /* 0x2484 */ wchar16_t mText[TEXT_SIZE];    // the part being edited
+    /* 0x2606 */ wchar16_t mOldText[TEXT_SIZE]; // ... as the keyboard knew it
     /* 0x2788 */ int mMaxLength;              // of the part (characters)
     /* 0x278C */ int mLength;                 // of mText
     /* 0x2790 */ int mCursorPos;              // of the keyboard

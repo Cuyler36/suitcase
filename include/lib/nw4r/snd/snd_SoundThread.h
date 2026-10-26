@@ -63,7 +63,7 @@ public:
     static SoundThread& GetInstance();
 
     bool Create(s32 priority, void* pStack, u32 stackSize);
-    void Shutdown();
+    void Shutdown(); // Dead-stripped from CF's DOL; the PC calls it when the game ends.
 
     void RegisterSoundFrameCallback(SoundFrameCallback* pCallback);   // CF 8026E7D8
     void UnregisterSoundFrameCallback(SoundFrameCallback* pCallback); // CF 8026E840

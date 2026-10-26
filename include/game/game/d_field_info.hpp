@@ -45,7 +45,7 @@ class dFdUnitFlags_c;
 #define mFI_BK_WORLDSIZE_X_F ((f32)mFI_BK_WORLDSIZE_X)
 #define mFI_BK_WORLDSIZE_Z_F ((f32)mFI_BK_WORLDSIZE_Z)
 
-// The same as variables (.sdata2 80750520..80750530, owner not split yet; C linkage keeps the
+// The same as variables (.sdata2 80750520..80750530, d_field_block.cpp; C linkage keeps the
 // target names). d_field_info and d_bg read them.
 extern "C" {
 extern const f32 lbl_80750520; // 80750520: block world size in x (512)
@@ -81,8 +81,15 @@ struct VEC3;
 
 // A block's entry in the save's or a room's block list.
 struct dFdBlockId_c {
+#if TARGET_PC
+    // MWCC allocates bit-fields from the most significant bit, MSVC from the least: reversed, a
+    // host-order u16 (the scene tables' literals, e.g. 0x0184 = block 0xC2) decodes as on the Wii
+    u16 mFlag : 1;
+    u16 mId : 15;  // block (acre) type
+#else
     u16 mId : 15;  // block (acre) type
     u16 mFlag : 1;
+#endif
 };
 
 // Block type flags (dFdBlock_c::hasFlag; fn_80081324 looks them up by block type): BLOCK_KIND_FLAG_*

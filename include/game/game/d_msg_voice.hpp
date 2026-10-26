@@ -18,12 +18,12 @@ public:
 
     // Used by the controller.
     void create(Comp_c *comp); // 801A60B0: init (controller create): sets mpOwner
-    void setChar(wchar_t c); // 801A60B8: the typed character (Comp_c::setVoiceChar)
+    void setChar(wchar16_t c); // 801A60B8: the typed character (Comp_c::setVoiceChar)
     void reset(int arg); // 801A60D0: reset (arg unused)
     void calc(); // 801A60F8: calc: voices mPrevChar, opens/closes the speaker's mouth
 
-    /* 0x04 */ wchar_t mPrevChar; // the character voiced by calc
-    /* 0x06 */ wchar_t mChar;     // the last typed character
+    /* 0x04 */ wchar16_t mPrevChar; // the character voiced by calc
+    /* 0x06 */ wchar16_t mChar;     // the last typed character
     /* 0x08 */ int mColor;          // text colour (system tag 0xFF:0, Seq_c); 4 (grey) with window type 0xD: no voice, mouth closed
     /* 0x0C */ Comp_c *mpOwner;
     /* 0x10 */ bool mMsgNoWait; // the message's speed is no-wait (speed == 1, Comp_c::initializePrepare; bool: srwi store)

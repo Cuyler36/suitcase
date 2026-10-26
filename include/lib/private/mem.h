@@ -13,13 +13,22 @@ extern "C" {
 #endif
 
 #define MEM_ROUNDUP(x, align) (((x) + (align) - 1) & (-(align)))
-#define MEM_PTR_ROUNDUP(x, align) ((void*)((((u32)(x)) + (align) - 1) & (~((align) - 1))))
+#if TARGET_PC
+// PC: the mask must be pointer-sized; ~(align - 1) of an unsigned 32-bit align clears the upper half
+#define MEM_PTR_ROUNDUP(x, align) ((void*)((((uintptr_t)(x)) + (align) - 1) & (~(uintptr_t)((align) - 1))))
+#else
+#define MEM_PTR_ROUNDUP(x, align) ((void*)((((uintptr_t)(x)) + (align) - 1) & (~((align) - 1))))
+#endif
 
 #define MEM_ROUNDDOWN(x, align) ((x) & (-(align)))
-#define MEM_PTR_ROUNDDOWN(x, align) ((void*)(((u32)(x)) & (~((align) - 1))))
+#if TARGET_PC
+#define MEM_PTR_ROUNDDOWN(x, align) ((void*)(((uintptr_t)(x)) & (~(uintptr_t)((align) - 1))))
+#else
+#define MEM_PTR_ROUNDDOWN(x, align) ((void*)(((uintptr_t)(x)) & (~((align) - 1))))
+#endif
 
-static u32 GetUIntPtr(const void* p) {
-    return (u32)p;
+static uintptr_t GetUIntPtr(const void* p) {
+    return (uintptr_t)p;
 }
 
 static void* AddU32ToPtr(const void* p, u32 ofs) {
@@ -75,7 +84,7 @@ static void FillFreeMemory(MEMiHeapHead* heap, void* memBlock, u32 size) {
 }
 
 static inline s32 ComparePtr(void* p0, void* p1) {
-    return (u32)p0 - (u32)p1;
+    return (uintptr_t)p0 - (uintptr_t)p1;
 }
 
 #ifdef __cplusplus

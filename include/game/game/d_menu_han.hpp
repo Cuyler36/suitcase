@@ -125,9 +125,9 @@ class dMenuHan_c : public dMenuBase_c {
         Word_c();                     // .text:0x2078
         virtual ~Word_c();            // .text:0x20BC
         virtual u32 getBufferSize();  // .text:0x2114
-        virtual wchar_t *getBuffer(); // .text:0x211C
+        virtual wchar16_t *getBuffer(); // .text:0x211C
 
-        /* 0x28 */ wchar_t mBuffer[0x2F];
+        /* 0x28 */ wchar16_t mBuffer[0x2F];
     }; // size 0x88
 
     typedef void (dMenuHan_c::*SubStateProc)();
@@ -203,7 +203,7 @@ class dMenuHan_c : public dMenuBase_c {
     /* 0x6E8 */ dMenuBtn_c mBtn;
     /* 0xC2C */ dMenuSlctB_c mSlct;
     /* 0x131C */ Word_c mWord;
-    /* 0x13A4 */ wchar_t mText[TEXT_SIZE]; // the last accepted text
+    /* 0x13A4 */ wchar16_t mText[TEXT_SIZE]; // the last accepted text
     /* 0x13E8 */ u32 mMaxLen;
     /* 0x13EC */ f32 mMaxWidth;  // of the text box
     /* 0x13F0 */ int mInput;     // INPUT_e

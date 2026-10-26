@@ -370,7 +370,7 @@ public:
 
 // NET_PACKET_NPC_EVENT_DATA
 struct totakekePacket_c {
-    /* 0x00 */ wchar_t mRequestTitle[0x11];
+    /* 0x00 */ wchar16_t mRequestTitle[0x11];
     /* 0x22 */ u16 mSong;
     /* 0x24 */ u8 mRequesterNo;
     /* 0x25 */ u8 mRequestKind;
@@ -426,7 +426,7 @@ public:
     /* 0x07 */ u8 _07;
     /* 0x08 */ u8 mAudienceNum;
     /* 0x09 */ u8 mAudienceDoneNum;
-    /* 0x0A */ wchar_t mRequestTitle[0x11];
+    /* 0x0A */ wchar16_t mRequestTitle[0x11];
     /* 0x2C */ dItem::Item mSong;
     /* 0x30 */ int mRequesterNo;
     /* 0x34 */ int mRequestKind; // 0..4 mood, 5 K.K.'s pick, 6 first meeting, 7 title, 8 none

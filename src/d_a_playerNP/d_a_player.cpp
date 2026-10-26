@@ -940,7 +940,7 @@ void dAcPlayer_c::drawMain() {
     }
     if (mFgObjItem != dItem::ITEM_ID_NONE) {
         mAng3_c angle(0, 0, 0);
-        dFgobjManager::fgObjCallback(mFgObjItem, (int)&_20C8, (int)&_20D4, &angle, 0);
+        dFgobjManager::fgObjCallback(mFgObjItem, (dFgObjArg_t)&_20C8, (dFgObjArg_t)&_20D4, &angle, 0);
     }
     mAng shadowAngle(0);
     f32 scale = mShadowScale;

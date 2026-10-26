@@ -6,7 +6,7 @@
 namespace dScData {
 
 static ColorByte_c l_palette0 = {{0x31, 0x63, 0x84, 0xFF}, 0x7B};
-static u32 l_setting0[] = {0x8CCEEFFF, 0xE5560000}; // scene setting kind 9
+static u32 l_setting0[] = {SC_COLOR(0x8CCEEFFF), SC_ANGLES(0xE5560000)}; // scene setting kind 9
 static u16 l_resources[] = {fProf::FISH_MUSEUM, fProf::A_NAMEPLATE_MUSEUM};
 static PlayerData_c l_player = {{256.0f, 0.0f, 464.0f}, {0, -0x8000, 0}, 0, 8};
 static dScene::dSceneBaseData_c l_base[] = {{fProf::SV_DEMO, 0},

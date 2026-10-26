@@ -1556,7 +1556,7 @@ void dQuestPlayerPair_c::setTopicText(u16 index) {
     dString::Word_c word(index, "sys_STRING/STR_Q13");
     memset(mTopicText, 0, sizeof(mTopicText));
     dString::WordBase_c *base = &word;
-    memcpy(mTopicText, base->getBuffer(), sizeof(mTopicText) - sizeof(wchar_t));
+    memcpy(mTopicText, base->getBuffer(), sizeof(mTopicText) - sizeof(wchar16_t));
 }
 
 // ---------------------------------------------------------------------------

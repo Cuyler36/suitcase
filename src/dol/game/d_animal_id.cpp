@@ -34,15 +34,15 @@ int dAnmPersonalID_c::getNameSlot(int language) {
 }
 
 // 80135F04
-void dAnmPersonalID_c::setName(int slot, const wchar_t *name) {
+void dAnmPersonalID_c::setName(int slot, const wchar16_t *name) {
     memcpy(mNameByRegion[slot], name, sizeof(mNameByRegion[slot]));
 }
 
 // 80135F20
-void dAnmPersonalID_c::set(u16 npcIdx, u8 looks, const dLandID_c *land, const wchar_t *name0,
-                           const wchar_t *name1, const wchar_t *name2, const wchar_t *name3,
-                           const wchar_t *name4, const wchar_t *name5, const wchar_t *name6,
-                           const wchar_t *name7) {
+void dAnmPersonalID_c::set(u16 npcIdx, u8 looks, const dLandID_c *land, const wchar16_t *name0,
+                           const wchar16_t *name1, const wchar16_t *name2, const wchar16_t *name3,
+                           const wchar16_t *name4, const wchar16_t *name5, const wchar16_t *name6,
+                           const wchar16_t *name7) {
     mNpcIdx = npcIdx;
     mLooks = looks;
     mLand.copy(land);
@@ -97,7 +97,7 @@ u8 dAnmPersonalID_c::getGender(int unused) {
 }
 
 // 80136160
-const wchar_t *dAnmPersonalID_c::getName(int language) {
+const wchar16_t *dAnmPersonalID_c::getName(int language) {
     if (language >= LANGUAGE_NUM) {
         language = getLanguage();
     }

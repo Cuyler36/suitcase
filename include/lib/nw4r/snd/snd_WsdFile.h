@@ -35,14 +35,14 @@ namespace detail {
 struct WsdFile {
     struct Header {
         ut::BinaryFileHeader fileHeader; // size 0x10, offset 0x00
-        u32 dataBlockOffset;             // size 0x04, offset 0x10
-        u32 dataBlockSize;               // size 0x04, offset 0x14
-        u32 waveBlockOffset;             // size 0x04, offset 0x18
-        u32 waveBlockSize;               // size 0x04, offset 0x1c
+        BE(u32) dataBlockOffset;             // size 0x04, offset 0x10
+        BE(u32) dataBlockSize;               // size 0x04, offset 0x14
+        BE(u32) waveBlockOffset;             // size 0x04, offset 0x18
+        BE(u32) waveBlockSize;               // size 0x04, offset 0x1c
     }; // size 0x20
 
     struct WsdInfo {
-        f32 pitch;      // size 0x04, offset 0x00
+        BE(f32) pitch;      // size 0x04, offset 0x00
         u8 pan;         // size 0x01, offset 0x04
         u8 surroundPan; // size 0x01, offset 0x05
         u8 fxSendA;     // size 0x01, offset 0x06
@@ -53,7 +53,7 @@ struct WsdFile {
 
         Util::DataRef<void> graphEnvTablevRef;  // size 0x08, offset 0x0c
         Util::DataRef<void> randomizerTableRef; // size 0x08, offset 0x14
-        u32 reserved;
+        BE(u32) reserved;
     }; // size 0x20
 
     struct TrackInfo;
@@ -61,7 +61,7 @@ struct WsdFile {
     typedef Util::Table<Util::DataRef<TrackInfo> > TrackInfoTable;
 
     struct NoteInfo {
-        s32 waveIndex; // size 0x04, offset 0x00
+        BE(s32) waveIndex; // size 0x04, offset 0x00
         u8 attack;     // size 0x01, offset 0x04
         u8 decay;      // size 0x01, offset 0x05
         u8 sustain;    // size 0x01, offset 0x06
@@ -72,12 +72,12 @@ struct WsdFile {
         u8 volume;      // size 0x01, offset 0x0d
         u8 pan;         // size 0x01, offset 0x0e
         u8 surroundPan; // size 0x01, offset 0x0f
-        f32 pitch;      // size 0x04, offset 0x10
+        BE(f32) pitch;      // size 0x04, offset 0x10
 
         Util::DataRef<void> lfoTableRef;        // size 0x08, offset 0x14
         Util::DataRef<void> graphEnvTablevRef;  // size 0x08, offset 0x1c
         Util::DataRef<void> randomizerTableRef; // size 0x08, offset 0x24
-        u32 reserved;
+        BE(u32) reserved;
     }; // size 0x30
 
     typedef Util::Table<Util::DataRef<NoteInfo> > NoteInfoTable;
@@ -92,7 +92,7 @@ struct WsdFile {
 
     struct DataBlock {
         ut::BinaryBlockHeader blockHeader; // size 0x08, offset 0x00
-        u32 wsdCount;                      // size 0x04, offset 0x08
+        BE(u32) wsdCount;                      // size 0x04, offset 0x08
         Util::DataRef<Wsd> refWsd[];
     }; // size 0x0c
 
@@ -100,13 +100,13 @@ struct WsdFile {
 
     struct WaveBlock {
         ut::BinaryBlockHeader blockHeader; // size 0x04, offset 0x00
-        u32 waveCount;                     // size 0x04, offset 0x08
-        u32 offsetTable[];
+        BE(u32) waveCount;                     // size 0x04, offset 0x08
+        BE(u32) offsetTable[];
     }; // size 0x0c
 
     struct WaveBlockOld {
         ut::BinaryBlockHeader blockHeader; // size 0x08, offset 0x00
-        u32 offsetTable[];
+        BE(u32) offsetTable[];
     }; // size 0x08
 
     static u32 const SIGNATURE_FILE = NW4R_FOUR_BYTE('R', 'W', 'S', 'D');

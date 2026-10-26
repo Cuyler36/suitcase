@@ -275,11 +275,18 @@ typedef enum {
     GX_TEVREG_KONST,
 } GXTevRegType;
 
+#if TARGET_PC
+// No write-gather pipe on PC: the regular call goes through aurora
+static inline void GXFastCallDisplayList(void* list, u32 size) {
+    GXCallDisplayList(list, size);
+}
+#else
 static inline void GXFastCallDisplayList(void* list, u32 size) {
     WGPIPE.c = GX_FIFO_CMD_CALL_DL;
     WGPIPE.p = list;
     WGPIPE.ui = size;
 }
+#endif
 
 #ifdef __cplusplus
 }

@@ -151,14 +151,14 @@ BOOL msgMemorySecond_c::setRumorTown(u32 value) {
 }
 
 // 800ED19C
-BOOL msgMemorySecond_c::setText(const wchar_t *text) {
+BOOL msgMemorySecond_c::setText(const wchar16_t *text) {
     if (text != NULL) {
         memset(mText, 0, sizeof(mText));
         u32 len = dScript::getStringLength(text, 16, 0);
         if (len > 16) {
             len = 16;
         }
-        memcpy(mText, text, len * sizeof(wchar_t));
+        memcpy(mText, text, len * sizeof(wchar16_t));
         return TRUE;
     }
     return FALSE;
@@ -3482,7 +3482,12 @@ BOOL isAnimalOnAllowedSpot(dAnimal_c *animal, int arg) {
     if (npc == NULL) {
         return FALSE;
     }
+#if TARGET_PC
+    // dAcNpc_c::mIsActive (0x1C38 on the Wii; the PC layout differs)
+    if (static_cast<dAcNpc_c *>(npc)->mIsActive == 0) {
+#else
     if (*((u8 *)npc + 0x1C38) == 0) {
+#endif
         return FALSE;
     }
     const mVec3_c *pos = npc->getPosP();

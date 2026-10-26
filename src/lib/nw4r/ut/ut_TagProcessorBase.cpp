@@ -88,7 +88,7 @@ void TagProcessorBase<T>::ProcessLinefeed(ContextType* pCtx) {
 }
 
 template class TagProcessorBase<char>;
-template class TagProcessorBase<wchar_t>;
+template class TagProcessorBase<wchar16_t>;
 
 } // namespace ut
 } // namespace nw4r

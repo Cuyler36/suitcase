@@ -1,6 +1,7 @@
 #ifndef NW4R_G3D_RES_RES_ANM_CHR_H
 #define NW4R_G3D_RES_RES_ANM_CHR_H
 #include <nw4r/types_nw4r.h>
+#include <port/endian.h>
 
 #include <nw4r/g3d/res/g3d_resanm.h>
 #include <nw4r/g3d/res/g3d_rescommon.h>
@@ -60,7 +61,7 @@ struct ChrAnmResult {
  ******************************************************************************/
 struct ResAnmChrFrm32Data {
     union {
-        ulong fvsU32; // at 0x0
+        BE(u32) fvsU32; // at 0x0
 
         struct {
             u8 frame; // at 0x0
@@ -69,35 +70,35 @@ struct ResAnmChrFrm32Data {
     };
 };
 struct ResAnmChrFVS32Data {
-    f32 scale;                         // at 0x0
-    f32 offset;                        // at 0x4
+    BE(f32) scale;                         // at 0x0
+    BE(f32) offset;                        // at 0x4
     ResAnmChrFrm32Data frameValues[1]; // at 0x8
 };
 
 struct ResAnmChrFrm48Data {
-    s16 frame; // at 0x0
-    u16 value; // at 0x2
-    s16 slope; // at 0x4
+    BE(s16) frame; // at 0x0
+    BE(u16) value; // at 0x2
+    BE(s16) slope; // at 0x4
 };
 struct ResAnmChrFVS48Data {
-    f32 scale;                         // at 0x0
-    f32 offset;                        // at 0x4
+    BE(f32) scale;                         // at 0x0
+    BE(f32) offset;                        // at 0x4
     ResAnmChrFrm48Data frameValues[1]; // at 0x8
 };
 
 struct ResAnmChrFrm96Data {
-    f32 frame; // at 0x0
-    f32 value; // at 0x4
-    f32 slope; // at 0x8
+    BE(f32) frame; // at 0x0
+    BE(f32) value; // at 0x4
+    BE(f32) slope; // at 0x8
 };
 struct ResAnmChrFVS96Data {
     ResAnmChrFrm96Data frameValues[1]; // at 0x0
 };
 
 struct ResAnmChrFVSData {
-    u16 numFrameValues;        // at 0x0
+    BE(u16) numFrameValues;        // at 0x0
     u8 PADDING_0x2[0x4 - 0x2]; // at 0x2
-    f32 invKeyFrameRange;      // at 0x4
+    BE(f32) invKeyFrameRange;      // at 0x4
 
     union {
         ResAnmChrFVS32Data fvs32; // at 0x8
@@ -112,17 +113,17 @@ struct ResAnmChrFVSData {
  *
  ******************************************************************************/
 struct ResAnmChrCV8Data {
-    f32 scale;    // at 0x0
-    f32 offset;   // at 0x4
+    BE(f32) scale;    // at 0x0
+    BE(f32) offset;   // at 0x4
     u8 values[1]; // at 0x8
 };
 struct ResAnmChrCV16Data {
-    f32 scale;     // at 0x0
-    f32 offset;    // at 0x4
-    u16 values[1]; // at 0x8
+    BE(f32) scale;     // at 0x0
+    BE(f32) offset;    // at 0x4
+    BE(u16) values[1]; // at 0x8
 };
 struct ResAnmChrCV32Data {
-    f32 values[1]; // at 0x0
+    BE(f32) values[1]; // at 0x0
 };
 
 struct ResAnmChrCVData {
@@ -211,30 +212,30 @@ struct ResAnmChrNodeData {
     };
 
     union AnmData {
-        s32 toResAnmChrAnmData; // at 0x0
-        f32 constValue;         // at 0x0
+        BE(s32) toResAnmChrAnmData; // at 0x0
+        BE(f32) constValue;         // at 0x0
     };
 
-    s32 name;        // at 0x0
-    ulong flags;       // at 0x4
+    BE(s32) name;        // at 0x0
+    BE(u32) flags;       // at 0x4
     AnmData anms[1]; // at 0x8
 };
 
 struct ResAnmChrInfoData {
-    u16 numFrame;            // at 0x0
-    u16 numNode;             // at 0x2
-    AnmPolicy policy;        // at 0x4
-    ScalingRule scalingRule; // at 0x8
+    BE(u16) numFrame;            // at 0x0
+    BE(u16) numNode;             // at 0x2
+    BE(AnmPolicy) policy;        // at 0x4
+    BE(ScalingRule) scalingRule; // at 0x8
 };
 
 struct ResAnmChrData {
     ResBlockHeaderData header; // at 0x0
-    ulong revision;              // at 0x8
-    s32 toResFileData;         // at 0xC
-    s32 toChrDataDic;          // at 0x10
-    s32 toResUserData;         // at 0x14
-    s32 name;                  // at 0x18
-    s32 original_path;         // at 0x1C
+    BE(u32) revision;              // at 0x8
+    BE(s32) toResFileData;         // at 0xC
+    BE(s32) toChrDataDic;          // at 0x10
+    BE(s32) toResUserData;         // at 0x14
+    BE(s32) name;                  // at 0x18
+    BE(s32) original_path;         // at 0x1C
     ResAnmChrInfoData info;    // at 0x20
 };
 

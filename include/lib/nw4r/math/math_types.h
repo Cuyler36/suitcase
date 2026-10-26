@@ -651,4 +651,84 @@ inline QUAT* C_QUATSlerp(QUAT* pOut, const QUAT* p1, const QUAT* p2, f32 t) {
 } // namespace math
 } // namespace nw4r
 
+#if TARGET_PC
+// Big-endian nw4r math types, for resources that store them (nw4r g3d)
+#include <port/endian.h>
+
+// The BE(T) macro would expand the constructors' names
+#pragma push_macro("BE")
+#undef BE
+
+extern "C++" {
+
+template <>
+struct BE<nw4r::math::_VEC2> {
+    BE<f32> x, y;
+
+    constexpr BE() noexcept = default;
+    BE(const nw4r::math::_VEC2& v) noexcept : x(v.x), y(v.y) {}
+    operator nw4r::math::VEC2() const noexcept {
+        return nw4r::math::VEC2(x, y);
+    }
+    // For be_swap
+    static nw4r::math::VEC2 swap(const nw4r::math::_VEC2& v) noexcept {
+        return nw4r::math::VEC2(RES_F32(v.x), RES_F32(v.y));
+    }
+};
+template <>
+struct BE<nw4r::math::VEC2> : BE<nw4r::math::_VEC2> {
+    using BE<nw4r::math::_VEC2>::BE;
+};
+
+template <>
+struct BE<nw4r::math::_VEC3> {
+    BE<f32> x, y, z;
+
+    constexpr BE() noexcept = default;
+    BE(const nw4r::math::_VEC3& v) noexcept : x(v.x), y(v.y), z(v.z) {}
+    operator nw4r::math::VEC3() const noexcept {
+        return nw4r::math::VEC3(x, y, z);
+    }
+    // For be_swap
+    static nw4r::math::VEC3 swap(const nw4r::math::_VEC3& v) noexcept {
+        return nw4r::math::VEC3(RES_F32(v.x), RES_F32(v.y), RES_F32(v.z));
+    }
+};
+template <>
+struct BE<nw4r::math::VEC3> : BE<nw4r::math::_VEC3> {
+    using BE<nw4r::math::_VEC3>::BE;
+};
+
+template <>
+struct BE<nw4r::math::_MTX34> {
+    BE<f32> m[3][4];
+
+    constexpr BE() noexcept = default;
+    BE(const nw4r::math::_MTX34& v) noexcept {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 4; j++) {
+                m[i][j] = v.m[i][j];
+            }
+        }
+    }
+    operator nw4r::math::MTX34() const noexcept {
+        nw4r::math::MTX34 v;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 4; j++) {
+                v.m[i][j] = m[i][j];
+            }
+        }
+        return v;
+    }
+};
+template <>
+struct BE<nw4r::math::MTX34> : BE<nw4r::math::_MTX34> {
+    using BE<nw4r::math::_MTX34>::BE;
+};
+
+} // extern "C++"
+
+#pragma pop_macro("BE")
+#endif
+
 #endif

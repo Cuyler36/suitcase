@@ -1011,7 +1011,7 @@ u32 Word_c::getBufferSize() {
 }
 
 // 8015EF08
-wchar_t *Word_c::getBuffer() {
+wchar16_t *Word_c::getBuffer() {
     return mBuffer;
 }
 

@@ -45,6 +45,8 @@ namespace m3d {
 
     void resetMaterial(); ///< Turns off all indirect texture processing.
 
-    void screenEffectReset(int cameraID, EGG::Screen &screen);
+#if !TARGET_PC
+    void screenEffectReset(int cameraID, EGG::Screen &screen); ///< Dead-stripped from CF's DOL.
+#endif
 }
 /// @}

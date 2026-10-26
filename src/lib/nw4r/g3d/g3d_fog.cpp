@@ -99,7 +99,12 @@ void Fog::SetGP() const {
     const FogData& r = ref();
 
     if (r.type != GX_FOG_NONE) {
+#if TARGET_PC
+        // aurora takes a non-const table
+        GXSetFogRangeAdj(r.adjEnable, r.adjCenter, const_cast<GXFogAdjTable*>(&r.adjTable));
+#else
         GXSetFogRangeAdj(r.adjEnable, r.adjCenter, &r.adjTable);
+#endif
     }
 
     GXSetFog(r.type, r.startz, r.endz, r.nearz, r.farz, r.color);

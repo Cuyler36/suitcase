@@ -160,13 +160,13 @@ class dMenuFriend_c : public dMenuBase_c {
     // The friend entry that is edited (mFriendData, mFriend), registered into
     // slot mFriendIdx.
     static void clearEntry();                            // .text:0x1040
-    static void setEntryPlayerName(const wchar_t *name); // .text:0x1088
-    static void setEntryTown(const wchar_t *townName);   // .text:0x109C
+    static void setEntryPlayerName(const wchar16_t *name); // .text:0x1088
+    static void setEntryTown(const wchar16_t *townName);   // .text:0x109C
     static BOOL setEntryKey(
         u64 key); // .text:0x10EC: FALSE if the key is another slot's friend
     static void setEntryFriendData(const DWCFriendData *data); // .text:0x1158
     static u64 getFriendKey(); // .text:0x1170: the key of slot mFriendIdx
-    static void setEntryMessage(const wchar_t *message); // .text:0x1180
+    static void setEntryMessage(const wchar16_t *message); // .text:0x1180
     static void setEntryFromNetPlayer(int member);       // .text:0x11E4
     static void setFriendIdx(int idx);                   // .text:0x1308
     static int getFriendIdx();                           // .text:0x1318

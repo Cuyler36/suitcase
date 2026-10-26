@@ -25,7 +25,7 @@ set(CMAKE_COLOR_DIAGNOSTICS ON)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "_cmake")
 
-option(CF_BUILD_GAME "Compile and link the decomp sources (M1; they do not build for the host yet)" OFF)
+option(CF_BUILD_GAME "Compile and link the decomp sources (OFF: only the aurora shell, for bring-up)" ON)
 
 include(cmake/CfVersion.cmake)
 
@@ -35,20 +35,30 @@ endif ()
 set(AURORA_ENABLE_DVD ON CACHE BOOL "Enable DVD API support" FORCE)
 set(AURORA_ENABLE_CARD OFF CACHE BOOL "Enable CARD API support" FORCE)
 set(AURORA_ENABLE_THP OFF CACHE BOOL "Enable THP decoder" FORCE)
+# The Wii's bus clock, so OS time runs at the Wii's 60.75 MHz: saves hold times in those ticks
+set(AURORA_OS_BUS_CLOCK 243000000 CACHE STRING "Wii bus clock" FORCE)
 add_subdirectory(extern/aurora EXCLUDE_FROM_ALL)
 add_subdirectory(extern/borealis EXCLUDE_FROM_ALL)
 
+# A function that falls off the end without a value is UB that optimized builds turn into crashes
+# (../pc_port_ub.md UB-10): an error, not a warning. This directory's targets only.
 if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
     # Multi-character constants ('ABCD') encode identically on CW, GCC, Clang and MSVC
-    add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:-Wno-multichar>)
+    add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:-Wno-multichar>
+            $<$<COMPILE_LANGUAGE:C,CXX>:-Werror=return-type>)
 elseif (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
     add_compile_options(
+            $<$<COMPILE_LANGUAGE:C,CXX>:/we4715>
             $<$<COMPILE_LANGUAGE:C,CXX>:/bigobj>
             $<$<COMPILE_LANGUAGE:C,CXX>:/MP>
             $<$<COMPILE_LANGUAGE:C,CXX>:/FS>
             $<$<COMPILE_LANGUAGE:C,CXX>:/utf-8>
             /Zc:__cplusplus
     )
+    # extern "C" functions can throw: the SDK layer's waits unwind a game thread that is being ended
+    # (src/cf/sdk/thread_system.h), and with /EHsc callers may skip their cleanup. This directory's
+    # targets only (aurora and borealis are added above).
+    string(REPLACE "/EHsc" "/EHs" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif ()
 
 # Match the original game's (and x86's) signed char on ARM
@@ -68,20 +78,108 @@ endif ()
 include(cmake/CfUnits.cmake)
 cf_add_unit_targets()
 
-# Stand-ins for SDK libraries the PC build does not compile. They implement the decomp's SDK
-# headers, so like the decomp targets they are only built with CF_BUILD_GAME.
-add_library(cf_sdk_stubs STATIC EXCLUDE_FROM_ALL src/cf/sdk/hbm_stub.cpp)
-target_include_directories(cf_sdk_stubs PRIVATE include include/lib lib/common/include/global)
-target_compile_definitions(cf_sdk_stubs PRIVATE TARGET_PC=1 AVOID_UB=1 REVOLUTION VERSION=${CF_VERSION_NUM})
-target_link_libraries(cf_sdk_stubs PRIVATE cf_cw_compat)
+# PC sources built against the decomp's headers (with the PC overrides first). Like the decomp
+# targets they are only built with CF_BUILD_GAME.
+function(cf_add_pc_decomp_library name)
+    add_library(${name} STATIC EXCLUDE_FROM_ALL ${ARGN})
+    target_include_directories(${name} PRIVATE src/cf/include extern/aurora/include include include/lib
+            lib/common/include/global lib/RevoEX/include "${CMAKE_BINARY_DIR}/generated")
+    target_compile_definitions(${name} PRIVATE TARGET_PC=1 AVOID_UB=1 REVOLUTION VERSION=${CF_VERSION_NUM})
+    target_link_libraries(${name} PRIVATE cf_cw_compat aurora::core aurora::gx borealis::log)
+endfunction()
+
+# aurora's WPAD/KPAD, vendored from its present-target branch until it is on aurora main, with a
+# provider for aurora main's input (src/cf/aurora_wpad/README.md). Replace with aurora::wpad and
+# aurora::kpad once aurora has them.
+cf_add_pc_decomp_library(cf_aurora_wpad
+        src/cf/aurora_wpad/lib/revolution/wpad/wpad.cpp
+        src/cf/aurora_wpad/lib/revolution/wpad/provider.cpp
+        src/cf/aurora_wpad/lib/revolution/kpad.cpp
+)
+target_include_directories(cf_aurora_wpad PUBLIC src/cf/aurora_wpad/include)
+target_link_libraries(cf_aurora_wpad PUBLIC aurora::pad)
+
+# Stand-ins for SDK libraries the PC build does not compile
+file(GLOB CF_SDK_SOURCES CONFIGURE_DEPENDS src/cf/sdk/*.cpp)
+cf_add_pc_decomp_library(cf_sdk_stubs ${CF_SDK_SOURCES})
+target_link_libraries(cf_sdk_stubs PRIVATE cf_aurora_wpad ${AURORA_SDL3_TARGET}) # SDL3: audio output (ax_rvl.cpp)
+# RevoEX's headers clash with the decomp's (tools/gen_pc_sdk_stubs.py): put them first for its stubs
+file(GLOB CF_SDK_REVOEX_SOURCES CONFIGURE_DEPENDS src/cf/sdk/*_revoex.cpp)
+set_source_files_properties(${CF_SDK_REVOEX_SOURCES} PROPERTIES
+        INCLUDE_DIRECTORIES "${PROJECT_SOURCE_DIR}/lib/RevoEX/include")
+
+# Game definitions the decomp lacks on PC (data from the original binary, etc.)
+file(GLOB CF_GAME_PC_SOURCES CONFIGURE_DEPENDS src/cf/game/*.cpp)
+
+# Data the game takes straight from main.dol: sized from this version's symbols.txt, filled from the
+# disc at startup (cf::LoadDolData), so none of it is stored in the repository or the build
+# (the generator emits only the ones in this version's symbols.txt). Constants and tables without
+# assets are defined in source instead (src/cf/game/dol_data.cpp).
+set(CF_DOL_BLOBS
+        g_cautionArc g_cautionFont
+        g_cautionMsgUS g_cautionMsgQC g_cautionMsgMX                              # RUUE01
+        g_cautionMsgEN g_cautionMsgFR g_cautionMsgDE g_cautionMsgIT g_cautionMsgES # RUUP01
+        g_cautionMsgJP                                                            # RUUJ01
+        g_cautionMsgKR                                                            # RUUK01
+)
+set(CF_SYMBOLS_FILE "${PROJECT_SOURCE_DIR}/config/${CF_VERSION}/symbols.txt")
+set(CF_DOL_BLOBS_FILE "${CMAKE_BINARY_DIR}/generated/cf/dol_blobs.cpp")
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/generated/cf")
+execute_process(
+        COMMAND "${Python3_EXECUTABLE}" tools/gen_pc_dol_data.py "${CF_SYMBOLS_FILE}" "${CF_DOL_BLOBS_FILE}"
+                ${CF_DOL_BLOBS}
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+        RESULT_VARIABLE _cf_dol_result
+        OUTPUT_VARIABLE _cf_dol_output
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+if (NOT _cf_dol_result EQUAL 0)
+    message(FATAL_ERROR "tools/gen_pc_dol_data.py failed (${_cf_dol_result})")
+endif ()
+message(STATUS "suitcase: ${_cf_dol_output}")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+        "${CF_SYMBOLS_FILE}" "${PROJECT_SOURCE_DIR}/tools/gen_pc_dol_data.py")
+
+# The save file's byte-order map (src/cf/game/save_codec.h), generated from the save structs'
+# declarations at build time, so it follows the headers
+set(CF_SAVE_MAP_FILE "${CMAKE_BINARY_DIR}/generated/cf/save_map.cpp")
+file(GLOB_RECURSE CF_SAVE_MAP_HEADERS CONFIGURE_DEPENDS include/game/*.hpp include/game/*.h include/lib/*.h include/lib/*.hpp)
+add_custom_command(
+        OUTPUT "${CF_SAVE_MAP_FILE}"
+        COMMAND "${Python3_EXECUTABLE}" tools/gen_save_swap.py "${PROJECT_SOURCE_DIR}" "${CF_SAVE_MAP_FILE}"
+        DEPENDS tools/gen_save_swap.py ${CF_SAVE_MAP_HEADERS}
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+        COMMENT "Generating the save file map"
+        VERBATIM
+)
+
+cf_add_pc_decomp_library(cf_game_pc ${CF_GAME_PC_SOURCES} "${CF_DOL_BLOBS_FILE}" "${CF_SAVE_MAP_FILE}")
+target_include_directories(cf_game_pc PRIVATE src/cf/game)
+
+# Settings (src/cf/include/cf/config.h): borealis::config vars in the user directory's config.json
+file(GLOB CF_CONFIG_SOURCES CONFIGURE_DEPENDS src/cf/config/*.cpp)
+cf_add_pc_decomp_library(cf_config ${CF_CONFIG_SOURCES})
+target_link_libraries(cf_config PUBLIC borealis::config PRIVATE cf_aurora_wpad)
+
+# The ImGui debug interface (src/cf/include/cf/debug.h), drawn by main.cpp each frame
+file(GLOB CF_DEBUG_SOURCES CONFIGURE_DEPENDS src/cf/debug/*.cpp)
+cf_add_pc_decomp_library(cf_debug ${CF_DEBUG_SOURCES})
+target_link_libraries(cf_debug PRIVATE cf_config cf_aurora_wpad)
 
 configure_file(src/cf/version_config.h.in "${CMAKE_BINARY_DIR}/generated/cf/version_config.h" @ONLY)
 
 add_executable(suitcase src/cf/main.cpp)
 set_target_properties(suitcase PROPERTIES OUTPUT_NAME "suitcase-${CF_VERSION}")
-target_include_directories(suitcase PRIVATE "${CMAKE_BINARY_DIR}/generated")
+if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+    # No identical code folding (on by default when linking without /DEBUG, as Release does): the game
+    # tells states apart by their functions' addresses (dState's mode functions and the like), which
+    # folding merges when two functions compile to the same code (../pc_port_ub.md PC-27)
+    target_link_options(suitcase PRIVATE /OPT:NOICF)
+endif ()
+target_include_directories(suitcase PRIVATE src/cf/include "${CMAKE_BINARY_DIR}/generated")
 target_link_libraries(suitcase PRIVATE
-        aurora::core aurora::gx aurora::main aurora::vi
+        aurora::core aurora::gx aurora::gd aurora::main aurora::vi aurora::os aurora::dvd aurora::mtx
+        aurora::pad aurora::si
         borealis::log
         cf_cw_compat
 )
@@ -93,5 +191,6 @@ if (CF_BUILD_GAME)
             target_link_libraries(suitcase PRIVATE ${target})
         endif ()
     endforeach ()
-    target_link_libraries(suitcase PRIVATE cf_sdk_stubs)
+    target_link_libraries(suitcase PRIVATE cf_game_pc cf_sdk_stubs cf_aurora_wpad cf_config cf_debug)
+    target_compile_definitions(suitcase PRIVATE CF_BUILD_GAME=1)
 endif ()

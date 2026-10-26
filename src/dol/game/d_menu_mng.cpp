@@ -51,13 +51,13 @@ static int s_toolNext;
 
 static u16 l_selItems[dMenuMng_c::POCKET_NUM];
 mVec3_c g_menuPos;
-static wchar_t l_inputBuf[0x21];
+static wchar16_t l_inputBuf[0x21];
 static dMail_c l_mail;
 static dDesign_c l_design;
 static dTime_c l_time;
 static dPostRequest_c l_postReq;
-static wchar_t l_postMsg[0x10D];
-static wchar_t l_postTitle[0x21];
+static wchar16_t l_postMsg[0x10D];
+static wchar16_t l_postTitle[0x21];
 
 int dMenuMng_c::create() {
     bool loaded = true;
@@ -443,16 +443,16 @@ void dMenuMng_c::setDesignIndex(u8 arg) {
     s_EA83 = arg;
 }
 
-wchar_t *dMenuMng_c::getInputBuf() {
+wchar16_t *dMenuMng_c::getInputBuf() {
     return l_inputBuf;
 }
 
 void dMenuMng_c::setInputBuf(const u16 *str, int len) {
     if (len == 0) {
-        len = m2d::Word_c::getLength((const wchar_t *)str);
+        len = m2d::Word_c::getLength((const wchar16_t *)str);
     }
     clearInputBuf();
-    memcpy(l_inputBuf, str, len * sizeof(wchar_t));
+    memcpy(l_inputBuf, str, len * sizeof(wchar16_t));
 }
 
 void dMenuMng_c::clearInputBuf() {
@@ -741,7 +741,7 @@ void dMenuMng_c::offNetError() {
     s_netError = FALSE;
 }
 
-wchar_t *dMenuMng_c::getFriendInfo() {
+wchar16_t *dMenuMng_c::getFriendInfo() {
     if (dWifi::isWc24On() == FALSE) {
         return nullptr;
     }
@@ -755,17 +755,17 @@ void dMenuMng_c::setPostType(int type) {
     s_postType = type;
 }
 
-wchar_t *dMenuMng_c::getPostMsg() {
+wchar16_t *dMenuMng_c::getPostMsg() {
     return l_postMsg;
 }
 
-wchar_t *dMenuMng_c::getPostTitle() {
+wchar16_t *dMenuMng_c::getPostTitle() {
     return l_postTitle;
 }
 
 void dMenuMng_c::setupPost(BOOL withPhoto) {
-    u32 titleSize = m2d::Word_c::getLength(l_postTitle) * sizeof(wchar_t);
-    u32 msgSize = m2d::Word_c::getLength(l_postMsg) * sizeof(wchar_t);
+    u32 titleSize = m2d::Word_c::getLength(l_postTitle) * sizeof(wchar16_t);
+    u32 msgSize = m2d::Word_c::getLength(l_postMsg) * sizeof(wchar16_t);
     const void *photo = nullptr;
     u32 photoSize = 0;
     const void *arc = nullptr;

@@ -160,7 +160,7 @@ void dMenuNotice_c::setPriority(u8 priority) {
 }
 
 // .text:0x42C
-BOOL dMenuNotice_c::setText(const wchar_t *text) {
+BOOL dMenuNotice_c::setText(const wchar16_t *text) {
     return sInstance->mNotice.setText(text, FALSE);
 }
 
@@ -327,9 +327,9 @@ void dNotice_c::copyPos(m2d::SimpleEx_c *lyt, const char *pane) {
 }
 
 // .text:0x95C
-BOOL dNotice_c::setText(const wchar_t *text, BOOL truncate) {
+BOOL dNotice_c::setText(const wchar16_t *text, BOOL truncate) {
     int line;
-    const wchar_t *cursor = text;
+    const wchar16_t *cursor = text;
     int lengths[LINE_NUM];
     u32 newLines = 0;
     for (line = 0; line < LINE_NUM; ++line) {
@@ -435,7 +435,7 @@ void dNotice_c::updateDate() {
 
 // .text:0xDA0
 void dNotice_c::updateSender() {
-    const wchar_t *sender = mNotice.getSender();
+    const wchar16_t *sender = mNotice.getSender();
     mSenderWord.clear();
     mSenderWord.set(sender, 0);
     mSenderWord.update();
@@ -443,12 +443,12 @@ void dNotice_c::updateSender() {
 
 // .text:0xDFC
 void dNotice_c::updateText(BOOL fixedSpaces) {
-    const wchar_t *text = mNotice.getText();
-    static wchar_t lineText[LINE_BUFFER_LENGTH];
+    const wchar16_t *text = mNotice.getText();
+    static wchar16_t lineText[LINE_BUFFER_LENGTH];
     for (int line = 0; line < LINE_NUM; ++line) {
         int length = mLineLengths[line];
         if (length > 0) {
-            memcpy(lineText, text, length * sizeof(wchar_t));
+            memcpy(lineText, text, length * sizeof(wchar16_t));
         }
         lineText[length] = 0;
         mWords[line].clear();
@@ -695,6 +695,6 @@ u32 dNotice_c::Word_c::getBufferSize() {
 }
 
 // .text:0x1808
-wchar_t *dNotice_c::Word_c::getBuffer() {
+wchar16_t *dNotice_c::Word_c::getBuffer() {
     return mBuffer;
 }
