@@ -69,6 +69,7 @@ void draw() {
             ImGui::EndMenu();
         }
         DrawSceneMenu();
+        DrawOnlineMenu();
         if (ImGui::BeginMenu("Sound")) {
             // The output volume (cf/audio.h), as a percentage
             float percent = config::audio::volume * 100.f;
@@ -122,6 +123,7 @@ void draw() {
     if (sShowDemo) {
         ImGui::ShowDemoWindow(&sShowDemo);
     }
+    DrawOnlineWindows();
 }
 
 } // namespace debug

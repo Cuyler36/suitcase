@@ -5,36 +5,8 @@
 
 extern "C" {
 
-BOOL NETAESCreate(NETAESContext* context, const void* key, u32 keyLength, const void* iv) {
-    return FALSE;
-}
-
-BOOL NETAESDecrypt(NETAESContext* context, void* dst, const void* src, s32 length) {
-    return FALSE;
-}
-
-void NETAESDelete(NETAESContext* context) {
-}
-
-BOOL NETAESEncrypt(NETAESContext* context, void* dst, const void* src, s32 length) {
-    return FALSE;
-}
-
-const NETHashInterface* NETGetSHA1Interface(void) {
-    return {};
-}
-
 long NETGetStartupErrorCode(long result) {
     return cf::sdk::StubFail<long>();
-}
-
-void NETHMACGetDigest(NETHMACContext* context, void* digest) {
-}
-
-void NETHMACInit(NETHMACContext* context, const NETHashInterface* hashInterface, void* key, u32 keyLength) {
-}
-
-void NETHMACUpdate(NETHMACContext* context, void* message, u32 length) {
 }
 
 void* NETMemCpy(void* dst, const void* src, u32 size) {

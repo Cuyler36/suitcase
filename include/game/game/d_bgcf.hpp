@@ -31,7 +31,7 @@ namespace dBGCF {
 #if TARGET_PC
 typedef intptr_t ownerId_t;
 #else
-typedef ownerId_t ownerId_t;
+typedef int ownerId_t;
 #endif
 
 

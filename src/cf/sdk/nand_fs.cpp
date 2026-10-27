@@ -27,6 +27,8 @@
 #include <system_error>
 #include <vector>
 
+#include "nand_fs.h"
+
 namespace fs = std::filesystem;
 
 namespace {
@@ -273,6 +275,24 @@ void SetNandRoot(const char* userPath) {
                             HostPath(HomeDir().c_str()).u8string().c_str(), ec.message().c_str());
     }
     borealis_log_printf(BOREALIS_LOG_INFO, "cf::nand", "NAND root: %s", sRoot.u8string().c_str());
+}
+
+fs::path NandHostPath(const char* nandPath) {
+    std::lock_guard lock(sMutex);
+    return HostPath(nandPath);
+}
+
+fs::path UserDirPath() {
+    std::lock_guard lock(sMutex);
+    return sRoot.parent_path();
+}
+
+std::string NandHomeDir() {
+    return HomeDir();
+}
+
+std::FILE* OpenHostFile(const fs::path& path, const char* mode) {
+    return OpenHost(path, mode);
 }
 
 } // namespace sdk

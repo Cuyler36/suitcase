@@ -1726,6 +1726,7 @@ BOOL daSTR_c::fixDoorVerts() {
                     nw4r::g3d::ResVtxPos vtx = shp.GetResVtxPos();
                     u16 num = vtx.ref().numPos;
                     if (num != -1) {
+#if TARGET_PC
                         // The resource's positions: big-endian f32 (E-55 in pc_port_endianness.md)
                         BE(f32) *pos = (BE(f32) *)vtx.GetData();
                         for (u32 j = 0; j < num; j++, pos += 3) {
@@ -1739,6 +1740,18 @@ BOOL daSTR_c::fixDoorVerts() {
                             pos[1] = curvedPos.y;
                             pos[2] = curvedPos.z;
                         }
+#else
+                        mVec3_c *pos = (mVec3_c *)vtx.GetData();
+                        for (u32 j = 0; j < num; j++, pos++) {
+                            f32 y = mPos.y;
+                            mVec3_c p = *pos;
+                            p.y += y;
+                            mVec3_c curvedPos;
+                            dWorld::curvePositionSimple(&curvedPos, &p);
+                            curvedPos.y -= y + dWorld::getRadius();
+                            *pos = curvedPos;
+                        }
+#endif
                         curved = TRUE;
                     }
                 }

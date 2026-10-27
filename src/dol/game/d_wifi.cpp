@@ -30,6 +30,9 @@
 #include <revolution/os/OSThread.h>
 #include <cstring>
 #include <cstdio>
+#if TARGET_PC
+#include <cf/save_codec.h>
+#endif
 
 #define THREAD_STACK_SIZE 0x6000 // the job thread's stack (from dHeap::netWc24Heap_p)
 #define RETRY_MAX 20             // retries of a job that failed with a busy error (dWifi::getThreadResult)
@@ -1490,6 +1493,21 @@ void *deleteTasksThread(void *arg) {
     return NULL;
 }
 
+#if TARGET_PC
+// The distribution's records are in the Wii's format, the save's (E-62): to native through the save
+// codec, decoding each as the save struct it becomes (byte and bit-field order, then its checksum).
+// The save offset only picks the struct's map: the record is converted where it is.
+static void decodeDistRecord(void *record, u32 saveOffset, u32 size) {
+    if (record != NULL) {
+        cf::save::Decode(saveOffset, record, record, size);
+    }
+}
+
+static const u32 DIST_DL_ITEM_OFFSET = offsetof(dSaveData_c, mDLItems) + offsetof(dSaveDLItemList_c, mItems);
+static const u32 DIST_ANIMAL_OFFSET =
+    offsetof(dSaveData_c, mAnimals) + offsetof(dAnimalSave_c, mTown) + offsetof(dAnimalBlock_c, mAnimals);
+#endif
+
 // 8017B274: the downloaded distribution archive (task 0): info.bin, item.bin, the letter, the NPCs,
 // the pattern and the per-language files.
 void onDistDownload(void *data, u32 size, BOOL arg) {
@@ -1499,6 +1517,14 @@ void onDistDownload(void *data, u32 size, BOOL arg) {
         void *design;
         u8 boardSendLimit;
         void *file = arc->getFile("info.bin", &fileInfo);
+#if TARGET_PC
+        if (file != NULL && fileInfo.mFileSize == sizeof(dWifiInfoBin_c)) {
+            u32 *words = (u32 *)file;
+            for (u32 i = 0; i < sizeof(dWifiInfoBin_c) / sizeof(u32); i++) {
+                words[i] = RES_U32(words[i]);
+            }
+        }
+#endif
         const dWifiInfoBin_c *info = (const dWifiInfoBin_c *)file;
         if (info != NULL && fileInfo.mFileSize == sizeof(dWifiInfoBin_c)) {
             boardSendLimit = info->mBoardSendLimit;
@@ -1511,6 +1537,11 @@ void onDistDownload(void *data, u32 size, BOOL arg) {
 
             dItem::Item present;
             void *item = arc->getFile("item.bin", &fileInfo);
+#if TARGET_PC
+            if (fileInfo.mFileSize == sizeof(dSaveDLItem_c)) {
+                decodeDistRecord(item, DIST_DL_ITEM_OFFSET, sizeof(dSaveDLItem_c));
+            }
+#endif
             if (item != NULL) {
                 present = dSaveDLItemList_c::get()->add((const dSaveDLItem_c *)item, 0);
             }
@@ -1532,6 +1563,11 @@ void onDistDownload(void *data, u32 size, BOOL arg) {
                 char npcName[16];
                 sprintf(npcName, "npc%d.bin", i);
                 void *npc = arc->getFile(npcName, &fileInfo);
+#if TARGET_PC
+                if (fileInfo.mFileSize == sizeof(dAnimal_c)) {
+                    decodeDistRecord(npc, DIST_ANIMAL_OFFSET, sizeof(dAnimal_c));
+                }
+#endif
                 if (npc != NULL) {
                     npcs[npcNum] = (dAnimal_c *)npc;
                     npcNum++;
@@ -1545,6 +1581,11 @@ void onDistDownload(void *data, u32 size, BOOL arg) {
             }
 
             design = arc->getFile("design.bin", &fileInfo);
+#if TARGET_PC
+            if (fileInfo.mFileSize == sizeof(dSaveDLItem_c)) {
+                decodeDistRecord(design, DIST_DL_ITEM_OFFSET, sizeof(dSaveDLItem_c));
+            }
+#endif
             if (design != NULL) {
                 dSaveDistPattern_c *pattern = &dSaveData_c::getExtra()->mDistPattern;
                 if (designVersion != pattern->mVersion) {

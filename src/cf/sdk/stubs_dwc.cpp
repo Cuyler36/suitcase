@@ -17,13 +17,6 @@ BOOL DWC_CancelMatching(void) {
     return FALSE;
 }
 
-int DWC_CheckFriendKey(const DWCUserData *userData, u64 friendKey) {
-    return cf::sdk::StubFail<int>();
-}
-
-
-void DWC_ClearBuddyFlagFriendData(DWCFriendData *friendData) {
-}
 
 
 void DWC_ClearError(void) {
@@ -45,34 +38,12 @@ BOOL DWC_ConnectToGameServerAsync(int mode, u32 serverIndex, DWCMatchedSCCallbac
     return FALSE;
 }
 
-void DWC_CreateExchangeToken(const DWCUserData *userData, DWCFriendData *friendData) {
-}
-
-u64 DWC_CreateFriendKey(const DWCUserData *userData) {
-    return cf::sdk::StubFail<u64>();
-}
-
-void DWC_CreateFriendKeyToken(DWCFriendData *friendData, u64 friendKey) {
-}
-
 
 void DWC_DeleteBuddyFriendData(DWCFriendData *friendData) {
 }
 
-int DWC_GetFriendDataType(const DWCFriendData *friendData) {
-    return cf::sdk::StubFail<int>();
-}
-
-u64 DWC_GetFriendKey(const DWCFriendData *friendData) {
-    return cf::sdk::StubFail<u64>();
-}
-
 u8 DWC_GetFriendStatusDataSC(DWCFriendData *friendData, u8 *maxEntry, u8 *numEntry, void *statusData, int *size) {
     return cf::sdk::StubFail<u8>();
-}
-
-int DWC_GetGsProfileId(const DWCUserData *userData, const DWCFriendData *friendData) {
-    return cf::sdk::StubFail<int>();
 }
 
 int DWC_GetLastErrorEx(int *errorCode, int *errorType) {
@@ -103,14 +74,6 @@ BOOL DWC_GetSuspendMatch(void) {
 void DWC_InitFriendsMatch(void *control, DWCUserData *userData, int productId, const char *gameName, const char *secretKey, int sendBufSize, int recvBufSize, DWCFriendData *friendList, int friendListLen) {
 }
 
-BOOL DWC_IsBuddyFriendData(const DWCFriendData *friendData) {
-    return FALSE;
-}
-
-
-BOOL DWC_IsEqualFriendData(const DWCFriendData *a, const DWCFriendData *b) {
-    return FALSE;
-}
 
 BOOL DWC_IsSendableReliable(u8 aid) {
     return FALSE;
@@ -124,10 +87,6 @@ BOOL DWC_IsValidAID(u8 aid) {
     return FALSE;
 }
 
-BOOL DWC_IsValidFriendData(const DWCFriendData *friendData) {
-    return FALSE;
-}
-
 BOOL DWC_LoginAsync(const wchar16_t *nickname, int reserved, DWCLoginCallback callback, void *param) {
     return FALSE;
 }
@@ -137,9 +96,6 @@ BOOL DWC_Ping(u8 aid) {
 }
 
 void DWC_ProcessFriendsMatch(void) {
-}
-
-void DWC_ReportUserData(DWCUserData *userData) {
 }
 
 BOOL DWC_RequestSuspendMatchAsync(BOOL suspend, DWCStopSCCallback callback, void *param) {

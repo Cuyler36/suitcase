@@ -50,6 +50,12 @@ borealis::config::Var<float> volume{"audio.volume", 1.f, {.min = 0.f, .max = 1.f
 
 } // namespace audio
 
+namespace online {
+
+borealis::config::Var<cf::online::Service> service{"online.service", cf::online::Service::WiiLink};
+
+} // namespace online
+
 namespace debug {
 
 borealis::config::Var<bool> showFps{"debug.showFps", false};
@@ -100,6 +106,7 @@ void Load(const char* userPath) {
 
     graphics::frameRate.observe([](int rate) { frame::SetFrameRate(rate); }).release();
     audio::volume.observe([](float value) { cf::audio::SetVolume(value); }).release();
+    online::service.observe([](cf::online::Service value) { cf::online::SetCurrent(value); }).release();
 }
 
 } // namespace config

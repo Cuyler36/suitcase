@@ -5,6 +5,17 @@
 
 #include <borealis/config.hpp>
 
+#include <cf/online.h>
+
+namespace cf::online {
+
+// The online.service setting's names
+constexpr auto config_enum_values(Service) {
+    return borealis::config::enum_table<Service>({{Service::WiiLink, "wiilink"}});
+}
+
+} // namespace cf::online
+
 namespace cf {
 namespace config {
 
@@ -28,6 +39,13 @@ namespace audio {
 extern borealis::config::Var<float> volume;
 
 } // namespace audio
+
+namespace online {
+
+// The service for WiiConnect24 and Wi-Fi Connection (cf/online.h)
+extern borealis::config::Var<cf::online::Service> service;
+
+} // namespace online
 
 namespace debug {
 

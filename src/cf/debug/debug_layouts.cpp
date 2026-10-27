@@ -54,6 +54,10 @@ struct DumpState {
 
 } // namespace
 
+const std::string& UserPath() {
+    return sUserPath;
+}
+
 void SetUserPath(const char* path) {
     if (path != nullptr) {
         sUserPath = path;
