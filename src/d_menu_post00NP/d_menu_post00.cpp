@@ -531,7 +531,13 @@ const mVec2_c &dMenuPost00_c::getSlotPos(int slot, float dx, float dy) {
         return pos;
     }
     if (isLetter(slot)) {
+#if TARGET_PC
+        // Through the static: the target returns a reference to the returned temporary (UB-14)
+        pos = mLtrWin.getLetterPos(slot, dx, dy);
+        return pos;
+#else
         return mLtrWin.getLetterPos(slot, dx, dy);
+#endif
     }
     return pos;
 }

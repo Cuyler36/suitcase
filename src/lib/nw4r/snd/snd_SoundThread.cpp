@@ -3,9 +3,24 @@
 
 #include <revolution/os.h>
 
+#if TARGET_PC
+#include <atomic>
+#endif
+
 namespace nw4r {
 namespace snd {
 namespace detail {
+
+#if TARGET_PC
+namespace {
+// AX frames the sound thread has not processed yet. On the Wii each comes from the DSP's 3 ms
+// interrupt and the sound thread runs before the next, so its queue of 4 never fills. On PC the audio
+// device asks for several frames at once (about 7 with PipeWire's default 21 ms), rendered back to
+// back: one message per frame overflowed the queue, the dropped frames' sound updates were lost and
+// the music played slow. One message stands for all the pending frames instead.
+std::atomic<int> sPendingFrames(0);
+} // namespace
+#endif
 
 SoundThread::SoundThread() : mStackEnd(NULL), mCreateFlag(false) {
     OSInitMessageQueue(&mMsgQueue, mMsgBuffer, MSG_QUEUE_CAPACITY);
@@ -56,7 +71,13 @@ void SoundThread::AxCallbackFunc() {
 }
 
 void SoundThread::AxCallbackProc() {
+#if TARGET_PC
+    if (sPendingFrames.fetch_add(1) == 0) {
+        OSSendMessage(&mMsgQueue, reinterpret_cast<OSMessage>(MSG_AX_CALLBACK), 0);
+    }
+#else
     OSSendMessage(&mMsgQueue, reinterpret_cast<OSMessage>(MSG_AX_CALLBACK), 0);
+#endif
 
     NW4R_UT_LINKLIST_FOREACH_SAFE(it, mPlayerCallbackList,
                                   { it->OnUpdateVoiceSoundThread(); })
@@ -103,7 +124,11 @@ void SoundThread::SoundThreadProc() {
     while (true) {
         OSReceiveMessage(&mMsgQueue, &msg, OS_MESSAGE_BLOCK);
 
-        if (reinterpret_cast<u32>(msg) == MSG_AX_CALLBACK) {
+        if (PTR_TO_U32(msg) == MSG_AX_CALLBACK) {
+#if TARGET_PC
+            // A sound frame for each pending AX frame (AxCallbackProc)
+            do {
+#endif
             ut::detail::AutoLock<OSMutex> lock(mMutex);
 
             NW4R_UT_LINKLIST_FOREACH_SAFE(it, mSoundFrameCallbackList,
@@ -127,8 +152,11 @@ void SoundThread::SoundThreadProc() {
 
             NW4R_UT_LINKLIST_FOREACH_SAFE(it, mSoundFrameCallbackList,
                                           { it->OnEndSoundFrame(); })
+#if TARGET_PC
+            } while (sPendingFrames.fetch_sub(1) > 1);
+#endif
 
-        } else if (reinterpret_cast<u32>(msg) == MSG_SHUTDOWN) {
+        } else if (PTR_TO_U32(msg) == MSG_SHUTDOWN) {
             NW4R_UT_LINKLIST_FOREACH_SAFE(it, mPlayerCallbackList,
                                           { it->OnShutdownSoundThread(); })
 

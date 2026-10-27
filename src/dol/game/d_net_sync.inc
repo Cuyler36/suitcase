@@ -3074,7 +3074,7 @@ void applyOpenHouseRoom(int, const void *, u32, u8 scene) {
 }
 
 void applyOpen4(int arg, const void *data, u32 size, u8 scene) {
-    dNpc::onNetSceneOpen(arg, (int)data, size, scene);
+    dNpc::onNetSceneOpen(arg, (int)PTR_TO_U32(data), size, scene);
 }
 
 // One-entry channels 807508CC / 807508D0 / 807508D4 and 807508D8 / 807508DC /

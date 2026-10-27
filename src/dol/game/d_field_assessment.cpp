@@ -5336,7 +5336,11 @@ BOOL fgMngProc_isChangeRequestValid(const dFgMngReq_c *req, u8 scene) {
     unit.mX = req->mPos >> 8;
     unit.mZ = req->mPos & 0xFF;
     int idx = fgMngLock_find(scene, &unit, req->mLayer);
+#if TARGET_PC
+    if (idx >= 0 && fgMngTask_getActive(req->mMember) == NULL) {
+#else
     if (idx >= 0 && !(BOOL)fgMngTask_getActive(req->mMember)) {
+#endif
         return FALSE;
     }
     dFdBase_c *fd = dField::getInfo(dField::getSceneFieldId(scene));

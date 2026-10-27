@@ -521,7 +521,7 @@ void daBbsBird_c::executeFly() {
         setState(STATE_HIDE);
         mFlewAway = TRUE;
     }
-    mAcch.check(8.0f, &mPos, &mLastPos, mAngle.y, (int)this,
+    mAcch.check(8.0f, &mPos, &mLastPos, mAngle.y, (dBGCF::ownerId_t)this,
                 dBGCF::CHECK_FLOOR | dBGCF::CHECK_WALL | dBGCF::CHECK_SET_POS,
                 TRUE);
 }

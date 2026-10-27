@@ -5,6 +5,7 @@
 
 #include "debug_windows.h"
 
+#include <game/game/d_home.hpp>
 #include <game/game/d_player_mgr.hpp>
 #include <game/game/d_private_data.hpp>
 #include <game/game/d_save_data.hpp>
@@ -58,13 +59,23 @@ void DrawSceneMenu() {
     SceneItem("Town", dScene::SCENE_FIELD);
 
     if (ImGui::BeginMenu("Player houses")) {
+        // The houses are by slot (the town's four plots), each with its owner; a player owns the one
+        // they moved into, not the one of their number
+        dHomeList_c& homes = dSaveData_c::getTown()->mHomes;
         for (int player = 0; player < 4; player++) {
-            char label[16];
-            std::snprintf(label, sizeof(label), "Player %d", player + 1);
-            const bool exists = PlayerExists(player);
-            if (ImGui::BeginMenu(label, exists)) {
+            const int house = PlayerExists(player) ? homes.findPlayer(player) : -1;
+            char label[32];
+            if (house >= 0) {
+                std::snprintf(label, sizeof(label), "Player %d (house %d)", player + 1, house + 1);
+            } else {
+                std::snprintf(label, sizeof(label), "Player %d", player + 1);
+            }
+            if (ImGui::BeginMenu(label, house >= 0)) {
+                dHome_c* home = homes.getHome(house);
                 for (int floor = 0; floor < 4; floor++) {
-                    SceneItem(kHouseFloors[floor], dScene::SCENE_RM_HS0_F1 + player * 4 + floor);
+                    // Upstairs and the basement come with the house's upgrades; every house has the loft
+                    const bool built = floor == HOME_SCENE_LOFT || home->hasRoom(floor);
+                    SceneItem(kHouseFloors[floor], dScene::SCENE_RM_HS0_F1 + house * 4 + floor, built);
                 }
                 ImGui::EndMenu();
             }

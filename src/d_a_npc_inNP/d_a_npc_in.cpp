@@ -528,7 +528,7 @@ void State_c::executeRemoteLook(dAcNpcIn_c *npc) {
         if (npc->isDaubClothChange()) {
             dAnimal_c *animal = npc->mpAnimal;
             action->requestChangeCloth2(PRIORITY_IDLE, animal->mCloth,
-                                        (int)&animal->mClothDesign);
+                                        (int)PTR_TO_U32(&animal->mClothDesign));
             npc->mLookAt.setFront(PRIORITY_IDLE, l_lookPitchStep,
                                   l_lookYawStep);
         } else if (npc->isDaubClothChanged()) {
@@ -839,7 +839,7 @@ void State_c::initChangeCloth(dAcNpcIn_c *npc) {
     npc->mAcceptMoveReq = FALSE;
     dAnimal_c *animal = npc->mpAnimal;
     npc->mAction.requestChangeCloth2(PRIORITY_IDLE, animal->mCloth,
-                                     (int)&animal->mClothDesign);
+                                     (int)PTR_TO_U32(&animal->mClothDesign));
     npc->mLookAt.setFront(PRIORITY_IDLE, l_lookPitchStep, l_lookYawStep);
     npc->mBusy = TRUE;
     npc->mMood.startTimer(0, 0);

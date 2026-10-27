@@ -1006,7 +1006,7 @@ void dAcPlayer_c::calcBgCheck() {
         break;
     case 5:
         mPos.y -= 5.0f;
-        mAcch.check(15.0f, &mPos, &mLastPos, mAngle.y, (int)this, 0x97, 1);
+        mAcch.check(15.0f, &mPos, &mLastPos, mAngle.y, (dBGCF::ownerId_t)this, 0x97, 1);
         break;
     case 6:
         dFTR::getHoldList()->clear();
@@ -1665,7 +1665,7 @@ void dAcPlayer_c::objcHit(dObjc::base_c *other) {
         if (player != NULL) {
             int tool = player->mpToolBank->getToolType();
             if (tool == HMN_TOOL_SCOOP || tool == HMN_TOOL_AXE) {
-                u32 param = other->mParam;
+                dObjc::param_t param = other->mParam;
                 if (player->_2278 == 0) {
                     player->_2278 = param;
                 } else if (param != player->_2278 && player->_227C == 0) {

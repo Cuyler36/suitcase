@@ -250,9 +250,17 @@ class StrmPlayer : public BasicPlayer, public SoundThread::PlayerCallback {
         mStrmDataLoadTaskList; // size 0x00c, offset 0x164
     InstancePool<StrmDataLoadTask>
         mStrmDataLoadTaskPool; // size 0x004, offset 0x170
+#if TARGET_PC
+    // Raw storage: the pool keeps its free list in the free tasks, over their vtable pointers, and
+    // constructs a task when it hands one out. An array of tasks would be destroyed with the player,
+    // which GCC does through those vtable pointers (../pc_port_ub.md UB-18).
+    alignas(StrmDataLoadTask) u8
+        mStrmDataLoadTaskArea[sizeof(StrmDataLoadTask) * BUFFER_BLOCK_COUNT_MAX];
+#else
     StrmDataLoadTask
         mStrmDataLoadTaskArea[BUFFER_BLOCK_COUNT_MAX]; // size 0x680, offset
                                                        // 0x174
+#endif
     StrmBufferPool *mBufferPool;             // size 0x004, offset 0x7f4
     ut::FileStream *mFileStream;             // size 0x004, offset 0x7f8
     s32 mTrackCount;                         // size 0x004, offset 0x7fc

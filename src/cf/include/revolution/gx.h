@@ -66,6 +66,8 @@ static inline void GXSetViewportv(const f32* view) {
 // RVL signatures that differ from aurora's, as C++ overloads. extern "C++" because gx.h can be
 // included inside an extern "C" block.
 extern "C++" {
+#include <type_traits>
+
 // The Wii's three-argument GXSetArray (see CFGXSetArrayUnsized)
 inline void GXSetArray(GXAttr attr, const void* data, u8 stride) {
     CFGXSetArrayUnsized(attr, data, stride);
@@ -86,6 +88,22 @@ inline void GXLoadNrmMtxImm(const f32 (*mtx)[4], u32 id) {
 }
 inline void GXLoadTexMtxImm(const f32 (*mtx)[4], u32 id, GXTexMtxType type) {
     GXLoadTexMtxImm(static_cast<const void*>(mtx), id, type);
+}
+
+// Matrix classes (mMtx_c, EGG::Matrix34f, nw4r::math::MTX34) convert both to Mtx rows and to other
+// pointers, which makes the two overloads above ambiguous for GCC and Clang (MSVC picks one; every
+// conversion is the same address). These take the class and convert to the rows.
+template <typename T, typename = std::enable_if_t<std::is_class_v<T>>>
+inline void GXLoadPosMtxImm(T& mtx, u32 id) {
+    GXLoadPosMtxImm(static_cast<const f32 (*)[4]>(mtx), id);
+}
+template <typename T, typename = std::enable_if_t<std::is_class_v<T>>>
+inline void GXLoadNrmMtxImm(T& mtx, u32 id) {
+    GXLoadNrmMtxImm(static_cast<const f32 (*)[4]>(mtx), id);
+}
+template <typename T, typename = std::enable_if_t<std::is_class_v<T>>>
+inline void GXLoadTexMtxImm(T& mtx, u32 id, GXTexMtxType type) {
+    GXLoadTexMtxImm(static_cast<const f32 (*)[4]>(mtx), id, type);
 }
 }
 #endif

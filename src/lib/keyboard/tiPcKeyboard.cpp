@@ -2349,7 +2349,7 @@ bool Base::isShiftOn() const {
 
 void LayoutByNW4R::onEvent(UIObj *object, u32 event, void *data) {
     if (event == 0) {
-        mpEventObserver->onSE((sound::SE)(u32)data);
+        mpEventObserver->onSE((sound::SE)PTR_TO_U32(data));
     }
 }
 

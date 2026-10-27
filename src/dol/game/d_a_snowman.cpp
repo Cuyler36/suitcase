@@ -536,7 +536,7 @@ void daSnowMan_c::executeRoll() {
     }
     mObjc.set(this, height, 2.0f * radius, dObjc::TYPE_SNOWBALL,
               mWasPushed ? 0x40007E : dObjc::MASK_DEFAULT, mWeight, 0);
-    mObjc.mParam = (u32)this;
+    mObjc.mParam = (dObjc::param_t)this;
     if (!checkGround()) {
         doBreak();
         return;
@@ -788,7 +788,7 @@ void daSnowMan_c::executeSink() {
     }
     calcRotation();
     f32 radius = getRadius();
-    mAcch.check(radius, &mPos, &mLastPos, mAngle.y, (int)this,
+    mAcch.check(radius, &mPos, &mLastPos, mAngle.y, (dBGCF::ownerId_t)this,
                 dBGCF::CHECK_FLOOR | dBGCF::CHECK_WALL | dBGCF::CHECK_SET_POS |
                     dBGCF::CHECK_NO_WAVE_WATER,
                 TRUE);
@@ -1043,7 +1043,7 @@ BOOL daSnowMan_c::checkGround() {
     }
     f32 radius = getRadius();
     mAcch.mStepHeight = 0.5f;
-    mAcch.check(radius, &mPos, &mLastPos, mAngle.y, (int)this,
+    mAcch.check(radius, &mPos, &mLastPos, mAngle.y, (dBGCF::ownerId_t)this,
                 dBGCF::CHECK_FLOOR | dBGCF::CHECK_WALL | dBGCF::CHECK_SET_POS |
                     dBGCF::CHECK_NO_WAVE_WATER,
                 TRUE);

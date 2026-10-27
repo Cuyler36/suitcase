@@ -117,14 +117,14 @@ int dSvMgr_c::getDLDataOffset() {
 
 int dSvMgr_c::getVisitorDataOffset() {
     dSaveData_c *base = dSaveData_c::getRaw();
-    return reinterpret_cast<int>(&dSaveData_c::getRaw()->mAnimals) -
-           reinterpret_cast<int>(base);
+    return PTR_TO_U32(&dSaveData_c::getRaw()->mAnimals) -
+           PTR_TO_U32(base);
 }
 
 int dSvMgr_c::getPlayerDataOffset(int player) {
     dSaveData_c *base = dSaveData_c::getRaw();
-    return reinterpret_cast<int>(dPlayerMgr::Mgr_c::getPlayerRaw(player)) -
-           reinterpret_cast<int>(base);
+    return PTR_TO_U32(dPlayerMgr::Mgr_c::getPlayerRaw(player)) -
+           PTR_TO_U32(base);
 }
 
 // State names retain the original CP932 bytes.

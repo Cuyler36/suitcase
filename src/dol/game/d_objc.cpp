@@ -106,7 +106,7 @@ void dpdHit_c::clear() {
     mParam = 0;
 }
 
-void dpdHit_c::set(const mVec3_c &pos, u32 type, fBase_c *base, u32 param) {
+void dpdHit_c::set(const mVec3_c &pos, u32 type, fBase_c *base, dObjc::param_t param) {
     mType = type;
     mPos = pos;
     mBase.set(base);
@@ -140,7 +140,7 @@ dpdTri_c::dpdTri_c() {
 }
 
 void dpdTri_c::set(const dBGC::poly_c &poly, u32 type, fBase_c *owner,
-                   const mVec3_c *center, u32 param) {
+                   const mVec3_c *center, dObjc::param_t param) {
     mParam = param;
     if (center != NULL) {
         mCenter = *center;
@@ -210,7 +210,7 @@ void dpdTri_c::destroy() {
 
 void dpdQuad_c::set(const mVec3_c &p0, const mVec3_c &p1, const mVec3_c &p2,
                     const mVec3_c &p3, u32 type, fBase_c *owner,
-                    const mVec3_c *center, u32 param) {
+                    const mVec3_c *center, dObjc::param_t param) {
     dBGC::poly_c tri0(p0, p1, p2);
     dBGC::poly_c tri1(p0, p2, p3);
     if (center != NULL) {
@@ -235,7 +235,7 @@ void dpdQuad_c::regist() {
 }
 
 void dpdBox_c::set(const mVec3_c &pos, f32 sizeX, f32 sizeZ, f32 height,
-                   s16 angle, u32 type, fBase_c *owner, u32 param) {
+                   s16 angle, u32 type, fBase_c *owner, dObjc::param_t param) {
     f32 hx = 0.5f * sizeX;
     f32 hz = 0.5f * sizeZ;
     f32 nx = -hx;
@@ -381,7 +381,7 @@ BOOL base_c::checkPushAngle(mAng *angle) const {
 }
 
 void base_c::set(f32 radius, f32 height, u32 type, u32 mask, u8 weight,
-                 u32 param) {
+                 dObjc::param_t param) {
     mRadius = radius;
     mHeight = height;
     mType = type;
@@ -441,7 +441,7 @@ void calc() {
     dCamera_c *cam;
     dAcPlayer_c *player;
     dFdBase_c *field;
-    u32 param;
+    dObjc::param_t param;
     fBase_c *base;
 
     for (base_c *obj = base_c::s_head; obj != NULL; obj = obj->mNext) {
@@ -839,19 +839,19 @@ fBaseID_e ac_c::getID() const {
 }
 
 void ac_c::set(dActor_c *actor, f32 radius, f32 height, u32 type, u32 mask,
-               u8 weight, u32 param) {
+               u8 weight, dObjc::param_t param) {
     mActor = actor;
     base_c::set(radius, height, type, mask, weight, param);
 }
 
 void pos_c::set(const mVec3_c &pos, f32 radius, f32 height, u32 type, u32 mask,
-                u8 weight, u32 param) {
+                u8 weight, dObjc::param_t param) {
     mPos = pos;
     base_c::set(radius, height, type, mask, weight, param);
 }
 
 void acpos_c::set(dActor_c *actor, const mVec3_c &pos, f32 radius, f32 height,
-                  u32 type, u32 mask, u8 weight, u32 param) {
+                  u32 type, u32 mask, u8 weight, dObjc::param_t param) {
     ac_c::set(actor, radius, height, type, mask, weight, param);
     mPos = pos;
 }
@@ -865,7 +865,7 @@ ins_c::ins_c() {
     mEnabled = TRUE;
 }
 
-void ins_c::regist(const mVec3_c *pos, f32 radius, u32 param, BOOL enable) {
+void ins_c::regist(const mVec3_c *pos, f32 radius, dObjc::param_t param, BOOL enable) {
     mNext = NULL;
     if (mRegistered) {
         clearList();
@@ -887,9 +887,9 @@ void ins_c::regist(const mVec3_c *pos, f32 radius, u32 param, BOOL enable) {
 }
 
 BOOL ins_c::check(const mVec3_c *start, const mVec3_c *end, f32 radius,
-                  u32 *param) {
+                  dObjc::param_t *param) {
     BOOL hit = FALSE;
-    u32 dummy;
+    dObjc::param_t dummy;
     if (param == NULL) {
         param = &dummy;
     }

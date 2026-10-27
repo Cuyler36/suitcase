@@ -410,7 +410,7 @@ void AxManager::AuxCallbackFunc(void *pChans, void *pContext) {
     void *buffer[AX_DPL2_MAX];
 
     void **ppChans = static_cast<void **>(pChans);
-    AuxBus bus = static_cast<AuxBus>(reinterpret_cast<u32>(pContext));
+    AuxBus bus = static_cast<AuxBus>(PTR_TO_U32(pContext));
 
     int tick = OSGetTick();
 

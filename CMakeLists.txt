@@ -42,13 +42,43 @@ add_subdirectory(extern/borealis EXCLUDE_FROM_ALL)
 
 # A function that falls off the end without a value is UB that optimized builds turn into crashes
 # (../pc_port_ub.md UB-10): an error, not a warning. So is returning a reference to a local or a
-# temporary, which the Wii build happens to survive and optimized PC builds do not (UB-12, UB-14;
-# MSVC only).
+# temporary, which the Wii build happens to survive and optimized PC builds do not (UB-12, UB-14).
 # This directory's targets only.
 if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
     # Multi-character constants ('ABCD') encode identically on CW, GCC, Clang and MSVC
     add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:-Wno-multichar>
             $<$<COMPILE_LANGUAGE:C,CXX>:-Werror=return-type>)
+    # MSVC's C4172 (a reference to a local or temporary returned) under each compiler's name
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:-Werror=return-stack-address>)
+    else ()
+        add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:-Werror=return-local-addr>)
+    endif ()
+    # The game's data tables put values like 0xFFF1 in s16 fields, which wrap as on the Wii (MSVC
+    # accepts them)
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-c++11-narrowing>)
+    else ()
+        add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-narrowing>)
+    endif ()
+    # As the Wii's compiler (and MSVC), which the game's code was written for: type punning through
+    # pointer casts and signed overflow that wraps
+    add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:-fno-strict-aliasing>
+            $<$<COMPILE_LANGUAGE:C,CXX>:-fwrapv>)
+    # Bit-fields laid out as MSVC does, which the PC layouts of the game's file and save structs were
+    # written against (a field of a different type starts a new unit; GCC and Clang pack across)
+    if (CMAKE_SYSTEM_PROCESSOR MATCHES "^(x86_64|AMD64|i[3-6]86)$")
+        add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:-mms-bitfields>)
+    endif ()
+    # extern "C" functions can throw (see /EHs below): C code gets unwind tables
+    add_compile_options($<$<COMPILE_LANGUAGE:C>:-fexceptions>)
+    if (NOT APPLE)
+        # The decomp's static libraries and aurora's reference each other in cycles (the game calls the
+        # SDK layer, which calls back into the game). MSVC's and Apple's linkers search the libraries
+        # until nothing changes; GNU ld and lld take each once, in order, unless grouped.
+        set(CMAKE_CXX_LINK_EXECUTABLE
+                "<CMAKE_CXX_COMPILER> <FLAGS> <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <OBJECTS> -o <TARGET> -Wl,--start-group <LINK_LIBRARIES> -Wl,--end-group")
+    endif ()
 elseif (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
     add_compile_options(
             $<$<COMPILE_LANGUAGE:C,CXX>:/we4715>

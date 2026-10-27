@@ -405,7 +405,7 @@ bool levelEffect_c::follow(const mMtx_c *mtx) {
 
 // 802B8A44
 BOOL oneEmitter_c::create(const char *name, const mVec3_c *pos, const mAng3_c *angle, const mVec3_c *scale) {
-    mGroupID = (u32)name;
+    mGroupID = PTR_TO_U32(name);
     mMtx_c mtx;
     makeMtx(pos, angle, scale, &mtx);
     EGG::ExOneEmitter emitter(this);
@@ -419,7 +419,7 @@ BOOL oneEmitter_c::create(const char *name, const mVec3_c *pos, const mAng3_c *a
 
 // 802B8AF4
 BOOL oneEmitter_c::create(const char *name, const mMtx_c *mtx) {
-    mGroupID = (u32)name;
+    mGroupID = PTR_TO_U32(name);
     mVec3_c pos;
     mtx->multVecZero(pos);
     EGG::ExOneEmitter emitter(this);

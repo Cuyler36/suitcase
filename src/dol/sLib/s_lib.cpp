@@ -152,7 +152,12 @@ template <typename T>
 T sLib::addCalcAngleT(T *value, T target, T smoothing, T maxStep, T minStep) {
     T dist = target - *value;
     if (*value != target) {
+#if TARGET_PC
+        // A smoothing of 0 (the museum fish turning) divides by zero, which the Wii survives
+        T step = __divw(dist, smoothing);
+#else
         T step = dist / smoothing;
+#endif
 
         if (step > minStep || step < -minStep) {
             if (step > maxStep) {
@@ -186,7 +191,11 @@ T sLib::addCalcAngleT(T *value, T target, T smoothing, T maxStep, T minStep) {
 template <typename T>
 void sLib::addCalcAngleT(T *value, T target, T smoothing, T maxStep) {
     T dist = target - *value;
+#if TARGET_PC
+    T step = __divw(dist, smoothing);
+#else
     T step = dist / smoothing;
+#endif
 
     if (step > maxStep) {
         *value += maxStep;

@@ -11,7 +11,7 @@
 #include <game/mLib/m_heap.hpp>
 #include <game/mLib/m_pad.hpp>
 #include <game/mLib/m_video.hpp>
-#include <game/sLib/s_phase.hpp>
+#include <game/sLib/s_Phase.hpp>
 #include <game/game/d_activity_log.hpp>
 #include <game/game/d_banner.hpp>
 #include <game/game/d_bg.hpp>

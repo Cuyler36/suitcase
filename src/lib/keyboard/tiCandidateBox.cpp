@@ -574,7 +574,7 @@ void LayoutByNW4R::onEvent(UIObj *obj, u32 id, void *data) {
     switch (id) {
     case 0:
         mpEventObserver->onSE(
-            static_cast<sound::SE>(reinterpret_cast<int>(data)));
+            static_cast<sound::SE>(PTR_TO_U32(data)));
         break;
     case 0x100:
         updateDisplay();
@@ -588,7 +588,7 @@ void LayoutByNW4R::onEvent(UIObj *obj, u32 id, void *data) {
         }
         break;
     case 0x102:
-        tmp = reinterpret_cast<int>(data);
+        tmp = PTR_TO_U32(data);
         if (tmp >= 0) {
             changeSelect(tmp);
         } else {
@@ -1303,7 +1303,7 @@ s32 UITextArea::GetCandidateIdx(s32 arg) const {
 
 void UITextArea::onAnmEvent(AnmEvent ev, void *data) {
     if (ev == AE_END) {
-        s32 dat = reinterpret_cast<s32>(data);
+        s32 dat = PTR_TO_U32(data);
         if (mnBaseIdx + dat < 0) {
             ChangeBaseIdx_(0);
         } else {

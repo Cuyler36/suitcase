@@ -69,6 +69,14 @@ void draw() {
             ImGui::EndMenu();
         }
         DrawSceneMenu();
+        if (ImGui::BeginMenu("Sound")) {
+            // The output volume (cf/audio.h), as a percentage
+            float percent = config::audio::volume * 100.f;
+            if (ImGui::SliderFloat("Volume", &percent, 0.f, 100.f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp)) {
+                config::audio::volume.set(percent / 100.f);
+            }
+            ImGui::EndMenu();
+        }
         if (ImGui::BeginMenu("Config")) {
             if (auto* resettiDisabled = borealis::config::find<bool>("game.resettiDisabled")) {
                 bool value = *resettiDisabled;

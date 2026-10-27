@@ -223,7 +223,7 @@ nw4r::g3d::ScnMdl *daSTR_c::getScnMdl() {
 // The materials of a light and their lit colours.
 struct lightMat_s {
     const char *mName;
-    mColor mColor;
+    ::mColor mColor;
     u8 mPolyColor; // uses the building's dBuildingInfo_c::mPolyColor
 };
 

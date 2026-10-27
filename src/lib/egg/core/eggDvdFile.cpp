@@ -92,7 +92,7 @@ s32 DvdFile::sync() {
 
     OSUnlockMutex(&mMutex);
 
-    return (s32)message;
+    return (s32)PTR_TO_U32(message);
 }
 
 void DvdFile::doneProcess(s32 result, DVDFileInfo *fileInfo) {

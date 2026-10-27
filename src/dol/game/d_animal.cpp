@@ -2904,7 +2904,12 @@ dItem::Item dAnimal_c::pickOwnItem() {
         if (rnd < 30.0f) {
             static dNpcPair_c sPair(dItem::KIND_FOSSIL, 0x5C);
             // Integer select: the target computes this branchless.
+#if TARGET_PC
+            // Not through an int: that keeps only the low 32 bits of the stack address
+            const dItem::Item *exclude = prev.mId != dItem::ITEM_ID_NONE ? &prev : NULL;
+#else
             const dItem::Item *exclude = (const dItem::Item *)(prev.mId != dItem::ITEM_ID_NONE ? (int)&prev : 0);
+#endif
             dItemSel::select(&item, 1, reinterpret_cast<const dItemSel::Range_c *>(&sPair), 1, &dItemSel::sDefaultFilter, exclude, exclude != NULL, 0);
             if (item.isSame(prev)) {
                 item = dItem::ITEM_ID_NONE;

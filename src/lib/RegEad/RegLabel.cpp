@@ -1,4 +1,8 @@
 #include <lib/RegEad/RegNfa.hpp>
+#if TARGET_PC
+// The Array members this unit uses (the CharSet copy): no other unit has to emit them out of line
+#include <lib/RegEad/RegEadArray.inl>
+#endif
 
 namespace RegEad {
 

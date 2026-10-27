@@ -7,8 +7,15 @@
 #include <cstdio>
 
 bool daRmobj_c::model_c::create(const char *name, u32 bufferOption) {
+#if TARGET_PC
+    // 0x20 on the Wii, which "/Rmobj/obj_tw_theater_dontyou.brres" (the theater show room, 36 bytes)
+    // overruns: harmless there, a /GS stack check failure here (../pc_port_ub.md UB-21)
+    char path[0x40];
+    std::snprintf(path, sizeof(path), "/Rmobj/%s.brres", name);
+#else
     char path[0x20];
     sprintf(path, "/Rmobj/%s.brres", name);
+#endif
     if (load(path, dHeap::localHeap_p, 0)) {
         if (isCreated()) {
             return true;

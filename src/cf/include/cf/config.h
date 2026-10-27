@@ -22,6 +22,13 @@ extern borealis::config::Var<int> frameRate;
 
 } // namespace graphics
 
+namespace audio {
+
+// The output volume, 0 to 1 (cf/audio.h)
+extern borealis::config::Var<float> volume;
+
+} // namespace audio
+
 namespace debug {
 
 // The FPS counter overlay (src/cf/debug)

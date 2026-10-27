@@ -29,6 +29,15 @@ class dActor_c;
 
 namespace dObjc {
 
+// An object's param: an item id, a player number, or the object's actor (the snowman, a field
+// insect), which the player casts back. Pointer-sized on PC (../pc_port_ub.md UB-16).
+#if TARGET_PC
+typedef uintptr_t param_t;
+#else
+typedef u32 param_t;
+#endif
+
+
 // A reference to a base by its unique id.
 class baseID_c {
 public:
@@ -56,12 +65,12 @@ public:
     dpdHit_c() { clear(); }
 
     void clear();                                                      // 801AD7A4
-    void set(const mVec3_c &pos, u32 type, fBase_c *base, u32 param);  // 801AD7F0
+    void set(const mVec3_c &pos, u32 type, fBase_c *base, param_t param);  // 801AD7F0
 
     /* 0x00 */ baseID_c mBase;
     /* 0x04 */ u32 mType;   // a HIT_* kind, or the base_c's mType
     /* 0x08 */ mVec3_c mPos;
-    /* 0x14 */ u32 mParam;
+    /* 0x14 */ param_t mParam;
 }; // size 0x18
 
 enum {
@@ -119,7 +128,7 @@ public:
 
     // Turns angle around and tells whether the push comes from within 45 degrees of it.
     BOOL checkPushAngle(mAng *angle) const; // 801AE4D4
-    void set(f32 radius, f32 height, u32 type, u32 mask, u8 weight, u32 param); // 801AE580
+    void set(f32 radius, f32 height, u32 type, u32 mask, u8 weight, param_t param); // 801AE580
     void init();                            // 801AE59C
     void regist();                          // 801AE5C4
     BOOL check(base_c *other);              // 801AE618
@@ -130,7 +139,7 @@ public:
     f32 getRadius() const { return mRadius; }
     f32 getHeight() const { return mHeight; }
 
-    /* 0x04 */ u32 mParam;
+    /* 0x04 */ param_t mParam;
     /* 0x08 */ f32 mRadius;
     /* 0x0C */ f32 mHeight;
     /* 0x10 */ mVec3_c mPush;    // the push out of the others (xz)
@@ -159,7 +168,7 @@ public:
     virtual ~ac_c() {}               // 8002EBC8 (d_a_npc)
 
     void set(dActor_c *actor, f32 radius, f32 height, u32 type, u32 mask, u8 weight,
-             u32 param); // 801AF8DC
+             param_t param); // 801AF8DC
 
     /* 0x40 */ dActor_c *mActor;
 }; // size 0x44
@@ -174,7 +183,7 @@ public:
     virtual ~pos_c() {}
 
     void set(const mVec3_c &pos, f32 radius, f32 height, u32 type, u32 mask, u8 weight,
-             u32 param); // 801AF8F8
+             param_t param); // 801AF8F8
 
     /* 0x40 */ mVec3_c mPos;
 }; // size 0x4C
@@ -190,7 +199,7 @@ public:
     virtual ~acpos_c() {}
 
     void set(dActor_c *actor, const mVec3_c &pos, f32 radius, f32 height, u32 type, u32 mask,
-             u8 weight, u32 param); // 801AF928
+             u8 weight, param_t param); // 801AF928
 
     /* 0x44 */ mVec3_c mPos;
 }; // size 0x50
@@ -201,17 +210,17 @@ public:
     ins_c();             // 801AF988
     virtual ~ins_c() {} // 801B01F0
 
-    void regist(const mVec3_c *pos, f32 radius, u32 param, BOOL enable); // 801AF9DC
+    void regist(const mVec3_c *pos, f32 radius, param_t param, BOOL enable); // 801AF9DC
     // Whether the segment start..end, swept with radius, touches an enabled insect (its mParam
     // goes to param).
-    static BOOL check(const mVec3_c *start, const mVec3_c *end, f32 radius, u32 *param); // 801AFA84
+    static BOOL check(const mVec3_c *start, const mVec3_c *end, f32 radius, param_t *param); // 801AFA84
     static void clearList(); // 801AFED0
 
     static ins_c *s_head; // 8074EAFC
 
     /* 0x14 */ ins_c *mNext;
     /* 0x18 */ u8 _18[4];
-    /* 0x1C */ u32 mParam;
+    /* 0x1C */ param_t mParam;
     /* 0x20 */ u8 mHit;
     /* 0x21 */ u8 mRegistered;
     /* 0x22 */ u8 mEnabled;
@@ -225,7 +234,7 @@ public:
 
     // The center defaults to the triangle's centroid.
     void set(const dBGC::poly_c &poly, u32 type, fBase_c *owner, const mVec3_c *center,
-             u32 param); // 801AD8E0
+             param_t param); // 801AD8E0
     void regist();       // 801ADA8C
     void init();         // 801ADAEC
 
@@ -242,14 +251,14 @@ public:
     /* 0x41 */ u8 mRegistered;
     /* 0x44 */ u32 mType;
     /* 0x48 */ mVec3_c mCenter;
-    /* 0x54 */ u32 mParam;
+    /* 0x54 */ param_t mParam;
 }; // size 0x58
 
 // A quad (p0, p1, p2, p3) as two dpdTri_c (no RTTI).
 class dpdQuad_c {
 public:
     void set(const mVec3_c &p0, const mVec3_c &p1, const mVec3_c &p2, const mVec3_c &p3, u32 type,
-             fBase_c *owner, const mVec3_c *center, u32 param); // 801ADB30
+             fBase_c *owner, const mVec3_c *center, param_t param); // 801ADB30
     void regist();                                              // 801ADCB8
 
     /* 0x00 */ dpdTri_c mTri[2];
@@ -259,7 +268,7 @@ public:
 class dpdBox_c {
 public:
     void set(const mVec3_c &pos, f32 sizeX, f32 sizeZ, f32 height, s16 angle, u32 type,
-             fBase_c *owner, u32 param); // 801ADD04
+             fBase_c *owner, param_t param); // 801ADD04
     void regist();                       // 801AE200
 
     /* 0x000 */ dpdQuad_c mQuad[5];

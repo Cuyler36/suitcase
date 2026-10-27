@@ -178,7 +178,7 @@ void dAcNpcSpRakosuke_c::addWallPush(mVec3_c *dir) {
     mVec3_c pos = mPos + ofs;
     mVec3_c old = mLastPos + ofs;
     mVec3_c before = pos;
-    mSwimAcch.check(60.0f, &pos, &old, mAngle.y, (int)this,
+    mSwimAcch.check(60.0f, &pos, &old, mAngle.y, (dBGCF::ownerId_t)this,
                     dBGCF::CHECK_FLOOR | dBGCF::CHECK_WALL |
                         dBGCF::CHECK_STEP_EXT_48 | dBGCF::CHECK_SET_POS |
                         dBGCF::CHECK_EDGE_WALLS,

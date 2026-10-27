@@ -146,7 +146,7 @@ dItem::Item dSaveDLItemList_c::add(const dSaveDLItem_c *item, int arg) {
     u16 baseId;
     dSaveDLItem_c *src;
     src = (dSaveDLItem_c *)item;
-    if ((u32)item & 3) {
+    if (PTR_TO_U32(item) & 3) {
         sAlignedItem.copy(item);
         src = &sAlignedItem;
     }

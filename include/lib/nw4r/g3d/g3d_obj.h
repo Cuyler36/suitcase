@@ -50,7 +50,12 @@ public:
 
         ulong GetTypeID() const {
             // @note Address is used for comparing TypeObjs
+#if TARGET_PC
+            // The pointer's low 32 bits (the IDs are compared, and the names sit together in the image)
+            return static_cast<ulong>(reinterpret_cast<uintptr_t>(mName));
+#else
             return reinterpret_cast<ulong>(mName);
+#endif
         }
 
         const char* GetTypeName() const {

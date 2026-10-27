@@ -21,9 +21,16 @@ static const int CHANNEL_MAX = 2;
 
 static const int REMOTE_FILTER_MAX = 127;
 
+#if TARGET_PC
+// constexpr: they size integer constants (Util::VOLUME_MIN), and only MSVC takes a const float there
+static constexpr f32 VOLUME_MIN_DB = -90.4f;
+static constexpr f32 VOLUME_MAX_DB = 6.0f;
+static constexpr f32 VOLUME_RANGE_DB = -(VOLUME_MIN_DB - VOLUME_MAX_DB);
+#else
 static const f32 VOLUME_MIN_DB = -90.4f;
 static const f32 VOLUME_MAX_DB = 6.0f;
 static const f32 VOLUME_RANGE_DB = -(VOLUME_MIN_DB - VOLUME_MAX_DB);
+#endif
 static const int VOLUME_RANGE_MB = static_cast<int>(10 * VOLUME_RANGE_DB);
 
 enum OutputLineFlag {

@@ -26,7 +26,12 @@ GraphicsFifo::GraphicsFifo(ulong size, Heap *heap) {
     mBufSize = (size + 31) & ~31;
 
     mBufBase = Heap::alloc(mBufSize + 0xa0, 32, heap);
+#if TARGET_PC
+    // Rounded as a pointer: through u32 it keeps only the low 32 bits of the heap address
+    mBufBase = ROUND_UP_PTR(mBufBase, 32);
+#else
     mBufBase = (void *)(((u32)mBufBase + 31) & ~31);
+#endif
 
     mFifoObj = GXInit(mBufBase, mBufSize);
 }

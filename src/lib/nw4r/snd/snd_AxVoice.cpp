@@ -217,15 +217,15 @@ u32 AxVoice::GetDspAddressBySample(void const *baseAddress, u32 samples,
         addr = (samples / AX_ADPCM_SAMPLES_PER_FRAME *
                 AX_ADPCM_NIBBLES_PER_FRAME) +
                (samples % AX_ADPCM_SAMPLES_PER_FRAME) +
-               (reinterpret_cast<u32>(baseAddress) * sizeof(u16)) + sizeof(u16);
+               (PTR_TO_U32(baseAddress) * sizeof(u16)) + sizeof(u16);
         break;
 
     case SAMPLE_FORMAT_PCM_S8:
-        addr = reinterpret_cast<u32>(baseAddress) + samples;
+        addr = PTR_TO_U32(baseAddress) + samples;
         break;
 
     case SAMPLE_FORMAT_PCM_S16:
-        addr = reinterpret_cast<u32>(baseAddress) / sizeof(u16) + samples;
+        addr = PTR_TO_U32(baseAddress) / sizeof(u16) + samples;
         break;
 
     default:
@@ -247,7 +247,7 @@ u32 AxVoice::GetSampleByDspAddress(void const *baseAddress, u32 addr,
 
     switch (format) {
     case FORMAT_DSP_ADPCM:
-        samples = addr - reinterpret_cast<u32>(baseAddress) * sizeof(u16);
+        samples = addr - PTR_TO_U32(baseAddress) * sizeof(u16);
         samples = (samples % AX_ADPCM_NIBBLES_PER_FRAME) +
                   (samples / AX_ADPCM_NIBBLES_PER_FRAME *
                    AX_ADPCM_SAMPLES_PER_FRAME) -
@@ -255,11 +255,11 @@ u32 AxVoice::GetSampleByDspAddress(void const *baseAddress, u32 addr,
         break;
 
     case FORMAT_PCM_S8:
-        samples = addr - reinterpret_cast<u32>(baseAddress);
+        samples = addr - PTR_TO_U32(baseAddress);
         break;
 
     case FORMAT_PCM_S16:
-        samples = addr - reinterpret_cast<u32>(baseAddress) / sizeof(u16);
+        samples = addr - PTR_TO_U32(baseAddress) / sizeof(u16);
         break;
 
     default:

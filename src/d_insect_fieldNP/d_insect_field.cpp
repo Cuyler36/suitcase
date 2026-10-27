@@ -3108,7 +3108,7 @@ BOOL dInsFldBase_c::isDeleteReady() {
 
 // 0x7DA8
 void dInsFldBase_c::registObjc(const mVec3_c *pos, f32 radius, BOOL enable) {
-    mObjc.regist(pos, radius + 4.0f, (u32)this, enable);
+    mObjc.regist(pos, radius + 4.0f, (dObjc::param_t)this, enable);
 }
 
 // 0x7DC4

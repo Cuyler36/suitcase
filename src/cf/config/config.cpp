@@ -8,6 +8,7 @@
 
 #include <suitcase/wpad_host.hpp>
 
+#include <cf/audio.h>
 #include <cf/frame.h>
 #include <cf/screen.h>
 
@@ -42,6 +43,12 @@ borealis::config::Var<bool> widescreen{"graphics.widescreen", true};
 borealis::config::Var<int> frameRate{"graphics.frameRate", frame::kTickRate, {.min = 0, .max = 1000}};
 
 } // namespace graphics
+
+namespace audio {
+
+borealis::config::Var<float> volume{"audio.volume", 1.f, {.min = 0.f, .max = 1.f}};
+
+} // namespace audio
 
 namespace debug {
 
@@ -92,6 +99,7 @@ void Load(const char* userPath) {
     screen::SetWidescreen(graphics::widescreen);
 
     graphics::frameRate.observe([](int rate) { frame::SetFrameRate(rate); }).release();
+    audio::volume.observe([](float value) { cf::audio::SetVolume(value); }).release();
 }
 
 } // namespace config

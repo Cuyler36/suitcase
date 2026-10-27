@@ -29,6 +29,6 @@
 #include <nw4r/ut/ut_algorithm.h>
 #include <nw4r/ut/ut_binaryFileFormat.h>
 #include <nw4r/ut/ut_list.h>
-#include <nw4r/ut/ut_lock.h>
+#include <nw4r/ut/ut_Lock.h>
 
 #endif

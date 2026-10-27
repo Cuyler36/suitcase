@@ -559,7 +559,7 @@ void *daCockroachBase_c::getResFile() {
     // typed one does), or it swaps registers with file.
     enum LoadState_e { LOAD_STATE_NONE };
     void *file = NULL;
-    LoadState_e state = (LoadState_e)(int)dFtrm_c::sLoader.getData();
+    LoadState_e state = (LoadState_e)(int)PTR_TO_U32(dFtrm_c::sLoader.getData());
     if (state != LOAD_STATE_NONE) {
         file = dFtrm_c::sLoader.getFile("room_goki.brres");
     }

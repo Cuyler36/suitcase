@@ -56,11 +56,20 @@ int __rlwnm(int value, int shift, int mb, int me) {
     return __rlwinm(value, shift & 31, mb, me);
 }
 
+// PowerPC's divw and divwu do not trap: a zero divisor (or INT_MIN / -1) gives what the Wii's CPU
+// gives, as Dolphin emulates it (-1 for a negative dividend, otherwise 0). x86 raises an exception,
+// so the game's divisions by a value that can be zero go through these (../pc_port_ub.md UB-19).
 int __divw(int a, int b) {
+    if (b == 0 || (a == INT32_MIN && b == -1)) {
+        return a < 0 ? -1 : 0;
+    }
     return a / b;
 }
 
 unsigned int __divwu(unsigned int a, unsigned int b) {
+    if (b == 0) {
+        return 0;
+    }
     return a / b;
 }
 

@@ -206,6 +206,15 @@ void dTime_c::add(int days, int hours, int mins, int secs) {
 
 // 8016D7EC
 int dTime_c::getWeekday(int year, int month, int day) {
+#if TARGET_PC
+    // The time menu passes its year column (0..35: dMenuTime00_c::YEAR_BASE left off, as on the Wii,
+    // where the calendar math takes any year and Gregorian weekdays repeat every 400 years). aurora
+    // converts calendar times through the C library's mktime on Windows and macOS, which fails
+    // before 1970 (a fatal error): such a year is moved forward by whole 400-year cycles.
+    while (year < 1970) {
+        year += 400;
+    }
+#endif
     dTime_c time;
     time.set(year, month, day, 0, 0, 0);
     time.normalize();

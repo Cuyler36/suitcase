@@ -3,7 +3,7 @@
 
 #include <types.h>
 #include <lib/egg/core/eggSystem.h>
-#include <game/sLib/s_phase.hpp>
+#include <game/sLib/s_Phase.hpp>
 
 // System startup and frame processing. Names are inferred from behavior.
 namespace dSys {

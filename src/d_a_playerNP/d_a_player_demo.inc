@@ -922,7 +922,7 @@ void dAcPlayer_c::checkNetInsect() {
     if (radius <= 0.0f) {
         radius = 0.1f;
     }
-    u32 hit;
+    dObjc::param_t hit;
     if (dObjc::ins_c::check(&start, &end, radius, &hit) && hit != 0) {
         mInsectLink.set((void *)hit);
         if (mInsectLink.mpInsect != NULL &&

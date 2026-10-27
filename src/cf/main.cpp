@@ -67,6 +67,7 @@ int main(int argc, char* argv[]) {
     // Saves and the other NAND files live in the user directory (src/cf/sdk/nand_fs.cpp)
     cf::sdk::SetNandRoot(info.userPath);
     cf::config::Load(info.userPath);
+    cf::debug::SetUserPath(info.userPath);
 
     if (argc < 2) {
         Log.error("Usage: {} <disc image of {}>", argv[0], CF_GAME_ID);

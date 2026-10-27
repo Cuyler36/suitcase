@@ -1203,7 +1203,7 @@ static f32 sWallR[0x60];   // 80582AE8
 static u8 sWallDone[0x60]; // 80582C68
 
 // 8006F7D0
-BOOL wallList_c::correct(mVec3_c *pos, const mVec3_c &old, f32 r, acch_c *acch, u32 flags, int ownerId,
+BOOL wallList_c::correct(mVec3_c *pos, const mVec3_c &old, f32 r, acch_c *acch, u32 flags, dBGCF::ownerId_t ownerId,
                          BOOL noCheck) {
     dBGC::vecXZ_c p(pos->x, pos->z);
     dBGC::vecXZ_c o(old.x, old.z);
@@ -1618,7 +1618,7 @@ BOOL column_c::makeWall(wallList_c *walls, const column_c &other) const {
 }
 
 // 80070D94
-BOOL columnList_c::correctSide(mVec3_c *pos, f32 r, acch_c *acch, int ownerId, clmcb_c *cb) {
+BOOL columnList_c::correctSide(mVec3_c *pos, f32 r, acch_c *acch, dBGCF::ownerId_t ownerId, clmcb_c *cb) {
     column_c *columns = mColumns;
     u8 attr;
     int type;
@@ -1638,7 +1638,7 @@ BOOL columnList_c::correctSide(mVec3_c *pos, f32 r, acch_c *acch, int ownerId, c
 }
 
 // 80070E80
-BOOL columnList_c::correctTop(mVec3_c *pos, const mVec3_c &old, int *attr, int ownerId, clmcb_c *cb) {
+BOOL columnList_c::correctTop(mVec3_c *pos, const mVec3_c &old, int *attr, dBGCF::ownerId_t ownerId, clmcb_c *cb) {
     column_c *columns = mColumns;
     for (column_c *column = columns; column < &columns[mNum]; column++) {
         mVec3_c prev;
@@ -1896,7 +1896,7 @@ void acch_c::calcWallFlags(const mAng ang) {
 // The callback of acch_c::check: corrects the position against walls and columns.
 class dtcbCorrect_c : public dBGCF::dtcb_c {
 public:
-    dtcbCorrect_c(dBGCF::acch_c *acch, mVec3_c *pos, const mVec3_c &old, mAng ang, f32 r, int ownerId,
+    dtcbCorrect_c(dBGCF::acch_c *acch, mVec3_c *pos, const mVec3_c &old, mAng ang, f32 r, dBGCF::ownerId_t ownerId,
                   u32 flags); // 80071888
 
     virtual void checkWall(dBGCF::wallList_c *walls);           // 800718CC
@@ -1908,7 +1908,7 @@ public:
     /* 0x0C */ mVec3_c mOld;
     /* 0x18 */ mAng mAngle;
     /* 0x1C */ f32 mRadius;
-    /* 0x20 */ int mOwnerId;
+    /* 0x20 */ dBGCF::ownerId_t mOwnerId;
     /* 0x24 */ u32 mFlags;
 }; // size 0x28
 
@@ -1934,7 +1934,7 @@ public:
 }; // size 0x40
 
 // 80071888
-dtcbCorrect_c::dtcbCorrect_c(dBGCF::acch_c *acch, mVec3_c *pos, const mVec3_c &old, mAng ang, f32 r, int ownerId,
+dtcbCorrect_c::dtcbCorrect_c(dBGCF::acch_c *acch, mVec3_c *pos, const mVec3_c &old, mAng ang, f32 r, dBGCF::ownerId_t ownerId,
                              u32 flags)
     : mAcch(acch), mPos(pos), mOld(old), mAngle(ang), mRadius(r), mOwnerId(ownerId), mFlags(flags) {}
 
@@ -2072,7 +2072,7 @@ BOOL mvbg_c::set(f32 sizeX, f32 sizeZ, f32 height, const mVec3_c &pos, mAng ang,
 }
 
 // 80072068
-void mvbg_c::onHit(const wall_c *wall, int ownerId, f32 dist) {}
+void mvbg_c::onHit(const wall_c *wall, dBGCF::ownerId_t ownerId, f32 dist) {}
 
 // 8007206C
 mvbgList_c *getMvbgList() {
@@ -2422,7 +2422,7 @@ BOOL isWaterAttr(int attr, int mode) {
 }
 
 // 80072CD8
-BOOL isWaterToLand(const mVec3_c *from, const mVec3_c *to, acch_c *acch, int ownerId) {
+BOOL isWaterToLand(const mVec3_c *from, const mVec3_c *to, acch_c *acch, dBGCF::ownerId_t ownerId) {
     groundChk_c chkFrom(from, LAYER_TOP, 1, 0);
     if (chkFrom.mWater != BG_WATER_NONE) {
         groundChk_c chkTo(to, LAYER_TOP, 1, 0);
@@ -2907,7 +2907,7 @@ inline f32 distXZ(const mVec3_c &a, const mVec3_c &b) {
 }
 
 // 8007405C
-void acch_c::checkSteps(f32 r, mVec3_c *pos, const mVec3_c *old, mAng ang, int ownerId, u32 flags) {
+void acch_c::checkSteps(f32 r, mVec3_c *pos, const mVec3_c *old, mAng ang, dBGCF::ownerId_t ownerId, u32 flags) {
     BOOL first = FALSE;
     f32 len = distXZ(*pos, *old);
     if (len >= 16.0f) {
@@ -2933,7 +2933,7 @@ void acch_c::checkSteps(f32 r, mVec3_c *pos, const mVec3_c *old, mAng ang, int o
 // 80074234
 // ownerId identifies the colliding object to the moving bg callbacks (mvbg_c::onHit); callers pass
 // their own address cast to int, e.g. dAcNpc_c::execute passes (int)this.
-void acch_c::check(f32 r, mVec3_c *pos, const mVec3_c *old, mAng ang, int ownerId, u32 flags, BOOL doClear) {
+void acch_c::check(f32 r, mVec3_c *pos, const mVec3_c *old, mAng ang, dBGCF::ownerId_t ownerId, u32 flags, BOOL doClear) {
     mVec3_c p(*pos);
     mVec3_c o(*old);
     f32 ext = 2.0f * (l_box.x + r);

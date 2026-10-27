@@ -586,7 +586,7 @@ static void updateSpeaker() {
         if (vpb) {
             u32 pos = getPlayPos(vpb);
             u32 half = size / 2;
-            u32 mid = (u32)((u8 *)OSCachedToPhysical(l_aiBuf) + half);
+            u32 mid = PTR_TO_U32((u8 *)OSCachedToPhysical(l_aiBuf) + half);
             if (pos < l_lastPos) {
                 fillSpeaker(l_aiBuf + half, l_spkSrc, half);
             } else if (l_lastPos < mid && pos >= mid) {
@@ -622,7 +622,11 @@ static void dmaCallback() {
         l_oldDmaCallback();
     }
     l_lastDmaBuf = OSPhysicalToCached(AIGetDMAStartAddr());
+    #if TARGET_PC
+    AIInitDMA((uintptr_t)l_dmaBuf[l_dmaIdx], sizeof(l_dmaBuf[0]));
+#else
     AIInitDMA((u32)l_dmaBuf[l_dmaIdx], sizeof(l_dmaBuf[0]));
+#endif
     if (last) {
         DCInvalidateRange(last, sizeof(l_dmaBuf[0]));
         memcpy(l_dmaBuf[l_dmaIdx], last, sizeof(l_dmaBuf[0]));

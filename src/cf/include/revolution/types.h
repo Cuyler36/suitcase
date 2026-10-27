@@ -5,6 +5,12 @@
 #include <dolphin/types.h>
 #include <decomp.h>
 
+#if !defined(_WIN32)
+// As include/types.h: glibc's sys/types.h has a 64-bit ulong; the port's is 32-bit
+#include <sys/types.h>
+#define ulong decomp_ulong
+#endif
+
 #if defined(_MSC_VER) && !defined(__clang__)
 // aurora's MSVC ATTRIBUTE_ALIGN is __declspec(align), which MSVC rejects after the declarator, where
 // the decomp puts it. aurora's headers do not use the macro, so dropping it changes no aurora layout.

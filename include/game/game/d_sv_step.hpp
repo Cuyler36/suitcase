@@ -11,6 +11,17 @@
 
 class dSvMgr_c;
 
+#if TARGET_PC
+// dSvMgr_c, looked up when the templates below are instantiated: it is incomplete here, and only CW
+// and MSVC defer the lookup of a plain dSvMgr_c:: (T is any template parameter in scope)
+template <class T> struct dSvStepMgr {
+    typedef dSvMgr_c Type;
+};
+#define SV_STEP_MGR(T) dSvStepMgr<T>::Type
+#else
+#define SV_STEP_MGR(T) dSvMgr_c
+#endif
+
 template <class Step> void checkSaveResultImpl(Step *step);
 
 // RTTI confirms this wrapper adds no storage or virtual slots beyond its
@@ -220,12 +231,12 @@ void dSvStep_c<Owner, Step>::createDownloadBox() {
             if (dWifi::getNetErrorMessage() == 0x0C) {
                 dSvRuntime::releaseMessage(demo);
                 demo->setNextMsgCode(0x0C);
-                demo->setNextMsgLabel(dSvMgr_c::mMessageLabel);
+                demo->setNextMsgLabel(SV_STEP_MGR(Owner)::mMessageLabel);
                 this->mCurrentMethod = &Step::saveFailed;
             } else {
                 dSvRuntime::releaseMessage(demo);
                 demo->setNextMsgCode(0x13);
-                demo->setNextMsgLabel(dSvMgr_c::mMessageLabel);
+                demo->setNextMsgLabel(SV_STEP_MGR(Owner)::mMessageLabel);
                 this->mCurrentMethod = &Step::saveFailed;
             }
             break;
@@ -268,12 +279,12 @@ void dSvStep_c<Owner, Step>::deleteDownloadBox() {
         if (dWifi::getNetErrorMessage() == 0x0C) {
             dSvRuntime::releaseMessage(demo);
             demo->setNextMsgCode(0x0C);
-            demo->setNextMsgLabel(dSvMgr_c::mMessageLabel);
+            demo->setNextMsgLabel(SV_STEP_MGR(Owner)::mMessageLabel);
             this->mCurrentMethod = &Step::saveFailed;
         } else {
             dSvRuntime::releaseMessage(demo);
             demo->setNextMsgCode(0x13);
-            demo->setNextMsgLabel(dSvMgr_c::mMessageLabel);
+            demo->setNextMsgLabel(SV_STEP_MGR(Owner)::mMessageLabel);
             this->mCurrentMethod = &Step::saveFailed;
         }
         break;
@@ -313,28 +324,28 @@ template <class Step> void checkSaveResultImpl(Step *step) {
         case 2:
             dSvRuntime::releaseMessage(demo);
             demo->setNextMsgCode(0x0C);
-            demo->setNextMsgLabel(dSvMgr_c::mMessageLabel);
+            demo->setNextMsgLabel(SV_STEP_MGR(Step)::mMessageLabel);
             step->mCurrentMethod = &Step::saveFailed;
             break;
         case 7:
             dSvRuntime::enableReset();
             dSvRuntime::releaseMessage(demo);
             demo->setNextMsgCode(8);
-            demo->setNextMsgLabel(dSvMgr_c::mMessageLabel);
+            demo->setNextMsgLabel(SV_STEP_MGR(Step)::mMessageLabel);
             step->mCurrentMethod = &Step::saveFailed;
             break;
         case 8:
             dSvRuntime::enableReset();
             dSvRuntime::releaseMessage(demo);
             demo->setNextMsgCode(9);
-            demo->setNextMsgLabel(dSvMgr_c::mMessageLabel);
+            demo->setNextMsgLabel(SV_STEP_MGR(Step)::mMessageLabel);
             step->mCurrentMethod = &Step::saveFailed;
             break;
         default:
             dSvRuntime::enableReset();
             dSvRuntime::releaseMessage(demo);
             demo->setNextMsgCode(0x13);
-            demo->setNextMsgLabel(dSvMgr_c::mMessageLabel);
+            demo->setNextMsgLabel(SV_STEP_MGR(Step)::mMessageLabel);
             step->mCurrentMethod = &Step::saveFailed;
             break;
         }

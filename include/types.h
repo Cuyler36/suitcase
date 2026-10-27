@@ -9,7 +9,8 @@
 // the call. Units whose loops show the original's reloads define
 // DECLARE_STRCMP_EARLY (configure.py) to get the plain declaration first:
 // d_bgi_drawNP (dBgiDraw_c::getTexIdx).
-#ifdef DECLARE_STRCMP_EARLY
+// Not on PC: a codegen detail of MWCC's, and glibc's declaration is noexcept in C++
+#if defined(DECLARE_STRCMP_EARLY) && !TARGET_PC
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -20,12 +21,30 @@ int strcmp(const char *, const char *);
 #endif
 
 #ifdef __cplusplus
+// types.h can be included inside an extern "C" block, where the C++ library's templates are errors
+extern "C++" {
 #include <cstdarg>
 #include <cstddef>
 #include <new>
+}
 #else
 #include <stdarg.h>
 #include <stddef.h>
+#endif
+
+#if TARGET_PC
+#include <stdint.h>
+#ifdef __cplusplus
+extern "C++" {
+#include <cstdint>
+}
+#endif
+#if !defined(_WIN32)
+// glibc's sys/types.h has its own ulong (unsigned long, 64-bit); the port's is 32-bit (below), so
+// after the system's typedef the name is the port's
+#include <sys/types.h>
+#define ulong decomp_ulong
+#endif
 #endif
 
 // Codewarrior-specific pragmas
@@ -47,7 +66,12 @@ typedef unsigned int u32;
 typedef unsigned long u32;
 #endif
 typedef unsigned int byte4_t;
+#if TARGET_PC
+// As aurora's dolphin/types.h (unsigned long on LP64 Linux and unsigned long long elsewhere)
+typedef uint64_t u64;
+#else
 typedef unsigned long long u64;
+#endif
 
 // UTF-16 text: wchar_t on the Wii (2 bytes); char16_t on PC, where wchar_t is 4 bytes on some hosts.
 // WSTR("...") is a literal of it. In C, wchar_t (MSL) and char16_t are both unsigned short.
@@ -76,7 +100,11 @@ typedef signed int s32;
 #else
 typedef signed long s32;
 #endif
+#if TARGET_PC
+typedef int64_t s64;
+#else
 typedef signed long long s64;
+#endif
 typedef float f32;
 typedef double f64;
 #if TARGET_PC
@@ -223,8 +251,8 @@ typedef int BOOL;
 // The address of a temporary, e.g. f(TEMP_ADDR(mVec3_c(1.0f, 1.0f, 1.0f))). CW accepts &temporary;
 // MSVC and clang do not. As there, the pointer is valid until the end of the full expression.
 #if TARGET_PC && defined(__cplusplus)
-#include <type_traits>
 extern "C++" { // types.h can be included inside an extern "C" block
+#include <type_traits>
 template <typename T>
 inline std::remove_reference_t<T> *TempAddr(T &&value) {
     return &value;
@@ -233,6 +261,14 @@ inline std::remove_reference_t<T> *TempAddr(T &&value) {
 #define TEMP_ADDR(x) TempAddr(x)
 #else
 #define TEMP_ADDR(x) (&(x))
+#endif
+
+// A pointer's address as a u32, as the Wii code's reinterpret_cast<u32>(p). On 64-bit PC it is the low
+// 32 bits: MSVC truncates that cast with a warning, GCC and Clang reject it.
+#if TARGET_PC && defined(__cplusplus)
+#define PTR_TO_U32(p) static_cast<u32>(reinterpret_cast<uintptr_t>(p))
+#else
+#define PTR_TO_U32(p) reinterpret_cast<u32>(p)
 #endif
 
 // CodeWarrior's spelling of decltype (the decomp keeps the original; Dusklight maps the other way)
@@ -247,7 +283,9 @@ inline std::remove_reference_t<T> *TempAddr(T &&value) {
 #include <decomp/decomp.h>
 #include <decomp/lang.h>
 
-// PC: the C library's wide-character functions for wchar16_t text
+// PC: the C library's wide-character functions for wchar16_t text, and the C++ library's missing
+// float math functions
 #if TARGET_PC && defined(__cplusplus)
 #include <port/wchar16.h>
+#include <port/cmath.h>
 #endif

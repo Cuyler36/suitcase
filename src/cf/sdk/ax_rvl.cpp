@@ -25,6 +25,7 @@
 #include <revolution/os.h>
 
 #include <borealis/log_c.h>
+#include <cf/audio.h>
 
 #include "interrupt_lock.h"
 
@@ -35,12 +36,16 @@
 #include <atomic>
 #include <chrono>
 #include <cmath>
+#include <cstdlib>
 #include <cstring>
 #include <thread>
 
 namespace {
 
 constexpr int FRAME_SAMPLES = AX_SAMPLES_PER_FRAME;
+// srcSelect as the DSP reads it (nw4r's AxVoiceParamBlock::SetVoiceSrcType): 0 polyphase, 1 linear,
+// 2 none. (The SDK's AX_SRC_TYPE_* enum is the API's numbering, not the parameter block's.)
+constexpr u16 AX_SRC_TYPE_NONE_PB = 2;
 constexpr int AUX_BUS_NUM = 3;
 
 AXVPB sVoices[AX_VOICE_MAX];
@@ -57,6 +62,8 @@ AXAuxCallback sAuxCallback[AUX_BUS_NUM] = {};
 void* sAuxContext[AUX_BUS_NUM] = {};
 u16 sAuxReturnVolume[AUX_BUS_NUM] = {AX_MAX_VOLUME, AX_MAX_VOLUME, AX_MAX_VOLUME};
 u16 sMasterVolume = AX_MAX_VOLUME;
+// The host's output volume (cf/audio.h), as AX volumes are: 0x8000 is 1
+std::atomic<s32> sHostVolume{AX_MAX_VOLUME};
 u32 sMode = AX_OUTPUT_STEREO;
 
 // Bus buffers: main L/R/S, then L/R/S of aux A, B and C
@@ -289,12 +296,46 @@ private:
     bool mStopped = false;
 };
 
-// Catmull-Rom between h1 and h2 (t in [0, 1))
-s32 Cubic(s32 h0, s32 h1, s32 h2, s32 h3, f32 t) {
-    f32 a = -0.5f * h0 + 1.5f * h1 - 1.5f * h2 + 0.5f * h3;
-    f32 b = h0 - 2.5f * h1 + 2.0f * h2 - 0.5f * h3;
-    f32 c = -0.5f * h0 + 0.5f * h2;
-    return static_cast<s32>(((a * t + b) * t + c) * t + h1);
+// The DSP's polyphase sample rate conversion (srcSelect 0): 4 taps, 128 phases (the position's
+// fraction >> 9), and one of three low-pass tables (coefSelect 0..2, nw4r's SRC_4TAP_8K / 12K / 16K,
+// picked by pitch: the higher the pitch, the lower the cutoff, against aliasing). The DSP's own
+// coefficients are in its ROM; these are windowed-sinc low-passes with those cutoffs at the DSP's
+// 32 kHz, each phase normalized to a gain of 1.
+constexpr int SRC_PHASES = 128;
+constexpr int SRC_TABLES = 3;
+constexpr f64 kPi = 3.14159265358979323846;
+
+struct SrcTables {
+    f32 c[SRC_TABLES][SRC_PHASES][4];
+
+    SrcTables() {
+        const f64 cutoffs[SRC_TABLES] = {8000.0, 12000.0, 16000.0};
+        for (int t = 0; t < SRC_TABLES; t++) {
+            const f64 fc = cutoffs[t] / AX_SAMPLE_RATE; // in cycles per input sample (0.5 = Nyquist)
+            for (int p = 0; p < SRC_PHASES; p++) {
+                const f64 frac = p / static_cast<f64>(SRC_PHASES);
+                f64 taps[4];
+                f64 sum = 0.0;
+                for (int k = 0; k < 4; k++) {
+                    // Taps h0..h3 sit at -1, 0, 1, 2; the output at frac (between h1 and h2)
+                    const f64 d = (k - 1) - frac;
+                    const f64 x = 2.0 * fc * d;
+                    const f64 sinc = x == 0.0 ? 1.0 : std::sin(kPi * x) / (kPi * x);
+                    const f64 window = 0.5 * (1.0 + std::cos(kPi * d / 2.0)); // Hann over the 4 taps
+                    taps[k] = sinc * window;
+                    sum += taps[k];
+                }
+                for (int k = 0; k < 4; k++) {
+                    c[t][p][k] = static_cast<f32>(taps[k] / sum);
+                }
+            }
+        }
+    }
+};
+
+const SrcTables& GetSrcTables() {
+    static const SrcTables tables;
+    return tables;
 }
 
 // Decodes, resamples, filters and applies the volume envelope: one frame of the voice
@@ -306,20 +347,29 @@ void RenderVoice(AXPB& pb, s32 out[FRAME_SAMPLES]) {
     for (int i = 0; i < 4; i++) {
         h[i] = static_cast<s16>(pb.src.last_samples[i]);
     }
+    const f32(*coefs)[4] = GetSrcTables().c[pb.coefSelect < SRC_TABLES ? pb.coefSelect : SRC_TABLES - 1];
 
     for (int i = 0; i < FRAME_SAMPLES; i++) {
-        f32 t = frac / 65536.0f;
         s32 s;
-        if (pb.srcSelect == 0) {
-            s = Cubic(h[0], h[1], h[2], h[3], t);
+        u32 advance;
+        if (pb.srcSelect == AX_SRC_TYPE_NONE_PB) {
+            // No conversion: a sample in, a sample out, whatever the ratio
+            s = h[1];
+            advance = 1;
         } else {
-            s = h[1] + static_cast<s32>((h[2] - h[1]) * t);
+            if (pb.srcSelect == 0) {
+                const f32* c = coefs[frac >> 9];
+                s = static_cast<s32>(c[0] * h[0] + c[1] * h[1] + c[2] * h[2] + c[3] * h[3]);
+            } else {
+                // Linear (srcSelect 1)
+                s = h[1] + static_cast<s32>((h[2] - h[1]) * (frac / 65536.0f));
+            }
+            frac += ratio;
+            advance = std::min<u32>(frac >> 16, 0x10000);
+            frac &= 0xFFFF;
         }
         out[i] = Clamp16(s);
 
-        frac += ratio;
-        u32 advance = std::min<u32>(frac >> 16, 0x10000);
-        frac &= 0xFFFF;
         for (u32 n = 0; n < advance; n++) {
             h[0] = h[1];
             h[1] = h[2];
@@ -406,6 +456,26 @@ void MixVoice(AXPB& pb, const s32 in[FRAME_SAMPLES]) {
     }
 }
 
+// CF_AX_LOG=1: logs each voice as it starts (how it is resampled, filtered and mixed), to compare
+// sounds with the Wii's
+bool LogVoices() {
+    static const bool log = std::getenv("CF_AX_LOG") != nullptr;
+    return log;
+}
+
+void LogVoiceStart(int v, const AXVPB& vpb, const AXPB& pb) {
+    const AXPBMIX& m = pb.mix;
+    const AXPBRMTMIX& r = pb.rmtMix;
+    borealis_log_printf(BOREALIS_LOG_INFO, "cf::ax",
+                        "voice %2d start: prio %2u fmt %u src %u coef %u ratio %.4f lpf %u biquad %u "
+                        "vol %04X main %04X/%04X auxA %04X/%04X auxB %04X/%04X auxC %04X/%04X "
+                        "remote %u rmt %04X/%04X/%04X/%04X aux %04X/%04X/%04X/%04X",
+                        v, vpb.priority, pb.addr.format, pb.srcSelect, pb.coefSelect,
+                        Join(pb.src.ratioHi, pb.src.ratioLo) / 65536.0, pb.lpf.on, pb.biquad.on, pb.ve.currentVolume,
+                        m.vL, m.vR, m.vAuxAL, m.vAuxAR, m.vAuxBL, m.vAuxBR, m.vAuxCL, m.vAuxCR, pb.remote,
+                        r.vMain0, r.vMain1, r.vMain2, r.vMain3, r.vAux0, r.vAux1, r.vAux2, r.vAux3);
+}
+
 // One AX frame; out (FRAME_SAMPLES interleaved stereo samples) may be null
 void RunFrame(s16* out) {
     cf::sdk::InterruptLockScope lock;
@@ -420,7 +490,11 @@ void RunFrame(s16* out) {
             continue;
         }
         AXPB& dsp = sDsp[v];
+        const u16 prevState = dsp.state;
         ApplySync(vpb, dsp);
+        if (prevState != AX_VOICE_RUN && dsp.state == AX_VOICE_RUN && LogVoices()) {
+            LogVoiceStart(v, vpb, dsp);
+        }
         if (dsp.state == AX_VOICE_RUN) {
             RenderVoice(dsp, voiceOut);
             MixVoice(dsp, voiceOut);
@@ -446,7 +520,7 @@ void RunFrame(s16* out) {
     }
 
     if (out != nullptr) {
-        s32 master = sMasterVolume;
+        s32 master = (static_cast<s32>(sMasterVolume) * sHostVolume.load(std::memory_order_relaxed)) >> 15;
         for (int i = 0; i < FRAME_SAMPLES; i++) {
             out[i * 2 + 0] = Clamp16((sMain[AX_STEREO_L][i] * master) >> 15);
             out[i * 2 + 1] = Clamp16((sMain[AX_STEREO_R][i] * master) >> 15);
@@ -514,6 +588,17 @@ void FrameThread() {
 }
 
 } // namespace
+
+namespace cf {
+namespace audio {
+
+void SetVolume(float volume) {
+    sHostVolume.store(static_cast<s32>(std::clamp(volume, 0.0f, 1.0f) * AX_MAX_VOLUME + 0.5f),
+                      std::memory_order_relaxed);
+}
+
+} // namespace audio
+} // namespace cf
 
 extern "C" {
 

@@ -2162,7 +2162,7 @@ int dAcNpc_c::execute() {
         if (mCheckGround) {
             if (dNet::isSceneOwner()) {
                 mPos.y -= 1.0f;
-                mAcch.check(13.0f, &mPos, &mLastPos, mAngle.y, (int)this, 0x217, TRUE);
+                mAcch.check(13.0f, &mPos, &mLastPos, mAngle.y, (dBGCF::ownerId_t)this, 0x217, TRUE);
             } else {
                 const mVec3_c *goal = &mAction.mGoal;
                 if (getSpeedF() != 0.0f && *goal != mVec3_c::Zero) {

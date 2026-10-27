@@ -26,7 +26,12 @@ typedef struct FSTEntry {
 #define IS_ENTRY_DIR(fstStart, i) (((RES_U32((fstStart)[i].isDirAndStringOff) & 0xFF000000) == 0) ? FALSE : TRUE)
 #define FILE_STRING_OFF(fstStart, i) (RES_U32((fstStart)[i].isDirAndStringOff) & 0x00FFFFFF)
 
+#if TARGET_PC
+// arc.h declares it extern; C forbids static after that (MSVC allows it)
+BOOL ARCGetCurrentDir(ARCHandle* handle, char* path, u32 maxlen);
+#else
 static BOOL ARCGetCurrentDir(ARCHandle* handle, char* path, u32 maxlen);
+#endif
 
 static BOOL isSame(const char* path, const char* string) {
     while (*string != 0) {
@@ -255,7 +260,11 @@ static BOOL ARCConvertEntrynumToPath(ARCHandle* handle, s32 entryNum, char* path
     return TRUE;
 }
 
+#if TARGET_PC
+BOOL ARCGetCurrentDir(ARCHandle* handle, char* path, u32 maxlen) {
+#else
 static BOOL ARCGetCurrentDir(ARCHandle* handle, char* path, u32 maxlen) {
+#endif
     return ARCConvertEntrynumToPath(handle, handle->currDir, path, maxlen);
 }
 

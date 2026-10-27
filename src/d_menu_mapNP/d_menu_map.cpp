@@ -76,6 +76,22 @@ int dMenuMap_c::execute() {
         mWinLyt.copyPos(&mPlayerIcon, "map_00", l_allPanes[0]);
         onFlag(FLAG_CALC_ICONS);
     }
+#if TARGET_PC
+    // Once more when the opening animation has ended, from the window's settled pose. The copies above
+    // read the window as last calculated, so the icons could keep a pose from inside the animation: a
+    // z of 52.6 puts them behind the 2D camera (near 0, far 500), clipped, though still selectable.
+    static bool sWasAnm;
+    const bool anmNow = isState(STATE_ANM);
+    if ((anm || sWasAnm) && !anmNow) {
+        mWinLyt.calc();
+        for (i = 0; i < ENTRY_NUM; i++) {
+            mWinLyt.copyPos(&mIcons[i], "map_00", l_allPanes[0]);
+        }
+        mWinLyt.copyPos(&mPlayerIcon, "map_00", l_allPanes[0]);
+        onFlag(FLAG_CALC_ICONS);
+    }
+    sWasAnm = anmNow;
+#endif
     calcButtonAnms();
     calcScroll();
     calcBlink();

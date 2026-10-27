@@ -7,6 +7,13 @@
 
 #define ARRAY_LENGTH(x) (sizeof(x) / sizeof(x[0]))
 
+#if TARGET_PC
+// The text is UTF-16 (kpr.h's wchar16_t); the host's wchar_t is 4 bytes outside Windows, and its
+// wint_t is the C library's own
+#define wchar_t wchar16_t
+#define wint_t kpr_wint_t
+#undef WEOF
+#endif
 typedef wchar_t wint_t;
 #define WEOF ((wint_t)0xFFFF)
 

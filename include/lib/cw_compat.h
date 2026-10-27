@@ -44,9 +44,15 @@ int __lwbrx(const void* base, int offset);
 void __sthbrx(unsigned short value, void* base, int offset);
 void __stwbrx(unsigned int value, void* base, int offset);
 
-// Floating point
-double __fabs(double x);
-float __fabsf(float x);
+// Floating point. glibc's math.h declares its own __fabs and __fabsf (noexcept in C++), which the
+// declarations here must match.
+#if defined(__GLIBC__) && defined(__cplusplus)
+#define CW_COMPAT_LIBM_NOEXCEPT noexcept
+#else
+#define CW_COMPAT_LIBM_NOEXCEPT
+#endif
+double __fabs(double x) CW_COMPAT_LIBM_NOEXCEPT;
+float __fabsf(float x) CW_COMPAT_LIBM_NOEXCEPT;
 double __fnabs(double x);
 float __fnabsf(float x);
 double __fmadd(double a, double c, double b);

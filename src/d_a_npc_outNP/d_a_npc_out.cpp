@@ -4654,7 +4654,7 @@ void action_c::executeRemoteClothWait(dAcNpcOut_c *npc) {
     } else if (npc->isClothChangeReady()) {
         if (npc->isDaubClothChange()) {
             action->requestChangeCloth2(PRIORITY_IDLE, npc->mpAnimal->mCloth,
-                                        (int)&npc->mpAnimal->mClothDesign);
+                                        (int)PTR_TO_U32(&npc->mpAnimal->mClothDesign));
             npc->mLookAt.setFront(0, l_lookPitchStep, l_lookYawStep);
         } else if (npc->isDaubClothChanged()) {
             npc->changeClothModel();
@@ -6137,7 +6137,7 @@ void action_c::stepChatOutcome03(dAcNpcOut_c *npc) {
             if (animal) {
                 changed->mCloth.clearLoaded();
                 requested = changed->mAction.requestChangeCloth2(
-                    PRIORITY_IDLE, animal->mCloth, (int)&animal->mClothDesign);
+                    PRIORITY_IDLE, animal->mCloth, (int)PTR_TO_U32(&animal->mClothDesign));
             }
             setMood(teacher, 1, 2, 0);
             setMood(learner, 1, 2, 0);
@@ -6294,7 +6294,7 @@ void action_c::stepChatOutcome06(dAcNpcOut_c *npc) {
             if (animal) {
                 changed->mCloth.clearLoaded();
                 requested = changed->mAction.requestChangeCloth2(
-                    PRIORITY_IDLE, animal->mCloth, (int)&animal->mClothDesign);
+                    PRIORITY_IDLE, animal->mCloth, (int)PTR_TO_U32(&animal->mClothDesign));
             }
             setMood(teacher, 1, 2, 0);
         } else {
@@ -8627,7 +8627,7 @@ void action_c::enterRemoteClothChange(dAcNpcOut_c *npc) {
     }
     npc->mAcceptMoveReq = 0;
     npc->mAction.requestChangeCloth2(PRIORITY_IDLE, npc->mpAnimal->mCloth,
-                                     (int)&npc->mpAnimal->mClothDesign);
+                                     (int)PTR_TO_U32(&npc->mpAnimal->mClothDesign));
     npc->mLookAt.setFront(0, l_lookPitchStep, l_lookYawStep);
     insectLink_s *insectLink = &npc->mInsectLink;
     if (insectLink->mpInsect) {

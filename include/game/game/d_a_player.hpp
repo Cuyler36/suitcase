@@ -1818,8 +1818,8 @@ class dAcPlayer_c : public dDemoActor_c, public dMsg::Rcpt_c {
     /* 0x226C */ int mRemoteSyncB; // setRemoteActionSync
     /* 0x2270 */ u32 mActorFlags;  // dPlayerMgr::ACTOR_FLAG_*
     /* 0x2274 */ u32 mActorFlags2; // dPlayerMgr::ACTOR_FLAG2_*
-    /* 0x2278 */ int _2278;
-    /* 0x227C */ int _227C;
+    /* 0x2278 */ dObjc::param_t _2278; // a snowman hit (dObjc param)
+    /* 0x227C */ dObjc::param_t _227C;
     /* 0x2280 */ int mSyncValue; // setRemoteSyncValue; dPlayerMngr frame on
                                  // each state change
     /* 0x2284 */ int mUnitX;     // getUnitCoordinates

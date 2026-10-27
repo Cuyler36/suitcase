@@ -54,7 +54,12 @@ void *DvdRipper::loadToMainRAM(DvdFile *dvdFile, void *buffer, Heap *heap,
 
     if (offset != 0) {
         u8 buf[64];
+#if TARGET_PC
+        // Rounded as a pointer: through s32 it keeps only the low 32 bits of the stack address
+        u8 *buf_ptr = (u8 *)ROUND_UP_PTR(&buf, 32);
+#else
         u8 *buf_ptr = (u8 *)(((s32)&buf + 31) & ~31);
+#endif
         while (true) {
             s32 result = DVDReadPrio(dvdFile->getFileInfo(), buf_ptr, 32, offset, 2);
             if (result >= 0) {

@@ -53,6 +53,12 @@
 #include <lib/egg/core/eggExpHeap.h>
 #include <lib/egg/gfxe/eggDrawGX.h>
 
+#if TARGET_PC
+// Declared before sSystem below instantiates Configuration (CW and MSVC take the specialization
+// after it; the standard and GCC do not)
+template <> void EGG::TSystem<>::Configuration::initialize();
+#endif
+
 namespace dSys {
 enum {
     ROOT_HEAP_ALIGNMENT = 4,

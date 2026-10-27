@@ -1748,7 +1748,15 @@ void ResTexPlttInfo::BindTex_(const ResTex tex, ResTexObj texObj) {
 
     GXTexObj* pGXObj = texObj.GetTexObj(r.mapID);
 
+#if TARGET_PC
+    // By the texture's own kind: a material can name a texture of the other kind (a DLC item's
+    // palette-less material with the CI4 "glow32"), and then the target's getter writes nothing and
+    // the texture object gets whatever the locals held (../pc_port_ub.md UB-20). The material's TLUT
+    // slot supplies a CI texture's palette.
+    if (tex.IsCIFmt()) {
+#else
     if (IsCIFmt()) {
+#endif
         GXCITexFmt fmtCi;
         tex.GetTexObjCIParam(&pTexData, &width, &height, &fmtCi, &minLod,
                              &maxLod, &mipmap);

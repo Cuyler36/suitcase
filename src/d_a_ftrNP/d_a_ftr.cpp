@@ -1349,7 +1349,7 @@ void daFTR_c::initPos() {
 }
 
 // 0x3F74
-void daFTR_c::onHit(const dBGCF::wall_c *wall, int ownerId, f32 dist) {
+void daFTR_c::onHit(const dBGCF::wall_c *wall, dBGCF::ownerId_t ownerId, f32 dist) {
     dActor_c *player = dPlayerMgr::getPlayerActor(dPlayerMgr::PLAYER_INDEX_CURRENT);
     dActor_c *owner = (dActor_c *)ownerId;
     if (owner != NULL && owner == player && mState == STATE_WAIT) {

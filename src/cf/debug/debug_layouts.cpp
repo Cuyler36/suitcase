@@ -1,13 +1,14 @@
 // Windows > Dump 2D layouts: writes the layouts in this frame's 2D draw list, in draw order, with each
 // pane's state (visibility, alpha, global position, size, material colours and textures), to
-// layout_dump.txt in the user directory. For finding why a layout or pane does not show.
+// layout_dump.txt in the user directory (SetUserPath). For finding why a layout or pane does not show.
 #include "debug_windows.h"
+
+#include <cf/debug.h>
 
 #include <game/mLib/m_2d.hpp>
 #include <nw4r/lyt.h>
 
 #include <cstdio>
-#include <cstdlib>
 #include <string>
 #include <typeinfo>
 
@@ -16,6 +17,8 @@ namespace debug {
 
 namespace {
 
+std::string sUserPath = ".";
+
 void DumpPane(FILE* file, nw4r::lyt::Pane* pane, int depth) {
     const nw4r::math::MTX34& mtx = pane->GetGlobalMtx();
     const nw4r::lyt::Size& size = pane->GetSize();
@@ -23,9 +26,15 @@ void DumpPane(FILE* file, nw4r::lyt::Pane* pane, int depth) {
                  depth * 2, "", pane->GetName(), typeid(*pane).name(), pane->IsVisible() ? 1 : 0, pane->GetAlpha(),
                  pane->GetGlbAlpha(), mtx._03, mtx._13, mtx._23, mtx._00, mtx._11, size.width, size.height);
     if (nw4r::lyt::Material* material = pane->GetMaterial()) {
-        const nw4r::ut::Color mat = material->GetMatColor();
-        std::fprintf(file, "%*s  material %s matColor=%02X%02X%02X%02X textures=%u\n", depth * 2, "",
-                     material->GetName(), mat.r, mat.g, mat.b, mat.a, material->GetTextureNum());
+        // The material colour is optional (stored only with its capability flag)
+        if (material->IsMatColorCap()) {
+            const nw4r::ut::Color mat = material->GetMatColor();
+            std::fprintf(file, "%*s  material %s matColor=%02X%02X%02X%02X textures=%u\n", depth * 2, "",
+                         material->GetName(), mat.r, mat.g, mat.b, mat.a, material->GetTextureNum());
+        } else {
+            std::fprintf(file, "%*s  material %s textures=%u\n", depth * 2, "", material->GetName(),
+                         material->GetTextureNum());
+        }
         for (u8 i = 0; i < material->GetTextureNum(); i++) {
             const nw4r::lyt::TexMap& tex = material->GetTexMapAry()[i];
             std::fprintf(file, "%*s    tex%u image=%p %ux%u fmt=%d\n", depth * 2, "", i, tex.GetImage(),
@@ -45,9 +54,14 @@ struct DumpState {
 
 } // namespace
 
+void SetUserPath(const char* path) {
+    if (path != nullptr) {
+        sUserPath = path;
+    }
+}
+
 bool DumpLayouts(std::string* path) {
-    const char* base = std::getenv("APPDATA");
-    *path = std::string(base != nullptr ? base : ".") + "/suitcase/layout_dump.txt";
+    *path = sUserPath + "/layout_dump.txt";
     FILE* file = std::fopen(path->c_str(), "w");
     if (file == nullptr) {
         return false;

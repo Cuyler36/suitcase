@@ -2458,7 +2458,13 @@ infoBank_c::~infoBank_c() {}
 class resListInit_c {
 public:
     resListInit_c() {
+#if TARGET_PC
+        // The states only (List_Init sets the list): the target's size clears past the end, over
+        // whatever global follows (24 bytes on 64-bit; ../pc_port_ub.md UB-17)
+        memset(s_resList.mState, 0, sizeof(s_resList.mState));
+#else
         memset(s_resList.mState, 0, sizeof(s_resList)); // clears 0xC bytes past the end
+#endif
         resLoader_c tmp;
         nw4r::ut::List_Init(&s_resList.mList, reinterpret_cast<u8 *>(&tmp.mLink) - reinterpret_cast<u8 *>(&tmp));
     }

@@ -3686,7 +3686,7 @@ void dAcPlayer_c::updateFaceAnm() {
 // .text 0x26764
 void dAcPlayer_c::snapToGround() {
     mPos.y -= 5.0f;
-    mAcch.check(15.0f, &mPos, &mLastPos, mAngle.y, (int)this, 0x17, 1);
+    mAcch.check(15.0f, &mPos, &mLastPos, mAngle.y, (dBGCF::ownerId_t)this, 0x17, 1);
 }
 
 // .text 0x267C4

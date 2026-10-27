@@ -319,7 +319,7 @@ public:
     virtual void entryMdl();
     virtual void drawExtra() {}
     virtual BOOL deleteRes() { return TRUE; }
-    virtual void onHit(const dBGCF::wall_c *wall, int ownerId, f32 dist);
+    virtual void onHit(const dBGCF::wall_c *wall, dBGCF::ownerId_t ownerId, f32 dist);
     virtual BOOL getUnit(int *x, int *z, const mVec3_c *ofs, mAng angle);
     virtual void onMessageStart(int arg);
     virtual void onMessageEnd(int kind);

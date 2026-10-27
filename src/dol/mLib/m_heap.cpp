@@ -1,4 +1,4 @@
-#include <game/mlib/m_heap.hpp>
+#include <game/mLib/m_heap.hpp>
 #include <constants/sjis_constants.h>
 
 EGG::Heap *mHeap::s_SavedCurrentHeap;

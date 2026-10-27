@@ -40,7 +40,7 @@ struct Projection_s {
     /* 0x00 */ f32 mSizeX;
     /* 0x04 */ f32 mSizeZ;
     /* 0x08 */ nw4r::g3d::ResTex mTexture;
-    /* 0x0C */ mColor mColor;
+    /* 0x0C */ ::mColor mColor;
     /* 0x10 */ mAng mAngle;
     /* 0x12 */ bool mDepthTest;
 }; // size 0x14
