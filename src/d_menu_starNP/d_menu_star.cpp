@@ -40,18 +40,28 @@ void dMenuStar_c::create() {
 // .text:0x190
 void dMenuStar_c::draw() {
     mZClear.entry();
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): the window and its z clear placed again at the new width
+    static u32 sScreenWidth;
+    if (cf::screen::WidthChanged(&sScreenWidth)) {
+        mFlags |= FLAG_CALC;
+    }
+#endif
     if (mFlags & FLAG_CALC) {
         mFlags &= ~FLAG_CALC;
         mWinLyt.calc();
         mVec3_c pos = m2d::getTotalPos(mWinLyt.findPane("N_star_win_all"));
         f32 halfWidth = 200.0f;
         if (SCGetAspectRatio() != SC_ASPECT_RATIO_16x9) {
-#if TARGET_PC
-            halfWidth *= cf::screen::WideScale();
-#else
             halfWidth *= 1.368421f;
-#endif
         }
+#if TARGET_PC
+        // In 16:9 the z clear's 608 units span the wide width (m2d setupProjection), so the 200 of
+        // the window's half width (274 layout units) holds only at the Wii's 832
+        else {
+            halfWidth *= 832.0f / cf::screen::WideWidth();
+        }
+#endif
         mWinZClear.set(250.0 + pos.y, -250.0f + pos.y, -halfWidth + pos.x,
                        halfWidth + pos.x, -499.9f);
     }

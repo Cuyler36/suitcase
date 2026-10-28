@@ -7,6 +7,7 @@
 #include <game/game/d_actor.hpp>
 #include <game/game/d_debug_page_inline.hpp>
 #include <game/game/d_a_npc_sp.hpp>
+#include <port/bitfield.h>
 
 // Nat, the host of the Bug-Off (REL d_a_npc_sp_bugNP, profile A_NPC_SP_BUG).
 // He is out on the event day (EVENT_BUG_OFF) from before the start until six
@@ -204,10 +205,10 @@ class dAcNpcSpBug_c : public dAcNpcSp_c {
 
     // The net daub data (getDaubData / setDaubData).
     struct daub_s {
-        u32 mActive : 1;       // Bug-Off time: he is out (mIsActive)
-        u32 mForceAdvance : 1; // the players were away:
-                               // dBugOff_c::advance(TRUE)
-        u32 _0 : 30;
+        // mActive: Bug-Off time: he is out (mIsActive)
+        // mForceAdvance: the players were away:
+        //   dBugOff_c::advance(TRUE)
+        BITFIELD_UNIT_3(u32 mActive : 1, u32 mForceAdvance : 1, u32 _0 : 30);
         u32 _4;
     }; // size 0x8
 

@@ -70,16 +70,25 @@ static inline void DWCi_Np_CpuClear32(void* dest, u32 size)
     memset(dest, 0, size);
 }
 
+// Host to little-endian: a swap on the Wii; nothing on the little-endian PC hosts
 static inline u16 DWCi_HtoLEs(u16 data)
 {
+#if TARGET_PC
+    return data;
+#else
     return (u16)((data >> 8) | (data << 8));
+#endif
 }
 
 static inline u32 DWCi_HtoLEl(u32 data)
 {
+#if TARGET_PC
+    return data;
+#else
     u32 tmp;
     tmp = ((data >> 8) & 0x00ff00ff) | ((data << 8) & 0xff00ff00);
     return (tmp >> 16) | (tmp << 16);
+#endif
 }
 
 static inline u16 DWCi_LEtoHs(u16 data)

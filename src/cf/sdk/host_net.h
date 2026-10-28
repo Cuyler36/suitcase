@@ -1,9 +1,10 @@
-// Blocking host networking for the online layers (WiiConnect24 downloads and mail, WiiLink WFC):
-// TCP sockets with timeouts, DNS A lookups against a chosen server, and HTTP/1.1 GET and POST.
-// Call from worker threads, never the game's.
+// Blocking host networking for the online layers (WiiConnect24 downloads and mail, WiiLink WFC, NHTTP):
+// TCP connections with timeouts, DNS A lookups against a chosen server, and HTTP/1.1 GET and POST, on
+// borealis::socket. Call from worker threads, never the game's.
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <string>
 
 namespace cf {
@@ -14,7 +15,7 @@ bool Init();
 
 class Socket {
 public:
-    Socket() = default;
+    Socket();
     ~Socket();
     Socket(const Socket&) = delete;
     Socket& operator=(const Socket&) = delete;
@@ -26,7 +27,8 @@ public:
     bool ReceiveUntil(std::string* data, const char* marker);
 
 private:
-    std::intptr_t mHandle = -1;
+    struct Impl;
+    std::unique_ptr<Impl> mImpl;
 };
 
 // The IPv4 address of a host name from a DNS server (dotted), empty when there is none
@@ -34,6 +36,7 @@ std::string ResolveWith(const std::string& dnsServer, const std::string& host);
 
 struct HttpResponse {
     int status = 0; // 0: no response
+    std::string headers; // the status line and header lines, each ending in CRLF
     std::string body;
     std::string error;
 };

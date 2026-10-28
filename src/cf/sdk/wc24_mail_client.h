@@ -1,6 +1,6 @@
 // The WiiConnect24 mail server protocol, as the Wii's KD speaks it to the CGIs its nwc24msg.cfg names
 // (account.cgi, send.cgi, check.cgi, receive.cgi, delete.cgi): form POSTs answered with "key=value" lines
-// (cd: the result code, 100 for success). Written against WiiLink's Mail-Server (docs/wc24/README.md).
+// (cd: the result code, 100 for success). Written against WiiLink's Mail-Server (pc_port_wc24.md).
 // Blocking: call from worker threads.
 #pragma once
 

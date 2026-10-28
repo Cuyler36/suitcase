@@ -10,6 +10,9 @@
 #include <game/mLib/m_heap.hpp>
 #include <revolution/os/OSCache.h>
 #include <cstring>
+#if TARGET_PC
+#include <cf/game_config.h>
+#endif
 
 namespace dFootmark {
 
@@ -294,7 +297,11 @@ void Editor_c::updateDay(int days, int arg, BOOL flush) {
             for (const offset_c *ofs = l_around; ofs < l_around + 8; ofs++) {
                 sum += get(x + ofs->x, z + ofs->z);
             }
+#if TARGET_PC
+            s16 growth = (s16)(int)((float)(sum / 8 / 85 + 1) * cf::config::game::GetGrassRestorationScale());
+#else
             s16 growth = sum / 8 / 85 + 1;
+#endif
             s_growth.set(x, z, growth);
         }
     }

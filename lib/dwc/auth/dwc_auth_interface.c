@@ -101,6 +101,27 @@ static struct
     u8 padding[24];
 } s_auth_console_save_data ATTRIBUTE_ALIGN(32);
 
+#if TARGET_PC
+// The file as the Wii keeps it: the user id big-endian (pc_port_endianness.md E-64)
+static u8 s_auth_console_save_file[sizeof(s_auth_console_save_data)] ATTRIBUTE_ALIGN(32);
+
+static void DWCi_Port_AuthDataToFile(void)
+{
+    int i;
+    memset(s_auth_console_save_file, 0, sizeof(s_auth_console_save_file));
+    for (i = 0; i < 8; i++)
+        s_auth_console_save_file[i] = (u8)(s_auth_console_save_data.userid >> (56 - i * 8));
+}
+
+static void DWCi_Port_AuthDataFromFile(void)
+{
+    int i;
+    s_auth_console_save_data.userid = 0;
+    for (i = 0; i < 8; i++)
+        s_auth_console_save_data.userid = (s_auth_console_save_data.userid << 8) | s_auth_console_save_file[i];
+}
+#endif
+
 // the profanity check's reply (HandleResponse's "prwords=")
 static struct
 {
@@ -377,8 +398,13 @@ void DWCi_Auth_ProcessAuthentication(void)
             break;
 
         case DWCi_AUTH_STATE_FILE_READ:
+#if TARGET_PC
+            NANDReadAsync(&s_auth_work->fileinfo, s_auth_console_save_file,
+                sizeof(s_auth_console_save_file), nand_callback,
+#else
             NANDReadAsync(&s_auth_work->fileinfo, &s_auth_console_save_data,
                 sizeof(s_auth_console_save_data), nand_callback,
+#endif
                 &s_auth_work->nand_command_block);
             s_auth_state = DWCi_AUTH_STATE_FILE_READ_WAIT;
             break;
@@ -391,6 +417,9 @@ void DWCi_Auth_ProcessAuthentication(void)
 
             if (s_auth_work->nand_result == sizeof(s_auth_console_save_data))
             {
+#if TARGET_PC
+                DWCi_Port_AuthDataFromFile();
+#endif
                 DWC_Printf(DWC_REPORTFLAG_AUTH, " read userid = %llu\n",
                     s_auth_console_save_data.userid);
                 s_auth_work->nand_result = NAND_RESULT_OK;
@@ -512,8 +541,14 @@ void DWCi_Auth_ProcessAuthentication(void)
             break;
 
         case DWCi_AUTH_STATE_FILE_WRITE:
+#if TARGET_PC
+            DWCi_Port_AuthDataToFile();
+            NANDWriteAsync(&s_auth_work->fileinfo, s_auth_console_save_file,
+                sizeof(s_auth_console_save_file), nand_callback,
+#else
             NANDWriteAsync(&s_auth_work->fileinfo, &s_auth_console_save_data,
                 sizeof(s_auth_console_save_data), nand_callback,
+#endif
                 &s_auth_work->nand_command_block);
             s_auth_state = DWCi_AUTH_STATE_FILE_WRITE_WAIT;
             break;

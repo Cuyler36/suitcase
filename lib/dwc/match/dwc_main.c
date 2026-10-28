@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if !TARGET_PC
 typedef struct DWCNodeInfoList
 {
     int count;              // 0x00
@@ -75,6 +76,13 @@ typedef struct DWCMatchControlView
     s64 serverPollingTime;   // 0x8B8
     u8 _8C0[0x30];
 } DWCMatchControlView;
+#else
+#include "dwc_friend_control.h"
+#include "dwc_match_control.h"
+
+// The real control blocks: the views above are sized for the Wii's 32-bit pointers
+typedef DWCMatchControl DWCMatchControlView;
+#endif
 
 typedef struct DWCstControl
 {
@@ -102,11 +110,16 @@ typedef struct DWCstControl
     DWCConnectionClosedCallback closedCallback;
     void* closedParam;
     DWCLoginControl logcnt;
+#if TARGET_PC
+    DWCFriendControl friendcnt;
+#else
     u8 friendcnt[0x60];
+#endif
     DWCMatchControlView matchcnt;
     DWCTransportInfo transinfo;
 } DWCControl;
 
+#if !TARGET_PC // dwc_match_control.h on PC
 typedef struct DWCConnectionInfo
 {
     u8 index;
@@ -114,6 +127,7 @@ typedef struct DWCConnectionInfo
     u16 pad;
     u32 profileID;
 } DWCConnectionInfo;
+#endif
 
 void DWCi_NNFreeNegotiateList(void); // dwc_match.c's deferred NNFreeNegotiateList
 
@@ -239,7 +253,11 @@ void DWC_InitFriendsMatch(DWCFriendsMatchControl* dwccnt,
         productID, userdata->gamecode, stpDwcCnt->playerName,
         DWCi_LoginCallback, NULL);
 
+#if TARGET_PC
+    DWCi_FriendInit(&stpDwcCnt->friendcnt, &stpDwcCnt->gpObj,
+#else
     DWCi_FriendInit(stpDwcCnt->friendcnt, &stpDwcCnt->gpObj,
+#endif
         stpDwcCnt->playerName, friendList, friendListLen);
 
     DWCi_MatchInit(&stpDwcCnt->matchcnt, &stpDwcCnt->gpObj,

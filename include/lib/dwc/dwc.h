@@ -11,13 +11,23 @@ extern "C" {
 // include arguments absent from the older Nitro / Revolution manuals.
 
 // The console's own Wi-Fi Connection account (dFriendList_c::mUserData).
+// On PC the DWC records are words (DWC's DWCAccUserData / DWCAccFriendData are u32 and int fields), so
+// the save codec keeps them in the host's byte order like the rest of the save, as DWC reads them.
 typedef struct DWCUserData {
+#if TARGET_PC
+    u32 _00[0x10];
+#else
     u8 _00[0x40];
+#endif
 } DWCUserData; // size 0x40
 
 // One friend's account data (or a friend key token) (dFriendList_c::mKeys).
 typedef struct DWCFriendData {
+#if TARGET_PC
+    u32 _00[3];
+#else
     u8 _00[0xC];
+#endif
 } DWCFriendData; // size 0xC
 
 // Callback layouts used by this Wii DWC revision.

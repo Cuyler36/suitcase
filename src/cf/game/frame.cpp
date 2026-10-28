@@ -19,6 +19,7 @@ constexpr auto kTickPeriod = std::chrono::nanoseconds(1000000000 / kTickRate);
 constexpr int kMaxLateTicks = 4;
 
 std::atomic<int> sFrameRate = kTickRate;
+std::atomic<bool> sSpeedup = false;
 Clock::time_point sNextTick;
 Clock::time_point sNextFrame;
 bool sStarted = false;
@@ -65,6 +66,14 @@ int GetFrameRate() {
     return sFrameRate;
 }
 
+void SetSpeedup(bool enabled) {
+    sSpeedup = enabled;
+}
+
+bool IsSpeedup() {
+    return sSpeedup;
+}
+
 bool IsDecoupled() {
     return sFrameRate != kTickRate;
 }
@@ -86,6 +95,13 @@ float GetTickFraction() {
 namespace {
 
 Step Decide(bool canPresent) {
+    if (IsSpeedup()) {
+        // Advance gameplay on every frame, even with an interpolated presentation rate selected.
+        // Restart the normal schedule when speedup ends; there is no elapsed-time debt to repay.
+        sStarted = false;
+        sTickFraction = 1.0f;
+        return Step::Tick;
+    }
     if (!IsDecoupled()) {
         // Every frame is a tick, paced by the retrace wait
         sStarted = false;

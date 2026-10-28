@@ -2,6 +2,7 @@
 // and a Wi-Fi Connection login test for a player of the town (cf/wfc.h), run on a worker thread; its
 // steps show in a window. The login test reads the player's DWC record and changes nothing.
 #include <cf/config.h>
+#include <cf/save_codec.h>
 #include <cf/online.h>
 #include <cf/wc24.h>
 #include <cf/wfc.h>
@@ -9,6 +10,7 @@
 #include "debug_windows.h"
 
 #include <game/game/d_animal.hpp>
+#include <game/game/d_friend.hpp>
 #include <game/game/d_mail.hpp>
 #include <game/game/d_net_wc24.hpp>
 #include <game/game/d_player_mgr.hpp>
@@ -20,6 +22,7 @@
 #include <imgui.h>
 
 #include <atomic>
+#include <cstddef>
 #include <cstdio>
 #include <cstring>
 #include <array>
@@ -142,7 +145,10 @@ void StartLogin(int slot, const dPrivateData_c* data) {
         return;
     }
     std::array<std::uint8_t, 0x40> userData;
-    std::memcpy(userData.data(), &data->mFriends.mUserData, userData.size());
+    // The record as the save file holds it (big-endian words): what the login reads
+    const u32 offset = static_cast<u32>(offsetof(dSaveTown_c, mPlayers) + slot * sizeof(dPrivateData_c) +
+                                        offsetof(dPrivateData_c, mFriends) + offsetof(dFriendList_c, mUserData));
+    cf::save::Encode(offset, &data->mFriends.mUserData, userData.data(), static_cast<u32>(userData.size()));
     {
         std::lock_guard lock(sTest.mutex);
         sTest.done = false;

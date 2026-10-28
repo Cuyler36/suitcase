@@ -1,4 +1,4 @@
-// WiiLink's Wi-Fi Connection (WFC) from the port (src/cf/sdk/wfc_login.cpp; docs/wc24/README.md): the
+// WiiLink's Wi-Fi Connection (WFC) from the port (src/cf/sdk/wfc_login.cpp; pc_port_wc24.md): the
 // login a Wii makes through DWC, signed with the player's own console keys (<user dir>/console).
 #pragma once
 

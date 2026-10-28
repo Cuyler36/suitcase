@@ -117,7 +117,45 @@ Quat Nlerp(Quat a, const Quat& b, f32 t) {
     return q;
 }
 
+void BlendLinear(const nw4r::math::MTX34& from, nw4r::math::MTX34& to, f32 t);
+
+// Quaternion decomposition cannot represent shear or recover rotation from a collapsed axis.
+bool NeedsLinearBlend(const nw4r::math::MTX34& m) {
+    f32 lengthSq[3] = {};
+    for (int col = 0; col < 3; ++col) {
+        for (int row = 0; row < 3; ++row) {
+            lengthSq[col] += m.m[row][col] * m.m[row][col];
+        }
+        if (lengthSq[col] <= 1.0e-12f) {
+            return true;
+        }
+    }
+    for (int a = 0; a < 3; ++a) {
+        for (int b = a + 1; b < 3; ++b) {
+            f32 dot = 0.0f;
+            for (int row = 0; row < 3; ++row) {
+                dot += m.m[row][a] * m.m[row][b];
+            }
+            if (std::fabs(dot) > 1.0e-5f * std::sqrt(lengthSq[a] * lengthSq[b])) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 void Blend(const nw4r::math::MTX34& from, nw4r::math::MTX34& to, f32 t) {
+    if (t <= 0.0f) {
+        to = from;
+        return;
+    }
+    if (t >= 1.0f) {
+        return;
+    }
+    if (NeedsLinearBlend(from) || NeedsLinearBlend(to)) {
+        BlendLinear(from, to, t);
+        return;
+    }
     const Pose a = Decompose(from);
     Pose b = Decompose(to);
     for (int i = 0; i < 3; i++) {
@@ -132,6 +170,13 @@ void Blend(const nw4r::math::MTX34& from, nw4r::math::MTX34& to, f32 t) {
 // rotating child under a parent with uneven scale, e.g. the clock's hands), and close enough in between
 // for the small change of one tick
 void BlendLinear(const nw4r::math::MTX34& from, nw4r::math::MTX34& to, f32 t) {
+    if (t <= 0.0f) {
+        to = from;
+        return;
+    }
+    if (t >= 1.0f) {
+        return;
+    }
     for (int i = 0; i < 12; i++) {
         to.a[i] = from.a[i] + (to.a[i] - from.a[i]) * t;
     }
@@ -179,6 +224,15 @@ void ForEachModel(F&& f) {
 // Layouts: each pane's global matrix and each layout's view matrix (its position, Simple_c::mPos)
 std::unordered_map<const void*, nw4r::math::MTX34> sLayoutRecords;
 
+bool IsEffectivelyVisible(const nw4r::lyt::Pane* pane) {
+    for (; pane != nullptr; pane = pane->GetParent()) {
+        if (!pane->IsVisible()) {
+            return false;
+        }
+    }
+    return true;
+}
+
 struct SavedMtx {
     nw4r::math::MTX34* target; // a layout's view matrix, or nullptr for a pane's
     nw4r::lyt::Pane* pane;
@@ -222,12 +276,25 @@ void BlendRecorded(const void* key, nw4r::math::MTX34& mtx, f32 t) {
 
 } // namespace
 
+void InvalidateLayoutHistory(nw4r::lyt::Pane* rootPane) {
+    if (rootPane != nullptr) {
+        ForEachPane(rootPane, [](nw4r::lyt::Pane* pane) { sLayoutRecords.erase(pane); });
+    }
+}
+
 void RecordLayouts() {
     sLayoutRecords.clear();
     ForEachLayout([](m2d::Simple_c* simple) {
-        sLayoutRecords[simple] = simple->mDrawInfo.GetViewMtx();
+        if (IsEffectivelyVisible(simple->mLayout.GetRootPane())) {
+            sLayoutRecords[simple] = simple->mDrawInfo.GetViewMtx();
+        }
         ForEachPane(simple->mLayout.GetRootPane(),
-                    [](nw4r::lyt::Pane* pane) { sLayoutRecords[pane] = pane->GetGlobalMtx(); });
+                    [](nw4r::lyt::Pane* pane) {
+                        // Hidden subtrees can retain matrices from much older ticks.
+                        if (IsEffectivelyVisible(pane)) {
+                            sLayoutRecords[pane] = pane->GetGlobalMtx();
+                        }
+                    });
     });
 }
 
@@ -236,13 +303,14 @@ void InterpolateLayouts(f32 tickFraction) {
     ForEachLayout([tickFraction](m2d::Simple_c* simple) {
         nw4r::math::MTX34* view = ViewMtx(simple);
         sLayoutSaved.push_back({view, nullptr, *view});
-        if (tickFraction < 1.0f) {
+        if (tickFraction < 1.0f && IsEffectivelyVisible(simple->mLayout.GetRootPane()) &&
+            sLayoutRecords.find(simple->mLayout.GetRootPane()) != sLayoutRecords.end()) {
             BlendRecorded(simple, *view, tickFraction);
         }
         ForEachPane(simple->mLayout.GetRootPane(), [tickFraction](nw4r::lyt::Pane* pane) {
             nw4r::math::MTX34 mtx = pane->GetGlobalMtx();
             sLayoutSaved.push_back({nullptr, pane, mtx});
-            if (tickFraction < 1.0f) {
+            if (tickFraction < 1.0f && IsEffectivelyVisible(pane)) {
                 BlendRecorded(pane, mtx, tickFraction);
                 pane->SetGlobalMtx(mtx);
             }

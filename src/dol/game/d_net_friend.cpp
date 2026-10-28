@@ -167,6 +167,30 @@ void SendBuf_c::set(const void *data, u32 size) {
 void SendBuf_c::clearPending() {
     mData = NULL;
 }
+#if TARGET_PC
+// The pending packet, taken under the lock for sending: the pointer is cleared before the send, the state
+// stays busy. NULL when there is none.
+const void *SendBuf_c::takePending(u32 *size) {
+    OSLockMutex(&mMutex.mMutex);
+    const void *data = NULL;
+    if (mSendState == SEND_BUSY && mData) {
+        data = mData;
+        *size = mLength;
+        mData = NULL;
+    }
+    OSUnlockMutex(&mMutex.mMutex);
+    return data;
+}
+// A taken packet that was not sent: pending again. Nothing else can set the buffer meanwhile (it is busy
+// until the send completes, and DWC_SendReliable only completes it when it sends).
+void SendBuf_c::restorePending(const void *data) {
+    OSLockMutex(&mMutex.mMutex);
+    if (mSendState == SEND_BUSY && mData == NULL) {
+        mData = data;
+    }
+    OSUnlockMutex(&mMutex.mMutex);
+}
+#endif
 // 800E6DA0
 BOOL SendBuf_c::isBusy() {
     OSLockMutex(&mMutex.mMutex);

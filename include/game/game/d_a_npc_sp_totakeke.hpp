@@ -7,6 +7,7 @@
 #include <game/game/d_actor.hpp>
 #include <game/game/d_debug_page_inline.hpp>
 #include <game/game/d_a_npc_sp.hpp>
+#include <port/bitfield.h>
 
 // K.K. Slider at the Roost (REL d_a_npc_sp_totakekeNP, profile
 // A_NPC_SP_TOTAKEKE). On Saturday nights (dEvent visitor 3) he sits on the
@@ -168,10 +169,10 @@ class dAcNpcSpTotakeke_c : public dAcNpcSp_c {
 
     // The net daub data (getDaubData / setDaubData).
     struct daub_s {
-        u32 mActive : 1;  // his evening (dEvent visitor 3): he is out
-        u32 mPlaying : 1; // a song is playing
-        u32 mSong : 8;    // its item index + 1
-        u32 _0 : 22;
+        // mActive: his evening (dEvent visitor 3): he is out
+        // mPlaying: a song is playing
+        // mSong: its item index + 1
+        BITFIELD_UNIT_4(u32 mActive : 1, u32 mPlaying : 1, u32 mSong : 8, u32 _0 : 22);
         u32 mPos; // its play position (dBgm::StgCafe_c::fn_80079F30)
     }; // size 0x8
 

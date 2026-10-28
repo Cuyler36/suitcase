@@ -14,6 +14,9 @@ Please see the GameSpy Presence SDK documentation for more information
 // INCLUDES
 //////////
 #include "gpi.h"
+#if TARGET_PC
+const char* CF_WfcLoginFields(const char* authToken, int gpProfileId); // src/cf/sdk/wfc_login.cpp
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -452,6 +455,12 @@ static GPResult gpiSendLogin(GPConnection* connection, GPIConnectData* data) {
   gpiAppendIntToBuffer(connection, &iconnection->outputBuffer,
                        iconnection->quietModeFlags);
   gpiAppendStringToBuffer(connection, &iconnection->outputBuffer, "\\id\\1");
+#if TARGET_PC
+  // The fields WiiLink's patch adds to the login (src/cf/sdk/wfc_login.cpp): the profile ID, its payload
+  // version, the console's signature of the auth token and the host platform
+  gpiAppendStringToBuffer(connection, &iconnection->outputBuffer,
+                          CF_WfcLoginFields(data->authtoken, iconnection->profileid));
+#endif
   gpiAppendStringToBuffer(connection, &iconnection->outputBuffer, "\\final\\");
 
   return GP_NO_ERROR;

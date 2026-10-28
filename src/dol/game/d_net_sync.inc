@@ -263,6 +263,10 @@ void recvDirectXferTown(int member, const u8 *data, u32 size) {
     }
     cLib::memCpy((u8 *)dSaveData_c::getTown() + offset, data, size);
     if (offset + size >= sizeof(dSaveTown_c)) {
+#if TARGET_PC
+        // The whole town has come in the Wii's format (cf/net_codec.h)
+        cf::net::DecodeTown(dSaveData_c::getTown());
+#endif
         if (!getNetPlayerOption(dPlayerMgr::Mgr_c::getNetPlayer(member))->mVoiceChat) {
             dNetMgr_c::connect(member);
         }

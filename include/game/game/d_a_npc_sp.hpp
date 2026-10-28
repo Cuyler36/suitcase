@@ -12,6 +12,7 @@
 #include <game/game/d_a_npc.hpp>
 #include <game/game/d_item.hpp>
 #include <game/game/d_personal_id.hpp>
+#include <port/bitfield.h>
 
 class dAcNpcSp_c : public dAcNpc_c {
 public:
@@ -39,8 +40,8 @@ public:
     // The net (daub) state word the RELs pass to executeWander / executeRemoteWander / resetWanderDaub
     // (their actor +0x1C80): the top byte is the emotion the npc plays.
     struct wanderDaub_s {
-        u32 mEmotion : 8; // emotion (action_c::requestEmotion), 0 = none
-        u32 _0 : 24;
+        // mEmotion: emotion (action_c::requestEmotion), 0 = none
+        BITFIELD_UNIT_2(u32 mEmotion : 8, u32 _0 : 24);
     }; // size 0x4
 
     // Inline construction observed in the REL special npc factories

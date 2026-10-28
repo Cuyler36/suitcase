@@ -7,6 +7,7 @@
 #include <game/game/d_actor.hpp>
 #include <game/game/d_debug_page_inline.hpp>
 #include <game/game/d_a_npc_sp.hpp>
+#include <port/bitfield.h>
 
 // Franklin at the Harvest Festival (REL d_a_npc_sp_franklinNP, profile A_NPC_SP_FRANKLIN).
 class dAcNpcSpFranklin_c : public dAcNpcSp_c {
@@ -144,8 +145,8 @@ class dAcNpcSpFranklin_c : public dAcNpcSp_c {
     mAng getTalkTurnSpeed() const { return l_turnSpeed; }
 
     struct daub_s {
-        u32 mAtSpot : 1; // standing at the festival spot (mIsActive)
-        u32 _0 : 31;
+        // mAtSpot: standing at the festival spot (mIsActive)
+        BITFIELD_UNIT_2(u32 mAtSpot : 1, u32 _0 : 31);
         u32 _4;
     }; // size 0x8
 

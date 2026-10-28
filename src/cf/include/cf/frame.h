@@ -4,6 +4,7 @@
 // higher frame rate the frames in between draw the last tick again (dSys::presentFrame) instead of
 // running the game. The rate is graphics.frameRate: 60 is the game's (paced by the retrace wait,
 // VIWaitForRetrace), higher is paced here, 0 is unlimited.
+// Testing speedup overrides both waits: every frame runs a tick as fast as the host allows.
 #pragma once
 
 namespace cf {
@@ -13,6 +14,10 @@ constexpr int kTickRate = 60;
 
 void SetFrameRate(int rate);
 int GetFrameRate();
+
+// Session-only testing control, independent of the configured presentation frame rate.
+void SetSpeedup(bool enabled);
+bool IsSpeedup();
 
 // Whether frames are paced here, apart from the ticks (a frame rate other than 60)
 bool IsDecoupled();

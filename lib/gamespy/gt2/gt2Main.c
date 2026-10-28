@@ -57,6 +57,7 @@ void gt2Think(GT2Socket socket) {
   gti2FreeClosedConnections(socket);
 }
 
+#if !TARGET_PC // its callees are dead-stripped from the DOL (not in the decomp)
 GT2Result gt2SendRawUDP(GT2Socket socket, const char* remoteAddress,
                         const GT2Byte* message, int len) {
   unsigned int ip;
@@ -89,6 +90,7 @@ GT2Result gt2SendRawUDP(GT2Socket socket, const char* remoteAddress,
 
   return GT2Success;
 }
+#endif
 
 /*********************
 ** LISTEN FUNCTIONS **
@@ -248,44 +250,58 @@ GT2MessageID gt2GetLastSentMessageID(GT2Connection connection) {
   return (GT2MessageID)(connection->serialNumber - 1);
 }
 
+#if !TARGET_PC // its callees are dead-stripped from the DOL (not in the decomp)
 GT2Bool gt2WasMessageIDConfirmed(GT2Connection connection,
                                  GT2MessageID messageID) {
   return gti2WasMessageIDConfirmed(connection, messageID);
 }
+#endif
 
 /*********************
 ** FILTER FUNCTIONS **
 *********************/
 
+#if !TARGET_PC // its callees are dead-stripped from the DOL (not in the decomp)
 GT2Bool gt2AddSendFilter(GT2Connection connection,
                          gt2SendFilterCallback callback) {
   return gti2AddSendFilter(connection, callback);
 }
+#endif
 
+#if !TARGET_PC // its callees are dead-stripped from the DOL (not in the decomp)
 void gt2RemoveSendFilter(GT2Connection connection,
                          gt2SendFilterCallback callback) {
   gti2RemoveSendFilter(connection, callback);
 }
+#endif
 
+#if !TARGET_PC // its callees are dead-stripped from the DOL (not in the decomp)
 void gt2FilteredSend(GT2Connection connection, int filterID,
                      const GT2Byte* message, int len, GT2Bool reliable) {
   gti2FilteredSend(connection, filterID, message, len, reliable);
 }
+#endif
 
+#if !TARGET_PC // its callees are dead-stripped from the DOL (not in the decomp)
 GT2Bool gt2AddReceiveFilter(GT2Connection connection,
                             gt2ReceiveFilterCallback callback) {
   return gti2AddReceiveFilter(connection, callback);
 }
+#endif
 
+#if !TARGET_PC // its callees are dead-stripped from the DOL (not in the decomp)
 void gt2RemoveReceiveFilter(GT2Connection connection,
                             gt2ReceiveFilterCallback callback) {
   gti2RemoveReceiveFilter(connection, callback);
 }
+#endif
 
+#if !TARGET_PC // its callees are dead-stripped from the DOL (not in the decomp)
 void gt2FilteredReceive(GT2Connection connection, int filterID,
                         GT2Byte* message, int len, GT2Bool reliable) {
   gti2FilteredReceive(connection, filterID, message, len, reliable);
 }
+#endif
 
 /*******************
 ** INFO FUNCTIONS **

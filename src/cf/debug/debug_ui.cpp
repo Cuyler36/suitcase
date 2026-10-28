@@ -36,6 +36,9 @@ void DrawFpsCounter() {
     if (ImGui::Begin("##fps", nullptr, flags)) {
         ImGui::Text("%.0f FPS (%.2f ms)", stats.framesPerSecond, stats.frameTimeMs);
         ImGui::Text("%.0f ticks/s", stats.ticksPerSecond);
+        if (frame::IsSpeedup()) {
+            ImGui::TextColored(ImVec4(1.f, 0.8f, 0.2f, 1.f), "Speedup ON (F2 to stop)");
+        }
     }
     ImGui::End();
 }
@@ -46,7 +49,10 @@ void draw() {
     if (ImGui::IsKeyPressed(ImGuiKey_F1, false)) {
         sVisible = !sVisible;
     }
-    if (config::debug::showFps) {
+    if (ImGui::IsKeyPressed(ImGuiKey_F2, false)) {
+        frame::SetSpeedup(!frame::IsSpeedup());
+    }
+    if (config::debug::showFps || frame::IsSpeedup()) {
         DrawFpsCounter();
     }
     if (!sVisible) {
@@ -86,6 +92,26 @@ void draw() {
                 }
             }
 
+            if (ImGui::BeginMenu("Grass")) {
+                if (auto* detScale = borealis::config::find<float>("game.grass.detScale")) {
+                    float value = *detScale;
+
+                    if (ImGui::SliderFloat("Deterioration", &value, 0.0f, 100.0f, "%.2f")) {
+                        detScale->set(value);
+                    }
+                }
+
+                if (auto* restScale = borealis::config::find<float>("game.grass.restScale")) {
+                    float value = *restScale;
+
+                    if (ImGui::SliderFloat("Restoration", &value, 0.0f, 100.0f, "%.2f")) {
+                        restScale->set(value);
+                    }
+                }
+
+                ImGui::EndMenu();
+            }
+
             if (auto* frameRate = borealis::config::find<int>("graphics.frameRate")) {
                 // Above 60, frames between the game's 60 Hz ticks (cf/frame.h)
                 if (ImGui::BeginMenu("Frame Rate")) {
@@ -112,6 +138,12 @@ void draw() {
                 borealis::config::flush();
             }
             ImGui::EndMenu();
+        }
+        if (ImGui::Button(frame::IsSpeedup() ? "Stop speedup (F2)" : "Speedup (F2)")) {
+            frame::SetSpeedup(!frame::IsSpeedup());
+        }
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("Unlock the retrace wait and run gameplay as fast as possible for testing.");
         }
         ImGui::TextDisabled("F1 hides");
         ImGui::EndMainMenuBar();

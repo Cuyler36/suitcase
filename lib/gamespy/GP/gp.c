@@ -499,6 +499,7 @@ GPResult gpSuggestUniqueNickA(GPConnection* connection,
                               param);
 }
 
+#if !TARGET_PC // its callees are dead-stripped from the DOL (not in the decomp)
 GPResult gpRegisterUniqueNickA(GPConnection* connection,
                                const char uniquenick[GP_UNIQUENICK_LEN],
                                const char cdkey[GP_CDKEY_LEN], GPEnum blocking,
@@ -541,7 +542,9 @@ GPResult gpRegisterUniqueNickA(GPConnection* connection,
   return gpiRegisterUniqueNick(connection, uniquenick, cdkey, blocking,
                                callback, param);
 }
+#endif
 
+#if !TARGET_PC // its callees are dead-stripped from the DOL (not in the decomp)
 GPResult gpRegisterCdKeyA(GPConnection* connection,
                           const char cdkey[GP_CDKEY_LEN], GPEnum blocking,
                           GPCallback callback, void* param) {
@@ -580,6 +583,7 @@ GPResult gpRegisterCdKeyA(GPConnection* connection,
 
   return gpiRegisterCdKey(connection, cdkey, blocking, callback, param);
 }
+#endif
 
 GPResult gpGetErrorCode(GPConnection* connection, GPErrorCode* errorCode) {
   GPIConnection* iconnection;
@@ -814,6 +818,7 @@ GPResult gpProfileSearchA(GPConnection* connection,
                           lastname, icquin, 0, blocking, callback, param);
 }
 
+#if !TARGET_PC // its callees are dead-stripped from the DOL (not in the decomp)
 GPResult gpProfileSearchUniquenickA(GPConnection* connection,
                                     const char uniquenick[GP_UNIQUENICK_LEN],
                                     const int namespaceIDs[GP_MAX_NAMESPACEIDS],
@@ -851,6 +856,7 @@ GPResult gpProfileSearchUniquenickA(GPConnection* connection,
   return gpiProfileSearchUniquenick(connection, uniquenick, namespaceIDs,
                                     numNamespaces, blocking, callback, param);
 }
+#endif
 
 GPResult gpGetInfo(GPConnection* connection, GPProfile profile,
                    GPEnum checkCache, GPEnum blocking, GPCallback callback,

@@ -139,7 +139,15 @@ static char _mempool[MEMPOOL_SIZE]	POST_ALIGN(16);
 
 */
 #define PRE_ALIGN(x) // not needed
+#if TARGET_PC
+// Alignment for the Wii's DMA, which the host does not need (MSVC has no __attribute__)
+#define POST_ALIGN(x)
+#if defined(_MSC_VER) && !defined(__clang__)
+#define __attribute__(x)
+#endif
+#else
 #define POST_ALIGN(x) __attribute__((aligned(32)))
+#endif
 
 #define DIM(x) (sizeof(x) / sizeof((x)[0]))
 

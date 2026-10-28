@@ -238,6 +238,7 @@ qr2_error_t qr2_init_socketA(/*[out]*/ qr2_t* qrec, SOCKET s, int boundport,
   }
 }
 
+#if !TARGET_PC // its callees are dead-stripped from the DOL (not in the decomp)
 qr2_error_t qr2_init_socketW(/*[out]*/ qr2_t* qrec, SOCKET s, int boundport,
                              const unsigned short* gamename,
                              const unsigned short* secret_key, int ispublic,
@@ -264,6 +265,7 @@ qr2_error_t qr2_init_socketW(/*[out]*/ qr2_t* qrec, SOCKET s, int boundport,
                           key_list_callback, playerteam_count_callback,
                           adderror_callback, userdata);
 }
+#endif
 
 qr2_error_t qr2_create_socket(/*[out]*/ SOCKET* sock, const char* ip,
                               /*[in/out]*/ int* port) {
@@ -365,6 +367,7 @@ qr2_error_t qr2_initA(/*[out]*/ qr2_t* qrec, const char* ip, int baseport,
   return ret;
 }
 
+#if !TARGET_PC // its callees are dead-stripped from the DOL (not in the decomp)
 qr2_error_t qr2_initW(/*[out]*/ qr2_t* qrec, const unsigned short* ip,
                       int baseport, const unsigned short* gamename,
                       const unsigned short* secret_key, int ispublic,
@@ -393,6 +396,7 @@ qr2_error_t qr2_initW(/*[out]*/ qr2_t* qrec, const unsigned short* ip,
                    player_key_callback, team_key_callback, key_list_callback,
                    playerteam_count_callback, adderror_callback, userdata);
 }
+#endif
 
 void qr2_register_natneg_callback(qr2_t qrec, qr2_natnegcallback_t nncallback) {
   gsDebugFormat(GSIDebugCat_QR2, GSIDebugType_Misc, GSIDebugLevel_StackTrace,

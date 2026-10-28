@@ -16,6 +16,7 @@
 #include <string.h>
 #include <types.h>
 #include <game/game/d_net_player_info.hpp>
+#include <port/bitfield.h>
 
 namespace EGG {
 class Heap;
@@ -635,6 +636,14 @@ struct dNetSceneMsg_c {
     void set(int member, BOOL hasScene, u8 scene, BOOL hasFlag, BOOL flag,
              int ackTo);
 
+#if TARGET_PC
+    // The Wii's bytes (it travels as they are): MSVC would start a storage unit at each change of type
+    BITFIELD_BYTE_3(/* 0x0 */ u8 mMember : 2, /* 0x0 */ u8 mHasScene : 1, u8 _0 : 5);
+    BITFIELD_BYTE_2(/* 0x1 */ u8 mScene : 7, /* 0x1 */ u8 mHasFlag : 1);
+    // mAckTo: the member that answers with NET_PACKET_SCENE_STATE_ACK (>= 4: none)
+    BITFIELD_BYTE_3(/* 0x2 */ u8 mFlag : 1, /* 0x2 */ u8 mAckTo : 3, u8 _2 : 4);
+    u8 _3;
+#else
     /* 0x0 */ u32 mMember : 2;
     /* 0x0 */ u8 mHasScene : 1;
     /* 0x1 */ u8 mScene : 7;
@@ -642,6 +651,7 @@ struct dNetSceneMsg_c {
     /* 0x2 */ u8 mFlag : 1;
     // the member that answers with NET_PACKET_SCENE_STATE_ACK (>= 4: none)
     /* 0x2 */ u32 mAckTo : 3;
+#endif
 }; // size 0x4
 
 // --------------------------------------------------------------------------------------------------

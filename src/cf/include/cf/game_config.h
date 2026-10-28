@@ -6,6 +6,8 @@ namespace game {
 
 bool IsResettiDisabled();
 bool SkipSplashScreens();
+float GetGrassDeteriorationScale();
+float GetGrassRestorationScale();
 
 }
 }

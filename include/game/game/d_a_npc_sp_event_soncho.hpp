@@ -3,6 +3,7 @@
 
 #include <game/game/d_a_npc_sp.hpp>
 #include <game/game/d_event.hpp>
+#include <port/bitfield.h>
 
 // Tortimer at the town events (REL d_a_npc_sp_event_sonchoNP, 23 profiles
 // NPC_SP_EV_SONCHO_CD .. NPC_SP_EV_SONCHO19). He stands in town on an event
@@ -45,8 +46,8 @@ class dAcNpcSpEvSoncho_c : public dAcNpcSp_c {
 
     // The net daub data (getDaubData / setDaubData).
     struct daub_s {
-        u32 mActive : 1; // event time: he is out (mIsActive)
-        u32 _0 : 31;
+        // mActive: event time: he is out (mIsActive)
+        BITFIELD_UNIT_2(u32 mActive : 1, u32 _0 : 31);
         wanderDaub_s mWander;
     }; // size 0x8
 

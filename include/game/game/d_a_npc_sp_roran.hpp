@@ -3,6 +3,7 @@
 
 #include <game/game/d_a_npc_sp.hpp>
 #include <game/game/d_item.hpp>
+#include <port/bitfield.h>
 
 // Saharah, the carpet / wallpaper recycler (REL d_a_npc_sp_roranNP, profile
 // A_NPC_SP_RORAN). On her visiting day she wanders around town and trades the
@@ -33,8 +34,8 @@ class dAcNpcSpRoran_c : public dAcNpcSp_c {
 
     // The net daub data (getDaubData / setDaubData).
     struct daub_s {
-        u32 mVisiting : 1; // dEvent::isVisitorHere(VISITOR_SAHARAH): mIsActive
-        u32 _0 : 31;
+        // mVisiting: dEvent::isVisitorHere(VISITOR_SAHARAH): mIsActive
+        BITFIELD_UNIT_2(u32 mVisiting : 1, u32 _0 : 31);
         u32 _4;
     }; // size 0x8
 

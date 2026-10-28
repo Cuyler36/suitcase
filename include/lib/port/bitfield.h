@@ -30,4 +30,11 @@
 #define BITFIELD_BYTE_8(a, b, c, d, e, f, g, h) a; b; c; d; e; f; g; h
 #endif
 
+// BITFIELD_UNIT_n(f1, ..., fn): the same reversal for a wider storage unit (u16 / u32 bit-fields): the
+// unit's value is then the Wii's, and data in the Wii's format needs the unit swapped as one value (the
+// fields must fill the unit). For data that travels, e.g. the villagers' daub data (dNpc::daub_c).
+#define BITFIELD_UNIT_2(a, b) BITFIELD_BYTE_2(a, b)
+#define BITFIELD_UNIT_3(a, b, c) BITFIELD_BYTE_3(a, b, c)
+#define BITFIELD_UNIT_4(a, b, c, d) BITFIELD_BYTE_4(a, b, c, d)
+
 #endif // PORT_BITFIELD_H

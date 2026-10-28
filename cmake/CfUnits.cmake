@@ -4,7 +4,8 @@
 # configure.py gives it (minus MWCC/MSL-only ones), so libraries built with another
 # revision's flags (e.g. nw4r's VERSION_RSPE01_01) stay separate from the game's VERSION.
 # Units of libraries the port replaces (hardware SDK modules, RevoEX, DWC, MSL, runtime, TRK)
-# are not routed anywhere. HBM is not built either: src/cf/sdk/hbm_stub.cpp stands in for it
+# are not routed anywhere, except DWC and the GameSpy SDK (cf_dwc), which run on the host SO and NHTTP
+# layers (src/cf/sdk/so_host_revoex.cpp, nhttp_host_revoex.cpp). HBM is not built either: src/cf/sdk/hbm_stub.cpp stands in for it
 # until the HOME button menu is recreated with RmlUi.
 include_guard(GLOBAL)
 
@@ -17,6 +18,8 @@ set(_cf_lib_targets
         "RVLFaceLib (wii-ipl)=cf_rfl"
         "MWM=cf_mwm"
         "RVL_SDK (wii-ipl)=cf_rvl"
+        "dwc=cf_dwc"
+        "gamespy (mkw)=cf_dwc"
 )
 # RVL_SDK modules that are plain software and compile as-is; the rest are aurora or shims
 set(CF_RVL_SOFTWARE_MODULES arc cx enc kpr mem tpl)
@@ -29,9 +32,11 @@ set(CF_RVL_SOFTWARE_FILES ${CF_AXFX_FILES})
 # whose balloon manager is also built into d_a_balloonNP, which the PC build keeps.
 set(CF_EXCLUDE_SOURCE_REGEX "^src/runtime/|/rel_init\\.cpp$|^src/d_balloon_managerNP/")
 set(CF_DROP_DEFINE_REGEX "^(MUST_MATCH|NULL)(=|$)")
-set(CF_DROP_INCLUDE_REGEX "MSL|PowerPC_EABI_Support")
+# lib/dwc/support/include: its time.h (a struct tm for the Wii's MSL) would hide the host's; its other
+# headers are forwarded by src/cf/include
+set(CF_DROP_INCLUDE_REGEX "MSL|PowerPC_EABI_Support|^lib/dwc/support/include$")
 
-set(CF_UNIT_TARGETS cf_game cf_nw4r cf_egg cf_rfl cf_mwm cf_rvl)
+set(CF_UNIT_TARGETS cf_game cf_nw4r cf_egg cf_rfl cf_mwm cf_rvl cf_dwc)
 
 function(_cf_unit_target lib source out)
     set(target "")

@@ -5,6 +5,7 @@
 #include "dol_data_loader.hpp"
 
 #include <game/game/d_main.hpp>
+#include <game/game/d_net_dwc.hpp>
 #include <game/game/d_profile.hpp>
 #include <game/game/d_sys.hpp>
 #include <game/snd/snd_manager.hpp>
@@ -25,10 +26,33 @@
 #include <cf/frame.h>
 #include <cf/screen.h>
 
+#include <chrono>
 #include <cstdlib>
+#include <thread>
+
+extern "C" void aurora_wpad_update(void); // aurora/wpad.h (src/cf/aurora_wpad)
 
 namespace cf {
 namespace {
+
+// Leaves an online session as the game does (dNetDwc::Session_c::requestStop): its thread closes the
+// connections, which tells the other consoles (GT2's closed message), and logs out. Quitting without it
+// left the Wiis to find out by timing out, mid scene change or demo. The thread only stops once no friend
+// update is pending, so it gets a few seconds.
+void StopOnlineSession() {
+    dNetDwc::Session_c *session = dNetDwc::Session_c::sInstance;
+    if (session == nullptr || OSIsThreadTerminated(&session->mThread)) {
+        return;
+    }
+    session->requestStop();
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+    while (!OSIsThreadTerminated(&session->mThread) && std::chrono::steady_clock::now() < deadline) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    if (!OSIsThreadTerminated(&session->mThread)) {
+        borealis_log_printf(BOREALIS_LOG_WARNING, "cf::boot", "the online session did not stop in time");
+    }
+}
 
 // The game never shuts sound down (the Wii resets instead), and SoundManager's static instance would
 // free its heaps in its destructor at exit, after nw4r's sound thread and singletons are gone. So the
@@ -85,6 +109,11 @@ void RunGameFrame() {
     // The window's shape for this frame (widescreen)
     screen::Update();
     debug::applyPending();
+    // Samples the Wii Remotes once a tick, on the main thread (aurora's input router is its own). The
+    // game's VIWaitForRetrace samples too, but only on the main thread, and while online the game waits
+    // for retraces only on its network thread (src/cf/sdk/rvl_misc.cpp). Sampling goes by elapsed time,
+    // so a second call in the same tick adds no samples.
+    aurora_wpad_update();
     dSys::runFrame();
 }
 
@@ -98,8 +127,10 @@ void PresentGameFrame() {
 }
 
 void ShutdownGame() {
-    // In dependency order: sound (its threads use the SDK's), the SDK's worker threads (their
-    // callbacks run game code), then the game's own threads
+    // In dependency order: the online session (its thread uses sockets, alarms and the game's net
+    // state), sound (its threads use the SDK's), the SDK's worker threads (their callbacks run game
+    // code), then the game's own threads
+    StopOnlineSession();
     ShutdownSound();
     sdk::ShutdownAlarms();
     sdk::ShutdownNandWorker();

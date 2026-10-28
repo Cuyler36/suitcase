@@ -3,6 +3,9 @@
 // 805B2CD8..805B68E0, .sbss 8074E538..8074E540. See
 // include/game/game/d_net_mgr.hpp and notes/d_net_mgr.txt.
 #include <cstring>
+#if TARGET_PC
+#include <cf/net_codec.h>
+#endif
 #include <game/game/d_heap.hpp>
 #include <game/game/d_nand.hpp>
 #include <game/game/d_net.hpp>
@@ -277,6 +280,10 @@ BOOL dNetMgr_c::send(u8 member, const void *data, u32 size) {
     if (mSendBufs[member].isBusy()) {
         return FALSE;
     }
+#if TARGET_PC
+    // To the Wii's format (cf/net_codec.h): the packet is the sender's out buffer, sent as it is now
+    cf::net::EncodePacket(const_cast<void *>(data), size, member);
+#endif
     mSendBufs[member].set(data, size);
     return TRUE;
 }
@@ -544,7 +551,14 @@ BOOL dNetMgr_c::reqFindData(const DWCFriendData *data) {
 void dNetMgr_c::onStatus() {
     dNetMgr_c *mgr = sInstance;
     if (mgr->mStatusSize != 0) {
+#if TARGET_PC
+        // Friends read it as a Wii writes it (big-endian UTF-16 names)
+        u8 status[sizeof(mgr->mStatus)];
+        cf::net::EncodeStatus(status, mgr->mStatus, mgr->mStatusSize);
+        DWC_SetOwnStatusData(status, mgr->mStatusSize);
+#else
         DWC_SetOwnStatusData(mgr->mStatus, mgr->mStatusSize);
+#endif
     }
     if (mgr->mStatusCb != NULL) {
         mgr->mStatusCb();
@@ -580,7 +594,13 @@ void dNetMgr_c::fn_800E5C7C() {
 void dNetMgr_c::onRecv(u8 aid, const void *data, u32 size) {
     sInstance->lock(0);
     dNetMgr_c *mgr = sInstance;
+#if TARGET_PC
+    // From the Wii's format (cf/net_codec.h), in DWC's receive buffer; a malformed packet is dropped
+    const bool valid = cf::net::DecodePacket(const_cast<void *>(data), size, aid);
+    if (valid && mgr->mRecvCb != NULL) {
+#else
     if (mgr->mRecvCb != NULL) {
+#endif
         mgr->mRecvCb(aid, data, size);
     }
     mgr->setDwcRecvBuf(aid);

@@ -137,10 +137,8 @@ target_link_libraries(cf_aurora_wpad PUBLIC aurora::pad)
 file(GLOB CF_SDK_SOURCES CONFIGURE_DEPENDS src/cf/sdk/*.cpp)
 cf_add_pc_decomp_library(cf_sdk_stubs ${CF_SDK_SOURCES})
 target_link_libraries(cf_sdk_stubs PRIVATE cf_aurora_wpad ${AURORA_SDL3_TARGET} # SDL3: audio output (ax_rvl.cpp)
-        nlohmann_json::nlohmann_json) # WiiConnect24 state (nwc24_revoex.cpp)
-if (WIN32)
-    target_link_libraries(cf_sdk_stubs PRIVATE ws2_32) # WiiLink WFC sockets (wfc_login.cpp)
-endif ()
+        nlohmann_json::nlohmann_json # WiiConnect24 state (nwc24_revoex.cpp)
+        borealis::socket borealis::http) # SO, NHTTP and the online layers (so_host_revoex.cpp, host_net.cpp)
 # RevoEX's headers clash with the decomp's (tools/gen_pc_sdk_stubs.py): put them first for its stubs
 file(GLOB CF_SDK_REVOEX_SOURCES CONFIGURE_DEPENDS src/cf/sdk/*_revoex.cpp)
 set_source_files_properties(${CF_SDK_REVOEX_SOURCES} PROPERTIES

@@ -7,6 +7,7 @@
 #include <game/game/d_actor.hpp>
 #include <game/game/d_debug_page_inline.hpp>
 #include <game/game/d_a_npc_sp.hpp>
+#include <port/bitfield.h>
 
 // Chip, the host of the fishing tourney (REL d_a_npc_sp_uomasaNP, profile
 // A_NPC_SP_UOMASA, messages "npc_SP/NPC_uomasa"). He is out on the event day
@@ -275,10 +276,10 @@ class dAcNpcSpUomasa_c : public dAcNpcSp_c {
 
     // The net daub data (getDaubData / setDaubData).
     struct daub_s {
-        u32 mActive : 1;       // tourney time: he is out (mIsActive)
-        u32 mForceAdvance : 1; // the players were away:
-                               // dEvFishing_c::advance(TRUE)
-        u32 _0 : 30;
+        // mActive: tourney time: he is out (mIsActive)
+        // mForceAdvance: the players were away:
+        //   dEvFishing_c::advance(TRUE)
+        BITFIELD_UNIT_3(u32 mActive : 1, u32 mForceAdvance : 1, u32 _0 : 30);
         u32 _4;
     }; // size 0x8
 

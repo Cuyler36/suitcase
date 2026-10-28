@@ -22,6 +22,9 @@
 #include <game/game/d_fd_block_type.hpp>
 #include <game/game/d_ftr.hpp>
 #include <game/game/d_a_ftr.hpp>
+#ifdef TARGET_PC
+#include <cf/game_config.h>
+#endif
 
 // Ext item data (0xD000 ids), see d_fg_item.cpp.
 // Units where Racco can appear (RTTI raccoCand_c; vtable 804DF990): units of BG attribute
@@ -659,7 +662,11 @@ void dFdBase_c::wearGrass(int unitX, int unitZ, int amount, int arg) {
 // 8008D6B4
 void dFdBase_c::wearGrass(const nw4r::math::VEC3 *pos, int amount, int arg) {
     if (_24 != NULL) {
+#if TARGET_PC
+        dFootmark::getEditor()->addPos((const mVec3_c *)pos, (int)((float)-amount * cf::config::game::GetGrassDeteriorationScale()), FALSE, TRUE);
+#else
         dFootmark::getEditor()->addPos((const mVec3_c *)pos, -amount, FALSE, TRUE);
+#endif
     }
 }
 

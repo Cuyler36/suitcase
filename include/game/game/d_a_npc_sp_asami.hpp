@@ -2,6 +2,7 @@
 #define D_A_NPC_SP_ASAMI_HPP
 
 #include <game/game/d_a_npc_sp.hpp>
+#include <port/bitfield.h>
 
 // Sable at the Able Sisters' sewing machine (REL d_a_npc_sp_asamiNP, profile
 // A_NPC_SP_ASAMI). She sews in time with the machine
@@ -38,8 +39,8 @@ class dAcNpcSpAsami_c : public dAcNpcSp_c {
 
     // The net daub data (getDaubData / setDaubData).
     struct daub_s {
-        u32 mTiredFace : 1; // her surprised face (setTiredFace)
-        u32 _0 : 31;
+        // mTiredFace: her surprised face (setTiredFace)
+        BITFIELD_UNIT_2(u32 mTiredFace : 1, u32 _0 : 31);
         u32 _4;
     }; // size 0x8
 

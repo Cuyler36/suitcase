@@ -18,6 +18,14 @@ void DWCi_Np_SetInitFlag(int initialzied)
 
 void DWCi_Np_CPUCopyFast(void* dst, const void* src, u32 n)
 {
+#if TARGET_PC
+    // The reconstruction below is not the Wii's: above 32 bytes, when the destination is already 4- or
+    // 8-aligned, it subtracts the alignment count without copying, so the last 4 or 8 bytes stay as they
+    // were (the Wii's jump table skips the subtraction). DWC copies every transport packet with it, so
+    // the ends of game packets arrived as stale bytes (pc_port_ub.md PC-38). The routine is only a fast
+    // memcpy.
+    memcpy(dst, src, n);
+#else
     int count;
     u8* pSrc;
     u8* pDst;
@@ -287,6 +295,7 @@ copy_qword:
     case 1:
         *pDst++ = *pSrc++;
     }
+#endif
 }
 
 u64 DWCi_Np_GetConsoleId(void)

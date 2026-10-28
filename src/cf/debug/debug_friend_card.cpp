@@ -1,6 +1,6 @@
 // Friend cards: what a player's friends learn about them on the first online visit (dWifi::updateFriend
 // from the visitor's data), as a file or a text code to give to another player, so friends can write to
-// each other without a visit (docs/wc24/README.md).
+// each other without a visit (pc_port_wc24.md).
 //
 // A card holds the player's player and town ID (dPersonalID_c, in the save's byte order, so cards work
 // between any hosts), name, town, greeting (dFriendList_c::mName), console Wii number and Wi-Fi
@@ -35,6 +35,10 @@
 namespace fs = std::filesystem;
 using nlohmann::json;
 
+// lib/dwc/account/dwc_account.c (the game's dwc.h names its records but not these)
+extern "C" void DWC_SetGsProfileId(DWCFriendData* friendData, int gsProfileId);
+extern "C" void DWCi_SetBuddyFriendData(DWCFriendData* friendData);
+
 namespace cf {
 namespace debug {
 
@@ -43,8 +47,6 @@ namespace {
 constexpr const char* kCardFormat = "suitcase-friend-card";
 constexpr int kCardVersion = 1;
 constexpr const char* kCodePrefix = "SCFC1:"; // a card as text: this, then the card's JSON in Base64
-// DWCFriendData word 0: the data type in bits 11..12 (3: a profile ID), bit 13 a mutual (buddy) friend
-constexpr u32 kProfileFriendFlags = (3u | 4u) << 11;
 
 std::string sStatus;
 char sCodeInput[2048];
@@ -266,13 +268,9 @@ void ImportCard(const json& j, int slot) {
         sStatus = "The friend roster is full.";
         return;
     }
-    // The friend's DWC data in the save's byte order (DWCFriendData stays as bytes: dwc_account.cpp)
-    u8* key = reinterpret_cast<u8*>(&list->mKeys[idx]);
-    std::memset(key, 0, sizeof(list->mKeys[idx]));
-    for (int b = 0; b < 4; b++) {
-        key[b] = static_cast<u8>(kProfileFriendFlags >> (24 - b * 8));
-        key[4 + b] = static_cast<u8>(static_cast<u32>(card->profileId) >> (24 - b * 8));
-    }
+    // The friend's DWC data: their profile ID, as a mutual friend (DWC's own setters)
+    DWC_SetGsProfileId(&list->mKeys[idx], card->profileId);
+    DWCi_SetBuddyFriendData(&list->mKeys[idx]);
     dFriend_c* fr = &list->mFriends[idx];
     fr->clear();
     fr->mKey = card->wiiNumber;

@@ -41,6 +41,7 @@ void Shutdown(bool dvdOpen) {
 
 namespace cf::sdk {
 void SetNandRoot(const char* userPath); // src/cf/sdk/nand_fs.cpp
+void ImportConsoleAuthData();             // src/cf/sdk/dwc_port.cpp
 }
 
 // Usage: suitcase-<version> <disc image>
@@ -67,6 +68,7 @@ int main(int argc, char* argv[]) {
     // Saves and the other NAND files live in the user directory (src/cf/sdk/nand_fs.cpp)
     cf::sdk::SetNandRoot(info.userPath);
     cf::config::Load(info.userPath);
+    cf::sdk::ImportConsoleAuthData();
     cf::debug::SetUserPath(info.userPath);
 
     if (argc < 2) {

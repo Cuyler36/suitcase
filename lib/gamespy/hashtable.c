@@ -131,6 +131,22 @@ void* TableLookup(HashTable table, const void* elemKey) {
     return ArrayNth(table->buckets[hash], itempos);
 }
 
+#if TARGET_PC // dead-stripped from the DOL; the host build links gstats' callers of it
+void TableMap(HashTable table, TableMapFn fn, void *clientData)
+{
+        int i;
+
+        assert(table);
+        assert(fn);
+
+        if (NULL == table || NULL == fn)
+                return;
+
+        for (i = 0 ; i < table->nbuckets ; i++)
+                ArrayMap(table->buckets[i], fn, clientData);
+
+}
+#else
 /*
 void TableMap(HashTable table, TableMapFn fn, void *clientData)
 {
@@ -147,6 +163,7 @@ void TableMap(HashTable table, TableMapFn fn, void *clientData)
 
 }
 */
+#endif
 
 void TableMapSafe(HashTable table, TableMapFn fn, void* clientData) {
   int i;

@@ -8,6 +8,8 @@
 
 #include <types.h>
 
+namespace nw4r { namespace lyt { class Pane; } }
+
 namespace cf {
 namespace interp {
 
@@ -28,6 +30,9 @@ void RestoreWorld();
 // restores them after. RestoreLayouts restores every layout's view matrix, so a frame may also move
 // one itself in between (the pointer cursor, d_obj_cursor).
 void RecordLayouts();
+// Call when panes are rebound to different content or their animation is reset.
+// Discards the previous tick's positions for this entire subtree (nullptr is safe).
+void InvalidateLayoutHistory(nw4r::lyt::Pane* rootPane);
 void InterpolateLayouts(f32 tickFraction);
 void RestoreLayouts();
 

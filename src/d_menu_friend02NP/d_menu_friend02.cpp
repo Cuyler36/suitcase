@@ -1,3 +1,6 @@
+#if TARGET_PC
+#include <cf/interp.h>
+#endif
 #include <game/game/d_menu_friend02.hpp>
 #include <game/framework/f_profile.hpp>
 #include <game/game/d_a_c_uitag.hpp>
@@ -625,6 +628,10 @@ void dMenuFriend02_c::initRowWords() {
 
 // .text:0x192C
 void dMenuFriend02_c::updateRows() {
+#if TARGET_PC
+    // These panes now represent different rows; discard their previous positions.
+    cf::interp::InvalidateLayoutHistory(mLyt.getRootPane());
+#endif
     for (int i = 0; i < ROW_NUM; i++) {
         int idx = i + mScroll;
         mTownWord[i].clear();

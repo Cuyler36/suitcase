@@ -172,10 +172,14 @@ void sample(s32 chan, const aurora::wpad::Sample& raw) {
       status.dist = distance;
 
       if (tracked) {
-        status.pos = {
-            filtered(old.pos.x, pos.x, channel.pos),
-            filtered(old.pos.y, pos.y, channel.pos),
-        };
+        // Host pointers already provide exact screen coordinates. Filtering them
+        // makes mouse movement and hit testing lag behind the visible cursor.
+        if (!raw.synthesizedPointer) {
+          status.pos = {
+              filtered(old.pos.x, pos.x, channel.pos),
+              filtered(old.pos.y, pos.y, channel.pos),
+          };
+        }
 
         status.dist = filtered(old.dist, distance, channel.dist);
       }

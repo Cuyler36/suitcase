@@ -10,6 +10,7 @@
 
 #include "net_crypto.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstring>
 
@@ -388,6 +389,111 @@ BOOL NETAESDecrypt(NETAESContext* context, void* dst, const void* src, s32 lengt
 
 } // extern "C"
 
+// ---------------------------------------------------------------------------------------------
+// MD5 (RFC 1321) in the SDK's NETMD5Context (DWC's friend codes: MATH_CalcMD5 -> NETCalcMD5)
+// ---------------------------------------------------------------------------------------------
+namespace {
+
+void Md5Block(u32 h[4], const u8* block) {
+    static const u32 K[64] = {
+        0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee, 0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,
+        0x698098d8, 0x8b44f7af, 0xffff5bb1, 0x895cd7be, 0x6b901122, 0xfd987193, 0xa679438e, 0x49b40821,
+        0xf61e2562, 0xc040b340, 0x265e5a51, 0xe9b6c7aa, 0xd62f105d, 0x02441453, 0xd8a1e681, 0xe7d3fbc8,
+        0x21e1cde6, 0xc33707d6, 0xf4d50d87, 0x455a14ed, 0xa9e3e905, 0xfcefa3f8, 0x676f02d9, 0x8d2a4c8a,
+        0xfffa3942, 0x8771f681, 0x6d9d6122, 0xfde5380c, 0xa4beea44, 0x4bdecfa9, 0xf6bb4b60, 0xbebfbc70,
+        0x289b7ec6, 0xeaa127fa, 0xd4ef3085, 0x04881d05, 0xd9d4d039, 0xe6db99e5, 0x1fa27cf8, 0xc4ac5665,
+        0xf4292244, 0x432aff97, 0xab9423a7, 0xfc93a039, 0x655b59c3, 0x8f0ccc92, 0xffeff47d, 0x85845dd1,
+        0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1, 0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391,
+    };
+    static const u8 S[64] = {7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
+                             5, 9,  14, 20, 5, 9,  14, 20, 5, 9,  14, 20, 5, 9,  14, 20,
+                             4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
+                             6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21};
+    u32 m[16];
+    for (int i = 0; i < 16; i++) {
+        m[i] = u32(block[i * 4]) | (u32(block[i * 4 + 1]) << 8) | (u32(block[i * 4 + 2]) << 16) |
+               (u32(block[i * 4 + 3]) << 24);
+    }
+    u32 a = h[0], b = h[1], c = h[2], d = h[3];
+    for (int i = 0; i < 64; i++) {
+        u32 f;
+        int g;
+        if (i < 16) {
+            f = (b & c) | (~b & d);
+            g = i;
+        } else if (i < 32) {
+            f = (d & b) | (~d & c);
+            g = (5 * i + 1) % 16;
+        } else if (i < 48) {
+            f = b ^ c ^ d;
+            g = (3 * i + 5) % 16;
+        } else {
+            f = c ^ (b | ~d);
+            g = (7 * i) % 16;
+        }
+        const u32 t = d;
+        d = c;
+        c = b;
+        const u32 x = a + f + K[i] + m[g];
+        b = b + ((x << S[i]) | (x >> (32 - S[i])));
+        a = t;
+    }
+    h[0] += a;
+    h[1] += b;
+    h[2] += c;
+    h[3] += d;
+}
+
+} // namespace
+
+extern "C" {
+
+void NETMD5Init(NETMD5Context* context) {
+    context->state[0] = 0x67452301;
+    context->state[1] = 0xefcdab89;
+    context->state[2] = 0x98badcfe;
+    context->state[3] = 0x10325476;
+    context->length = 0;
+}
+
+void NETMD5Update(NETMD5Context* context, void* input, u32 length) {
+    const u8* p = static_cast<const u8*>(input);
+    u32 used = static_cast<u32>(context->length % 64);
+    context->length += length;
+    while (length > 0) {
+        const u32 n = std::min<u32>(length, 64 - used);
+        std::memcpy(context->buffer8 + used, p, n);
+        used += n;
+        p += n;
+        length -= n;
+        if (used == 64) {
+            Md5Block(context->state, context->buffer8);
+            used = 0;
+        }
+    }
+}
+
+void NETMD5GetDigest(NETMD5Context* context, void* digest) {
+    const u64 bits = context->length * 8;
+    u8 pad[72] = {0x80};
+    const u32 used = static_cast<u32>(context->length % 64);
+    const u32 padLength = used < 56 ? 56 - used : 120 - used;
+    NETMD5Update(context, pad, padLength);
+    u8 lengthBytes[8];
+    for (int i = 0; i < 8; i++) {
+        lengthBytes[i] = static_cast<u8>(bits >> (i * 8));
+    }
+    NETMD5Update(context, lengthBytes, 8);
+    u8* out = static_cast<u8*>(digest);
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            out[i * 4 + j] = static_cast<u8>(context->state[i] >> (j * 8));
+        }
+    }
+}
+
+} // extern "C"
+
 namespace cf::sdk {
 
 void Sha1(const void* data, std::size_t size, std::uint8_t digest[20]) {
@@ -405,77 +511,17 @@ void Sha1(const void* data, std::size_t size, std::uint8_t digest[20]) {
 
 // MD5 (RFC 1321)
 void Md5(const void* input, std::size_t size, std::uint8_t digest[16]) {
-    const u8* data = static_cast<const u8*>(input);
-    static const u32 K[64] = {
-        0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee, 0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,
-        0x698098d8, 0x8b44f7af, 0xffff5bb1, 0x895cd7be, 0x6b901122, 0xfd987193, 0xa679438e, 0x49b40821,
-        0xf61e2562, 0xc040b340, 0x265e5a51, 0xe9b6c7aa, 0xd62f105d, 0x02441453, 0xd8a1e681, 0xe7d3fbc8,
-        0x21e1cde6, 0xc33707d6, 0xf4d50d87, 0x455a14ed, 0xa9e3e905, 0xfcefa3f8, 0x676f02d9, 0x8d2a4c8a,
-        0xfffa3942, 0x8771f681, 0x6d9d6122, 0xfde5380c, 0xa4beea44, 0x4bdecfa9, 0xf6bb4b60, 0xbebfbc70,
-        0x289b7ec6, 0xeaa127fa, 0xd4ef3085, 0x04881d05, 0xd9d4d039, 0xe6db99e5, 0x1fa27cf8, 0xc4ac5665,
-        0xf4292244, 0x432aff97, 0xab9423a7, 0xfc93a039, 0x655b59c3, 0x8f0ccc92, 0xffeff47d, 0x85845dd1,
-        0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1, 0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391,
-    };
-    static const u8 S[64] = {7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
-                             5, 9,  14, 20, 5, 9,  14, 20, 5, 9,  14, 20, 5, 9,  14, 20,
-                             4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
-                             6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21};
-    u32 h[4] = {0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476};
-    // The message padded to a multiple of 64 bytes: 0x80, zeros, the bit length (little-endian)
-    const std::size_t padded = (size + 8) / 64 * 64 + 64;
-    u8 block[64];
-    for (std::size_t offset = 0; offset < padded; offset += 64) {
-        for (u32 i = 0; i < 64; i++) {
-            const std::size_t at = offset + i;
-            block[i] = at < size ? data[at] : at == size ? 0x80 : 0;
-        }
-        if (offset + 64 == padded) {
-            const u64 bits = static_cast<u64>(size) * 8;
-            for (int i = 0; i < 8; i++) {
-                block[56 + i] = static_cast<u8>(bits >> (i * 8));
-            }
-        }
-        u32 m[16];
-        for (int i = 0; i < 16; i++) {
-            m[i] = u32(block[i * 4]) | (u32(block[i * 4 + 1]) << 8) | (u32(block[i * 4 + 2]) << 16) |
-                   (u32(block[i * 4 + 3]) << 24);
-        }
-        u32 a = h[0], b = h[1], c = h[2], d = h[3];
-        for (int i = 0; i < 64; i++) {
-            u32 f;
-            int g;
-            if (i < 16) {
-                f = (b & c) | (~b & d);
-                g = i;
-            } else if (i < 32) {
-                f = (d & b) | (~d & c);
-                g = (5 * i + 1) % 16;
-            } else if (i < 48) {
-                f = b ^ c ^ d;
-                g = (3 * i + 5) % 16;
-            } else {
-                f = c ^ (b | ~d);
-                g = (7 * i) % 16;
-            }
-            const u32 t = d;
-            d = c;
-            c = b;
-            const u32 x = a + f + K[i] + m[g];
-            b = b + ((x << S[i]) | (x >> (32 - S[i])));
-            a = t;
-        }
-        h[0] += a;
-        h[1] += b;
-        h[2] += c;
-        h[3] += d;
+    NETMD5Context context;
+    NETMD5Init(&context);
+    const u8* p = static_cast<const u8*>(input);
+    while (size > 0) {
+        const u32 chunk = size > 0x10000000 ? 0x10000000 : static_cast<u32>(size);
+        NETMD5Update(&context, const_cast<u8*>(p), chunk);
+        p += chunk;
+        size -= chunk;
     }
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            digest[i * 4 + j] = static_cast<u8>(h[i] >> (j * 8));
-        }
-    }
+    NETMD5GetDigest(&context, digest);
 }
-
 
 // AES-128 in OFB mode (WiiConnect24 downloads): data is decrypted (or encrypted) in place
 void AesOfb(const std::uint8_t key[16], const std::uint8_t iv[16], std::uint8_t* data, std::size_t size) {

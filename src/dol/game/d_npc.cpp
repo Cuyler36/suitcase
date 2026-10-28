@@ -843,65 +843,96 @@ void daub_c::copy(const daub_c *other) {
     mValid = other->mValid;
 }
 
+#if TARGET_PC
+// A daub travels as it is (the shared records: cf/net_codec.h), so on PC its values are stored as the Wii
+// stores them, big-endian: each accessor's copy of one value reverses its bytes
+static void daubCopy(void *dst, const void *src, u32 size) {
+    const u8 *s = static_cast<const u8 *>(src);
+    u8 *d = static_cast<u8 *>(dst);
+    for (u32 i = 0; i < size; i++) {
+        d[i] = s[size - 1 - i];
+    }
+}
+#else
+#define daubCopy cLib::memCpy
+#endif
 // 800EEA88: packs x/z of a vector into 8 bytes.
 void daub_c::packXZ(u8 *dst, const mVec3_c *src) {
-    cLib::memCpy(dst, &src->x, 4);
-    cLib::memCpy(dst + 4, &src->z, 4);
+    daubCopy(dst, &src->x, 4);
+    daubCopy(dst + 4, &src->z, 4);
 }
 
 // 800EEAD4
 void daub_c::unpackXZ(const u8 *src, mVec3_c *dst) {
-    cLib::memCpy(&dst->x, src, 4);
-    cLib::memCpy(&dst->z, src + 4, 4);
+    daubCopy(&dst->x, src, 4);
+    daubCopy(&dst->z, src + 4, 4);
 }
 
 // 800EEB28
 void daub_c::setAngleY(const u16 *value) {
-    cLib::memCpy(mAngleY, value, 2);
+    daubCopy(mAngleY, value, 2);
 }
 
 // 800EEB34
 mAng daub_c::getAngleY() {
     mAng value;
-    cLib::memCpy(&value, mAngleY, 2);
+    daubCopy(&value, mAngleY, 2);
     return value;
 }
 
 // 800EEB6C
 void daub_c::setHeadPitch(mAng value) {
-    cLib::memCpy(mHeadPitch, &value, 2);
+    daubCopy(mHeadPitch, &value, 2);
 }
 
 // 800EEB78
 mAng daub_c::getHeadPitch() {
     mAng value;
-    cLib::memCpy(&value, mHeadPitch, 2);
+    daubCopy(&value, mHeadPitch, 2);
     return value;
 }
 
 // 800EEBB0
 void daub_c::setHeadYaw(mAng value) {
-    cLib::memCpy(mHeadYaw, &value, 2);
+    daubCopy(mHeadYaw, &value, 2);
 }
 
 // 800EEBBC
 mAng daub_c::getHeadYaw() {
     mAng value;
-    cLib::memCpy(&value, mHeadYaw, 2);
+    daubCopy(&value, mHeadYaw, 2);
     return value;
 }
 
 // 800EEBF4
 void daub_c::getNpcData(void *dst, u32 size) {
     if (dst != NULL && size != 0) {
+#if TARGET_PC
+        // Two words, big-endian (setNpcData)
+        u8 data[8];
+        daubCopy(data, mNpcData, 4);
+        daubCopy(data + 4, mNpcData + 4, 4);
+        cLib::memCpy(dst, data, size > 8 ? 8 : size);
+#else
         cLib::memCpy(dst, mNpcData, size > 8 ? 8 : size);
+#endif
     }
 }
 
 // 800EEC2C
 void daub_c::setNpcData(const void *src, u32 size) {
     if (src != NULL && size != 0) {
+#if TARGET_PC
+        // Every villager's data is two words (dAcNpcNml_c::daubData_s, the special villagers' daub_s,
+        // declared on PC so that their values are the Wii's: BITFIELD_UNIT_n): stored big-endian
+        u8 data[8];
+        getNpcData(data, sizeof(data));
+        cLib::memCpy(data, src, size > 8 ? 8 : size);
+        daubCopy(mNpcData, data, 4);
+        daubCopy(mNpcData + 4, data + 4, 4);
+#else
         cLib::memCpy(mNpcData, src, size > 8 ? 8 : size);
+#endif
     }
 }
 
@@ -924,15 +955,15 @@ void daub_c::setAction(u32 action, u32 priority) {
 // 800EEC8C
 void daub_c::getMove(mVec3_c *target, mVec3_c *goal, u16 *turnSpeed, f32 *morph) {
     if (target != NULL) {
-        cLib::memCpy(&target->x, &mActionData[2], 4);
-        cLib::memCpy(&target->z, &mActionData[6], 4);
+        daubCopy(&target->x, &mActionData[2], 4);
+        daubCopy(&target->z, &mActionData[6], 4);
     }
     if (goal != NULL) {
-        cLib::memCpy(&goal->x, &mActionData[10], 4);
-        cLib::memCpy(&goal->z, &mActionData[14], 4);
+        daubCopy(&goal->x, &mActionData[10], 4);
+        daubCopy(&goal->z, &mActionData[14], 4);
     }
     if (turnSpeed != NULL) {
-        cLib::memCpy(turnSpeed, &mActionData[18], 2);
+        daubCopy(turnSpeed, &mActionData[18], 2);
     }
     if (morph != NULL) {
         *morph = mActionData[20];
@@ -941,21 +972,21 @@ void daub_c::getMove(mVec3_c *target, mVec3_c *goal, u16 *turnSpeed, f32 *morph)
 
 // 800EED5C
 void daub_c::setMove(const mVec3_c *target, const mVec3_c *goal, const u16 *turnSpeed, f32 morph) {
-    cLib::memCpy(&mActionData[2], &target->x, 4);
-    cLib::memCpy(&mActionData[6], &target->z, 4);
-    cLib::memCpy(&mActionData[10], &goal->x, 4);
-    cLib::memCpy(&mActionData[14], &goal->z, 4);
-    cLib::memCpy(&mActionData[18], turnSpeed, 2);
+    daubCopy(&mActionData[2], &target->x, 4);
+    daubCopy(&mActionData[6], &target->z, 4);
+    daubCopy(&mActionData[10], &goal->x, 4);
+    daubCopy(&mActionData[14], &goal->z, 4);
+    daubCopy(&mActionData[18], turnSpeed, 2);
     mActionData[20] = morph;
 }
 
 // 800EEE10
 void daub_c::getTalk(u16 *angle, u16 *turnSpeed, f32 *morph) {
     if (angle != NULL) {
-        cLib::memCpy(angle, &mActionData[2], 2);
+        daubCopy(angle, &mActionData[2], 2);
     }
     if (turnSpeed != NULL) {
-        cLib::memCpy(turnSpeed, &mActionData[4], 2);
+        daubCopy(turnSpeed, &mActionData[4], 2);
     }
     if (morph != NULL) {
         *morph = mActionData[6];
@@ -964,8 +995,8 @@ void daub_c::getTalk(u16 *angle, u16 *turnSpeed, f32 *morph) {
 
 // 800EEEA8
 void daub_c::setTalk(const u16 *angle, const u16 *turnSpeed, f32 morph) {
-    cLib::memCpy(&mActionData[2], angle, 2);
-    cLib::memCpy(&mActionData[4], turnSpeed, 2);
+    daubCopy(&mActionData[2], angle, 2);
+    daubCopy(&mActionData[4], turnSpeed, 2);
     mActionData[6] = morph;
 }
 
@@ -973,7 +1004,7 @@ void daub_c::setTalk(const u16 *angle, const u16 *turnSpeed, f32 morph) {
 void daub_c::getAct(u32 *animation, u8 *playMode, f32 *morph, f32 *frame) {
     if (animation != NULL) {
         u16 value = 0;
-        cLib::memCpy(&value, &mActionData[2], 2);
+        daubCopy(&value, &mActionData[2], 2);
         *animation = value;
     }
     if (playMode != NULL) {
@@ -990,7 +1021,7 @@ void daub_c::getAct(u32 *animation, u8 *playMode, f32 *morph, f32 *frame) {
 // 800EEFDC
 void daub_c::setAct(u32 animation, u8 playMode, f32 morph, f32 frame) {
     u16 value = animation;
-    cLib::memCpy(&mActionData[2], &value, 2);
+    daubCopy(&mActionData[2], &value, 2);
     mActionData[4] = playMode;
     mActionData[5] = morph;
     mActionData[6] = frame;

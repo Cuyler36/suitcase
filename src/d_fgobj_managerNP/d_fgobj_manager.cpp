@@ -28,6 +28,10 @@
 #include <string.h>
 #include <game/game/d_bgm.hpp>
 #include <game/game/d_play_util.hpp>
+#if TARGET_PC
+#include <cf/net_codec.h>
+#include <cmath>
+#endif
 #include <game/game/d_insect_field.hpp>
 #include <game/game/d_a_player.hpp>
 
@@ -3213,6 +3217,40 @@ int requestAction(dFgMngState_c *state, int player, int kind, dFdAsPos_c pos,
     return ret;
 }
 
+#if TARGET_PC
+// CF_NET_LOG: the host's checks of a request (fgMngProc_isChangeRequestValid) on this console's copy
+// of the field, to see why a host refuses it
+static void logRequestChecks(const dFgMngReq_c &req, u8 scene) {
+    if (!cf::net::Logging()) {
+        return;
+    }
+    dFdAsPos_c unit;
+    unit.mX = req.mPos >> 8;
+    unit.mZ = req.mPos & 0xFF;
+    int lock = fgMngLock_find(scene, &unit, req.mLayer);
+    dFdBase_c *fd = dField::getInfo(dField::getSceneFieldId(scene));
+    dItem::Item *item = fd != NULL ? fd->getItem(unit.mX, unit.mZ, req.mLayer) : NULL;
+    nw4r::math::VEC3 center;
+    dFdBase_c::getUnitCenterPos(&center, unit.mX, unit.mZ);
+    f32 dist[4];
+    for (int i = 0; i < 4; i++) {
+        dAcPlayer_c *actor = dPlayerMgr::getPlayerActor(i);
+        dist[i] = -1.0f;
+        if (actor != NULL) {
+            f32 dx = center.x - actor->getPos().x;
+            f32 dz = center.z - actor->getPos().z;
+            dist[i] = std::sqrt(dx * dx + dz * dz);
+        }
+    }
+    cf::net::Log(       "request kind %u member %u at (%u, %u) scene %u field %d: lock %d, active task %d, "
+                        "item 0x%04X (sent 0x%04X), players at %.1f %.1f %.1f %.1f (under 16 blocks it), valid %d",
+                        req.mKind, req.mMember, unit.mX, unit.mZ, scene, dField::getSceneFieldId(scene), lock,
+                        fgMngTask_getActive(req.mMember) != NULL, item != NULL ? item->mId : 0xFFFF,
+                        req.mTarget, dist[0], dist[1], dist[2], dist[3],
+                        fgMngProc_isChangeRequestValid(&req, scene));
+}
+#endif
+
 // .text:0x8D8C: sends the request of a player state slot (offline: processes it
 // at once).
 void sendRequest(u8 idx, int b2) {
@@ -3296,6 +3334,9 @@ void sendRequest(u8 idx, int b2) {
                 fgMngProc_isChangeRequestValid(&req, dScene::getCurrentScene());
             req.send(local, dNet::getMyNo(), dScene::getCurrentScene());
         } else {
+#if TARGET_PC
+            logRequestChecks(req, dScene::getCurrentScene());
+#endif
             dNet::beginPacket();
             dNet::addPacket(&req, sizeof(dFgMngReq_c));
             dNet::sendPacket(NET_PACKET_FG_MNG_REQ, 0);

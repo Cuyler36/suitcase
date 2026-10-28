@@ -18,6 +18,17 @@
 #include <stdio.h>
 #if TARGET_PC
 #include <cf/screen.h>
+#include <cf/interp.h>
+
+// Icons have their own layouts in addition to the scrolling holes in the main layout.
+static void invalidateScrollHistory(m2d::SimpleEx_c& layout, dMenuItem::Icon_c* icons, int count) {
+    cf::interp::InvalidateLayoutHistory(layout.getRootPane());
+    for (int i = 0; i < count; ++i) {
+        cf::interp::InvalidateLayoutHistory(icons[i].mLyt.getRootPane());
+        cf::interp::InvalidateLayoutHistory(icons[i].mGiftLyt.getRootPane());
+        cf::interp::InvalidateLayoutHistory(icons[i].mMarkLyt.getRootPane());
+    }
+}
 #endif
 
 namespace dMenuInsc {
@@ -717,6 +728,9 @@ void dMenuInsc_c::resetScrollAnm() {
 
 // .text:0x1F80
 void dMenuInsc_c::setScrollAnm(int dir) {
+#if TARGET_PC
+    invalidateScrollHistory(mLyt, mIcon, HOLE_NUM);
+#endif
     static const char *names[2] = {
         "insectsFish_win_00_iconR.brlan",
         "insectsFish_win_00_iconL.brlan",
@@ -739,6 +753,9 @@ void dMenuInsc_c::updateSliderPane() {
 
 // .text:0x2068
 void dMenuInsc_c::updateScrollFromSlider() {
+#if TARGET_PC
+    const int previousScroll = mScroll;
+#endif
     f32 step = (f32)SLIDER_LENGTH / (f32)(mCount - ROW_NUM);
     mScroll = (int)((mSliderPos - -(f32)SLIDER_RANGE) / step);
     onFlag(FLAG_ICON_UPDATE);
@@ -754,6 +771,11 @@ void dMenuInsc_c::updateScrollFromSlider() {
         frame = 0.0f;
     }
     mScrollAnm.setFrame(frame);
+#if TARGET_PC
+    if (mScroll != previousScroll) {
+        invalidateScrollHistory(mLyt, mIcon, HOLE_NUM);
+    }
+#endif
     onFlag(FLAG_ICON_CALC);
     updateSliderPane();
     onFlag(FLAG_SCROLL_CALC);

@@ -1,3 +1,6 @@
+#if TARGET_PC
+#include <cf/interp.h>
+#endif
 #include <game/game/d_menu_mii.hpp>
 #include <game/framework/f_profile.hpp>
 #include <game/game/d_menu_mng.hpp>
@@ -662,6 +665,10 @@ u16 dMenuMii_c::getMiiId(int icon) {
 
 // .text:0x1CC0
 void dMenuMii_c::refreshIcons() {
+#if TARGET_PC
+    // These panes now represent different rows; discard their previous positions.
+    cf::interp::InvalidateLayoutHistory(mLyt.getRootPane());
+#endif
     updateBeforeIcon();
     bindIconBuffers();
     updateMiiIcons();

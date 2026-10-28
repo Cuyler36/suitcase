@@ -5,6 +5,9 @@
 #include <game/mLib/m_pad.hpp>
 #include <revolution/wpad.h>
 #include <cstdio>
+#if TARGET_PC
+#include <cf/screen.h>
+#endif
 
 static const char *l_textBoxName = "T_cmnBtnA_";
 
@@ -73,6 +76,12 @@ bool dMenuBtn_c::remove() {
 
 bool dMenuBtn_c::execute() {
     calcAnm();
+#if TARGET_PC
+    // The wide width changed (cf/screen.h): placed again at the new width
+    if (cf::screen::WidthChanged(&mScreenWidth)) {
+        mFlags |= FLAG_CALC;
+    }
+#endif
     if (mFlags & FLAG_CALC) {
         mFlags &= ~FLAG_CALC;
         mLyt.calc();

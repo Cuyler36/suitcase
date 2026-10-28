@@ -59,4 +59,7 @@ public:
     /* 0x538 */ u32 mFlags;
     /* 0x53C */ int mPushedBtn;
     /* 0x540 */ u8 mIsCancel[BTN_NUM];
+#if TARGET_PC
+    u32 mScreenWidth = 0; // cf::screen::WidthChanged
+#endif
 };

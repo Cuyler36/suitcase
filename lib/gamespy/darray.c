@@ -234,6 +234,19 @@ int ArraySearch(DArray array, const void* key, ArrayCompareFn comparator,
     return NOT_FOUND;
 }
 
+#if TARGET_PC // dead-stripped from the DOL; the host build links gstats' callers of it
+void ArrayMap(DArray array, ArrayMapFn fn, void *clientData)
+{
+        int i;
+
+        GS_ASSERT (array)
+        GS_ASSERT(fn);
+
+        for (i = 0; i < array->count; i++)
+                fn(ArrayNth(array,i), clientData);
+
+}
+#else
 /*
 void ArrayMap(DArray array, ArrayMapFn fn, void *clientData)
 {
@@ -247,6 +260,7 @@ void ArrayMap(DArray array, ArrayMapFn fn, void *clientData)
 
 }
 */
+#endif
 
 void ArrayMapBackwards(DArray array, ArrayMapFn fn, void* clientData) {
   int i;

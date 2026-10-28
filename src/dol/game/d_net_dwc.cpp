@@ -509,6 +509,27 @@ BOOL Session_c::setMatchClosed(BOOL closed) {
 }
 // 800E89C0
 void Session_c::sendPending() {
+#if TARGET_PC
+    // The Wii checks for a packet, sends it, then clears the pointer. DWC_SendReliable completes a
+    // one-piece send at once (onSend: the buffer is idle), and on PC the game thread runs alongside:
+    // it could queue its next packet before the pointer was cleared, which then cleared the new one's,
+    // leaving the buffer busy with nothing to send, for good (pc_port_ub.md PC-39). So the packet is
+    // taken (the pointer cleared) before the send, and given back when it is not sent.
+    if (mState >= STATE_CONNECTED) {
+        for (SendNode_c *node = mSendHead; node; node = node->mNext) {
+            u32 size = 0;
+            const void *data = mSendBufs[node->mAid].takePending(&size);
+            if (data == NULL) {
+                continue;
+            }
+            if (DWC_IsSendableReliable(node->mAid) && DWC_SendReliable(node->mAid, data, size)) {
+                rotateSendOrder(node);
+                break;
+            }
+            mSendBufs[node->mAid].restorePending(data);
+        }
+    }
+#else
     if (mState >= STATE_CONNECTED) {
         for (SendNode_c *node = mSendHead; node; node = node->mNext) {
             if (mSendBufs[node->mAid].hasPending() &&
@@ -521,6 +542,7 @@ void Session_c::sendPending() {
             }
         }
     }
+#endif
 }
 // 800E8A84
 void Session_c::initSendOrder(u8 ownAid) {

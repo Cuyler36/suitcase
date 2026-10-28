@@ -8,7 +8,11 @@ static DWCAllocEx s_alloc;
 static DWCFreeEx s_free;
 
 DWCi_AllocateHeader* DWCi_GetAllocateHeader(void* block) {
+#if TARGET_PC
+  return (DWCi_AllocateHeader*)((u8*)block - sizeof(DWCi_AllocateHeader));
+#else
   return (DWCi_AllocateHeader*)((u32)block - sizeof(DWCi_AllocateHeader));
+#endif
 }
 
 void* DWCi_SetAllocateHeader(DWCi_AllocateHeader* blockHeader, u32 size) {

@@ -976,11 +976,21 @@ GPResult gpiDeleteBuddy(GPConnection* connection, GPProfile profile,
     freeclear(pProfile->buddyStatusInfo->gameType);
     freeclear(pProfile->buddyStatusInfo->gameVariant);
     freeclear(pProfile->buddyStatusInfo->gameMapName);
+#if TARGET_PC
+    // The keys before the record: freeclear leaves buddyStatusInfo NULL, and the DOL's read through
+    // it only works because the Wii maps address 0 (pc_port_ub.md PC-33)
+    if (pProfile->buddyStatusInfo->extendedInfoKeys) {
+      ArrayFree(pProfile->buddyStatusInfo->extendedInfoKeys);
+      pProfile->buddyStatusInfo->extendedInfoKeys = NULL;
+    }
+    freeclear(pProfile->buddyStatusInfo);
+#else
     freeclear(pProfile->buddyStatusInfo);
     if (pProfile->buddyStatusInfo->extendedInfoKeys) {
       ArrayFree(pProfile->buddyStatusInfo->extendedInfoKeys);
       pProfile->buddyStatusInfo->extendedInfoKeys = NULL;
     }
+#endif
 
     if (gpiCanFreeProfile(pProfile))
       gpiRemoveProfile(connection, pProfile);

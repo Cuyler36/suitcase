@@ -1599,6 +1599,20 @@ public:
 
     // The 8-byte net daub data of the npc (dAcNpc_c::getDaubData / setDaubData, dNpc::daub_c::getNpcData).
     struct daubData_s {
+#if TARGET_PC
+        // Two words whose values are the Wii's (dNpc::daub_c::setNpcData stores them big-endian, like
+        // every villager's daub data): the flags in the top byte, from its most significant bit
+        u32 _1a : 24;
+        u32 mFlag01 : 1;
+        u32 mClothChanged : 1;
+        u32 mClothChange : 1;
+        u32 mWatchFireworks : 1;
+        u32 mInHouse : 1;
+        u32 mMaskChange : 1;
+        u32 mToolChanged : 1;
+        u32 mToolChange : 1;
+        u32 _1b;
+#else
         u8 mToolChange : 1; // setDaubToolChange group
         u8 mToolChanged : 1; // setDaubToolChanged group
         u8 mMaskChange : 1; // setDaubMaskChange group
@@ -1608,6 +1622,7 @@ public:
         u8 mClothChanged : 1; // setDaubClothChanged group (cloth change: d_npc_talk_quest_q04 / delivery)
         u8 mFlag01 : 1;
         u8 _1[7];
+#endif
     }; // size 0x8
 
     // Inline construction observed in REL villager factories.

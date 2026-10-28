@@ -113,6 +113,7 @@ static void KeyMapF(void* elem, void* clientData) {
   SBServerEnumData* ped = (SBServerEnumData*)clientData;
   ped->EnumFn((char*)kv->key, (char*)kv->value, ped->instance);
 }
+#if !TARGET_PC // its callees are dead-stripped from the DOL (not in the decomp)
 void SBServerEnumKeys(SBServer server, SBServerKeyEnumFn KeyFn,
                       void* instance) {
   SBServerEnumData ed;
@@ -121,6 +122,7 @@ void SBServerEnumKeys(SBServer server, SBServerKeyEnumFn KeyFn,
   ed.instance = instance;
   TableMap(server->keyvals, KeyMapF, &ed);
 }
+#endif
 
 const char* SBServerGetStringValueA(SBServer server, const char* keyname,
                                     const char* def) {

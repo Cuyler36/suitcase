@@ -9,6 +9,7 @@
 #include <game/game/d_a_npc_sp.hpp>
 #include <game/game/d_effect.hpp>
 #include <game/game/d_objc.hpp>
+#include <port/bitfield.h>
 
 // Celeste, the caretaker of the observatory (REL d_a_npc_sp_fukoNP, profile
 // A_NPC_SP_FUKO). She dozes at her post by day (5 am..5 pm) while nobody is
@@ -299,8 +300,8 @@ class dAcNpcSpFuko_c : public dAcNpcSp_c {
 
     // The net (daub) state of the npc.
     struct daub_s {
-        u32 mAsleep : 1; // dozing at her post
-        u32 _0 : 31;
+        // mAsleep: dozing at her post
+        BITFIELD_UNIT_2(u32 mAsleep : 1, u32 _0 : 31);
         u32 _4;
     }; // size 0x8
 

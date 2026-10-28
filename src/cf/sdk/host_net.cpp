@@ -1,5 +1,7 @@
-// Host networking for the online layers (host_net.h)
+// Host networking for the online layers (host_net.h), on borealis::socket
 #include "host_net.h"
+
+#include <borealis/socket.hpp>
 
 #include <cctype>
 #include <cstdio>
@@ -8,113 +10,70 @@
 #include <random>
 #include <vector>
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <winsock2.h>
-#include <ws2tcpip.h>
-using SocketHandle = SOCKET;
-#else
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <unistd.h>
-using SocketHandle = int;
-#endif
-
 namespace cf {
 namespace sdk {
 namespace net {
 
+namespace bs = borealis::socket;
+
 namespace {
 
-constexpr std::intptr_t kNoSocket = -1;
+constexpr auto kTimeout = std::chrono::seconds(15);
 
-SocketHandle Handle(std::intptr_t h) {
-    return static_cast<SocketHandle>(h);
-}
-
-void CloseHandle(std::intptr_t h) {
-#ifdef _WIN32
-    closesocket(Handle(h));
-#else
-    close(Handle(h));
-#endif
-}
-
-void SetTimeouts(SocketHandle h, int seconds) {
-#ifdef _WIN32
-    DWORD timeout = seconds * 1000;
-    setsockopt(h, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&timeout), sizeof(timeout));
-    setsockopt(h, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<const char*>(&timeout), sizeof(timeout));
-#else
-    timeval timeout{seconds, 0};
-    setsockopt(h, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
-    setsockopt(h, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
-#endif
-}
-
-bool IsValid(SocketHandle h) {
-#ifdef _WIN32
-    return h != INVALID_SOCKET;
-#else
-    return h >= 0;
-#endif
+// Waits for the socket to be ready for events, up to the timeout
+bool WaitFor(const bs::Socket& socket, std::uint32_t events, std::chrono::milliseconds timeout) {
+    bs::PollEntry entry{&socket, events};
+    return bs::poll(std::span(&entry, 1), timeout) > 0 && (entry.revents & (events | bs::PollError | bs::PollHangup));
 }
 
 } // namespace
 
 bool Init() {
-#ifdef _WIN32
-    static const bool ok = [] {
-        WSADATA data;
-        return WSAStartup(MAKEWORD(2, 2), &data) == 0;
-    }();
-    return ok;
-#else
-    return true;
-#endif
+    return bs::available();
 }
 
-Socket::~Socket() {
-    if (mHandle != kNoSocket) {
-        CloseHandle(mHandle);
-    }
-}
+struct Socket::Impl {
+    bs::Socket socket;
+};
+
+Socket::Socket() : mImpl(std::make_unique<Impl>()) {}
+
+Socket::~Socket() = default;
 
 bool Socket::Connect(const std::string& host, std::uint16_t port) {
-    if (!Init()) {
-        return false;
+    std::vector<bs::Address> addresses;
+    if (auto numeric = bs::parse_address(host)) {
+        addresses.push_back(*numeric);
+    } else {
+        addresses = bs::resolve(host);
     }
-    addrinfo hints{};
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    addrinfo* list = nullptr;
-    if (getaddrinfo(host.c_str(), std::to_string(port).c_str(), &hints, &list) != 0) {
-        return false;
-    }
-    for (addrinfo* a = list; a != nullptr; a = a->ai_next) {
-        const SocketHandle h = socket(a->ai_family, a->ai_socktype, a->ai_protocol);
-        if (!IsValid(h)) {
+    for (bs::Address address : addresses) {
+        address.port = port;
+        bs::Socket socket = bs::Socket::open(address.family, bs::Type::Stream);
+        if (!socket.valid()) {
             continue;
         }
-        SetTimeouts(h, 15);
-        if (connect(h, a->ai_addr, static_cast<int>(a->ai_addrlen)) == 0) {
-            mHandle = static_cast<std::intptr_t>(h);
-            freeaddrinfo(list);
+        socket.set_nonblocking(true);
+        bs::Error error = socket.connect(address);
+        if (error == bs::Error::InProgress &&
+            WaitFor(socket, bs::PollWrite, std::chrono::duration_cast<std::chrono::milliseconds>(kTimeout))) {
+            error = socket.pending_error();
+        }
+        if (error == bs::Error::None) {
+            socket.set_nonblocking(false);
+            mImpl->socket = std::move(socket);
             return true;
         }
-        CloseHandle(static_cast<std::intptr_t>(h));
     }
-    freeaddrinfo(list);
     return false;
 }
 
 bool Socket::SendAll(const std::string& data) {
     std::size_t sent = 0;
     while (sent < data.size()) {
-        const int n = send(Handle(mHandle), data.data() + sent, static_cast<int>(data.size() - sent), 0);
+        bs::Error error;
+        const std::ptrdiff_t n = mImpl->socket.send(
+            std::as_bytes(std::span(data.data() + sent, data.size() - sent)), &error);
         if (n <= 0) {
             return false;
         }
@@ -124,22 +83,28 @@ bool Socket::SendAll(const std::string& data) {
 }
 
 bool Socket::ReceiveUntil(std::string* data, const char* marker) {
-    char buf[4096];
+    std::byte buf[4096];
+    const auto timeout = std::chrono::duration_cast<std::chrono::milliseconds>(kTimeout);
     for (;;) {
         if (marker[0] != '\0' && data->find(marker) != std::string::npos) {
             return true;
         }
-        const int n = recv(Handle(mHandle), buf, sizeof(buf), 0);
+        if (!WaitFor(mImpl->socket, bs::PollRead, timeout)) {
+            return false;
+        }
+        bs::Error error;
+        const std::ptrdiff_t n = mImpl->socket.receive(buf, &error);
         if (n <= 0) {
             return marker[0] == '\0' && n == 0;
         }
-        data->append(buf, static_cast<std::size_t>(n));
+        data->append(reinterpret_cast<const char*>(buf), static_cast<std::size_t>(n));
     }
 }
 
 // A DNS query (RFC 1035) for the host's A record, over UDP
 std::string ResolveWith(const std::string& dnsServer, const std::string& host) {
-    if (!Init()) {
+    const auto server = bs::parse_address(dnsServer, 53);
+    if (!server) {
         return {};
     }
     std::random_device random;
@@ -162,26 +127,18 @@ std::string ResolveWith(const std::string& dnsServer, const std::string& host) {
     }
     query.insert(query.end(), {0, 0, 1, 0, 1}); // end of name, type A, class IN
 
-    const SocketHandle h = socket(AF_INET, SOCK_DGRAM, 0);
-    if (!IsValid(h)) {
-        return {};
-    }
-    SetTimeouts(h, 5);
-    sockaddr_in server{};
-    server.sin_family = AF_INET;
-    server.sin_port = htons(53);
-    if (inet_pton(AF_INET, dnsServer.c_str(), &server.sin_addr) != 1) {
-        CloseHandle(static_cast<std::intptr_t>(h));
+    bs::Socket socket = bs::Socket::open(bs::Family::IPv4, bs::Type::Datagram);
+    if (!socket.valid()) {
         return {};
     }
     std::uint8_t reply[512];
-    int n = -1;
+    std::ptrdiff_t n = -1;
     for (int attempt = 0; attempt < 2 && n < 12; attempt++) {
-        sendto(h, reinterpret_cast<const char*>(query.data()), static_cast<int>(query.size()), 0,
-               reinterpret_cast<const sockaddr*>(&server), sizeof(server));
-        n = recv(h, reinterpret_cast<char*>(reply), sizeof(reply), 0);
+        socket.send_to(std::as_bytes(std::span(query)), *server, nullptr);
+        if (WaitFor(socket, bs::PollRead, std::chrono::seconds(5))) {
+            n = socket.receive_from(std::as_writable_bytes(std::span(reply)), nullptr, nullptr);
+        }
     }
-    CloseHandle(static_cast<std::intptr_t>(h));
     if (n < 12 || reply[0] != query[0] || reply[1] != query[1] || (reply[3] & 0x0F) != 0) {
         return {};
     }
@@ -264,10 +221,10 @@ HttpResponse HttpRequest(const std::string& url, const std::string& address, con
         response.error = "not an HTTP response";
         return response;
     }
-    const std::string headers = raw.substr(0, headerEnd);
+    response.headers = raw.substr(0, headerEnd + 2);
     response.status = std::atoi(raw.c_str() + raw.find(' ') + 1);
     std::string content = raw.substr(headerEnd + 4);
-    std::string lower = headers;
+    std::string lower = response.headers;
     for (char& c : lower) {
         c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
     }

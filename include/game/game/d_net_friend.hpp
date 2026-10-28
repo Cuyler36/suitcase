@@ -129,6 +129,11 @@ class SendBuf_c {
     void onSent();       // 800E6CFC
     void clearPending(); // 800E6D94
     BOOL hasPending();   // 800E6DE8
+#if TARGET_PC
+    // Session_c::sendPending's take and give-back (d_net_dwc.cpp)
+    const void *takePending(u32 *size);
+    void restorePending(const void *data);
+#endif
 
     /* 0x00 */ Mutex_c mMutex;
     /* 0x18 */ const void *mData;

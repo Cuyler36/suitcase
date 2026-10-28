@@ -3,6 +3,7 @@
 
 #include <game/game/d_a_npc_sp.hpp>
 #include <game/game/d_item.hpp>
+#include <port/bitfield.h>
 
 // Zipper T. Bunny on Bunny Day (REL d_a_npc_sp_pyontaroNP, profile
 // A_NPC_SP_PYONTARO, messages "npc_SP/NPC_pyontarou"). He dances in place
@@ -41,10 +42,10 @@ class dAcNpcSpPyontaro_c : public dAcNpcSp_c {
 
     // The net daub data (getDaubData / setDaubData).
     struct daub_s {
-        u32 mDancing : 1; // a player is near: HMN_ANM_PYN_DANCE +
-                          // SE_PyontarouDance
-        u32 mResting : 1; // the players left: catching his breath
-        u32 _0 : 30;
+        // mDancing: a player is near: HMN_ANM_PYN_DANCE +
+        //   SE_PyontarouDance
+        // mResting: the players left: catching his breath
+        BITFIELD_UNIT_3(u32 mDancing : 1, u32 mResting : 1, u32 _0 : 30);
         u32 _4;
     }; // size 0x8
 

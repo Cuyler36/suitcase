@@ -359,6 +359,27 @@ s32 NANDGetType(const char* path, u8* type) {
     return NAND_RESULT_OK;
 }
 
+// A file's or directory's owner and attributes: the title's (its group is the disc's maker code, which
+// DWC reports as its maker)
+s32 NANDGetStatus(const char* path, NANDStatus* status) {
+    u8 type;
+    const s32 result = NANDGetType(path, &type);
+    if (result != NAND_RESULT_OK) {
+        return result;
+    }
+    status->ownerId = 0x1000;
+    status->groupId = static_cast<u16>((CF_GAME_ID[4] << 8) | CF_GAME_ID[5]);
+    status->attribute = 0;
+    status->permission = NAND_PERM_USER | NAND_PERM_GROUP_READ | NAND_PERM_GROUP_WRITE;
+    return NAND_RESULT_OK;
+}
+
+s32 NANDGetHomeDir(char* path) {
+    const std::string home = HomeDir();
+    std::memcpy(path, home.c_str(), home.size() + 1);
+    return NAND_RESULT_OK;
+}
+
 s32 NANDCheck(u32 fsblock, u32 inode, u32* answer) {
     (void)fsblock;
     (void)inode;
@@ -407,6 +428,16 @@ s32 NANDPrivateSafeOpenAsync(const char* path, NANDFileInfo* info, u8 accType, v
     (void)length;
     block->fileInfo = info;
     return cf::sdk::NandCompleteAsync(callback, block, Open(path, info, accType, true));
+}
+
+s32 NANDPrivateOpenAsync(const char* path, NANDFileInfo* info, u8 accType, NANDCallback callback,
+                         NANDCommandBlock* block) {
+    block->fileInfo = info;
+    return cf::sdk::NandCompleteAsync(callback, block, Open(path, info, accType, false));
+}
+
+s32 NANDCloseAsync(NANDFileInfo* info, NANDCallback callback, NANDCommandBlock* block) {
+    return cf::sdk::NandCompleteAsync(callback, block, Close(info, false));
 }
 
 s32 NANDSafeCloseAsync(NANDFileInfo* info, NANDCallback callback, NANDCommandBlock* block) {

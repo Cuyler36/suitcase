@@ -60,6 +60,9 @@
 #include <game/game/d_net_wc24.hpp>
 #include <game/game/d_obj_telop.hpp>
 #include <game/game/d_a_player.hpp>
+#if TARGET_PC
+#include <cf/net_codec.h>
+#endif
 
 // The free functions are in namespace dNet (d_net.hpp); the classes and the
 // .inc handlers call them unqualified.
@@ -2695,7 +2698,17 @@ BOOL dNetTransfer_c::sendTown(int member) {
                 if (len > rest) {
                     len = rest;
                 }
+#if TARGET_PC
+                // The town in the Wii's format, encoded whole for the first part (the parts cut through
+                // the save's structs: cf/net_codec.h)
+                static const u8 *sWireTown;
+                if (mTownSent == 0 || sWireTown == NULL) {
+                    sWireTown = cf::net::EncodeTown(dSaveData_c::getRaw());
+                }
+                const u8 *raw = sWireTown;
+#else
                 const u8 *raw = (u8 *)dSaveData_c::getRaw();
+#endif
                 const int slot = n++;
                 data[slot] = raw + offset;
                 size[slot] = len;

@@ -8,6 +8,7 @@
 #include <game/game/d_debug_page_inline.hpp>
 #include <game/game/d_a_npc_sp.hpp>
 #include <game/game/d_effect.hpp>
+#include <port/bitfield.h>
 
 // Blathers, the museum curator (REL d_a_npc_sp_futaNP, profile A_NPC_SP_FUTA).
 class dAcNpcSpFuta_c : public dAcNpcSp_c {
@@ -232,8 +233,7 @@ class dAcNpcSpFuta_c : public dAcNpcSp_c {
 
     // The net (daub) state: fills the 8-byte net slot (dNpc::daub_c::mNpcData).
     struct daub_s {
-        u32 mAsleep : 1;
-        u32 mUnused : 31;
+        BITFIELD_UNIT_2(u32 mAsleep : 1, u32 mUnused : 31);
         u32 mUnused2;
     }; // size 0x8
 

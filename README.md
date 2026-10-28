@@ -79,6 +79,16 @@ headers, `configure.py`, `splits.txt` or `symbols.txt` trigger automatic rebuild
 
 ![objdiff interface](assets/objdiff.png)
 
+## PC testing controls
+
+Press **F2** to toggle gameplay speedup, or open the debug bar with **F1** and
+click **Speedup (F2)**. Speedup unlocks the game's retrace wait and runs a game
+tick on every frame as fast as the host allows. An on-screen indicator remains
+visible while it is active; press F2 again to return to normal speed.
+
+This is separate from frame interpolation: your selected frame rate is preserved
+and resumes when speedup stops. Speedup starts disabled each session.
+
 ## Documentation
 
 - [City Folk configuration setup](docs/city_folk_config.md)

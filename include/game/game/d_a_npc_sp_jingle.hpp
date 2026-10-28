@@ -9,6 +9,7 @@
 #include <game/game/d_actor.hpp>
 #include <game/game/d_debug_page.hpp>
 #include <game/game/d_a_npc_sp.hpp>
+#include <port/bitfield.h>
 
 // Jingle the black-nosed reindeer on Toy Day (REL d_a_npc_sp_jingleNP, profile
 // A_NPC_SP_JINGLE, messages "npc_SP/NPC_jingle"). On Toy Day (EVENT_TOY_DAY)
@@ -149,8 +150,8 @@ class dAcNpcSpJingle_c : public dAcNpcSp_c {
 
     // The net (daub) state of the npc.
     struct daub_s {
-        u32 mAtSpot : 1; // standing at his spot (mIsActive)
-        u32 _0 : 31;
+        // mAtSpot: standing at his spot (mIsActive)
+        BITFIELD_UNIT_2(u32 mAtSpot : 1, u32 _0 : 31);
         u32 _4;
     }; // size 0x8
 

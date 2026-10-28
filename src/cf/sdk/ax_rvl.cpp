@@ -7,7 +7,7 @@
 //   rendered, and the state and current address (what the game polls) are copied back.
 // - A frame is AX_SAMPLES_PER_FRAME (96) samples at 32 kHz, 3 ms. Per voice: DSP-ADPCM / PCM16
 //   (big-endian) / PCM8 decoding with loops, sample rate conversion, the low-pass and biquad
-//   filters, the volume envelope, and the mix into the main and aux A/B/C buses (L, R, S). The aux
+//   volume envelope, filters, and the mix into the main and aux A/B/C buses (L, R, S). The aux
 //   buses go through the registered aux callbacks (nw4r's effects) and back into main at their
 //   return volumes; then the master volume.
 // - After rendering, the frame callback (AXRegisterCallback: nw4r's sound thread tick) and the AI
@@ -19,7 +19,7 @@
 // Output goes to an SDL3 audio stream (32 kHz stereo; SDL converts to the device), whose callback
 // renders frames as the device needs them, so the device clock paces AX as the DSP's did. Without
 // an audio device, a timer thread runs the frames and drops the output. Not implemented: the remote
-// (Wii Remote speaker) mix, ITD, depop, surround/DPL2 output (S is dropped in stereo).
+// (Wii Remote speaker) mix, ITD, surround/DPL2 output (S is dropped in stereo).
 #include <dolphin/ai.h>
 #include <revolution/ax.h>
 #include <revolution/os.h>
@@ -36,6 +36,7 @@
 #include <atomic>
 #include <chrono>
 #include <cmath>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <thread>
@@ -69,6 +70,10 @@ u32 sMode = AX_OUTPUT_STEREO;
 // Bus buffers: main L/R/S, then L/R/S of aux A, B and C
 s32 sMain[AX_STEREO_MAX][FRAME_SAMPLES];
 s32 sAux[AUX_BUS_NUM][AX_STEREO_MAX][FRAME_SAMPLES];
+// SDK AXAux.c: DSP write, DSP read, CPU process start at slots 0, 1, 2.
+s32 sAuxRing[AUX_BUS_NUM][3][AX_STEREO_MAX][FRAME_SAMPLES];
+int sAuxFrame = 0;
+s32 sDepop[12] = {};
 
 u32 Join(u16 hi, u16 lo) {
     return (static_cast<u32>(hi) << 16) | lo;
@@ -79,8 +84,23 @@ void Split(u32 value, u16* hi, u16* lo) {
     *lo = static_cast<u16>(value & 0xFFFF);
 }
 
-s16 Clamp16(s32 value) {
-    return static_cast<s16>(std::clamp(value, -32768, 32767));
+s16 Clamp16(s64 value) {
+    return static_cast<s16>(std::clamp<s64>(value, -32768, 32767));
+}
+
+s32 Clamp32(s64 value) {
+    return static_cast<s32>(std::clamp<s64>(value, -2147483647LL - 1, 2147483647LL));
+}
+
+// Capture the last contribution once, before resetting/reusing a DSP voice.
+void DepopVoice(AXPB& pb) {
+    const s16 values[12] = {pb.dpop.aL, pb.dpop.aR, pb.dpop.aAuxAL, pb.dpop.aAuxAR,
+                           pb.dpop.aAuxBL, pb.dpop.aAuxBR, pb.dpop.aAuxCL, pb.dpop.aAuxCR,
+                           pb.dpop.aS, pb.dpop.aAuxAS, pb.dpop.aAuxBS, pb.dpop.aAuxCS};
+    for (int c = 0; c < 12; c++) {
+        sDepop[c] += values[c];
+    }
+    std::memset(&pb.dpop, 0, sizeof(pb.dpop));
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -124,10 +144,11 @@ void ApplySync(AXVPB& vpb, AXPB& dsp) {
     if (sync & AX_PBSYNC_DPOP) {
         dsp.dpop = pb.dpop;
     }
-    if (sync & AX_PBSYNC_VE) {
-        dsp.ve = pb.ve;
-    } else if (sync & AX_PBSYNC_VE_DELTA) {
+    if (sync & AX_PBSYNC_VE_DELTA) {
+        vpb.pb.ve.currentVolume = dsp.ve.currentVolume;
         dsp.ve.currentDelta = pb.ve.currentDelta;
+    } else if (sync & AX_PBSYNC_VE) {
+        dsp.ve = pb.ve;
     }
     if (sync & AX_PBSYNC_ADDR) {
         dsp.addr = pb.addr;
@@ -220,7 +241,7 @@ public:
         }
         case AX_SAMPLE_FORMAT_PCM_S8: {
             const u8* p = SampleBytes(mCurrent);
-            sample = p != nullptr ? static_cast<s16>(static_cast<s8>(p[0]) << 8) : 0;
+            sample = p != nullptr ? static_cast<s16>(static_cast<s8>(p[0]) * 256) : 0;
             break;
         }
         default:
@@ -258,7 +279,8 @@ private:
         s32 coef2 = static_cast<s16>(adpcm.a[index][1]);
         s32 yn1 = static_cast<s16>(adpcm.yn1);
         s32 yn2 = static_cast<s16>(adpcm.yn2);
-        s32 value = ((nibble * scale) << 11) + 1024 + coef1 * yn1 + coef2 * yn2;
+        s64 value = static_cast<s64>(nibble) * scale * 2048 + 1024 +
+                    static_cast<s64>(coef1) * yn1 + static_cast<s64>(coef2) * yn2;
         s16 sample = Clamp16(value >> 11);
         adpcm.yn2 = static_cast<u16>(yn1);
         adpcm.yn1 = static_cast<u16>(sample);
@@ -296,45 +318,84 @@ private:
     bool mStopped = false;
 };
 
-// The DSP's polyphase sample rate conversion (srcSelect 0): 4 taps, 128 phases (the position's
-// fraction >> 9), and one of three low-pass tables (coefSelect 0..2, nw4r's SRC_4TAP_8K / 12K / 16K,
-// picked by pitch: the higher the pitch, the lower the cutoff, against aliasing). The DSP's own
-// coefficients are in its ROM; these are windowed-sinc low-passes with those cutoffs at the DSP's
-// 32 kHz, each phase normalized to a gain of 1.
+// DSP polyphase SRC: three tables of 128 phases, four signed Q15 taps per phase.
+// An optional 4096-byte big-endian DSP coefficient ROM supplies exact hardware taps.
+// The built-in fallback is a windowed-sinc approximation, not a console ROM dump.
 constexpr int SRC_PHASES = 128;
 constexpr int SRC_TABLES = 3;
 constexpr f64 kPi = 3.14159265358979323846;
 
 struct SrcTables {
-    f32 c[SRC_TABLES][SRC_PHASES][4];
+    s16 c[SRC_TABLES][SRC_PHASES][4];
+
+    static f64 BesselI0(f64 x) {
+        f64 sum = 1.0, term = 1.0;
+        for (int n = 1; n < 32; n++) {
+            term *= x * x / (4.0 * n * n);
+            sum += term;
+        }
+        return sum;
+    }
 
     SrcTables() {
-        const f64 cutoffs[SRC_TABLES] = {8000.0, 12000.0, 16000.0};
+        // Hamming / Kaiser / Hamming prototype windows, with global gain normalization.
+        // See docs/audio.md for the reference and the limits of this fallback.
+        const f64 bandwidths[SRC_TABLES] = {0.5, 0.75, 1.0};
         for (int t = 0; t < SRC_TABLES; t++) {
-            const f64 fc = cutoffs[t] / AX_SAMPLE_RATE; // in cycles per input sample (0.5 = Nyquist)
-            for (int p = 0; p < SRC_PHASES; p++) {
-                const f64 frac = p / static_cast<f64>(SRC_PHASES);
-                f64 taps[4];
+            f64 prototype[512];
+            for (int n = 0; n < 512; n++) {
+                const f64 position = 2.0 * n / 511.0 - 1.0;
+                const f64 x = 2.0 * position * bandwidths[t];
+                const f64 sinc = x == 0.0 ? 1.0 : std::sin(kPi * x) / (kPi * x);
+                const f64 window = t == 1
+                    ? BesselI0(2.25 * kPi * std::sqrt(std::max(0.0, 1.0 - position * position))) /
+                          BesselI0(2.25 * kPi)
+                    : 0.54 - 0.46 * std::cos(2.0 * kPi * n / 511.0);
+                prototype[n] = sinc * window;
+            }
+            f64 gain = 0.0;
+            for (int phase = 0; phase < SRC_PHASES; phase++) {
                 f64 sum = 0.0;
-                for (int k = 0; k < 4; k++) {
-                    // Taps h0..h3 sit at -1, 0, 1, 2; the output at frac (between h1 and h2)
-                    const f64 d = (k - 1) - frac;
-                    const f64 x = 2.0 * fc * d;
-                    const f64 sinc = x == 0.0 ? 1.0 : std::sin(kPi * x) / (kPi * x);
-                    const f64 window = 0.5 * (1.0 + std::cos(kPi * d / 2.0)); // Hann over the 4 taps
-                    taps[k] = sinc * window;
-                    sum += taps[k];
+                for (int tap = 0; tap < 4; tap++) {
+                    sum += prototype[tap * SRC_PHASES + 127 - phase];
                 }
-                for (int k = 0; k < 4; k++) {
-                    c[t][p][k] = static_cast<f32>(taps[k] / sum);
+                gain = std::max(gain, sum);
+            }
+            for (int phase = 0; phase < SRC_PHASES; phase++) {
+                for (int tap = 0; tap < 4; tap++) {
+                    c[t][phase][tap] = static_cast<s16>(std::nearbyint(
+                        prototype[tap * SRC_PHASES + 127 - phase] * 32767.0 / gain));
                 }
             }
         }
     }
+
+    bool Load(const char* path) {
+        FILE* file = std::fopen(path, "rb");
+        if (file == nullptr) {
+            return false;
+        }
+        u8 bytes[4096];
+        const size_t count = std::fread(bytes, 1, sizeof(bytes), file);
+        const bool valid = count == sizeof(bytes) && std::fgetc(file) == EOF && !std::ferror(file);
+        std::fclose(file);
+        if (!valid) {
+            return false;
+        }
+        for (int t = 0; t < SRC_TABLES; t++) {
+            for (int phase = 0; phase < SRC_PHASES; phase++) {
+                for (int tap = 0; tap < 4; tap++) {
+                    const int offset = 2 * ((t * SRC_PHASES + phase) * 4 + tap);
+                    c[t][phase][tap] = static_cast<s16>((bytes[offset] << 8) | bytes[offset + 1]);
+                }
+            }
+        }
+        return true;
+    }
 };
 
-const SrcTables& GetSrcTables() {
-    static const SrcTables tables;
+SrcTables& GetSrcTables() {
+    static SrcTables tables;
     return tables;
 }
 
@@ -347,34 +408,38 @@ void RenderVoice(AXPB& pb, s32 out[FRAME_SAMPLES]) {
     for (int i = 0; i < 4; i++) {
         h[i] = static_cast<s16>(pb.src.last_samples[i]);
     }
-    const f32(*coefs)[4] = GetSrcTables().c[pb.coefSelect < SRC_TABLES ? pb.coefSelect : SRC_TABLES - 1];
+    const s16(*coefs)[4] = GetSrcTables().c[pb.coefSelect < SRC_TABLES ? pb.coefSelect : SRC_TABLES - 1];
 
     for (int i = 0; i < FRAME_SAMPLES; i++) {
-        s32 s;
-        u32 advance;
         if (pb.srcSelect == AX_SRC_TYPE_NONE_PB) {
-            // No conversion: a sample in, a sample out, whatever the ratio
-            s = h[1];
-            advance = 1;
-        } else {
-            if (pb.srcSelect == 0) {
-                const f32* c = coefs[frac >> 9];
-                s = static_cast<s32>(c[0] * h[0] + c[1] * h[1] + c[2] * h[2] + c[3] * h[3]);
-            } else {
-                // Linear (srcSelect 1)
-                s = h[1] + static_cast<s32>((h[2] - h[1]) * (frac / 65536.0f));
-            }
-            frac += ratio;
-            advance = std::min<u32>(frac >> 16, 0x10000);
-            frac &= 0xFFFF;
+            // Bypass reads directly, without the resampler's history delay.
+            out[i] = reader.Next();
+            h[0] = h[1];
+            h[1] = h[2];
+            h[2] = h[3];
+            h[3] = out[i];
+            continue;
         }
-        out[i] = Clamp16(s);
-
+        // The DSP advances BEFORE evaluating the phase and taps.
+        const u64 position = static_cast<u64>(frac) + ratio;
+        const u32 advance = static_cast<u32>(position >> 16);
+        frac = static_cast<u32>(position & 0xFFFF);
         for (u32 n = 0; n < advance; n++) {
             h[0] = h[1];
             h[1] = h[2];
             h[2] = h[3];
             h[3] = reader.Next();
+        }
+        if (pb.srcSelect == 0) {
+            const s16* c = coefs[frac >> 9];
+            s64 sum = 0;
+            for (int tap = 0; tap < 4; tap++) {
+                sum += static_cast<s64>(c[tap]) * h[tap];
+            }
+            out[i] = Clamp16(sum >> 15);
+        } else {
+            out[i] = Clamp16((static_cast<s64>(h[0]) * (65536 - frac) +
+                              static_cast<s64>(h[1]) * frac) >> 16);
         }
     }
 
@@ -384,12 +449,19 @@ void RenderVoice(AXPB& pb, s32 out[FRAME_SAMPLES]) {
         pb.src.last_samples[i] = static_cast<u16>(h[i]);
     }
 
+    u16 volume = pb.ve.currentVolume;
+    for (int i = 0; i < FRAME_SAMPLES; i++) {
+        out[i] = Clamp16((static_cast<s64>(out[i]) * volume) >> 15);
+        volume = static_cast<u16>(volume + pb.ve.currentDelta);
+    }
+    pb.ve.currentVolume = volume;
+
     if (pb.lpf.on == AX_PB_LPF_ON) {
         s32 a0 = pb.lpf.a0;
         s32 b0 = pb.lpf.b0;
         s32 yn1 = static_cast<s16>(pb.lpf.yn1);
         for (int i = 0; i < FRAME_SAMPLES; i++) {
-            yn1 = Clamp16((a0 * out[i] + b0 * yn1) >> 15);
+            yn1 = Clamp16((static_cast<s64>(a0) * out[i] + static_cast<s64>(b0) * yn1) >> 15);
             out[i] = yn1;
         }
         pb.lpf.yn1 = static_cast<u16>(yn1);
@@ -403,7 +475,12 @@ void RenderVoice(AXPB& pb, s32 out[FRAME_SAMPLES]) {
         s32 yn1 = static_cast<s16>(bq.yn1), yn2 = static_cast<s16>(bq.yn2);
         for (int i = 0; i < FRAME_SAMPLES; i++) {
             s32 x = out[i];
-            s32 y = Clamp16((b0 * x + b1 * xn1 + b2 * xn2 + a1 * yn1 + a2 * yn2) >> 14);
+            const s64 sum = static_cast<s64>(b0) * x + static_cast<s64>(b1) * xn1 +
+                            static_cast<s64>(b2) * xn2 + static_cast<s64>(a1) * yn1 +
+                            static_cast<s64>(a2) * yn2;
+            // DSP CLRL rounding: nearest, with half-way cases rounded to even.
+            const s64 rounded = (sum + 8191 + ((sum >> 14) & 1)) >> 14;
+            s32 y = Clamp16(rounded);
             xn2 = xn1;
             xn1 = x;
             yn2 = yn1;
@@ -415,45 +492,91 @@ void RenderVoice(AXPB& pb, s32 out[FRAME_SAMPLES]) {
         bq.yn1 = static_cast<u16>(yn1);
         bq.yn2 = static_cast<u16>(yn2);
     }
-
-    s32 volume = pb.ve.currentVolume;
-    s32 delta = static_cast<s16>(pb.ve.currentDelta);
-    for (int i = 0; i < FRAME_SAMPLES; i++) {
-        out[i] = (out[i] * volume) >> 15;
-        volume = std::clamp(volume + delta, 0, 0x7FFF);
-    }
-    pb.ve.currentVolume = static_cast<u16>(volume);
 }
 
 // AXPBMIX holds (volume, delta) pairs in this order; each goes to a bus channel
 struct MixTarget {
     s32* bus;
+    u32 enableFlag;
     u32 deltaFlag;
 };
 
+const MixTarget sMixTargets[12] = {
+    {sMain[AX_STEREO_L], AX_MIXER_CTRL_L, AX_MIXER_CTRL_DELTA},
+    {sMain[AX_STEREO_R], AX_MIXER_CTRL_R, AX_MIXER_CTRL_DELTA},
+    {sAux[0][AX_STEREO_L], AX_MIXER_CTRL_AL, AX_MIXER_CTRL_DELTA_A},
+    {sAux[0][AX_STEREO_R], AX_MIXER_CTRL_AR, AX_MIXER_CTRL_DELTA_A},
+    {sAux[1][AX_STEREO_L], AX_MIXER_CTRL_BL, AX_MIXER_CTRL_DELTA_B},
+    {sAux[1][AX_STEREO_R], AX_MIXER_CTRL_BR, AX_MIXER_CTRL_DELTA_B},
+    {sAux[2][AX_STEREO_L], AX_MIXER_CTRL_CL, AX_MIXER_CTRL_DELTA_C},
+    {sAux[2][AX_STEREO_R], AX_MIXER_CTRL_CR, AX_MIXER_CTRL_DELTA_C},
+    {sMain[AX_STEREO_S], AX_MIXER_CTRL_S, AX_MIXER_CTRL_DELTA_S},
+    {sAux[0][AX_STEREO_S], AX_MIXER_CTRL_AS, AX_MIXER_CTRL_DELTA_AS},
+    {sAux[1][AX_STEREO_S], AX_MIXER_CTRL_BS, AX_MIXER_CTRL_DELTA_BS},
+    {sAux[2][AX_STEREO_S], AX_MIXER_CTRL_CS, AX_MIXER_CTRL_DELTA_CS},
+};
+
 void MixVoice(AXPB& pb, const s32 in[FRAME_SAMPLES]) {
-    const MixTarget targets[12] = {
-        {sMain[AX_STEREO_L], AX_MIXER_CTRL_DELTA},     {sMain[AX_STEREO_R], AX_MIXER_CTRL_DELTA},
-        {sAux[0][AX_STEREO_L], AX_MIXER_CTRL_DELTA_A}, {sAux[0][AX_STEREO_R], AX_MIXER_CTRL_DELTA_A},
-        {sAux[1][AX_STEREO_L], AX_MIXER_CTRL_DELTA_B}, {sAux[1][AX_STEREO_R], AX_MIXER_CTRL_DELTA_B},
-        {sAux[2][AX_STEREO_L], AX_MIXER_CTRL_DELTA_C}, {sAux[2][AX_STEREO_R], AX_MIXER_CTRL_DELTA_C},
-        {sMain[AX_STEREO_S], AX_MIXER_CTRL_DELTA_S},   {sAux[0][AX_STEREO_S], AX_MIXER_CTRL_DELTA_AS},
-        {sAux[1][AX_STEREO_S], AX_MIXER_CTRL_DELTA_BS}, {sAux[2][AX_STEREO_S], AX_MIXER_CTRL_DELTA_CS},
-    };
+    s16* depop[12] = {&pb.dpop.aL, &pb.dpop.aR, &pb.dpop.aAuxAL, &pb.dpop.aAuxAR,
+                      &pb.dpop.aAuxBL, &pb.dpop.aAuxBR, &pb.dpop.aAuxCL, &pb.dpop.aAuxCR,
+                      &pb.dpop.aS, &pb.dpop.aAuxAS, &pb.dpop.aAuxBS, &pb.dpop.aAuxCS};
     u16* mix = reinterpret_cast<u16*>(&pb.mix);
     for (int c = 0; c < 12; c++) {
-        s32 volume = mix[c * 2];
-        s32 delta = (pb.mixerCtrl & targets[c].deltaFlag) ? static_cast<s16>(mix[c * 2 + 1]) : 0;
-        if (volume == 0 && delta == 0) {
+        const MixTarget& target = sMixTargets[c];
+        if (!(pb.mixerCtrl & target.enableFlag)) {
             continue;
         }
-        s32* bus = targets[c].bus;
+        u16 volume = mix[c * 2];
+        const s16 delta = (pb.mixerCtrl & target.deltaFlag) ? static_cast<s16>(mix[c * 2 + 1]) : 0;
         for (int i = 0; i < FRAME_SAMPLES; i++) {
-            bus[i] += (in[i] * volume) >> 15;
-            volume = std::clamp(volume + delta, 0, 0xFFFF);
+            const s16 sample = Clamp16((static_cast<s64>(in[i]) * volume) >> 15);
+            target.bus[i] += sample;
+            volume = static_cast<u16>(volume + delta);
+            *depop[c] = sample;
         }
-        mix[c * 2] = static_cast<u16>(volume);
+        mix[c * 2] = volume;
     }
+}
+
+void RenderDepop() {
+    // AXSPB.c: ramp each accumulated bus contribution by at most 20/sample.
+    for (int c = 0; c < 12; c++) {
+        const s32 step = std::clamp(sDepop[c] / FRAME_SAMPLES, -20, 20);
+        if (step == 0) {
+            sDepop[c] = 0;
+            continue;
+        }
+        s32 value = sDepop[c];
+        for (int i = 0; i < FRAME_SAMPLES; i++) {
+            sMixTargets[c].bus[i] += value;
+            value -= step;
+        }
+        sDepop[c] = value;
+    }
+}
+
+void ProcessAux() {
+    const int write = sAuxFrame;
+    const int read = (sAuxFrame + 1) % 3;
+    const int cpu = (sAuxFrame + 2) % 3;
+    for (int b = 0; b < AUX_BUS_NUM; b++) {
+        if (sAuxCallback[b] == nullptr) {
+            std::memset(sAuxRing[b], 0, sizeof(sAuxRing[b]));
+            continue;
+        }
+        std::memcpy(sAuxRing[b][write], sAux[b], sizeof(sAux[b]));
+        const s32 volume = sAuxReturnVolume[b];
+        for (int ch = 0; ch < AX_STEREO_MAX; ch++) {
+            for (int i = 0; i < FRAME_SAMPLES; i++) {
+                const s64 wet = (static_cast<s64>(sAuxRing[b][read][ch][i]) * volume) >> 15;
+                sMain[ch][i] = Clamp32(static_cast<s64>(sMain[ch][i]) + wet);
+            }
+        }
+        void* chans[AX_STEREO_MAX] = {sAuxRing[b][cpu][AX_STEREO_L], sAuxRing[b][cpu][AX_STEREO_R],
+                                     sAuxRing[b][cpu][AX_STEREO_S]};
+        sAuxCallback[b](chans, sAuxContext[b]);
+    }
+    sAuxFrame = (sAuxFrame + 1) % 3;
 }
 
 // CF_AX_LOG=1: logs each voice as it starts (how it is resampled, filtered and mixed), to compare
@@ -486,6 +609,10 @@ void RunFrame(s16* out) {
     s32 voiceOut[FRAME_SAMPLES];
     for (int v = 0; v < AX_VOICE_MAX; v++) {
         AXVPB& vpb = sVoices[v];
+        if (vpb.depop) {
+            DepopVoice(sDsp[v]);
+            vpb.depop = false;
+        }
         if (vpb.priority == AX_PRIORITY_FREE) {
             continue;
         }
@@ -501,29 +628,19 @@ void RunFrame(s16* out) {
         }
         // What the game polls: whether the voice still runs, and where it is
         vpb.pb.state = dsp.state;
+        vpb.pb.ve.currentVolume = dsp.ve.currentVolume;
         vpb.pb.addr.currentAddressHi = dsp.addr.currentAddressHi;
         vpb.pb.addr.currentAddressLo = dsp.addr.currentAddressLo;
     }
 
-    for (int b = 0; b < AUX_BUS_NUM; b++) {
-        if (sAuxCallback[b] == nullptr) {
-            continue;
-        }
-        void* chans[AX_STEREO_MAX] = {sAux[b][AX_STEREO_L], sAux[b][AX_STEREO_R], sAux[b][AX_STEREO_S]};
-        sAuxCallback[b](chans, sAuxContext[b]);
-        s32 volume = sAuxReturnVolume[b];
-        for (int ch = 0; ch < AX_STEREO_MAX; ch++) {
-            for (int i = 0; i < FRAME_SAMPLES; i++) {
-                sMain[ch][i] += (sAux[b][ch][i] * volume) >> 15;
-            }
-        }
-    }
+    RenderDepop();
+    ProcessAux();
 
     if (out != nullptr) {
         s32 master = (static_cast<s32>(sMasterVolume) * sHostVolume.load(std::memory_order_relaxed)) >> 15;
         for (int i = 0; i < FRAME_SAMPLES; i++) {
-            out[i * 2 + 0] = Clamp16((sMain[AX_STEREO_L][i] * master) >> 15);
-            out[i * 2 + 1] = Clamp16((sMain[AX_STEREO_R][i] * master) >> 15);
+            out[i * 2 + 0] = Clamp16((static_cast<s64>(sMain[AX_STEREO_L][i]) * master) >> 15);
+            out[i * 2 + 1] = Clamp16((static_cast<s64>(sMain[AX_STEREO_R][i]) * master) >> 15);
         }
     }
 
@@ -640,6 +757,25 @@ void AXInitEx(u32 outputBufferMode) {
             return;
         }
         sInitialized = true;
+        std::memset(sMain, 0, sizeof(sMain));
+        std::memset(sAux, 0, sizeof(sAux));
+        std::memset(sAuxRing, 0, sizeof(sAuxRing));
+        std::memset(sDepop, 0, sizeof(sDepop));
+        sAuxFrame = 0;
+        sMasterVolume = AX_MAX_VOLUME;
+        for (u16& volume : sAuxReturnVolume) {
+            volume = AX_MAX_VOLUME;
+        }
+        // Prepare coefficients before starting the audio callback; no file I/O on that thread.
+        GetSrcTables() = SrcTables();
+        const char* coefPath = std::getenv("CF_AX_COEFFICIENTS");
+        if (coefPath == nullptr) {
+            coefPath = "dsp_coef.bin";
+        }
+        const bool loaded = GetSrcTables().Load(coefPath);
+        borealis_log_printf(BOREALIS_LOG_INFO, "cf::ax", loaded
+            ? "loaded DSP resampling coefficients from %s"
+            : "DSP coefficients unavailable/invalid at %s; using approximate resampling tables", coefPath);
         for (int i = 0; i < AX_VOICE_MAX; i++) {
             AXVPB& vpb = sVoices[i];
             std::memset(&vpb, 0, sizeof(vpb));
@@ -704,9 +840,18 @@ AXVPB* AXAcquireVoice(u32 priority, AXVoiceCallback callback, AXUserContext user
         if (vpb == nullptr) {
             return nullptr;
         }
+        if (vpb->pb.state == AX_VOICE_RUN || vpb->depop) {
+            DepopVoice(sDsp[vpb->index]);
+            vpb->depop = false;
+        }
         if (vpb->callback != nullptr) {
             vpb->callback(vpb);
         }
+    }
+    // A freed slot may be reacquired before the next frame services its depop flag.
+    if (vpb->depop) {
+        DepopVoice(sDsp[vpb->index]);
+        vpb->depop = false;
     }
     vpb->priority = priority;
     vpb->callback = callback;
@@ -717,6 +862,9 @@ AXVPB* AXAcquireVoice(u32 priority, AXVoiceCallback callback, AXUserContext user
 
 void AXFreeVoice(AXVPB* p) {
     cf::sdk::InterruptLockScope lock;
+    if (p->pb.state == AX_VOICE_RUN) {
+        p->depop = true;
+    }
     p->priority = AX_PRIORITY_FREE;
     p->callback = nullptr;
     p->pb.state = AX_VOICE_STOP;
@@ -746,18 +894,27 @@ AXOutCallback AXRegisterCallback(AXOutCallback callback) {
 
 void AXRegisterAuxACallback(AXAuxCallback callback, void* context) {
     cf::sdk::InterruptLockScope lock;
+    if (sAuxCallback[0] != callback || sAuxContext[0] != context) {
+        std::memset(sAuxRing[0], 0, sizeof(sAuxRing[0]));
+    }
     sAuxCallback[0] = callback;
     sAuxContext[0] = context;
 }
 
 void AXRegisterAuxBCallback(AXAuxCallback callback, void* context) {
     cf::sdk::InterruptLockScope lock;
+    if (sAuxCallback[1] != callback || sAuxContext[1] != context) {
+        std::memset(sAuxRing[1], 0, sizeof(sAuxRing[1]));
+    }
     sAuxCallback[1] = callback;
     sAuxContext[1] = context;
 }
 
 void AXRegisterAuxCCallback(AXAuxCallback callback, void* context) {
     cf::sdk::InterruptLockScope lock;
+    if (sAuxCallback[2] != callback || sAuxContext[2] != context) {
+        std::memset(sAuxRing[2], 0, sizeof(sAuxRing[2]));
+    }
     sAuxCallback[2] = callback;
     sAuxContext[2] = context;
 }
@@ -778,14 +935,17 @@ void AXGetAuxCCallback(AXAuxCallback* callback, void** context) {
 }
 
 void AXSetAuxAReturnVolume(u16 volume) {
+    cf::sdk::InterruptLockScope lock;
     sAuxReturnVolume[0] = volume;
 }
 
 void AXSetAuxBReturnVolume(u16 volume) {
+    cf::sdk::InterruptLockScope lock;
     sAuxReturnVolume[1] = volume;
 }
 
 void AXSetAuxCReturnVolume(u16 volume) {
+    cf::sdk::InterruptLockScope lock;
     sAuxReturnVolume[2] = volume;
 }
 
@@ -802,7 +962,8 @@ u16 AXGetAuxCReturnVolume() {
 }
 
 void AXSetMasterVolume(u16 volume) {
-    sMasterVolume = volume;
+    cf::sdk::InterruptLockScope lock;
+    sMasterVolume = std::min<u16>(volume, AX_MAX_VOLUME);
 }
 
 u16 AXGetMasterVolume(void) {
@@ -819,10 +980,12 @@ u32 AXGetMode() {
 
 // The one-pole low-pass coefficients for a cutoff frequency: y = (a * x + b * y[-1]) >> 15
 void AXGetLpfCoefs(u16 freq, u16* a, u16* b) {
-    f64 decay = std::exp(-2.0 * 3.14159265358979323846 * freq / AX_SAMPLE_RATE);
-    u16 bc = static_cast<u16>(std::clamp(decay * 32768.0, 0.0, 32767.0));
-    *b = bc;
-    *a = static_cast<u16>(32767 - bc);
+    // Preserve the SDK's single-precision intermediates (AXVPB.c).
+    const f32 angle = 2.0f * 3.14159265358979323846f * freq / AX_SAMPLE_RATE;
+    const f32 term = 2.0f - static_cast<f32>(std::cos(static_cast<f64>(angle)));
+    const f32 pole = static_cast<f32>(std::sqrt(static_cast<f64>(term * term - 1.0f))) - term;
+    *b = static_cast<u16>(32768.0f * -pole);
+    *a = static_cast<u16>(32767 - *b);
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -855,6 +1018,9 @@ void AXSetVoiceSrcType(AXVPB* vpb, u32 type) {
 
 void AXSetVoiceState(AXVPB* vpb, u16 state) {
     cf::sdk::InterruptLockScope lock;
+    if (state == AX_VOICE_STOP && vpb->pb.state == AX_VOICE_RUN) {
+        vpb->depop = true;
+    }
     vpb->pb.state = state;
     vpb->sync |= AX_PBSYNC_STATE;
 }
@@ -868,7 +1034,18 @@ void AXSetVoiceType(AXVPB* vpb, u16 type) {
 void AXSetVoiceMix(AXVPB* vpb, AXPBMIX* mix) {
     cf::sdk::InterruptLockScope lock;
     vpb->pb.mix = *mix;
-    vpb->sync |= AX_PBSYNC_MIX;
+    const u16* values = reinterpret_cast<const u16*>(mix);
+    u32 ctrl = 0;
+    for (int c = 0; c < 12; c++) {
+        if (values[c * 2] != 0 || values[c * 2 + 1] != 0) {
+            ctrl |= sMixTargets[c].enableFlag;
+        }
+        if (values[c * 2 + 1] != 0) {
+            ctrl |= sMixTargets[c].deltaFlag;
+        }
+    }
+    vpb->pb.mixerCtrl = ctrl;
+    vpb->sync |= AX_PBSYNC_MIX | AX_PBSYNC_MIXER_CTRL;
 }
 
 void AXSetVoiceVe(AXVPB* vpb, AXPBVE* ve) {

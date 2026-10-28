@@ -67,7 +67,7 @@ namespace {
 
 // Console IDs the port makes (without the player's console keys) are in the top half of the 32-bit
 // range, which no Nintendo console uses (NG IDs are far below: 0x02000001.., Wii U vWii 0x24..): a port
-// console cannot take a real Wii's Wii number, and is recognizable as one (docs/wc24/README.md)
+// console cannot take a real Wii's Wii number, and is recognizable as one (pc_port_wc24.md)
 constexpr std::uint32_t kPortConsoleIdBase = 0x80000000;
 constexpr std::size_t kMaxSecretFriends = 100;
 constexpr std::size_t kMaxAttachments = 2; // NWC24i_MSG_ATTACHMENT_MAX
@@ -619,7 +619,7 @@ std::string HomePath(const char* name) {
 
 // ---------------------------------------------------------------------------------------------
 // Downloads (the KD's part): a task's file is fetched from the online service, its WiiConnect24
-// header removed and its payload decrypted (Nintendo's format: docs/wc24/kd_protocol.md 6.3), and
+// header removed and its payload decrypted (Nintendo's format: pc_port_wc24_kd_protocol.md 6.3), and
 // written into the download box, where the game reads it. Due tasks run on a worker thread.
 // ---------------------------------------------------------------------------------------------
 constexpr std::uint32_t kDlFlagRaw = 1 << 2;       // no WiiConnect24 header
@@ -770,7 +770,7 @@ void StartDownloads(bool force) {
 // use), the outbox sent, and waiting mail received into the inbox, on a worker thread woken by commits,
 // by the game's receive-box search and by the debug UI, else every few minutes while the game runs.
 // Received mail from senders who are not the application's friends (secret friends) or this console is
-// dropped: the server does not check (docs/wc24/README.md).
+// dropped: the server does not check (pc_port_wc24.md).
 // ---------------------------------------------------------------------------------------------
 constexpr std::uint32_t kSelfTestAppId = 0x53554954; // 'SUIT': the debug self-test's messages
 constexpr auto kMailInterval = std::chrono::minutes(10);

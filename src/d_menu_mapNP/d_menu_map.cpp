@@ -1,3 +1,6 @@
+#if TARGET_PC
+#include <cf/interp.h>
+#endif
 #include <game/game/d_menu_map.hpp>
 #include <cstdio>
 #include <game/game/d_animal.hpp>
@@ -76,22 +79,6 @@ int dMenuMap_c::execute() {
         mWinLyt.copyPos(&mPlayerIcon, "map_00", l_allPanes[0]);
         onFlag(FLAG_CALC_ICONS);
     }
-#if TARGET_PC
-    // Once more when the opening animation has ended, from the window's settled pose. The copies above
-    // read the window as last calculated, so the icons could keep a pose from inside the animation: a
-    // z of 52.6 puts them behind the 2D camera (near 0, far 500), clipped, though still selectable.
-    static bool sWasAnm;
-    const bool anmNow = isState(STATE_ANM);
-    if ((anm || sWasAnm) && !anmNow) {
-        mWinLyt.calc();
-        for (i = 0; i < ENTRY_NUM; i++) {
-            mWinLyt.copyPos(&mIcons[i], "map_00", l_allPanes[0]);
-        }
-        mWinLyt.copyPos(&mPlayerIcon, "map_00", l_allPanes[0]);
-        onFlag(FLAG_CALC_ICONS);
-    }
-    sWasAnm = anmNow;
-#endif
     calcButtonAnms();
     calcScroll();
     calcBlink();
@@ -178,6 +165,11 @@ void dMenuMap_c::createIcons() {
     int x;
     int z;
     mVec3_c pos;
+#if TARGET_PC
+    // Only x and y are set below: the icons' z was whatever the stack held, and one outside the 2D
+    // camera's depth (near 0, far 500) hid them, though they stayed selectable (pc_port_ub.md PC-32)
+    pos.z = 0.0f;
+#endif
     for (int i = 0; i < ENTRY_NUM; i++) {
         mIcons[i].build(&mRes, "map_icon_00.brlyt");
         mIcons[i].setVisible(l_iconPushPane, false);
@@ -570,6 +562,10 @@ void dMenuMap_c::initLists() {
 
 // .text:0x13C0
 void dMenuMap_c::updateRowWords() {
+#if TARGET_PC
+    // These panes now represent different rows; discard their previous positions.
+    cf::interp::InvalidateLayoutHistory(mWinLyt.getRootPane());
+#endif
     static const u16 facilityMsgs[FACILITY_NUM] = {MSG_SHOP,      MSG_TAILOR,
                                                    MSG_TOWN_HALL, MSG_MUSEUM,
                                                    MSG_GATE,      MSG_BUS_STOP};

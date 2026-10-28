@@ -32,6 +32,17 @@ lines = [
     "typedef unsigned int u32;",
     "",
 ]
+# U8 archives whose symbols.txt size covers only their start (g_cautionArc: 0x89E of an archive whose files
+# end at 0x8FE0 in RUUE01_00, so its textures were not copied and the caution / network error windows hit
+# zeroes): copied up to the next named symbol of their section instead (the lbl_ ones after them are the
+# splitter's cuts through the unnamed data), which holds the whole archive
+ARCHIVES = {"g_cautionArc"}
+for name in ARCHIVES & set(table):
+    section, addr, size = table[name]
+    following = [a for n, (s_, a, _) in table.items() if s_ == section and a > addr and not n.startswith("lbl_")]
+    if following:
+        table[name] = (section, addr, max(size, min(following) - addr))
+
 present_blobs = [(n, c) for n, c in blobs if n in table]
 for name, c_linkage in present_blobs:
     section, addr, size = table[name]

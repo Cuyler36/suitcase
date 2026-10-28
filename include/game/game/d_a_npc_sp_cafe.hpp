@@ -13,6 +13,7 @@
 #include <game/game/d_a_rmobj.hpp>
 #include <game/game/d_effect.hpp>
 #include <game/mLib/m_mtx.hpp>
+#include <port/bitfield.h>
 
 // Brewster, the master of the Roost (REL d_a_npc_sp_cafeNP, profile
 // A_NPC_SP_CAFE). He sells coffee (and serves it with the cup, pot, beans and
@@ -279,8 +280,8 @@ class dAcNpcSpCafe_c : public dAcNpcSp_c {
 
     // The net (daub) state of the npc.
     struct daub_s {
-        u32 mBusy : 1; // serving coffee (no K.K. idle animation, no talk)
-        u32 _0 : 31;
+        // mBusy: serving coffee (no K.K. idle animation, no talk)
+        BITFIELD_UNIT_2(u32 mBusy : 1, u32 _0 : 31);
         u32 _4;
     }; // size 0x8
 

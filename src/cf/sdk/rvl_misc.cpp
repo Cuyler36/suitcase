@@ -11,15 +11,21 @@
 #include <cf/frame.h>
 #include <cf/screen.h>
 
+#include "thread_system.h"
+
 #include <game_version.h>
 
+#include <atomic>
 #include <chrono>
 #include <thread>
 
 namespace {
 
-u32 sRetraceCount;
+// Read from any thread (VIGetRetraceCount); counted by the main thread
+std::atomic<u32> sRetraceCount{0};
 VIRetraceCallback sPreRetraceCallback;
+// The host main thread (static initialization runs on it): the game frame and aurora's event loop
+const std::thread::id sMainThread = std::this_thread::get_id();
 GXTexRegionCallback sTexRegionCallback;
 OSThread* sCurrentGXThread;
 
@@ -53,6 +59,29 @@ u8 SCGetLanguage(void) {
 #endif
 }
 
+// The console's region (SC_AREA_*): the game's, as DWC reports it at its login
+s8 SCGetProductArea(void) {
+#if VERSION == VERSION_RUUJ01_01 || VERSION == VERSION_RUUJ01_02
+    return 0; // Japan
+#elif VERSION == VERSION_RUUK01_01
+    return 4; // Korea
+#elif VERSION == VERSION_RUUP01_00 || VERSION == VERSION_RUUP01_01
+    return 2; // Europe
+#else
+    return 1; // USA
+#endif
+}
+
+// The console's product code and serial: none (DWC then leaves the serial out of its login)
+char* SCGetProductCode(void) {
+    return nullptr;
+}
+
+BOOL SCGetProductSN(u32* sn) {
+    (void)sn;
+    return FALSE;
+}
+
 u8 SCGetSoundMode(void) {
     return SC_SOUND_MODE_STEREO;
 }
@@ -81,10 +110,23 @@ BOOL SCCheckPCMessageRestriction(void) {
 void VIWaitForRetrace(void) {
     using Clock = std::chrono::steady_clock;
     constexpr auto period = std::chrono::nanoseconds(1000000000 / 60);
+    if (std::this_thread::get_id() != sMainThread) {
+        // Another thread (dNetDwc's session thread, EGG's DVD ripper) waits for a retrace: it sleeps for
+        // one. The retrace itself (its count, the game's retrace callback, the Wii Remotes) is the main
+        // thread's, as the VI interrupt ran it once per retrace. Run on both, the callback
+        // (EGG::AsyncDisplay::postVRetrace) raced the main thread's frame, which then waited forever for a
+        // frame buffer (pc_port_ub.md PC-35)
+        std::this_thread::sleep_for(period);
+        // A wait like the others: a game thread being ended (StopGameThreads) ends here. dNetDwc's session
+        // thread loops on retraces alone and otherwise outlived the shutdown, into the static destructors
+        cf::sdk::ThreadCancelPoint();
+        return;
+    }
     static Clock::time_point sNext = Clock::now() + period;
     auto now = Clock::now();
-    if (cf::frame::IsDecoupled()) {
-        // A frame rate other than the game's: the frame loop paces the ticks (cf/frame.h)
+    if (cf::frame::IsSpeedup() || cf::frame::IsDecoupled()) {
+        // The frame loop owns pacing at other frame rates; testing speedup removes pacing entirely.
+        // Keep the deadline current so switching back never waits on an old schedule.
         sNext = now + period;
     } else if (now < sNext) {
         std::this_thread::sleep_until(sNext);
@@ -95,11 +137,12 @@ void VIWaitForRetrace(void) {
         // every stall, e.g. the title screen after loading)
         sNext = now + period;
     }
-    sRetraceCount++;
-    // Samples the Wii Remotes; aurora's present-target branch does this from its input pump
+    const u32 count = ++sRetraceCount;
+    // Samples the Wii Remotes; aurora's present-target branch does this from its input pump (aurora's
+    // input router is the main thread's)
     aurora_wpad_update();
     if (sPreRetraceCallback != nullptr) {
-        sPreRetraceCallback(sRetraceCount);
+        sPreRetraceCallback(count);
     }
 }
 

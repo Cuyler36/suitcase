@@ -524,6 +524,34 @@ int DWC_GetGsProfileId(const DWCAccUserData* userdata,
     return 0;
 }
 
+#if TARGET_PC
+// The port's own profile IDs (../pc_port_wc24.md): a player without a Wi-Fi Connection profile, on a host
+// without the player's console keys (no WiiLink login), has one derived from their pseudo login ID, so they
+// have a friend code and can be a friend. WiiLink numbers its accounts upward from 1,000,000,000, so the
+// port's are the top of the range, far above them.
+int DWCi_Port_IsPortOnly(void); // src/cf/sdk/dwc_port.cpp
+
+#define DWCi_PORT_PROFILE_ID_BASE 0x70000000u
+
+static int DWCi_Port_GetProfileId(const DWCAccUserData* userdata)
+{
+    // FNV-1a of the pseudo login ID's user ID (8 bytes) and player ID (4), least significant byte first
+    u64 userid = DWCi_Acc_GetUserId(&userdata->pseudo);
+    u32 playerid = DWCi_Acc_GetPlayerId(&userdata->pseudo);
+    u64 hash = 0xcbf29ce484222325ull;
+    int i;
+    for (i = 0; i < 8; i++)
+    {
+        hash = (hash ^ (u8)(userid >> (i * 8))) * 0x100000001b3ull;
+    }
+    for (i = 0; i < 4; i++)
+    {
+        hash = (hash ^ (u8)(playerid >> (i * 8))) * 0x100000001b3ull;
+    }
+    return (int)(DWCi_PORT_PROFILE_ID_BASE + (u32)(hash % (0x7FFFFFFFu - DWCi_PORT_PROFILE_ID_BASE + 1)));
+}
+#endif
+
 u64 DWC_CreateFriendKey(const DWCAccUserData* userdata)
 {
     u64 ret = 0;
@@ -533,6 +561,13 @@ u64 DWC_CreateFriendKey(const DWCAccUserData* userdata)
         ret = DWC_Acc_CreateFriendKey(userdata->gs_profile_id,
             userdata->gamecode, DWCi_FRIENDKEY_GENERATOR_MD5);
     }
+#if TARGET_PC
+    else if (DWCi_Port_IsPortOnly())
+    {
+        ret = DWC_Acc_CreateFriendKey(DWCi_Port_GetProfileId(userdata),
+            userdata->gamecode, DWCi_FRIENDKEY_GENERATOR_MD5);
+    }
+#endif
 
     return ret;
 }
@@ -555,6 +590,13 @@ void DWC_CreateExchangeToken(const DWCAccUserData* userdata,
         DWCi_Acc_SetGsProfileId(&token->gs_profile_id, userdata->gs_profile_id);
         DWCi_Acc_SetFlag_DataType(&token->flags, DWC_ACC_FRIENDDATA_GS_PROFILE_ID);
     }
+#if TARGET_PC
+    else if (DWCi_Port_IsPortOnly())
+    {
+        DWCi_Acc_SetGsProfileId(&token->gs_profile_id, DWCi_Port_GetProfileId(userdata));
+        DWCi_Acc_SetFlag_DataType(&token->flags, DWC_ACC_FRIENDDATA_GS_PROFILE_ID);
+    }
+#endif
     else
     {
         // Although various flags have been inserted in an attempt to increase the probability,

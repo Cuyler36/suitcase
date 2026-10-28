@@ -6,6 +6,7 @@
 // All names are inferred (enum names from the ins_* model names). See notes/d_insect_info.txt.
 
 #include <types.h>
+#include <port/bitfield.h>
 #include <game/game/d_date.hpp>
 #include <game/game/d_fg_item.hpp>
 #include <game/mLib/m_vec.hpp>
@@ -204,8 +205,8 @@ struct dInsectCatchData_c {
     /* 0x0 */ union {
         u8 mTypeSerial;
         struct {
-            u8 mSerialLow : 1;
-            u8 mInsectType : 7;
+            // MWCC's order (from the most significant bit): the serial's low bit is bit 7 (getSerial)
+            BITFIELD_BYTE_2(u8 mSerialLow : 1, u8 mInsectType : 7);
         };
     };
     /* 0x1 */ u8 mSerial;     // serial bits 1..8

@@ -94,6 +94,27 @@ typedef struct SOHostEnt HOSTENT;
 #define h_addr_list addrList
 #define h_addr addrList[0]
 
+#if TARGET_PC
+// The SDK's BSD-named shim over SO (gsPlatform.c) under its own names on the host, whose C library and
+// Winsock export the real ones
+#define socket gsi_socket
+#define closesocket gsi_closesocket
+#define shutdown gsi_shutdown
+#define bind gsi_bind
+#define connect gsi_connect
+#define listen gsi_listen
+#define accept gsi_accept
+#define recv gsi_recv
+#define recvfrom gsi_recvfrom
+#define send gsi_send
+#define sendto gsi_sendto
+#define getsockopt gsi_getsockopt
+#define setsockopt gsi_setsockopt
+#define gethostbyname gsi_gethostbyname
+#define getsockname gsi_getsockname
+#define inet_addr gsi_inet_addr
+#endif
+
 int socket(int pf, int type, int protocol);
 int closesocket(SOCKET sock);
 int shutdown(SOCKET sock, int how);

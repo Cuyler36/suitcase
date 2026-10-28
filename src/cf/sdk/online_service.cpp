@@ -2,6 +2,7 @@
 #include <cf/online.h>
 
 #include <atomic>
+#include <optional>
 
 namespace cf {
 namespace online {
@@ -23,6 +24,28 @@ const ServiceInfo& Info(Service service) {
     default:
         return kWiiLink;
     }
+}
+
+std::string MapHost(const std::string& host) {
+    const ServiceInfo& service = Info(Current());
+    if (service.wfcDomain == nullptr || service.wfcDomain[0] == '\0') {
+        return host;
+    }
+    auto replaceSuffix = [&](const char* suffix, const std::string& replacement) -> std::optional<std::string> {
+        const std::string tail = suffix;
+        if (host.size() >= tail.size() && host.compare(host.size() - tail.size(), tail.size(), tail) == 0 &&
+            (host.size() == tail.size() || host[host.size() - tail.size() - 1] == '.')) {
+            return host.substr(0, host.size() - tail.size()) + replacement;
+        }
+        return std::nullopt;
+    };
+    if (auto mapped = replaceSuffix("nintendowifi.net", service.wfcDomain)) {
+        return *mapped;
+    }
+    if (auto mapped = replaceSuffix("gamespy.com", std::string("gs.") + service.wfcDomain)) {
+        return *mapped;
+    }
+    return host;
 }
 
 Service Current() {

@@ -9,6 +9,7 @@
 #include <game/game/d_debug_page_inline.hpp>
 #include <game/game/d_a_npc_sp.hpp>
 #include <game/game/d_private_data.hpp>
+#include <port/bitfield.h>
 
 // Jack, the czar of Halloween (REL d_a_npc_sp_pumpkingNP, profile
 // A_NPC_SP_PUMPKING, messages "npc_SP/NPC_pumpking"). On Halloween night he
@@ -179,11 +180,11 @@ class dAcNpcSpPumpking_c : public dAcNpcSp_c {
 
     // The net (daub) state.
     struct daub_s {
-        u32 mPresent : 1; // at his spot (mIsActive)
-        u32 mTalking : 1; // the talk is on (its end starts the disappear
-                          // animation)
-        u32 mLeaving : 1; // the talk and his exit are on (no appear effect)
-        u32 _0 : 29;
+        // mPresent: at his spot (mIsActive)
+        // mTalking: the talk is on (its end starts the disappear
+        //   animation)
+        // mLeaving: the talk and his exit are on (no appear effect)
+        BITFIELD_UNIT_4(u32 mPresent : 1, u32 mTalking : 1, u32 mLeaving : 1, u32 _0 : 29);
         u32 _4;
     }; // size 0x8
 

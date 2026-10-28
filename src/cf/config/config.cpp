@@ -22,6 +22,8 @@ namespace game {
 
 borealis::config::Var<bool> resettiDisabled{"game.resettiDisabled", false};
 borealis::config::Var<bool> skipSplashScreens{"game.skipSplashScreens", true};
+borealis::config::Var<float> grassDeteriorationScale{"game.grass.detScale", 1.0f};
+borealis::config::Var<float> grassRestorationScale{"game.grass.restScale", 1.0f};
 
 bool IsResettiDisabled() {
     return resettiDisabled;
@@ -29,6 +31,14 @@ bool IsResettiDisabled() {
 
 bool SkipSplashScreens() {
     return skipSplashScreens;
+}
+
+float GetGrassDeteriorationScale() {
+    return grassDeteriorationScale;
+}
+
+float GetGrassRestorationScale() {
+    return grassRestorationScale;
 }
 
 }

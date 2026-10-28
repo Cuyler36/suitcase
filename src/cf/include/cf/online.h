@@ -1,7 +1,9 @@
 // The online service the port uses in place of Nintendo's (WiiConnect24 and Wi-Fi Connection): every
 // service speaks Nintendo's original protocols and formats, so it only changes where requests go
-// (src/cf/sdk/online_service.cpp; docs/wc24/README.md). Chosen by the online.service setting.
+// (src/cf/sdk/online_service.cpp; pc_port_wc24.md). Chosen by the online.service setting.
 #pragma once
+
+#include <string>
 
 namespace cf {
 namespace online {
@@ -23,6 +25,11 @@ struct ServiceInfo {
 };
 
 const ServiceInfo& Info(Service service);
+
+// A host name the game uses, as the service names it: Nintendo's Wi-Fi Connection hosts
+// (*.nintendowifi.net) under the service's domain and GameSpy's (*.gamespy.com) under gs.<domain>,
+// the renaming WiiLink's patch makes in the game's memory. Other names are returned as they are.
+std::string MapHost(const std::string& host);
 
 // The service in use (the setting; any thread)
 Service Current();

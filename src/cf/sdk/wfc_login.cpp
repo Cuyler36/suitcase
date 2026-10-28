@@ -44,7 +44,10 @@ constexpr int kSdkRevision = 3;                   // GPI_SDKREV
 // major << 24 | minor << 12 | beta
 constexpr int kPayloadVersion = (0 << 24) | (1 << 12);
 constexpr const char* kHostPlatform = "Suitcase";
-constexpr std::uint32_t kPortProfileIdBase = 1000000000;
+// A profile ID a login may claim: WiiLink refuses 1,000,000,000 and up (database/user.go:
+// ErrReservedProfileIDRange), the range it assigns its own accounts from. An account it assigned one in is
+// found by user ID and gsbrcd instead, so the login leaves the field out.
+constexpr std::uint32_t kClaimableProfileIdLimit = 1000000000;
 
 // ---------------------------------------------------------------------------------------------
 // Encodings
@@ -224,7 +227,7 @@ LoginResult TestLogin(const std::uint8_t userData[0x40]) {
     }
     gsbrcd += Base32(playerId, 32);
     const int sendProfileId =
-        recordProfileId > 0 && static_cast<std::uint32_t>(recordProfileId) < kPortProfileIdBase ? recordProfileId : 0;
+        recordProfileId > 0 && static_cast<std::uint32_t>(recordProfileId) < kClaimableProfileIdLimit ? recordProfileId : 0;
     std::snprintf(line, sizeof(line), "player: %s login ID, gsbrcd %s, profile ID sent %d",
                   hasAuthentic ? "authentic" : "pseudo", gsbrcd.c_str(), sendProfileId);
     step(line);
@@ -360,4 +363,41 @@ LoginResult TestLogin(const std::uint8_t userData[0x40]) {
 }
 
 } // namespace wfc
+
 } // namespace cf
+
+// ---------------------------------------------------------------------------------------------
+// The game's own login (GameSpy's gpiSendLogin, lib/gamespy/GP/gpiConnect.c): the fields WiiLink's
+// patch adds before \final\, as its payload/wwfcLogin.cpp SendExtendedLogin does
+// ---------------------------------------------------------------------------------------------
+extern "C" void* DWCi_GetUserData(void); // lib/dwc/match/dwc_login.c: the player's DWCAccUserData
+
+extern "C" const char* CF_WfcLoginFields(const char* authToken, int gpProfileId) {
+    static thread_local std::string fields;
+    fields.clear();
+    std::string error;
+    const auto keys = cf::sdk::LoadConsoleKeys(&error);
+    if (!keys) {
+        return ""; // no console keys: WiiLink refuses the login (the port's own players do not log in)
+    }
+    // The profile ID the record holds (0x1C in DWCAccUserData), so the account keeps it, unless GameSpy
+    // already sent its own
+    const void* userData = gpProfileId == 0 ? DWCi_GetUserData() : nullptr;
+    if (userData != nullptr) {
+        std::int32_t profileId;
+        std::memcpy(&profileId, static_cast<const std::uint8_t*>(userData) + 0x1C, sizeof(profileId));
+        if (profileId > 0 && static_cast<std::uint32_t>(profileId) < cf::wfc::kClaimableProfileIdLimit) {
+            fields += "\\profileid\\" + std::to_string(profileId);
+        }
+    }
+    fields += "\\wl:ver\\" +std::to_string(cf::wfc::kPayloadVersion);
+    if (authToken != nullptr && authToken[0] != '\0') {
+        const std::uint8_t* id = reinterpret_cast<const std::uint8_t*>(CF_GAME_ID);
+        const std::uint64_t titleId = 0x0001000000000000ull | (std::uint64_t(id[0]) << 24) | (std::uint64_t(id[1]) << 16) |
+                                      (std::uint64_t(id[2]) << 8) | id[3];
+        fields += "\\wl:sig\\" +cf::sdk::EncodeDwcBase64(cf::sdk::MakeLoginSignature(*keys, authToken, titleId));
+    }
+    fields += "\\wl:host\\";
+    fields += cf::wfc::kHostPlatform;
+    return fields.c_str();
+}

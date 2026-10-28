@@ -542,6 +542,13 @@ static void drawQuad(f32 top, f32 bottom, f32 left, f32 right, f32 z, bool alpha
         GXSetAlphaCompare(GX_GREATER, 0, GX_AOP_OR, GX_GREATER, 0);
     } else {
         GXSetAlphaCompare(GX_NEVER, 0, GX_AOP_AND, GX_GREATER, 0);
+#if TARGET_PC
+        // The z compare before the texture (GXSetZCompLoc) writes the depth of the pixels the
+        // alpha test then kills, so on the hardware this quad writes only depth. aurora's alpha
+        // test discards the depth too: pass it, and keep the color with a no-op logic blend.
+        GXSetBlendMode(GX_BM_LOGIC, GX_BL_ONE, GX_BL_ONE, GX_LO_NOOP);
+        GXSetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
+#endif
     }
     GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
     GXBegin(GX_QUADS, GX_VTXFMT0, 4);
