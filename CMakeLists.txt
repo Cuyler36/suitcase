@@ -122,21 +122,16 @@ function(cf_add_pc_decomp_library name)
     target_link_libraries(${name} PRIVATE cf_cw_compat aurora::core aurora::gx borealis::log)
 endfunction()
 
-# aurora's WPAD/KPAD, vendored from its present-target branch until it is on aurora main, with a
-# provider for aurora main's input (src/cf/aurora_wpad/README.md). Replace with aurora::wpad and
-# aurora::kpad once aurora has them.
-cf_add_pc_decomp_library(cf_aurora_wpad
-        src/cf/aurora_wpad/lib/revolution/wpad/wpad.cpp
-        src/cf/aurora_wpad/lib/revolution/wpad/provider.cpp
-        src/cf/aurora_wpad/lib/revolution/kpad.cpp
-)
-target_include_directories(cf_aurora_wpad PUBLIC src/cf/aurora_wpad/include)
-target_link_libraries(cf_aurora_wpad PUBLIC aurora::pad)
+# Host input as the Wii Remotes: aurora's WPAD/KPAD, with suitcase's provider for channel 0
+# (src/cf/include/suitcase/wpad_host.hpp)
+file(GLOB CF_INPUT_SOURCES CONFIGURE_DEPENDS src/cf/input/*.cpp)
+cf_add_pc_decomp_library(cf_input ${CF_INPUT_SOURCES})
+target_link_libraries(cf_input PUBLIC aurora::wpad aurora::kpad PRIVATE ${AURORA_SDL3_TARGET})
 
 # Stand-ins for SDK libraries the PC build does not compile
 file(GLOB CF_SDK_SOURCES CONFIGURE_DEPENDS src/cf/sdk/*.cpp)
 cf_add_pc_decomp_library(cf_sdk_stubs ${CF_SDK_SOURCES})
-target_link_libraries(cf_sdk_stubs PRIVATE cf_aurora_wpad ${AURORA_SDL3_TARGET} # SDL3: audio output (ax_rvl.cpp)
+target_link_libraries(cf_sdk_stubs PRIVATE cf_input ${AURORA_SDL3_TARGET} # SDL3: audio output (ax_rvl.cpp)
         nlohmann_json::nlohmann_json # WiiConnect24 state (nwc24_revoex.cpp)
         borealis::socket borealis::http) # SO, NHTTP and the online layers (so_host_revoex.cpp, host_net.cpp)
 # RevoEX's headers clash with the decomp's (tools/gen_pc_sdk_stubs.py): put them first for its stubs
@@ -195,12 +190,12 @@ target_include_directories(cf_game_pc PRIVATE src/cf/game)
 # Settings (src/cf/include/cf/config.h): borealis::config vars in the user directory's config.json
 file(GLOB CF_CONFIG_SOURCES CONFIGURE_DEPENDS src/cf/config/*.cpp)
 cf_add_pc_decomp_library(cf_config ${CF_CONFIG_SOURCES})
-target_link_libraries(cf_config PUBLIC borealis::config PRIVATE cf_aurora_wpad)
+target_link_libraries(cf_config PUBLIC borealis::config PRIVATE cf_input)
 
 # The ImGui debug interface (src/cf/include/cf/debug.h), drawn by main.cpp each frame
 file(GLOB CF_DEBUG_SOURCES CONFIGURE_DEPENDS src/cf/debug/*.cpp)
 cf_add_pc_decomp_library(cf_debug ${CF_DEBUG_SOURCES})
-target_link_libraries(cf_debug PRIVATE cf_config cf_aurora_wpad nlohmann_json::nlohmann_json)
+target_link_libraries(cf_debug PRIVATE cf_config cf_input nlohmann_json::nlohmann_json)
 
 configure_file(src/cf/version_config.h.in "${CMAKE_BINARY_DIR}/generated/cf/version_config.h" @ONLY)
 
@@ -227,6 +222,6 @@ if (CF_BUILD_GAME)
             target_link_libraries(suitcase PRIVATE ${target})
         endif ()
     endforeach ()
-    target_link_libraries(suitcase PRIVATE cf_game_pc cf_sdk_stubs cf_aurora_wpad cf_config cf_debug)
+    target_link_libraries(suitcase PRIVATE cf_game_pc cf_sdk_stubs cf_input cf_config cf_debug)
     target_compile_definitions(suitcase PRIVATE CF_BUILD_GAME=1)
 endif ()

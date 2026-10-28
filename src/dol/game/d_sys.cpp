@@ -38,7 +38,6 @@
 #include <game/mLib/m_2d.hpp>
 #include <cf/interp.h>
 #include <game/game/d_camera.hpp>
-#include <game/game/d_obj_cursor.hpp>
 #include <game/game/d_shadow.hpp>
 #include <game/game/d_tag_processor.hpp>
 #endif
@@ -558,7 +557,6 @@ void presentFrame(f32 tickFraction) {
     m2d::beginPresent();
     dCamera::applyPresent(tickFraction);
     cf::interp::InterpolateLayouts(tickFraction);
-    dObjCursor_c::presentPointer();
     dSysGfx::draw();
     dCamera::restorePresent();
     cf::interp::RestoreWorld();

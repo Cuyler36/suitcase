@@ -25,12 +25,13 @@
 #include <cf/save_codec.h>
 #include <cf/frame.h>
 #include <cf/screen.h>
+#include <suitcase/wpad_host.hpp>
 
 #include <chrono>
 #include <cstdlib>
 #include <thread>
 
-extern "C" void aurora_wpad_update(void); // aurora/wpad.h (src/cf/aurora_wpad)
+extern "C" void aurora_wpad_update(void); // aurora/wpad.h
 
 namespace cf {
 namespace {
@@ -109,10 +110,11 @@ void RunGameFrame() {
     // The window's shape for this frame (widescreen)
     screen::Update();
     debug::applyPending();
-    // Samples the Wii Remotes once a tick, on the main thread (aurora's input router is its own). The
-    // game's VIWaitForRetrace samples too, but only on the main thread, and while online the game waits
-    // for retraces only on its network thread (src/cf/sdk/rvl_misc.cpp). Sampling goes by elapsed time,
-    // so a second call in the same tick adds no samples.
+    // Samples the Wii Remotes once a tick, on the main thread (aurora's input router is its own), right
+    // before the game reads them. aurora's input pump samples too, once a host frame; sampling goes by
+    // elapsed time, so a second call in the same tick adds no samples. A newly connected gamepad gets
+    // its Classic Controller profile first (src/cf/input/host_input.cpp).
+    suitcase::wpad::update();
     aurora_wpad_update();
     dSys::runFrame();
 }

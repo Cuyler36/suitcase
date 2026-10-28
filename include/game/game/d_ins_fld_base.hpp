@@ -79,17 +79,6 @@ f32 getObjcRadiusAdd(); // .text 5B1C: 4.0 (the player's net reach is shortened
                         // by it)
 } // namespace dInsectField
 
-// The field insect as other modules read it (= dInsFldBase_c; switch the users
-// over later).
-class dInsectFieldActor_c {
-  public:
-    u8 _000[0x1A0];
-    /* 0x1A0 */ mVec3_c
-        mPos; // the player looks at it while it flies off (STATE_SHOW_CATCH_AT)
-    u8 _1AC[0x2F0 - 0x1AC];
-    /* 0x2F0 */ int mType; // dInsectType_e (0xC: the bees)
-};
-
 // A node of an insect's link list (someone who refers to the insect; unlinked
 // on deletion). Same layout as dANpcOut::insectLink_s (d_a_npc_out.hpp).
 struct dInsectLink_c {

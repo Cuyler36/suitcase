@@ -4,6 +4,9 @@
 #include <lib/egg/core/eggSystem.h>
 #include <revolution/vi.h>
 #include <string.h>
+#if TARGET_PC
+#include <cf/classic.h>
+#endif
 
 namespace EGG {
 
@@ -156,6 +159,12 @@ void CoreController::calc_posture_matrix(Matrix34f &mtx, bool checkStable) {
 
 void CoreController::beginFrame(PADStatus *) {
     mKPADReadLength = KPADRead(mChannelID, mCoreStatus, KPAD_MAX_SAMPLES);
+#if TARGET_PC
+    // PC: every gamepad is a Classic Controller, which the game does not read: as a Wii Remote and Nunchuk
+    // (src/cf/input/classic_adapter.cpp)
+    static_assert(sizeof(CoreStatus) == sizeof(KPADStatus), "KPADRead fills CoreStatus as KPADStatus");
+    cf::input::AdaptKpad(mChannelID, mCoreStatus, mKPADReadLength);
+#endif
 
     u32 devType;
     switch (WPADProbe(mChannelID, &devType)) {

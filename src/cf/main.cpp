@@ -15,6 +15,7 @@
 #if CF_BUILD_GAME
 #include "game/boot.hpp"
 #include "sdk/shutdown.h"
+#include <suitcase/wpad_host.hpp>
 #endif
 
 namespace {
@@ -28,6 +29,7 @@ void Shutdown(bool dvdOpen) {
     if (dvdOpen) {
         aurora_dvd_close();
     }
+    suitcase::wpad::shutdown();
 #else
     (void)dvdOpen;
 #endif
@@ -65,6 +67,8 @@ int main(int argc, char* argv[]) {
     const AuroraInfo info = aurora_initialize(argc, argv, &config);
 
 #if CF_BUILD_GAME
+    // The mouse, keyboard and gamepads on aurora's Wii Remote (src/cf/input/host_input.cpp)
+    suitcase::wpad::install();
     // Saves and the other NAND files live in the user directory (src/cf/sdk/nand_fs.cpp)
     cf::sdk::SetNandRoot(info.userPath);
     cf::config::Load(info.userPath);

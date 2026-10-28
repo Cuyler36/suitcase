@@ -46,11 +46,6 @@ public:
     static mVec2_c getPos();
     // Tests the pointer alpha (fades out while the pointer is off screen), not FLAG_VISIBLE: hide() does not clear it.
     static BOOL isVisible();
-#if TARGET_PC
-    // A frame between ticks (d_sys presentFrame): the cursor at the pointer as it is now, not as the
-    // last tick read it (cf/pointer.h). Its layouts' positions are restored after (cf::interp).
-    static void presentPointer();
-#endif
 
     /* 0x064 */ m2d::ResAccLoader_c mRes;
     /* 0x138 */ m2d::SimpleEx_c mLyt;

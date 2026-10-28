@@ -56,7 +56,7 @@ extern borealis::config::Var<bool> showFps;
 
 namespace input {
 
-// Gamepads (the Wii Remote stand-in, src/cf/aurora_wpad): suitcase::wpad::PadSettings
+// Gamepads (Classic Controllers, src/cf/input/host_input.cpp and classic_adapter.cpp): suitcase::wpad::PadSettings
 extern borealis::config::Var<float> stickGain;
 extern borealis::config::Var<float> deadZone;
 extern borealis::config::Var<float> triggerThreshold;

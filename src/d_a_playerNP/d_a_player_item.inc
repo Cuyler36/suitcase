@@ -1870,7 +1870,7 @@ void dAcPlayer_c::releaseCatch(BOOL insect, BOOL fromPocket) {
 // .text 0x175B0
 void dAcPlayer_c::watchReleasedCatch(BOOL insect) {
     if (insect) {
-        dInsectFieldActor_c *actor = (dInsectFieldActor_c *)mInsectLink.mpInsect;
+        dInsFldBase_c *actor = static_cast<dInsFldBase_c *>(mInsectLink.mpInsect);
         if (actor != NULL) {
             mVec3_c pos(actor->mPos);
             lookAt(&pos, 0x7F, 0x7F);

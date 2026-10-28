@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-// Also defined by aurora's revolution/kpad.h (src/cf/aurora_wpad), behind the same guard
+// Also defined by aurora's revolution/kpad.h (extern/aurora), behind the same guard
 #ifndef REVOLUTION_VEC2_DEFINED
 #define REVOLUTION_VEC2_DEFINED
 typedef struct Vec2 {

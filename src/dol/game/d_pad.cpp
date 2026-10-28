@@ -4,6 +4,9 @@
 #include <game/mLib/m_pad.hpp>
 #include <revolution/kpad.h>
 #include <revolution/wpad.h>
+#if TARGET_PC
+#include <cf/classic.h>
+#endif
 
 namespace dPad {
 static mVec2_c sRawPointer; // Normalized DPD coordinates.
@@ -140,6 +143,16 @@ BOOL updateButtons(BOOL suppressA) {
     if (mPad::getCore()->down(WPAD_BUTTON_B)) {
         sHeld |= (BUTTON_B | BUTTON_CANCEL);
     }
+#if TARGET_PC
+    // PC: a gamepad's L or R runs (src/cf/input/classic_adapter.cpp): B and cancel held, which is what the
+    // player dashes on, but never pressed, which picks up or plucks. A real B press still counts.
+    if (cf::input::ClassicRunHeld(mPad::getCurrentCoreID())) {
+        sHeld |= (BUTTON_B | BUTTON_CANCEL);
+        if (!mPad::getCore()->downTrigger(WPAD_BUTTON_B)) {
+            sPrevious |= (BUTTON_B | BUTTON_CANCEL);
+        }
+    }
+#endif
     if (mPad::getCore()->down(WPAD_BUTTON_C)) {
         sHeld |= BUTTON_C;
     }
@@ -184,6 +197,13 @@ BOOL hasUnsupportedExtension() {
     if (device == WPAD_DEV_CORE) {
         return FALSE;
     }
+#if TARGET_PC
+    // PC: every gamepad is a Classic Controller, which the game reads as a Wii Remote and Nunchuk
+    // (src/cf/input/classic_adapter.cpp)
+    if (device == WPAD_DEV_CLASSIC) {
+        return FALSE;
+    }
+#endif
     return device != WPAD_DEV_FREESTYLE;
 }
 

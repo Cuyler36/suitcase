@@ -6,8 +6,6 @@
 #include <revolution/sc.h>
 #include <revolution/vi.h>
 
-#include <aurora/wpad.h>
-
 #include <cf/frame.h>
 #include <cf/screen.h>
 
@@ -138,9 +136,6 @@ void VIWaitForRetrace(void) {
         sNext = now + period;
     }
     const u32 count = ++sRetraceCount;
-    // Samples the Wii Remotes; aurora's present-target branch does this from its input pump (aurora's
-    // input router is the main thread's)
-    aurora_wpad_update();
     if (sPreRetraceCallback != nullptr) {
         sPreRetraceCallback(count);
     }

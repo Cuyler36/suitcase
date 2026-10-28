@@ -1,9 +1,9 @@
 #ifndef CF_REVOLUTION_WPAD_H
 #define CF_REVOLUTION_WPAD_H
-// PC: aurora's WPAD (vendored in src/cf/aurora_wpad until aurora main has it), plus the names of the
-// decomp's include/lib/revolution/wpad.h that aurora does not define.
+// PC: aurora's WPAD, plus the names of the decomp's include/lib/revolution/wpad.h that aurora does not
+// define.
 #include <revolution/types.h>
-#include "../../aurora_wpad/include/revolution/wpad.h"
+#include "../../../../extern/aurora/include/revolution/wpad.h"
 
 #ifdef __cplusplus
 extern "C" {

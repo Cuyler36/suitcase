@@ -27,6 +27,9 @@
 #include <game/mLib/m_pad.hpp>
 #include <revolution/wpad.h>
 #include <cstdio>
+#if TARGET_PC
+#include <cf/classic.h>
+#endif
 
 #define NO_TAB -1
 
@@ -619,6 +622,15 @@ static int l_plusTabs[dAcUitag_c::TAB_NUM] = {1, 2, 5, 3, 3, 6, 4, 7};
 
 // 8017FCE0
 int dAcUitag::getNextTab(int tab) {
+#if TARGET_PC
+    // PC: a gamepad's L and R (a Classic Controller's, src/cf/input/classic_adapter.cpp) cycle too. They
+    // stop at the ends: the tables map an end tab to itself, which closes the menu (- and + toggle it).
+    const u32 classic = cf::input::ClassicTrigger(mPad::getCurrentCoreID());
+    if (classic & (WPAD_CL_TRIGGER_L | WPAD_CL_TRIGGER_R)) {
+        const int next = (classic & WPAD_CL_TRIGGER_L) ? l_minusTabs[tab] : l_plusTabs[tab];
+        return next != tab ? next : NO_TAB;
+    }
+#endif
     if (mPad::g_currentCore->downTrigger(WPAD_BUTTON_MINUS)) {
         return l_minusTabs[tab];
     }

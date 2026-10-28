@@ -13,9 +13,9 @@
 //   the rest, so any keyboard types what its keys say. The country is not used.
 // - LEDs and the region maps do nothing.
 //
-// The host keyboard also drives the Wii Remote (src/cf/aurora_wpad). While the game takes text
-// (cf::kbd::SetTextInput, from dKbd::calcHKB), this layer captures the keyboard from the layers
-// below, so typing does not press Wii Remote buttons.
+// The host keyboard also drives the Wii Remote (aurora's WPAD keyboard bindings,
+// src/cf/input/host_input.cpp). While the game takes text (cf::kbd::SetTextInput, from dKbd::calcHKB),
+// this layer captures the keyboard from the layers below, so typing does not press Wii Remote buttons.
 #include <revolution/kbd.h>
 
 #include <cf/kbd.h>

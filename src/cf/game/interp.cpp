@@ -8,6 +8,7 @@
 
 #include <cmath>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace cf {
@@ -239,6 +240,8 @@ struct SavedMtx {
     nw4r::math::MTX34 mtx;
 };
 std::vector<SavedMtx> sLayoutSaved;
+// The layouts never blended (SetLayoutInterpolated)
+std::unordered_set<const m2d::Simple_c*> sLayoutsNotInterpolated;
 
 template <typename F>
 void ForEachPane(nw4r::lyt::Pane* pane, F&& f) {
@@ -301,6 +304,9 @@ void RecordLayouts() {
 void InterpolateLayouts(f32 tickFraction) {
     sLayoutSaved.clear();
     ForEachLayout([tickFraction](m2d::Simple_c* simple) {
+        if (sLayoutsNotInterpolated.contains(simple)) {
+            return;
+        }
         nw4r::math::MTX34* view = ViewMtx(simple);
         sLayoutSaved.push_back({view, nullptr, *view});
         if (tickFraction < 1.0f && IsEffectivelyVisible(simple->mLayout.GetRootPane()) &&
@@ -316,6 +322,14 @@ void InterpolateLayouts(f32 tickFraction) {
             }
         });
     });
+}
+
+void SetLayoutInterpolated(const m2d::Simple_c* layout, bool interpolated) {
+    if (interpolated) {
+        sLayoutsNotInterpolated.erase(layout);
+    } else {
+        sLayoutsNotInterpolated.insert(layout);
+    }
 }
 
 void RestoreLayouts() {

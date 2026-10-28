@@ -9,6 +9,7 @@
 #include <types.h>
 
 namespace nw4r { namespace lyt { class Pane; } }
+namespace m2d { class Simple_c; }
 
 namespace cf {
 namespace interp {
@@ -27,14 +28,16 @@ void RestoreWorld();
 
 // The same for the 2D layouts in the draw list: each pane's global matrix and each layout's view matrix
 // (its position). A tick's frame records them; a frame between ticks blends them before drawing and
-// restores them after. RestoreLayouts restores every layout's view matrix, so a frame may also move
-// one itself in between (the pointer cursor, d_obj_cursor).
+// restores them after.
 void RecordLayouts();
 // Call when panes are rebound to different content or their animation is reset.
 // Discards the previous tick's positions for this entire subtree (nullptr is safe).
 void InvalidateLayoutHistory(nw4r::lyt::Pane* rootPane);
 void InterpolateLayouts(f32 tickFraction);
 void RestoreLayouts();
+// A layout drawn where its tick put it, never blended (the pointer cursor, d_obj_cursor: it follows the
+// pointer as the game read it). Until it is allowed again.
+void SetLayoutInterpolated(const m2d::Simple_c* layout, bool interpolated);
 
 } // namespace interp
 } // namespace cf

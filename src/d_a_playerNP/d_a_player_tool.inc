@@ -31,7 +31,7 @@ void dAcPlayer_c::initNetCatch() {
         mActionItem = dItem::Item(dItem::ITEM_IDX_COMMON_BUTTERFLY).getId();
         if (mInsectLink.mpInsect != NULL) {
             static_cast<dInsFldBase_c *>(mInsectLink.mpInsect)->initHold();
-            const int &type = (int)((dInsectFieldActor_c *)mInsectLink.mpInsect)->mType;
+            const int &type = (int)static_cast<dInsFldBase_c *>(mInsectLink.mpInsect)->getInsectType();
             dItem::Item item(dItem::ITEM_IDX_COMMON_BUTTERFLY, type, FALSE);
             mActionItem = item.getId();
             if (putInPocket(&item)) {

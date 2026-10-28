@@ -43,14 +43,14 @@ forward("base/PPCWGPipe.h", "dolphin/gx/GXVert.h", "aurora defines PPCWGPipe in 
 forward("pad.h", "dolphin/pad.h")
 
 # WPAD/KPAD: aurora's implementation, vendored from its present-target branch until it is on main
-# (src/cf/aurora_wpad), plus the decomp's names aurora does not define.
+# (extern/aurora), plus the decomp's names aurora does not define.
 write("wpad.h", """
 #ifndef CF_REVOLUTION_WPAD_H
 #define CF_REVOLUTION_WPAD_H
-// PC: aurora's WPAD (vendored in src/cf/aurora_wpad until aurora main has it), plus the names of the
-// decomp's include/lib/revolution/wpad.h that aurora does not define.
+// PC: aurora's WPAD, plus the names of the decomp's include/lib/revolution/wpad.h that aurora does not
+// define.
 #include <revolution/types.h>
-#include "../../aurora_wpad/include/revolution/wpad.h"
+#include "../../../../extern/aurora/include/revolution/wpad.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -84,11 +84,10 @@ s32 WPADWriteFaceData(s32 chan, void* dst, u16 size, u16 src, WPADCallback cb);
 write("kpad.h", """
 #ifndef CF_REVOLUTION_KPAD_H
 #define CF_REVOLUTION_KPAD_H
-// PC: aurora's KPAD (vendored in src/cf/aurora_wpad until aurora main has it), plus what the decomp's
-// include/lib/revolution/kpad.h has that aurora does not.
+// PC: aurora's KPAD, plus what the decomp's include/lib/revolution/kpad.h has that aurora does not.
 #include <revolution/mtx.h>
 #include <revolution/wpad.h>
-#include "../../aurora_wpad/include/revolution/kpad.h"
+#include "../../../../extern/aurora/include/revolution/kpad.h"
 
 #ifdef __cplusplus
 extern "C" {
