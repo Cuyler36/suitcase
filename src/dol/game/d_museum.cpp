@@ -34,7 +34,7 @@ void dMuseum_c::sendCompleteMail() {
     }
     static dMail_c sMail;
     static u16 sKind = 1;
-    static u16 sSender = 0x400;
+    static u16 sSender = MAIL_SENDER_U16(MAIL_FROM_MUSEUM);
     static u32 sPaper = 0x14C;
     for (int i = 0; i < PLAYER_NUM; i++) {
         if (!getTownPlayer(i)->mPID.isValid() || getTownPlayer(i)->isFlag0(PRIVATE_FLAG0_PART_TIME_JOB) ||

@@ -713,7 +713,7 @@ int dHR::rate(dHR::area_c *area, dHR::result_c *res, dHR::fdCb_c *cb, int start,
     if (mode == 1 && player != NULL && letter) {
         if (isTownPlayer(player) && !player->isFlag0(PRIVATE_FLAG0_PART_TIME_JOB) && !player->isFlag0(PRIVATE_FLAG0_HRA_JOINED)) {
             static u16 kind = HR_MAIL_WELCOME;
-            static u16 sender = MAIL_FROM_HRA << 8; // the bytes {MAIL_FROM_HRA, 0}
+            static u16 sender = MAIL_SENDER_U16(MAIL_FROM_HRA);
             static int paper = dItem::ITEM_IDX_ACADEMY_PAPER;
             l_mail.setupSystem(&kind, "MAIL_ETC_Happyroom", (const u8 *)&sender, &player->mPID, &paper);
             if (dPostOffice::deliverToPlayer(&l_mail)) {

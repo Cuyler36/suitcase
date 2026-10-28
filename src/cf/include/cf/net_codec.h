@@ -24,6 +24,14 @@ bool DecodePacket(void* data, u32 size, u32 aid);
 const u8* EncodeTown(const void* town);
 void DecodeTown(void* town);
 
+// A WiiConnect24 message's plaintext (dNetWc24_c::makeMessage / decodeMessage: the 0x20-byte header, then
+// the payload, in a buffer of capacity bytes), in place. Encode before it is signed; decode once its
+// signature checks out. The payload is converted by its type, as dWifi::onReceive reads it, except a
+// compressed one: decode that once it is uncompressed (DecodeWc24Part). See pc_port_endianness.md (E-68).
+void EncodeWc24Message(void* message, u32 capacity);
+void DecodeWc24Message(void* message, u32 capacity);
+void DecodeWc24Part(u32 type, void* data, u32 size);
+
 // The friend status blob (dNetPlayerInfo::Info_c: UTF-16 names) as friends read it
 void EncodeStatus(void* dst, const void* src, u32 size);
 

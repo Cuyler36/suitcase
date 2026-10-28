@@ -5,6 +5,14 @@
 extern "C" {
 #endif
 
+#if TARGET_PC
+// TMCJPEGWork holds pointers, so it is larger than on the Wii; checked in tmc_jpeg_compress.c
+#define TMC_JPEG_WORK_SIZE 0x1710
+#else
+#define TMC_JPEG_WORK_SIZE 0x164C
+#endif
+#define TMC_JPEG_BUF_SIZE 0x1C00
+
 // TMC JPEG encoder (RVL_MWM - TMC_JPEG070330). Function names are not known; these are descriptive.
 
 // format: GX_TF_RGB565 or GX_TF_RGBA8 (GX-tiled source image)

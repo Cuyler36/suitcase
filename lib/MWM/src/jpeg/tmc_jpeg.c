@@ -53,7 +53,7 @@ int TMCJPEG_EncodeFitSize(void *work, const void *image, int width, int height,
         return -0x90;
     }
 
-    result = start_compress(&ctx, (u8 *)work + 0x164C, image, &params);
+    result = start_compress(&ctx, (u8 *)work + TMC_JPEG_WORK_SIZE, image, &params);
     if (result < 0) {
         return result;
     }
@@ -107,7 +107,7 @@ int TMCJPEG_GetEncodeSize(void *work, const void *image, int width, int height,
         return -0x90;
     }
 
-    result = start_compress(&ctx, (u8 *)work + 0x164C, image, &params);
+    result = start_compress(&ctx, (u8 *)work + TMC_JPEG_WORK_SIZE, image, &params);
     if (result < 0) {
         return result;
     }

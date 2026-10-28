@@ -65,6 +65,15 @@ enum {
     MAIL_FROM_NUM
 };
 
+// A u16 whose first byte in memory is the sender kind `kind`. Some callers keep the kind in a u16 and pass
+// its address to setupSystem as the u8 senderKind. On the Wii that byte is the high one; on a
+// little-endian PC it is the low one, so the value is not shifted there.
+#if TARGET_PC
+#define MAIL_SENDER_U16(kind) ((u16)(kind))
+#else
+#define MAIL_SENDER_U16(kind) ((u16)((kind) << 8))
+#endif
+
 // 0xC2. The first 0xBF bytes hold one of three forms, picked by mType (MAIL_ADDR_*).
 struct dMailAddress_c {                                    // 0xC2
     void setWord(dScript::Word_c *word, BOOL skipNoName);  // 801189C4: name word for this address

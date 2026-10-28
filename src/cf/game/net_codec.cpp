@@ -8,7 +8,10 @@
 #include <game/game/d_net.hpp>
 #include <game/game/d_save_data.hpp>
 #include <game/game/d_save_dl_item.hpp>
+#include <game/game/d_save_town.hpp>
+#include <game/game/d_sv_auc.hpp>
 #include <game/game/d_sv_notice.hpp>
+#include <game/game/d_wifi.hpp>
 
 #include <borealis/log_c.h>
 
@@ -638,6 +641,102 @@ bool ConvertPacket(u8* p, u32 size, bool toWii, u32 peer) {
     return c.Ok();
 }
 
+// ---- WiiConnect24 messages (dNetWc24_c, d_net_wc24.cpp) ----
+
+// The plaintext's header (d_net_wc24.cpp Message_c): sender u64, magic[8], payload size u32, version u32,
+// the part word (dWifiMsgHeader_c: part count 2, the last part's offset 14), the tag word (compressed 1,
+// type 7, data 8), a u32. The payload follows.
+constexpr u32 kWc24HeaderSize = 0x20;
+
+const u32 kExtraOffset = offsetof(dSaveData_c, mExtra);
+const u32 kPidOffset = static_cast<u32>(kPlayerOffset + offsetof(dPrivateData_c, mPID));
+const u32 kVillagerMoveOffset = offsetof(dSaveTown_c, mVillagerMove);
+const u32 kLandOffset = offsetof(dSaveTown_c, mLandID);
+const u32 kAucListOffset = static_cast<u32>(kExtraOffset + offsetof(dSaveExtra_c, _089734));
+const u32 kDesignOffset = static_cast<u32>(kExtraOffset + offsetof(dSaveExtra_c, mDesignBoard));
+const u32 kPostSendOffset = static_cast<u32>(kExtraOffset + offsetof(dSaveExtra_c, mPostSend));
+static_assert(sizeof(dSvAucList_c) == 0x1E4, "dSvAucList_c in a message");
+static_assert(sizeof(dSavePostSend_c) == 0x5A, "dSavePostSend_c in a message");
+
+// A message's payload by its type, as dWifi::onReceive reads it (parts and offset from the part word)
+void ConvertWc24Payload(Conv& c, u32 type, u32 parts, u32 offset) {
+    const u32 size = c.Size();
+    switch (type) {
+    case WIFI_MSG_TOWN:
+        if (size == sizeof(dWifiTownMsg_c)) {
+            for (u32 i = 0; i < PLAYER_NUM; i++) {
+                c.Save(i * sizeof(dPersonalID_c), kPidOffset, sizeof(dPersonalID_c));
+            }
+            c.Save(offsetof(dWifiTownMsg_c, mTown), kVillagerMoveOffset, sizeof(dSvVillagerMove::Info_c));
+        }
+        break;
+    case WIFI_MSG_LETTER:
+        // A present's dSaveDLItem_c first when there are 2 parts, then the dMail_c
+        if (parts > 1) {
+            c.Save(0, kDLItemOffset, sizeof(dSaveDLItem_c));
+            c.Save(offset, kMailOffset, sizeof(dMail_c));
+        } else {
+            c.Save(0, kMailOffset, sizeof(dMail_c));
+        }
+        break;
+    case WIFI_MSG_AUC_LIST:
+    case WIFI_MSG_AUC_BIDS:
+    case WIFI_MSG_AUC_SALES:
+        if (size == sizeof(dSvAucList_c)) {
+            c.Save(0, kAucListOffset, size);
+        }
+        break;
+    case WIFI_MSG_DESIGN:
+        if (size == sizeof(dRelayDesign_c)) {
+            c.Save(0, kDesignOffset, size);
+        }
+        break;
+    case WIFI_MSG_POST:
+        if (size == sizeof(dSavePostSend_c)) {
+            c.Save(0, kPostSendOffset, size);
+        }
+        break;
+    case WIFI_MSG_ANIMAL:
+        // A villager moving in (when the land starts at its end), then the sender's town
+        if (parts >= 2) {
+            if (offset == sizeof(dAnimal_c)) {
+                c.Save(0, kAnimalOffset, sizeof(dAnimal_c));
+            }
+            if (offset <= size && size - offset == sizeof(dLandID_c)) {
+                c.Save(offset, kLandOffset, sizeof(dLandID_c));
+            }
+        }
+        break;
+    }
+}
+
+// The header's fields, native
+struct Wc24Header {
+    u32 size;
+    u32 parts;
+    u32 offset;
+    bool compressed;
+    u32 type;
+};
+
+Wc24Header ReadWc24Header(const u8* p) {
+    const u32 partWord = static_cast<u32>(Load(p + 0x18, 2, false));
+    const u32 tagWord = static_cast<u32>(Load(p + 0x1A, 2, false));
+    // MSVC packs the bit-fields from the least significant bit, in declaration order
+    return {static_cast<u32>(Load(p + 0x10, 4, false)), partWord & 3, partWord >> 2, (tagWord & 1) != 0,
+            (tagWord >> 1) & 0x7F};
+}
+
+void ConvertWc24Header(u8* p, bool toWii) {
+    Conv h(p, kWc24HeaderSize, toWii);
+    h.V(0, 8);    // sender
+    h.V(0x10, 4); // size
+    h.V(0x14, 4); // version
+    h.B(0x18, 2, {2, 14});
+    h.B(0x1A, 2, {1, 7, 8});
+    h.V(0x1C, 4);
+}
+
 std::vector<u8>& TownScratch() {
     static std::vector<u8> sTown(sizeof(dSaveTown_c));
     return sTown;
@@ -669,6 +768,39 @@ const u8* EncodeTown(const void* town) {
 
 void DecodeTown(void* town) {
     save::Decode(0, town, town, sizeof(dSaveTown_c));
+}
+
+void EncodeWc24Message(void* message, u32 capacity) {
+    u8* p = static_cast<u8*>(message);
+    const Wc24Header h = ReadWc24Header(p);
+    if (h.size <= capacity - kWc24HeaderSize && !h.compressed) {
+        Conv c(p + kWc24HeaderSize, h.size, true);
+        ConvertWc24Payload(c, h.type, h.parts, h.offset);
+    }
+    if (Logging()) {
+        NET_LOG("wc24 send: type %u, %u parts, %u bytes", h.type, h.parts, h.size);
+    }
+    ConvertWc24Header(p, true);
+}
+
+void DecodeWc24Message(void* message, u32 capacity) {
+    u8* p = static_cast<u8*>(message);
+    ConvertWc24Header(p, false);
+    const Wc24Header h = ReadWc24Header(p);
+    if (Logging()) {
+        NET_LOG("wc24 recv: type %u, %u parts, %u bytes%s", h.type, h.parts, h.size,
+                h.compressed ? ", compressed" : "");
+    }
+    // A compressed part is converted once uncompressed (DecodeWc24Part); a bad size is left to the game
+    if (h.size <= capacity - kWc24HeaderSize && !h.compressed) {
+        Conv c(p + kWc24HeaderSize, h.size, false);
+        ConvertWc24Payload(c, h.type, h.parts, h.offset);
+    }
+}
+
+void DecodeWc24Part(u32 type, void* data, u32 size) {
+    Conv c(static_cast<u8*>(data), size, false);
+    ConvertWc24Payload(c, type, 1, 0);
 }
 
 void EncodeStatus(void* dst, const void* src, u32 size) {

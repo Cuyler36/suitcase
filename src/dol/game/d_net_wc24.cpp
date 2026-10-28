@@ -13,6 +13,10 @@
 #include <private/nwc24/NWC24MsgCommit.h>
 #include <private/nwc24/NWC24UserId.h>
 #include <stddef.h>
+#if TARGET_PC
+#include <cf/net_codec.h>
+#include <port/endian.h>
+#endif
 
 
 
@@ -566,8 +570,18 @@ u32 dNetWc24_c::makeMessage(const void *data, u32 size, const void *data2,
     u32 encryptedSize = (size + MESSAGE_ROUNDING_OVERHEAD) & ~15;
     size = encryptedSize - AUTH_TRAILER_SIZE;
     msg->mHeader.mPartNum = parts;
+#if TARGET_PC
+    // The message travels in the Wii's byte order (E-68): convert it before it is signed, and key the
+    // signature and cipher with the Wii number's bytes as a Wii has them
+    cf::net::EncodeWc24Message(mCryptBuffer, MESSAGE_CAPACITY);
+    const u64 senderBytes = PORT_BSWAP64(sender);
+#endif
     u8 authKey[AUTH_KEY_SIZE];
+#if TARGET_PC
+    memcpy(authKey, &senderBytes, 8);
+#else
     memcpy(authKey, &sender, 8);
+#endif
     float authNonce = cM::rnd();
     memcpy(authKey + 8, &authNonce, 4);
     authKey[12] = 0x45;
@@ -593,7 +607,11 @@ u32 dNetWc24_c::makeMessage(const void *data, u32 size, const void *data2,
     float cryptNonce = cM::rnd();
     u8 cryptKey[CIPHER_KEY_SIZE];
     memcpy(cryptKey, &cryptNonce, 4);
+#if TARGET_PC
+    memcpy(cryptKey + 4, &senderBytes, 8);
+#else
     memcpy(cryptKey + 4, &sender, 8);
+#endif
     cryptKey[12] = 0x71;
     cryptKey[13] = 0x71;
     cryptKey[14] = 0x71;
@@ -617,7 +635,13 @@ BOOL dNetWc24_c::decodeMessage(const u64 *key, const void *data, u32 size) {
     NETHMACContext authWork;
     u8 digest[AUTH_DIGEST_SIZE];
     memcpy(cryptKey, bytes + encryptedSize + 0x10, 4);
+#if TARGET_PC
+    // Keyed with the sender's Wii number as a Wii has its bytes (E-68)
+    const u64 keyBytes = PORT_BSWAP64(*key);
+    memcpy(cryptKey + 4, &keyBytes, 8);
+#else
     memcpy(cryptKey + 4, key, 8);
+#endif
     cryptKey[12] = 0x71;
     cryptKey[13] = 0x71;
     cryptKey[14] = 0x71;
@@ -630,7 +654,11 @@ BOOL dNetWc24_c::decodeMessage(const u64 *key, const void *data, u32 size) {
         return FALSE;
     }
     NETAESDelete((NETAESContext *)cryptWork);
+#if TARGET_PC
+    memcpy(authKey, &keyBytes, 8);
+#else
     memcpy(authKey, key, 8);
+#endif
     memcpy(authKey + 8, encryptedSize - AUTH_TRAILER_SIZE + mMessageBuffer, 4);
     authKey[12] = 0x45;
     authKey[13] = 0x30;
@@ -649,6 +677,10 @@ BOOL dNetWc24_c::decodeMessage(const u64 *key, const void *data, u32 size) {
     if (memcmp(digest, encryptedSize - 0x14 + (u8 *)msg, sizeof(digest)) != 0) {
         return FALSE;
     }
+#if TARGET_PC
+    // Authentic: from the Wii's byte order to native (E-68), before the game reads the header
+    cf::net::DecodeWc24Message(mMessageBuffer, MESSAGE_CAPACITY);
+#endif
     if (msg->mVersion != MESSAGE_VERSION) {
         return FALSE;
     }

@@ -439,7 +439,7 @@ void dPrivateData_c::sendBankAnniversaryLetter() {
     }
     static dMail_c mail;
     static u16 lbl_8074B090 = 0xF;
-    static u16 lbl_8074B092 = 0x1100;
+    static u16 lbl_8074B092 = MAIL_SENDER_U16(0x11);
     static u32 lbl_8074B094 = 0x159;
     mail.clear();
     mail.setupSystem(&lbl_8074B090, "MAIL_ETC_ATM", (const u8 *)&lbl_8074B092, &mPID, (const int *)&lbl_8074B094);

@@ -143,9 +143,16 @@ def body(ret, policy, name=None, params=""):
 
 
 syms = [s.strip() for s in open(symfile) if s.strip() and not s.startswith("?")]
+# Implemented by src/cf/sdk/fa_fs.cpp; never regenerate duplicate failure stubs.
+IMPLEMENTED_FA = {
+    "FAInit", "FARegistCB", "FAAttach", "FADetach", "FAMount", "FAUnmount", "FAErrnum",
+    "FACreate", "FAFwrite", "FAFclose", "FAFsfirst", "FAFsnext", "FAMkdir", "FARmdir", "FARemove",
+}
 files = {}
 unplaced = []
 for s in sorted(syms):
+    if s in IMPLEMENTED_FA:
+        continue
     mod = next((m for m in MODULES if s.lstrip("_").startswith(m[0])), None)
     if mod is None:
         continue

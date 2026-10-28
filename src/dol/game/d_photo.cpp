@@ -9,6 +9,10 @@
 #include <lib/revolution/os/OSThread.h>
 #include <lib/MWM/tmc_jpeg.h>
 #include <revolution/sc.h>
+#include <port/endian.h>
+#if TARGET_PC
+#include <dolphin/gx/GXAurora.h>
+#endif
 
 #define PHOTO_WIDTH 640
 #define PHOTO_WIDTH_WIDE 896
@@ -137,6 +141,10 @@ static void *photoThread(void *) {
             int srcHeight = GXGetTexObjHeight(&l_capture.mTexObj);
             int srcWidth4 = srcWidth * 4;
             int srcHeight4 = srcHeight * 4;
+#if TARGET_PC
+            // Aurora's readback of the capture is already a 4:3 image; widening it for 16:9 only stretches it.
+            width = PHOTO_WIDTH;
+#endif
             for (int i = width; i >= 0; i--) {
                 int position = (f32)srcWidth4 * i / width;
                 l_srcX[i] = position;
@@ -166,7 +174,7 @@ static void *photoThread(void *) {
                     do {
                         int sy = y0;
                         do {
-                            u16 color = src.get(sx, sy);
+                            u16 color = RES_U16(src.get(sx, sy));
                             b += color & 0x1F;
                             g += (color >> 5) & 0x3F;
                             r += (color >> 11) & 0x1F;
@@ -276,7 +284,7 @@ void dPhoto::create(EGG::Heap *heap) {
     if (!l_capture.create(heap, mode->fbWidth, height, GX_TF_RGB565, GX_NEAR, false)) {
         return;
     }
-    l_encodeWork = heap->alloc(0x1C00, 32);
+    l_encodeWork = heap->alloc(TMC_JPEG_BUF_SIZE, 32);
     l_image = (u16 *)heap->alloc(PHOTO_WIDTH_WIDE * PHOTO_HEIGHT * sizeof(u16), 32);
     const u32 jpegSizeKB[3] = {100, 70, 100}; // This line pushed it to 99.65, but only [2] is used, and feels a bit off to me. I think it's a good candidate to keep in mind while going for 100%.
     l_jpeg = (u8 *)heap->alloc(jpegSizeKB[2] * 1024, 32);
@@ -285,14 +293,82 @@ void dPhoto::create(EGG::Heap *heap) {
     mPerf::setThreadColor(&l_thread, dPerf::getThreadColor(14));
 }
 
+#if TARGET_PC
+static AuroraReadbackStream& getAuroraStream() {
+    static AuroraReadbackStream stream = AuroraReadbackCreateStream();
+    return stream;
+}
+
+static u64 nextKey = 0;
+static u64 pendingKey = 0;
+static OSTime startTime = 0;
+
+static bool beginPhotoReadback() {
+    if (pendingKey != 0) {
+        return false;
+    }
+
+    l_capture.capture(0, 0, false);
+    
+    const u64 key = ++nextKey;
+    const AuroraReadbackCopySrc src = { key, l_capture.mTexBuffer };
+
+    if (!AuroraReadbackCaptureCopies(getAuroraStream(), &src, 1)) {
+        return false;
+    }
+
+    startTime = OSGetTime();
+    pendingKey = key;
+    return true;
+}
+
+static bool pollPhotoReadback() {
+    if (pendingKey == 0) {
+        return false;
+    }
+
+    AuroraReadbackDest res = { pendingKey, l_capture.mTexBuffer, static_cast<u32>(l_capture.mBufferSize), GX_FALSE };
+
+    AuroraReadbackGet(getAuroraStream(), &res, 1);
+    if (!res.found) {
+        return false;
+    }
+
+    pendingKey = 0;
+    return true;
+}
+#endif
+
 // 800FB9A0
 void dPhoto::capture() {
     if (l_step == STEP_CAPTURE) {
         if (dSys::sConfiguration->mpVideo != NULL) {
+#if TARGET_PC
+            if (!beginPhotoReadback()) {
+                l_step = STEP_NONE;
+                l_mode = MODE_NONE;
+                return;
+            }
+#else
             l_capture.capture(0, 0, false);
+#endif
             l_step = STEP_CAPTURED;
         }
     } else if (l_step == STEP_CAPTURED) {
+        #if TARGET_PC
+        
+        if (!pollPhotoReadback()) {
+            const OSTime dt = OSGetTime() - startTime;
+            const u32 ms = OSTicksToMilliseconds(dt);
+
+            if (ms >= 1000) {
+                l_step = STEP_NONE;
+                l_mode = MODE_NONE;
+                pendingKey = 0;
+            }
+            return;
+        }
+#endif
         l_step = STEP_NONE;
         l_mode = MODE_NONE;
         l_captured = true;

@@ -4,6 +4,12 @@
 #include <revolution/os.h>
 #include <string.h>
 
+#if TARGET_PC
+// The scratch output buffer (0x400 bytes, see tmc_jpeg.c) follows the work state; neither may overlap.
+typedef char TMCJPEGWorkFits[sizeof(TMCJPEGWork) <= TMC_JPEG_WORK_SIZE ? 1 : -1];
+typedef char TMCJPEGBufFits[TMC_JPEG_WORK_SIZE + 0x400 <= TMC_JPEG_BUF_SIZE ? 1 : -1];
+#endif
+
 int check_params(TMCJPEGParams *params, TMCJPEGWork *work) {
     int w = params->width;
     int h;
@@ -379,7 +385,7 @@ int start_compress(TMCJPEGCtx *ctx, u8 *dst, const void *image,
         return -1;
     }
     memset(ctx, 0, sizeof(TMCJPEGCtx));
-    memset(work, 0, 0x164C);
+    memset(work, 0, TMC_JPEG_WORK_SIZE);
     ctx->work = work;
     work->src.ctx = ctx;
     ret = check_params(params, work);

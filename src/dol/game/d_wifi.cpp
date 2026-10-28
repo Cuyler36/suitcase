@@ -31,6 +31,7 @@
 #include <cstring>
 #include <cstdio>
 #if TARGET_PC
+#include <cf/net_codec.h>
 #include <cf/save_codec.h>
 #endif
 
@@ -436,6 +437,10 @@ BOOL onReceive(const u64 *key, const void *data, u32 size, const dWifiMsgHeader_
         if (dSaveData_c::isNetEnabled()) {
             if (header->mCompressed && size != 0 && CXGetUncompressedSize(data) == sizeof(dWifiTownMsg_c)) {
                 if (CXSecureUncompressRL(data, size, sRecvBuffer) == 0) {
+#if TARGET_PC
+                    // Compressed in the Wii's byte order: converted now that it is uncompressed (E-68)
+                    cf::net::DecodeWc24Part(WIFI_MSG_TOWN, sRecvBuffer, sizeof(dWifiTownMsg_c));
+#endif
                     receiveTown((dWifiTownMsg_c *)sRecvBuffer, key);
                 } else {
                     RECV_REJECTED();
@@ -539,6 +544,9 @@ BOOL onReceive(const u64 *key, const void *data, u32 size, const dWifiMsgHeader_
         if (dSaveData_c::isNetEnabled()) {
             if (header->mCompressed && size != 0 && CXGetUncompressedSize(data) == 0x8A0) {
                 if (CXSecureUncompressRL(data, size, sRecvBuffer) == 0) {
+#if TARGET_PC
+                    cf::net::DecodeWc24Part(WIFI_MSG_DESIGN, sRecvBuffer, 0x8A0);
+#endif
                     result = receiveDesign((const dRelayDesign_c *)sRecvBuffer, key);
                 } else {
                     RECV_REJECTED();

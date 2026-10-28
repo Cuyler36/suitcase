@@ -383,7 +383,7 @@ void dSaveShop_c::updateMail(int days) {
         int rank = getRank(player);
         if (rank >= 1 && !player->isFlag0(0x33)) {
             static u16 kind = 1;
-            static u16 sender = 0x0F << 8;
+            static u16 sender = MAIL_SENDER_U16(0x0F);
             static int paper = 0x154;
             sMail.setupSystem(&kind, "MAIL_ETC_TPS", (const u8 *)&sender, &player->mPID, &paper);
             dItem::Item gift(dItem::ITEM_IDX_NOOKS_CRANNY);
@@ -395,7 +395,7 @@ void dSaveShop_c::updateMail(int days) {
         }
         if (rank >= 2 && !player->isFlag0(0x34)) {
             static u16 kind = 2;
-            static u16 sender = 0x0F << 8;
+            static u16 sender = MAIL_SENDER_U16(0x0F);
             static int paper = 0x154;
             sMail.setupSystem(&kind, "MAIL_ETC_TPS", (const u8 *)&sender, &player->mPID, &paper);
             dItem::Item gift(dItem::ITEM_IDX_NOOK_N_GO);
@@ -407,7 +407,7 @@ void dSaveShop_c::updateMail(int days) {
         }
         if (rank >= 3 && !player->isFlag0(0x35)) {
             static u16 kind = 3;
-            static u16 sender = 0x0F << 8;
+            static u16 sender = MAIL_SENDER_U16(0x0F);
             static int paper = 0x154;
             sMail.setupSystem(&kind, "MAIL_ETC_TPS", (const u8 *)&sender, &player->mPID, &paper);
             dItem::Item gift(dItem::ITEM_IDX_NOOKWAY);
@@ -419,7 +419,7 @@ void dSaveShop_c::updateMail(int days) {
         }
         if (rank >= 4 && !player->isFlag0(0x36)) {
             static u16 kind = 4;
-            static u16 sender = 0x0F << 8;
+            static u16 sender = MAIL_SENDER_U16(0x0F);
             static int paper = 0x154;
             sMail.setupSystem(&kind, "MAIL_ETC_TPS", (const u8 *)&sender, &player->mPID, &paper);
             dItem::Item gift(dItem::ITEM_IDX_NOOKINGTONS);
@@ -431,7 +431,7 @@ void dSaveShop_c::updateMail(int days) {
         }
         if (player->isNookLoyaltyLetterDue()) {
             static u16 kind = 5;
-            static u16 sender = 0x10 << 8;
+            static u16 sender = MAIL_SENDER_U16(0x10);
             static int paper = 0x157;
             sMail.setupSystem(&kind, "MAIL_ETC_TPS", (const u8 *)&sender, &player->mPID, &paper);
             dItem::Item gift(dItem::ITEM_IDX_SILVER_CAN);
@@ -447,7 +447,7 @@ void dSaveShop_c::updateMail(int days) {
                 player->clearFlag0(0x56);
             } else {
                 static u16 kind = 1;
-                static u16 sender = 0x0E << 8;
+                static u16 sender = MAIL_SENDER_U16(0x0E);
                 static int paper = 0x17C;
                 sMail.setupSystem(&kind, "MAIL_NPC_Pumpking", (const u8 *)&sender, &player->mPID, &paper);
                 if (dPostOffice::deliverToPlayer(&sMail)) {
@@ -463,7 +463,7 @@ void dSaveShop_c::updateMail(int days) {
                 player->clearFlag0(0x84);
             } else {
                 static u16 kind = 2;
-                static u16 sender = 0x12 << 8;
+                static u16 sender = MAIL_SENDER_U16(0x12);
                 static int paper = 0x162;
                 sMail.setupSystem(&kind, "MAIL_NPC_Pumpking", (const u8 *)&sender, &player->mPID, &paper);
                 if (dPostOffice::deliverToPlayer(&sMail)) {

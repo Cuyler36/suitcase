@@ -75,7 +75,7 @@ typedef int (*TMCJPEGEncodeMcuFn)(int x, int y, TMCJPEGSource *src);
 typedef int (*TMCJPEGEncodeMcuPaddedFn)(int x, int y, int kind,
                                         TMCJPEGSource *src);
 
-// Work area supplied by the caller (0x164C bytes of state, followed by the
+// Work area supplied by the caller (TMC_JPEG_WORK_SIZE bytes of state, followed by the
 // scratch output buffer)
 typedef struct TMCJPEGWork {
     /* 0x0000 */ u8 sampling; // 0 = 4:1:1, 1 = 4:2:2, 2 = 4:2:0
