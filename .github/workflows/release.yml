@@ -1,0 +1,174 @@
+name: Release
+
+# Builds the PC port for each platform. Pushing a tag like v0.1.0 attaches the builds to a GitHub
+# release for that tag (a pre-release for v0.x and tags with a suffix such as v1.0.0-rc1), which is
+# published once every build has succeeded. Running it by hand only uploads the builds as workflow
+# artifacts. The layout follows Nookery's build workflow (also aurora + borealis).
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  # Each version is its own executable (one build tree per version); add more here to ship them
+  CF_VERSION: RUUE01_00
+  # The tag for a release, or the short commit for a manual run
+  PACKAGE_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || github.sha }}
+
+jobs:
+  create-release:
+    name: Create draft release
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRERELEASE: ${{ startsWith(github.ref_name, 'v0.') || contains(github.ref_name, '-') }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $GITHUB_REF_NAME already exists; builds will be added to it"
+            exit 0
+          fi
+          flags=(--draft --verify-tag --title "Suitcase $GITHUB_REF_NAME" --generate-notes)
+          if [ "$PRERELEASE" = "true" ]; then
+            flags+=(--prerelease)
+          fi
+          gh release create "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" "${flags[@]}"
+
+  build:
+    name: Build ${{ matrix.name }}
+    needs: create-release
+    # Runs for a manual run too, when create-release is skipped
+    if: ${{ !failure() && !cancelled() }}
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: bash
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows x86_64
+            runner: windows-latest
+            preset: windows-msvc-release
+            platform: windows-x86_64
+          - name: Linux x86_64
+            runner: ubuntu-24.04
+            preset: linux-default-release
+            platform: linux-x86_64
+            cmake_args: -DAURORA_SDL3_PROVIDER=vendor
+          - name: Linux aarch64
+            runner: ubuntu-24.04-arm
+            preset: linux-default-release
+            platform: linux-aarch64
+            cmake_args: -DAURORA_SDL3_PROVIDER=vendor
+          - name: macOS arm64
+            runner: macos-latest
+            preset: macos-default-release
+            platform: macos-arm64
+            cmake_args: -DCMAKE_OSX_ARCHITECTURES=arm64
+          # Built natively, not cross-compiled from arm64: CMakeLists.txt picks -mms-bitfields (the
+          # save structs' layout) from CMAKE_SYSTEM_PROCESSOR, which is the host's
+          - name: macOS x86_64
+            runner: macos-15-intel
+            preset: macos-default-release
+            platform: macos-x86_64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install ninja-build zlib1g-dev libpng-dev libfreetype-dev \
+            libasound2-dev libpulse-dev libpipewire-0.3-dev libdbus-1-dev libudev-dev libusb-1.0-0-dev \
+            libx11-dev libx11-xcb-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev \
+            libxss-dev libxtst-dev libxkbcommon-dev libwayland-dev libdecor-0-dev libegl-dev libgles-dev \
+            libgl-dev libdrm-dev libgbm-dev libibus-1.0-dev
+
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew install ninja
+
+      - name: Enable Visual Studio environment
+        if: runner.os == 'Windows'
+        uses: TheMrMilchmann/setup-msvc-dev@v4
+        with:
+          arch: x64
+
+      - name: Configure
+        run: cmake --preset ${{ matrix.preset }} -DCF_VERSION=$CF_VERSION ${{ matrix.cmake_args }}
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }}
+
+      - name: Package
+        run: |
+          build_dir="build/pc/${{ matrix.preset }}"
+          name="Suitcase-$PACKAGE_VERSION-$CF_VERSION-${{ matrix.platform }}"
+          stage="dist/$name"
+          mkdir -p "$stage"
+          cp README.md LICENSE "$stage/"
+          case "$RUNNER_OS" in
+            Windows)
+              cp "$build_dir"/Suitcase-$CF_VERSION.exe "$build_dir"/*.dll "$stage/"
+              (cd dist && 7z a -tzip "$name.zip" "$name" >/dev/null)
+              echo "PACKAGE=dist/$name.zip" >> "$GITHUB_ENV"
+              ;;
+            Linux)
+              cp "$build_dir/Suitcase-$CF_VERSION" "$stage/"
+              tar -C dist -czf "dist/$name.tar.gz" "$name"
+              echo "PACKAGE=dist/$name.tar.gz" >> "$GITHUB_ENV"
+              ;;
+            macOS)
+              cp "$build_dir/Suitcase-$CF_VERSION" "$stage/"
+              (cd dist && zip -qry "$name.zip" "$name")
+              echo "PACKAGE=dist/$name.zip" >> "$GITHUB_ENV"
+              ;;
+          esac
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Suitcase-${{ env.CF_VERSION }}-${{ matrix.platform }}
+          path: ${{ env.PACKAGE }}
+          if-no-files-found: error
+
+      - name: Attach to release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$GITHUB_REF_NAME" "$PACKAGE" --clobber -R "$GITHUB_REPOSITORY"
+
+  publish-release:
+    name: Publish release
+    needs: build
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release edit "$GITHUB_REF_NAME" --draft=false -R "$GITHUB_REPOSITORY"
