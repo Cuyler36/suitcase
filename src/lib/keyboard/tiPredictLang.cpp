@@ -239,10 +239,10 @@ void LayoutByNW4R::startToClose() {
 
 void LayoutByNW4R::endToClose() {
 
-    inputform::Base::PredictMode mode;
-    sendCommand(31, &mode);
-    mode = mePredictMode;
-    sendCommand(29, &mode);
+    inputform::Base::PredictInfo info;
+    sendCommand(31, &info);
+    info.mode = mePredictMode;
+    sendCommand(29, &info);
     if (mpCaller != NULL) {
         mpCaller->update();
     }

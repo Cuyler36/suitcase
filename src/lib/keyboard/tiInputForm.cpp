@@ -348,16 +348,16 @@ void Base::setPredictMode(PredictMode predictMode) {
         }
         break;
     }
-    PredictMode mode;
-    onCommand((INPUT_COMMAND)0x1F, &mode);
-    mode = predictMode;
-    onCommand((INPUT_COMMAND)0x1D, &mode);
+    PredictInfo info;
+    onCommand((INPUT_COMMAND)0x1F, &info);
+    info.mode = predictMode;
+    onCommand((INPUT_COMMAND)0x1D, &info);
 }
 
 Base::PredictMode Base::getPredictMode() {
-    PredictMode mode;
-    onCommand((INPUT_COMMAND)0x1F, &mode);
-    return mode;
+    PredictInfo info;
+    onCommand((INPUT_COMMAND)0x1F, &info);
+    return info.mode;
 }
 
 void Base::onCommand(INPUT_COMMAND command, void *data) {
