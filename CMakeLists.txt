@@ -59,7 +59,10 @@ if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
     # The game's data tables put values like 0xFFF1 in s16 fields, which wrap as on the Wii (MSVC
     # accepts them)
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-c++11-narrowing>)
+        # The decomp's PS functions keep CW's `register` parameters, an error in C++17 on Clang
+        # only (GCC warns and MSVC accepts them)
+        add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-c++11-narrowing>
+                $<$<COMPILE_LANGUAGE:CXX>:-Wno-register>)
     else ()
         add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-narrowing>)
     endif ()
@@ -91,6 +94,10 @@ elseif (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
             $<$<COMPILE_LANGUAGE:C,CXX>:/utf-8>
             /Zc:__cplusplus
     )
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        # clang-cl: CW's `register` parameters, as for Clang above
+        add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-register>)
+    endif ()
     # extern "C" functions can throw: the SDK layer's waits unwind a game thread that is being ended
     # (src/cf/sdk/thread_system.h), and with /EHsc callers may skip their cleanup. This directory's
     # targets only (aurora and borealis are added above).
