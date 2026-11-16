@@ -2,6 +2,8 @@
 
 #include <dwc/dwc_memfunc.h>
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -20,10 +22,11 @@ u32 DWCi_GetAllocateSize(void* block);
 
 void DWCi_SetMemFunc(DWCAllocEx allocator, DWCFreeEx freer);
 
-void* DWCi_GsMalloc(u32 size);
-void* DWCi_GsRealloc(void* block, u32 size);
+// size_t, as GameSpy's gsMallocCB and the rest take (the Wii's u32; 64 bits on 64-bit hosts)
+void* DWCi_GsMalloc(size_t size);
+void* DWCi_GsRealloc(void* block, size_t size);
 void DWCi_GsFree(void* block);
-void* DWCi_GsMemalign(u32 align, u32 size);
+void* DWCi_GsMemalign(size_t align, size_t size);
 
 #ifdef __cplusplus
 }

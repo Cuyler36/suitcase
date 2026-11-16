@@ -72,11 +72,11 @@ void* DWC_ReallocEx(DWCAllocType type, void* block, u32 before, u32 after, int a
   return newBlock;
 }
 
-void* DWCi_GsMalloc(u32 size) {
+void* DWCi_GsMalloc(size_t size) {
   return DWC_Alloc(DWC_ALLOCTYPE_GS, size);
 }
 
-void* DWCi_GsRealloc(void* block, u32 size) {
+void* DWCi_GsRealloc(void* block, size_t size) {
   return DWC_Realloc(DWC_ALLOCTYPE_GS, block, size, size);
 }
 
@@ -84,6 +84,6 @@ void DWCi_GsFree(void* block) {
   DWC_Free(DWC_ALLOCTYPE_GS, block, 0);
 }
 
-void* DWCi_GsMemalign(u32 align, u32 size) {
+void* DWCi_GsMemalign(size_t align, size_t size) {
   return DWC_AllocEx(DWC_ALLOCTYPE_GS, size, align);
 }
