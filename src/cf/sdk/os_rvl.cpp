@@ -32,7 +32,7 @@ struct Mem2Arena {
     void* hi = nullptr;
 
     Mem2Arena() {
-        base = static_cast<u8*>(std::malloc(MEM2_SIZE + 64));
+        base = static_cast<u8*>(std::calloc(MEM2_SIZE + 64, 1));
         u8* aligned = reinterpret_cast<u8*>((reinterpret_cast<uintptr_t>(base) + 63) & ~uintptr_t(63));
         lo = aligned;
         hi = aligned + MEM2_SIZE;
