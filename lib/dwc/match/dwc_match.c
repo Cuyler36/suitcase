@@ -1,4 +1,5 @@
 #include <dwc/dwc_match.h>
+#include <dwc/dwc_base64.h>
 #include <dwc/dwc_common.h>
 #include <dwc/dwc_error.h>
 #include <dwc/dwc_friend.h>

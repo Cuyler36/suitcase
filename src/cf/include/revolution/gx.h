@@ -26,6 +26,9 @@ GXTlutRegionCallback GXSetTlutRegionCallback(GXTlutRegionCallback f);
 // GXTransform.h
 #define GX_VIEWPORT_SZ 6
 
+// No aurora counterpart; a no-op (src/cf/sdk/rvl_misc.cpp)
+void GXSetZScaleOffset(f32 scale, f32 offset);
+
 typedef enum {
     GX_FIELD_EVEN,
     GX_FIELD_ODD,

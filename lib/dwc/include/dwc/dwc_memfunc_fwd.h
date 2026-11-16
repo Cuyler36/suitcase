@@ -25,10 +25,18 @@ typedef enum {
   DWC_ALLOCTYPE_NUM = DWC_ALLOCTYPE_LAST
 } DWCAllocType;
 
-typedef void* (*DWCAllocEx)(DWCAllocType name, unsigned long size, int align);
-typedef void (*DWCFreeEx)(DWCAllocType name, void* ptr, unsigned long size);
-typedef void* (*DWCAllocFunc)(DWCAllocType name, unsigned long size);
-typedef void (*DWCFreeFunc)(DWCAllocType name, void* ptr, unsigned long size);
+#if TARGET_PC
+// The Wii's unsigned long is 32 bits, as DWC_Alloc/DWC_Free and the game's allocators (dwc.h) take
+// it: a 64-bit host's unsigned long makes those incompatible function pointers (an error in Clang)
+typedef unsigned int DWCi_MemSize;
+#else
+typedef unsigned long DWCi_MemSize;
+#endif
+
+typedef void* (*DWCAllocEx)(DWCAllocType name, DWCi_MemSize size, int align);
+typedef void (*DWCFreeEx)(DWCAllocType name, void* ptr, DWCi_MemSize size);
+typedef void* (*DWCAllocFunc)(DWCAllocType name, DWCi_MemSize size);
+typedef void (*DWCFreeFunc)(DWCAllocType name, void* ptr, DWCi_MemSize size);
 
 #ifdef __cplusplus
 }
