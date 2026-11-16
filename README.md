@@ -6,6 +6,9 @@
 
 Experimental PC Port of City Folk based on the [decomp](https://github.com/ACreTeam/cf-decomp).
 
+### LLM Disclosure
+This port was LLM-assisted. Claude Opus 5.5 helped with documentation and checking issues with networking. It was also used on occasion to help debug.
+
 This repository does **not** contain any game assets. An existing copy of the game is required.
 
 Supported versions:
@@ -46,7 +49,15 @@ by [aurora](https://github.com/encounter/aurora) and
    cd suitcase
    ```
 
-   For an existing clone, run `git submodule update --init --recursive`.
+   For an existing clone, run `git submodule sync` and then
+   `git submodule update --init --recursive`.
+
+   `extern/aurora` and `extern/borealis` come from forks
+   ([Cuyler36/aurora](https://github.com/Cuyler36/aurora),
+   [Cuyler36/borealis](https://github.com/Cuyler36/borealis)) whose `suitcase`
+   branches carry patches the port needs on top of upstream, such as the Wii bus
+   clock option and `borealis::socket`. Building against upstream aurora or
+   borealis does not work.
 
 2. Configure and build with a preset for your platform. Each preset builds into
    `build/pc/<preset>`.
