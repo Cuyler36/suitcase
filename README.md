@@ -1,13 +1,10 @@
-# Animal Crossing: City Folk
+# Suitcase
+[![Discord Badge]][discord]
 
-[![Build Status]][actions] [![Discord Badge]][discord]
-
-[Build Status]: https://github.com/ACreTeam/cf-decomp/actions/workflows/build.yml/badge.svg
-[actions]: https://github.com/ACreTeam/cf-decomp/actions/workflows/build.yml
 [Discord Badge]: https://img.shields.io/discord/727908905392275526?color=%237289DA&logo=discord&logoColor=%23FFFFFF
 [discord]: https://discord.gg/hKx3FJJgrV
 
-A decompilation of Animal Crossing: City Folk for the Nintendo Wii.
+Experimental PC Port of City Folk based on the [decomp](https://github.com/ACreTeam/cf-decomp).
 
 This repository does **not** contain any game assets. An existing copy of the game is required.
 
@@ -26,58 +23,94 @@ generated from it with `tools/port_version.py`.
 
 ## Dependencies
 
-- Install [Python](https://www.python.org/downloads/).
-- Install [ninja](https://github.com/ninja-build/ninja/releases).
+- [CMake](https://cmake.org/download/) 3.25 or newer
+- [Ninja](https://github.com/ninja-build/ninja/releases)
+- [Python](https://www.python.org/downloads/) 3 (CMake runs `configure.py` and the
+  code generators in `tools/` while configuring)
+- A C++20 compiler:
+  - **Windows:** Visual Studio 2022 or newer with the *Desktop development with C++*
+    workload (MSVC or clang-cl)
+  - **Linux:** GCC or Clang
+  - **macOS:** Xcode command line tools (Apple Clang)
 
-See [Dependencies](docs/dependencies.md) for platform-specific setup. Native tooling
-is recommended on Windows; WSL and MSYS2 are not required. The compiler, linker
-and other build tools are downloaded automatically. On supported macOS and Linux
-platforms, [wibo](https://github.com/decompals/wibo) runs the Windows compiler tools.
+The remaining dependencies (Dawn, SDL3, nod, Dear ImGui, curl, ...) are fetched
+by [aurora](https://github.com/encounter/aurora) and
+[borealis](https://github.com/encounter/borealis) during the first configure.
 
 ## Building
 
-1. Clone the repository:
+1. Clone the repository with its submodules:
 
    ```sh
-   git clone https://github.com/ACreTeam/cf-decomp.git
-   cd cf-decomp
+   git clone --recursive https://github.com/Cuyler36/suitcase.git
+   cd suitcase
    ```
 
-2. Extract your game's data partition and copy the files into `orig/<VERSION>`
-   (for example `orig/RUUE01_00`). The build requires the original DOL and all
-   187 RELs in this layout:
+   For an existing clone, run `git submodule update --init --recursive`.
 
-   ```text
-   orig/<VERSION>/sys/main.dol
-   orig/<VERSION>/files/rels/*.rel
-   ```
+2. Configure and build with a preset for your platform. Each preset builds into
+   `build/pc/<preset>`.
 
-3. Configure (the version defaults to `RUUE01_00`):
+   | Platform | Configure preset                       | Notes |
+   | -------- | -------------------------------------- | ----- |
+   | Windows  | `windows-msvc-<type>`                  | Run from a *Developer PowerShell / Command Prompt for VS* |
+   | Windows  | `windows-clang-<type>`                 | clang-cl + lld-link, also from a developer prompt |
+   | Linux    | `linux-default-<type>`                 | System default compiler |
+   | Linux    | `linux-clang-<type>`                   | Clang |
+   | macOS    | `macos-default-<type>`                 | Apple Clang |
+
+   `<type>` is `debug`, `relwithdebinfo` or `release`. For example:
 
    ```sh
-   python configure.py --version <VERSION>
+   cmake --preset windows-msvc-relwithdebinfo
+   cmake --build --preset windows-msvc-relwithdebinfo
    ```
 
-4. Build:
+   On Windows, the MSVC environment must be loaded before configuring; a plain
+   shell where `cl` is on `PATH` but `INCLUDE` is not set fails with missing
+   standard headers. If a tree was configured without it, delete the tree and
+   configure again.
 
-   ```sh
-   ninja
-   ```
+3. The executable is `build/pc/<preset>/Suitcase-<VERSION>` (`.exe` on Windows).
 
-A successful build verifies the DOL and all RELs against their original SHA-1
-hashes. See [City Folk configuration setup](docs/city_folk_config.md) for details.
+### Other game versions
 
-## Diffing
+The presets build `RUUE01_00`. Each version needs its own build tree; set
+`CF_VERSION` and a separate binary directory:
 
-Once the initial build succeeds, an `objdiff.json` should exist in the project root.
+```sh
+cmake --preset windows-msvc-relwithdebinfo -DCF_VERSION=RUUP01_00 -B build/pc/windows-msvc-relwithdebinfo-RUUP01_00
+cmake --build build/pc/windows-msvc-relwithdebinfo-RUUP01_00
+```
 
-Download [objdiff](https://github.com/encounter/objdiff). Under project settings,
-set **Project directory** to this repository. The configuration should load automatically.
+Reconfiguring an existing tree for a different version is refused.
 
-Select an object from the left sidebar to begin diffing. Changes to source files,
-headers, `configure.py`, `splits.txt` or `symbols.txt` trigger automatic rebuilds.
+## Running
 
-![objdiff interface](assets/objdiff.png)
+Pass a disc image of the matching version to the executable:
+
+```sh
+build/pc/windows-msvc-relwithdebinfo/Suitcase-RUUE01_00.exe path/to/City_Folk.rvz
+```
+
+Any disc image format supported by [nod](https://github.com/encounter/nod) works
+(ISO, RVZ, WBFS, CISO, ...). Saves, settings (`config.json`) and the other NAND
+files are kept in the per-user `suitcase` data directory.
+
+## Decompilation build
+
+The original matching decompilation build (`configure.py` + `ninja`, verified
+against the retail DOL and RELs with [objdiff](https://github.com/encounter/objdiff)
+for diffing) is still present and independent of the PC build. It needs the
+extracted game files in `orig/<VERSION>` (`sys/main.dol` and `files/rels/*.rel`):
+
+```sh
+python configure.py --version <VERSION>
+ninja
+```
+
+See [City Folk configuration setup](docs/city_folk_config.md) and
+[Dependencies](docs/dependencies.md) for details.
 
 ## PC testing controls
 
@@ -99,5 +132,4 @@ and resumes when speedup stops. Speedup starts disabled each session.
 
 ## Credits
 
-- encounter and NWPlayer123 for [dtk-template](https://github.com/encounter/dtk-template)
-  and the build system.
+- encounter & contributors for aurora and borealis.
