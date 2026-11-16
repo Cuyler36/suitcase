@@ -577,6 +577,7 @@ static int nInfoMemory;
 static int nAuthSig;
 static int nPeerSig;
 static int nTotalMemory;
+static int nBlocked;
 
 static GPIBool gpiReportProfile(GPConnection* connection, GPIProfile* profile,
                                 void* data) {

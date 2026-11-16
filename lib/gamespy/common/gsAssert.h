@@ -40,8 +40,8 @@ extern "C" {
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-extern void gsDebugAssert(const char* format, const char* szError,
-                          const char* szFile, int line);
+extern inline void gsDebugAssert(const char* format, const char* szError,
+                          const char* szFile, int line) {}
 #ifndef _DEBUG
 // On non-debug builds, release builds, ignore all of this.
 // be carefull never to have function calls within one of these macros, as they
