@@ -11,6 +11,7 @@
 // The bus interior. Functions are in target .text order.
 
 // The bus's debug parameters (RTTI "hostIO_c").
+namespace {
 class hostIO_c {
   public:
     hostIO_c() {
@@ -21,6 +22,7 @@ class hostIO_c {
 
     /* 0x4 */ s16 mWiperMode; // -1: with rain or snow, 1: always
 }; // size 0x8
+} // namespace
 
 namespace dARmobjBus {
 static hostIO_c l_HIO;

@@ -37,6 +37,7 @@
 // dFdBase_c::wearGrass: wears the grass of a unit away completely.
 #define GRASS_WEAR_ALL 0xFF
 
+namespace {
 class hostIO_c {
   public:
     hostIO_c() {
@@ -71,6 +72,7 @@ class hostIO_c {
     /* 0x16 */ s16 _16;
     /* 0x18 */ s16 _18;
 }; // size 0x1C
+} // namespace
 
 // 0xCC
 namespace dStrManager {

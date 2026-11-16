@@ -12,6 +12,7 @@
 
 // The debug parameters of the unit (RTTI "hostIO_c"): frames of the seat's
 // sounds and the fire.
+namespace {
 class hostIO_c {
   public:
     hostIO_c()
@@ -30,6 +31,7 @@ class hostIO_c {
     /* 0x14 */ int
         mSeatStartFrame; // SE_ResetCenter_SeatStart from this frame on
 }; // size 0x18
+} // namespace
 
 namespace dARmobjReset {
 // .text 0xCC

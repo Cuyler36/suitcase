@@ -38,6 +38,7 @@ public:
 } // namespace dItemDebug
 
 // The host IO block of the item debugger.
+namespace {
 class hostIO_c {
 public:
     enum STATE_e {
@@ -64,6 +65,7 @@ public:
     /* 0xB8 */ u8 mDebug;
     /* 0xBC */ dItemDebug::addPackLoader_c mLoader;
 }; // size 0x140
+} // namespace
 
 static const char *l_arcPath = "/TestAddItem/testAddItem.arc";
 

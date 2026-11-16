@@ -43,6 +43,7 @@
 #define BUS_FRAME_KEEP -1
 
 // Debug parameters (the HIO tool's values).
+namespace {
 class hostIO_c {
   public:
     hostIO_c() {
@@ -68,6 +69,7 @@ class hostIO_c {
     virtual ~hostIO_c() {
     }
 }; // size 0x10
+} // namespace
 
 // Defined before the bus code (see notes/TUs/d_a_str_common.txt).
 extern u8 l_getOff;

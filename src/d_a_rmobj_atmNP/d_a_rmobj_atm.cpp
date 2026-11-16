@@ -16,6 +16,7 @@
 // The ATM. Functions are in target .text order.
 
 // The ATM's debug parameters (RTTI "hostIO_c"; empty).
+namespace {
 class hostIO_c {
   public:
     hostIO_c() {
@@ -23,6 +24,7 @@ class hostIO_c {
     virtual ~hostIO_c() {
     }
 }; // size 0x4
+} // namespace
 
 namespace dARmobjAtm {
 static hostIO_c l_HIO;

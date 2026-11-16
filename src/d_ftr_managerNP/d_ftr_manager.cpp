@@ -60,6 +60,7 @@ struct tvDay_c {
     /* 0x4 */ int mNum;
 }; // size 0x8
 
+namespace {
 class hostIO_c {
 public:
     hostIO_c() {
@@ -119,6 +120,7 @@ public:
     /* 0xA8 */ f32 mPushDist;
     /* 0xAC */ f32 mDpdHeight;
 }; // size 0xB0
+} // namespace
 
 static inline u32 makeInfo(int x, int z, const dItem::Item &item, int rot, int layer, int kind) {
     daFTR_c::info_c info;

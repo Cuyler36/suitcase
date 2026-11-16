@@ -20,6 +20,7 @@
 #include <cmath>
 
 // Debug parameters (the HIO tool's values).
+namespace {
 class hostIO_c {
   public:
     hostIO_c() {
@@ -57,6 +58,7 @@ class hostIO_c {
     virtual ~hostIO_c() {
     }
 }; // size 0x34
+} // namespace
 
 namespace dABbsBird {
 BASE_PROFILE(A_BBS_BIRD, daBbsBird_c);

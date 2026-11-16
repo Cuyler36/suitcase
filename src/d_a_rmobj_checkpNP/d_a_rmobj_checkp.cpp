@@ -11,6 +11,7 @@
 
 // The debug parameters of the unit (RTTI "hostIO_c"): the frames of the gate's
 // stop sounds.
+namespace {
 class hostIO_c {
   public:
     hostIO_c() : mOpenStopFrame(211), mCloseStopFrame(224), _08(1) {
@@ -22,6 +23,7 @@ class hostIO_c {
     /* 0x06 */ s16 mCloseStopFrame; // SE_GATE_CLOSE_STOP
     /* 0x08 */ u8 _08;
 }; // size 0xC
+} // namespace
 
 namespace dARmobjCheckp {
 // .text 0xCC

@@ -18,6 +18,7 @@
 
 // Debug parameters (the HIO tool's values; RTTI "hostIO_c"). The vtable
 // pointer follows _00 (declared before the first virtual function).
+namespace {
 class hostIO_c {
   public:
     hostIO_c() : _00(0) {
@@ -28,6 +29,7 @@ class hostIO_c {
     virtual ~hostIO_c() {
     }
 }; // size 0x8
+} // namespace
 
 namespace dAStrCdbbs {
 

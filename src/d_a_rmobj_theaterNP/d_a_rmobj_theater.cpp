@@ -7,6 +7,7 @@
 
 // The light material's settings (RTTI "hostIO_c"): the konst alpha of
 // "m_light".
+namespace {
 class hostIO_c {
   public:
     hostIO_c() : mAlphaOn(0xFF), mAlphaOff(0) {
@@ -17,6 +18,7 @@ class hostIO_c {
     /* 0x04 */ s16 mAlphaOn;
     /* 0x06 */ s16 mAlphaOff;
 };
+} // namespace
 
 namespace dARmobjTheater {
 // .text 0xCC

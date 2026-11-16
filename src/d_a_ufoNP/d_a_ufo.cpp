@@ -45,6 +45,7 @@
 #define UFO_WOBBLE_SPEED 0x900
 
 // Debug parameters (the HIO tool's values).
+namespace {
 class hostIO_c {
   public:
     hostIO_c() {
@@ -61,6 +62,7 @@ class hostIO_c {
     /* 0x0C */ f32 mLeaveSpeed; // after the shot
     /* 0x10 */ f32 mScale;
 }; // size 0x14
+} // namespace
 
 // .text:0xCC
 namespace dAUfo {
