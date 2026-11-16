@@ -1,6 +1,7 @@
 // MSL's non-standard string functions for hosts whose C library lacks them (see include/extras.h).
 #include <extras.h>
 
+#include <ctype.h>
 #include <wctype.h>
 
 int __msl_wcsnicmp(const unsigned short* a, const unsigned short* b, size_t n) {
