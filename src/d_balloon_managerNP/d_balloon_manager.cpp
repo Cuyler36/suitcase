@@ -80,7 +80,7 @@ int dBalloonMng_c::create() {
         // The balloon manager's heap ("Baloon" sic).
         m_frmHeap_p =
             mHeap::createFrmHeap(0x7800, dHeap::localHeap_p,
-                                 "dBaloonMng_c::m_frmHeap_pF•—‘Dƒ}ƒl[ƒWƒƒ[",
+                                 "dBaloonMng_c::m_frmHeap_pï¼šé¢¨èˆ¹ãƒãƒãƒ¼ã‚¸ãƒ£ãƒ¼",
                                  0x20, mHeap::OPT_NONE);
         mAllocator.attach(m_frmHeap_p, 0x20);
     }

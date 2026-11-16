@@ -127,7 +127,6 @@ int dSvMgr_c::getPlayerDataOffset(int player) {
            PTR_TO_U32(base);
 }
 
-// State names retain the original CP932 bytes.
 int dSvMgr_c::create() {
     static const dState::mode_c<dSvMgr_c>::Entry modes[] = {
         {"待機", &dSvMgr_c::initializeWait, &dSvMgr_c::executeWait},
@@ -148,7 +147,7 @@ int dSvMgr_c::create() {
          &dSvMgr_c::executeSaveInterruptNetHst},
         {"ネット中断セーブ（子）", &dSvMgr_c::initializeSaveInterruptNetVst,
          &dSvMgr_c::executeSaveInterruptNetVst},
-        {"ソ\フトリセット用ロード処理", &dSvMgr_c::initializeLoad,
+        {"ソフトリセット用ロード処理", &dSvMgr_c::initializeLoad,
          &dSvMgr_c::executeLoad},
     };
     dState::mode_c<dSvMgr_c>::initialize("dSvMgr_c", modes, 11);

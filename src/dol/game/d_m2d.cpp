@@ -77,7 +77,7 @@ BOOL ResAccLoader_c::remove() {
 // 8000774C
 bool ResAccLoader_c::create(EGG::Heap *heap, size_t size) {
     EGG::ExpHeap *expHeap = EGG::ExpHeap::create(size, heap, 4);
-    expHeap->setName("２Ｄリソ\ース用ヒープ(d2d::ResAccLoader_c::create)");
+    expHeap->setName("２Ｄリソース用ヒープ(d2d::ResAccLoader_c::create)");
     l_resAllocator = EGG_NEW_ARGS(expHeap, 4) mAllocator_c();
     l_resAllocator->attach(expHeap, 0x20);
     return true;

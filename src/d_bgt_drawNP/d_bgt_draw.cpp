@@ -198,7 +198,7 @@ void dBgtDraw_c::blockMng_c::remove(mAllocator_c *allocator) {
 void dBgtDraw_c::initHeap(EGG::Heap *parent) {
     if (m_frmHeap_p == NULL) {
         m_frmHeap_p = mHeap::createFrmHeap(
-            0x200000, parent, "dBgtDraw_c::m_frmHeap_p : ŠX‚a‚f ƒoƒbƒtƒ@", 0x20,
+            0x200000, parent, "dBgtDraw_c::m_frmHeap_p : è¡—ï¼¢ï¼§ ãƒãƒƒãƒ•ã‚¡", 0x20,
             mHeap::OPT_NONE);
         if (m_frmHeap_p != NULL) {
             mAllocator.attach(m_frmHeap_p, 0x20);

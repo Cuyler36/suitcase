@@ -30,15 +30,15 @@ fProf::fBaseProfile_c g_profile_SV_DEMO = {&dSvDemo_c_classInit, fProf::SV_DEMO,
 // 801B9848
 int dSvDemo_c::create() {
     static const dState::mode_c<dSvDemo_c>::Entry modes[] = {
-        {"‘Ò‹@", &dSvDemo_c::initializeWait, &dSvDemo_c::executeWait},
-        {"ƒƒbƒZ[ƒW", &dSvDemo_c::initializeMessage,
+        {"å¾…æ©Ÿ", &dSvDemo_c::initializeWait, &dSvDemo_c::executeWait},
+        {"ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸", &dSvDemo_c::initializeMessage,
          &dSvDemo_c::executeMessage},
-        {"ƒZ[ƒuƒV[ƒ“‚Ö", &dSvDemo_c::initializeSaveScene,
+        {"ã‚»ãƒ¼ãƒ–ã‚·ãƒ¼ãƒ³ã¸", &dSvDemo_c::initializeSaveScene,
          &dSvDemo_c::executeSaveScene},
-        {"ˆ—–³‚µ", &dSvDemo_c::initializeIdle, &dSvDemo_c::executeIdle},
-        {"Œp‘±ƒZ[ƒu", &dSvDemo_c::initializeNetSaveContinue,
+        {"å‡¦ç†ç„¡ã—", &dSvDemo_c::initializeIdle, &dSvDemo_c::executeIdle},
+        {"ç¶™ç¶šã‚»ãƒ¼ãƒ–", &dSvDemo_c::initializeNetSaveContinue,
          &dSvDemo_c::executeNetSaveContinue},
-        {"’†’fƒZ[ƒu", &dSvDemo_c::initializeNetSaveInterrupt,
+        {"ä¸­æ–­ã‚»ãƒ¼ãƒ–", &dSvDemo_c::initializeNetSaveInterrupt,
          &dSvDemo_c::executeNetSaveInterrupt},
     };
     mBedSide = BED_SIDE_NONE;
@@ -269,13 +269,13 @@ void dSvDemo_c::executeIdle() {
 void dSvDemo_c::initializeNetSaveContinue() {
     static const dState::step_c<dSvDemo_c,
                                 stepNetSaveContinue_c>::Entry steps[] = {
-        {"ƒfƒ‚‚ÌƒƒbƒN",
+        {"ãƒ‡ãƒ¢ã®ãƒ­ãƒƒã‚¯",
          (stepNetSaveContinue_c::Method)&stepNetSaveContinue_c::requestSave},
-        {"—v‹‚ÌŒ‹‰Ê",
+        {"è¦æ±‚ã®çµæœ",
          (stepNetSaveContinue_c::Method)&stepNetSaveContinue_c::waitRequest},
-        {"ƒƒbƒZ[ƒWI—¹ŒãƒZ[ƒuƒV[ƒ“‚Ö",
+        {"ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸çµ‚äº†å¾Œã‚»ãƒ¼ãƒ–ã‚·ãƒ¼ãƒ³ã¸",
          (stepNetSaveContinue_c::Method)&stepNetSaveContinue_c::waitMessageEnd},
-        {"ƒƒbƒZ[ƒWI—¹‘Ò‚¿",
+        {"ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸çµ‚äº†å¾…ã¡",
          (stepNetSaveContinue_c::Method)&stepNetSaveContinue_c::
              waitRefusedMessageEnd},
     };
@@ -329,14 +329,14 @@ void dSvDemo_c::stepNetSaveContinue_c::waitRefusedMessageEnd() {
 void dSvDemo_c::initializeNetSaveInterrupt() {
     static const dState::step_c<dSvDemo_c,
                                 stepNetSaveInterrupt_c>::Entry steps[] = {
-        {"ƒfƒ‚‚ÌƒƒbƒN",
+        {"ãƒ‡ãƒ¢ã®ãƒ­ãƒƒã‚¯",
          (stepNetSaveInterrupt_c::Method)&stepNetSaveInterrupt_c::requestSave},
-        {"—v‹‚ÌŒ‹‰Ê",
+        {"è¦æ±‚ã®çµæœ",
          (stepNetSaveInterrupt_c::Method)&stepNetSaveInterrupt_c::waitRequest},
-        {"ƒƒbƒZ[ƒWI—¹ŒãƒZ[ƒuƒV[ƒ“‚Ö",
+        {"ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸çµ‚äº†å¾Œã‚»ãƒ¼ãƒ–ã‚·ãƒ¼ãƒ³ã¸",
          (stepNetSaveInterrupt_c::Method)&stepNetSaveInterrupt_c::
              waitMessageEnd},
-        {"ƒƒbƒZ[ƒWI—¹‘Ò‚¿",
+        {"ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸çµ‚äº†å¾…ã¡",
          (stepNetSaveInterrupt_c::Method)&stepNetSaveInterrupt_c::
              waitRefusedMessageEnd},
     };

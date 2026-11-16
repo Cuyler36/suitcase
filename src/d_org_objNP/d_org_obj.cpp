@@ -127,7 +127,7 @@ void dOrgObj_c::initHeap() {
     if (m_frmHeap_p == NULL) {
         m_frmHeap_p =
             mHeap::createFrmHeap(0x7800, dHeap::localHeap_p,
-                                 "dOrgObj_c::m_frmHeap_p : ƒIƒŠƒWƒiƒ‹OBJƒq[ƒv",
+                                 "dOrgObj_c::m_frmHeap_p : ã‚ªãƒªã‚¸ãƒŠãƒ«OBJãƒ’ãƒ¼ãƒ—",
                                  0x20, mHeap::OPT_NONE);
         mAllocator.attach(m_frmHeap_p, 0x20);
     }
