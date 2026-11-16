@@ -7,6 +7,7 @@
 // notes/save_file_layout.txt for where each unknown member's code lives.
 
 #include <types.h>
+#include <port/bitfield.h>
 #include <game/game/d_sv_wc24.hpp>
 #include <game/game/d_save_town.hpp>
 #include <game/game/d_mail.hpp>
@@ -27,23 +28,22 @@ struct dSaveOption_c {
     BOOL isKana() const { return mKana; }
     BOOL isVoiceChat() const { return mVoiceChat; } // d_obj_voice
 
-    /* 0x0 */ u8 mKana : 1;       // Japanese text shows the kana readings (dScript::Word_c::procRubyJP)
-    /* 0x0 */ u8 mVoiceMode : 2;  // the talk voices: 0 the speaker's own mode, 1 / 2 a fixed one (d_msg_seq)
-    /* 0x0 */ u8 mKeySe : 1;      // lower case keys use the upper case key SE (d_letter, d_kbd)
-    /* 0x0 */ u8 mNoTutorial : 1; // dObjTutorial_c::isEnabled when clear
-    /* 0x0 */ u8 mBit2 : 1;       // read by nothing (its getter fn_8010D9F4 returns 0)
-    /* 0x0 */ u8 mVoiceChat : 1;  // voice chat on (d_net_mgr, d_net_sync, d_obj_voice)
-    /* 0x0 */ u8 mVoiceSound : 1; // voice chat sound on (dVoiceChat::setMute when clear)
-    /* 0x1 */ u8 mVoiceVolume;    // voice chat volume (dNetMgr_c::setVolume), 6 by default
+    // The option bits are stored in the Wii's bit order (port/bitfield.h). Player data stores it as a raw byte
+    // (dPrivateData_c::_83E8), which the save codec and the network data pass through as it is.
+    // mKana: Japanese text shows the kana readings (dScript::Word_c::procRubyJP)
+    // mVoiceMode: the talk voices: 0 the speaker's own mode, 1 / 2 a fixed one (d_msg_seq)
+    // mKeySe: lower case keys use the upper case key SE (d_letter, d_kbd)
+    // mNoTutorial: dObjTutorial_c::isEnabled when clear
+    // mBit2: read by nothing (its getter fn_8010D9F4 returns 0)
+    // mVoiceChat: voice chat on (d_net_mgr, d_net_sync, d_obj_voice)
+    // mVoiceSound: voice chat sound on (dVoiceChat::setMute when clear)
+    /* 0x0 */ BITFIELD_BYTE_7(u8 mKana : 1, u8 mVoiceMode : 2, u8 mKeySe : 1, u8 mNoTutorial : 1, u8 mBit2 : 1,
+                              u8 mVoiceChat : 1, u8 mVoiceSound : 1);
+    /* 0x1 */ u8 mVoiceVolume; // voice chat volume (dNetMgr_c::setVolume), 6 by default
     // One changed flag per bit above.
-    /* 0x2 */ u8 mKanaChanged : 1;
-    /* 0x2 */ u8 mVoiceModeChanged : 1;
-    /* 0x2 */ u8 mKeySeChanged : 1;
-    /* 0x2 */ u8 mNoTutorialChanged : 1;
-    /* 0x2 */ u8 mBit2Changed : 1;
-    /* 0x2 */ u8 mVoiceChatChanged : 1;
-    /* 0x2 */ u8 mVoiceSoundChanged : 1;
-    /* 0x2 */ u8 _2_0 : 1;
+    /* 0x2 */ BITFIELD_BYTE_8(u8 mKanaChanged : 1, u8 mVoiceModeChanged : 1, u8 mKeySeChanged : 1,
+                              u8 mNoTutorialChanged : 1, u8 mBit2Changed : 1, u8 mVoiceChatChanged : 1,
+                              u8 mVoiceSoundChanged : 1, u8 _2_0 : 1);
 };
 
 // The save file's name and size (d_save_data.cpp .sdata / .sdata2; used by d_nand and d_sv_mgr).
@@ -291,4 +291,3 @@ public:
 inline dPostBox_c *dPostBox_c::get() {
     return &dSaveData_c::getExtra()->mPostBox;
 }
-
