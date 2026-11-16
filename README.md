@@ -14,6 +14,8 @@ This repository does **not** contain any game assets. An existing copy of the ga
 Supported versions:
 
 - `RUUE01_00`: Rev 0 (USA)
+
+Future supported versions:
 - `RUUE01_01`: Rev 1 (USA)
 - `RUUP01_00`: Rev 0 (Europe/Australia)
 - `RUUP01_01`: Rev 1 (Europe/Australia)
