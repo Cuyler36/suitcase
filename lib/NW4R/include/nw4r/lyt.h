@@ -14,7 +14,7 @@
 #include <nw4r/lyt/bounding.h>
 #include <nw4r/lyt/pane.h>
 #include <nw4r/lyt/picture.h>
-#include <nw4r/lyt/textBox.h>
+#include <nw4r/lyt/textbox.h>
 #include <nw4r/lyt/window.h>
 
 #include <nw4r/lyt/layout.h>
