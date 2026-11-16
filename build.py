@@ -148,7 +148,7 @@ def package(build_dir, env):
     """Zips the build for testers into dist/."""
     system = platform.system()
     version = cache_value(build_dir, "CF_VERSION")  # e.g. RUUE01_00
-    exe = f"suitcase-{version}" + (".exe" if system == "Windows" else "")
+    exe = f"Suitcase-{version}" + (".exe" if system == "Windows" else "")
     exe_path = os.path.join(build_dir, exe)
     if not os.path.exists(exe_path):
         sys.exit(f"build.py: {exe_path} was not built")

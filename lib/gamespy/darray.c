@@ -155,7 +155,11 @@ void ArrayAppend(DArray array, const void* newElem) {
     ArrayInsertAt(array, newElem, array->count);
 }
 
+#if TARGET_PC // GCC rejects static after darray.h's extern declaration (MWCC and MSVC take it)
+void ArrayInsertAt(DArray array, const void* newElem, int n) {
+#else
 static inline void ArrayInsertAt(DArray array, const void* newElem, int n) {
+#endif
   GS_ASSERT(array)
   GS_ASSERT((n >= 0) && (n <= array->count));
 

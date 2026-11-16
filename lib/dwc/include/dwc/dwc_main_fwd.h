@@ -1,5 +1,6 @@
 #pragma once
 
+#include <dwc/dwc_fwd_u32.h>
 #include <dwc/dwc_match_fwd.h>
 #include <dwc/dwc_account_fwd.h>
 #include <dwc/dwc_login_fwd.h>
@@ -18,23 +19,23 @@ extern "C"
     int DWC_ConnectToAnybodyAsync(int mode, unsigned char numEntry,
         const char* addFilter, DWCMatchedSCCallback matchedCallback,
         void* matchedParam, DWCNewClientCallback newClientCallback,
-        void* newClientParam, unsigned long param8, unsigned long param9,
-        DWCEvalPlayerCallback evalCallback, const unsigned long* evalData,
+        void* newClientParam, DWC_FWD_U32 param8, DWC_FWD_U32 param9,
+        DWCEvalPlayerCallback evalCallback, const DWC_FWD_U32* evalData,
         void* evalParam);
     int DWC_SetupGameServer(int mode, unsigned char maxEntry,
         DWCMatchedSCCallback matchedCallback, void* matchedParam,
         DWCNewClientCallback newClientCallback, void* newClientParam,
-        DWCEvalPlayerCallback evalCallback, const unsigned long* evalData,
+        DWCEvalPlayerCallback evalCallback, const DWC_FWD_U32* evalData,
         void* evalParam);
     int DWC_ConnectToGameServerAsync(int mode, int serverIndex,
         DWCMatchedSCCallback matchedCallback, void* matchedParam,
         DWCNewClientCallback newClientCallback, void* newClientParam,
-        DWCEvalPlayerCallback evalCallback, const unsigned long* evalData,
+        DWCEvalPlayerCallback evalCallback, const DWC_FWD_U32* evalData,
         void* evalParam);
-    int DWC_ConnectToGameServerByGroupID(int mode, unsigned long groupID,
+    int DWC_ConnectToGameServerByGroupID(int mode, DWC_FWD_U32 groupID,
         DWCMatchedSCCallback matchedCallback, void* matchedParam,
         DWCNewClientCallback newClientCallback, void* newClientParam,
-        DWCEvalPlayerCallback evalCallback, const unsigned long* evalData,
+        DWCEvalPlayerCallback evalCallback, const DWC_FWD_U32* evalData,
         void* evalParam);
 
     typedef void* DWCFriendsMatchControl;

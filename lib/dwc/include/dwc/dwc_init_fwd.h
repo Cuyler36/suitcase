@@ -1,5 +1,6 @@
 #pragma once
 
+#include <dwc/dwc_fwd_u32.h>
 #include <dwc/dwc_memfunc_fwd.h>
 
 #ifdef __cplusplus
@@ -14,7 +15,7 @@ typedef enum {
   DWC_AUTHSERVER_TEST = 2
 } DWC_AuthServer;
 
-int DWC_Init(DWC_AuthServer authserver, const char* gameName, unsigned long gameCode,
+int DWC_Init(DWC_AuthServer authserver, const char* gameName, DWC_FWD_U32 gameCode,
              DWCAllocEx alloc, DWCFreeEx free);
 void DWC_Shutdown();
 

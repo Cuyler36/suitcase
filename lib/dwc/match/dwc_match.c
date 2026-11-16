@@ -7802,10 +7802,12 @@ const char* match_st_string[DWC_MATCH_STATE_NUM] = {
 
 // ---- older-source functions CF inlines or strips ----
 // .old:DWC_StopSCMatchingAsync
+#if !TARGET_PC // stripped from CF (no callers); the stub body returns nothing
 BOOL DWC_StopSCMatchingAsync(DWCStopSCCallback callback, void* param)
 {
     // TODO: CF revision differs (fields moved/removed); older body kept below
 }
+#endif
 #if 0
 {
     if (DWCi_IsError() || stpMatchCnt == NULL
@@ -7873,11 +7875,13 @@ const char* DWC_GetMatchStringValue(
 }
 
 // .old:DWC_SetMatchingOption
+#if !TARGET_PC // stripped from CF (no callers); the stub body returns nothing
 int DWC_SetMatchingOption(
     DWCMatchOptType opttype, const void* optval, int optlen)
 {
     // TODO: CF revision differs (fields moved/removed); older body kept below
 }
+#endif
 #if 0
 {
 #pragma unused(optlen)
@@ -7942,11 +7946,13 @@ int DWC_SetMatchingOption(
 #endif
 
 // .old:DWC_GetMatchingOption
+#if !TARGET_PC // stripped from CF (no callers); the stub body returns nothing
 int DWC_GetMatchingOption(
     DWCMatchOptType opttype, void* optval, int* optlen)
 {
     // TODO: CF revision differs (fields moved/removed); older body kept below
 }
+#endif
 #if 0
 {
     if (!DWCi_GetMatchCnt())
@@ -8004,10 +8010,12 @@ int DWC_GetMatchingOption(
 #endif
 
 // .old:DWC_GetMOMinCompState
+#if !TARGET_PC // stripped from CF (no callers); the stub body returns nothing
 int DWC_GetMOMinCompState(u64* time)
 {
     // TODO: CF revision differs (fields moved/removed); older body kept below
 }
+#endif
 #if 0
 {
     u64 passTime;
@@ -8035,10 +8043,12 @@ int DWC_GetMOMinCompState(u64* time)
 #endif
 
 // .old:DWC_GetMOSCConnectBlockState
+#if !TARGET_PC // stripped from CF (no callers); the stub body returns nothing
 BOOL DWC_GetMOSCConnectBlockState(void)
 {
     // TODO: CF revision differs (fields moved/removed); older body kept below
 }
+#endif
 #if 0
 {
     if (stOptSCBlock.valid == 0 || stOptSCBlock.lock == 0)
@@ -8194,10 +8204,12 @@ static void DWCi_StopResendingMatchCommand(void)
 }
 
 // .old:DWCi_DeleteHostByProfileID
+#if !TARGET_PC // stripped from CF (no callers); the stub body returns nothing
 BOOL DWCi_DeleteHostByProfileID(int profileID, int numHost)
 {
     // TODO: CF revision differs (fields moved/removed); older body kept below
 }
+#endif
 #if 0
 {
     int i;
@@ -8219,10 +8231,12 @@ BOOL DWCi_DeleteHostByProfileID(int profileID, int numHost)
 #endif
 
 // .old:DWCi_DeleteHostByIndex
+#if !TARGET_PC // stripped from CF (no callers); the stub body returns nothing
 int DWCi_DeleteHostByIndex(int index, int numHost)
 {
     // TODO: CF revision differs (fields moved/removed); older body kept below
 }
+#endif
 #if 0
 {
     int profileID;
@@ -8309,10 +8323,12 @@ void DWCi_SetNumValidConnection(void)
 #endif
 
 // .old:DWCi_GetAllAIDList
+#if !TARGET_PC // stripped from CF (no callers); the stub body returns nothing
 int DWCi_GetAllAIDList(u8** aidList)
 {
     // TODO: CF revision differs (fields moved/removed); older body kept below
 }
+#endif
 #if 0
 {
     if (stpMatchCnt == NULL)
@@ -8325,10 +8341,12 @@ int DWCi_GetAllAIDList(u8** aidList)
 #endif
 
 // .old:DWCi_GetValidAIDList
+#if !TARGET_PC // stripped from CF (no callers); the stub body returns nothing
 int DWCi_GetValidAIDList(u8** aidList)
 {
     // TODO: CF revision differs (fields moved/removed); older body kept below
 }
+#endif
 #if 0
 {
     static u8 validAidList[DWC_MAX_CONNECTIONS];
@@ -8486,10 +8504,12 @@ static void DWCi_MakeBackupServerData(int profileID, const u32 data[])
 
 
 // .old:DWCi_CancelReservation
+#if !TARGET_PC // stripped from CF (no callers); the stub body returns nothing
 static int DWCi_CancelReservation(int profileID)
 {
     // TODO: CF revision differs (fields moved/removed); older body kept below
 }
+#endif
 #if 0
 {
     int result;
@@ -8505,10 +8525,12 @@ static int DWCi_CancelReservation(int profileID)
 
 // .old:DWCi_ChangeToClient
 // defined here (function and string order), not inlined
+#if !TARGET_PC // stripped from CF (no callers); the stub body returns nothing
 static int DWCi_ChangeToClient(void)
 {
     // TODO: CF revision differs (fields moved/removed); older body kept below
 }
+#endif
 #if 0
 {
     u32 leData[128];
@@ -8557,10 +8579,12 @@ static int DWCi_ChangeToClient(void)
 
 
 // .old:DWCi_InvalidateReservation
+#if !TARGET_PC // stripped from CF (no callers); the stub body returns nothing
 static int DWCi_InvalidateReservation(void)
 {
     // TODO: CF revision differs (fields moved/removed); older body kept below
 }
+#endif
 #if 0
 {
     u32 senddata = DWCi_MatchDataToLE(DWC_MATCH_COMMAND_CANCEL, 0);
@@ -8721,10 +8745,12 @@ static void DWCi_ClearGameMatchKeys(void)
 }
 
 // .old:DWCi_GetAIDFromList
+#if !TARGET_PC // stripped from CF (no callers); the stub body returns nothing
 static u8 DWCi_GetAIDFromList(void)
 {
     // TODO: CF revision differs (fields moved/removed); older body kept below
 }
+#endif
 #if 0
 {
     u8 i;
@@ -8801,10 +8827,12 @@ static BOOL DWCi_AreAllBuddies(const u32 pidList[], u32 pidListLen)
 }
 
 // .old:DWCi_GetAIDFromProfileID
+#if !TARGET_PC // stripped from CF (no callers); the stub body returns nothing
 static u8 DWCi_GetAIDFromProfileID(int profileID, BOOL idx0)
 {
     // TODO: CF revision differs (fields moved/removed); older body kept below
 }
+#endif
 #if 0
 {
     int i;
@@ -8822,10 +8850,12 @@ static u8 DWCi_GetAIDFromProfileID(int profileID, BOOL idx0)
 #endif
 
 // .old:DWCi_GetAIDBitmask
+#if !TARGET_PC // stripped from CF (no callers); the stub body returns nothing
 static u32 DWCi_GetAIDBitmask(BOOL valid)
 {
     // TODO: CF revision differs (fields moved/removed); older body kept below
 }
+#endif
 #if 0
 {
     u32 bitmask = 0;

@@ -1,0 +1,2 @@
+// The executable's icon for Explorer and the taskbar (the window's own is set in src/cf/main.cpp)
+IDI_ICON1 ICON "icon.ico"

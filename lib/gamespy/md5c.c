@@ -102,7 +102,11 @@ static unsigned char MD5_PADDING[64] = {
 
 /* MD5 initialization. Begins an MD5 operation, writing a new context.
  */
+#if TARGET_PC // GCC rejects static after md5.h's extern declaration (MWCC and MSVC take it)
+void MD5Init(MD5_CTX* context) {
+#else
 static inline void MD5Init(MD5_CTX* context) {
+#endif
   context->count[0] = context->count[1] = 0;
 
   /* Load magic initialization constants.

@@ -48,7 +48,11 @@
     },
     { "name": "linux-default-debug", "inherits": ["debug", "linux-default"] },
     { "name": "linux-default-relwithdebinfo", "inherits": ["relwithdebinfo", "linux-default"] },
-    { "name": "linux-default-release", "inherits": ["release", "linux-default"] },
+    {
+      "name": "linux-default-release",
+      "inherits": ["release", "linux-default"],
+      "cacheVariables": { "CF_STRIP_DEBUG_INFO": true }
+    },
     {
       "name": "linux-clang",
       "inherits": "linux-default",
@@ -56,7 +60,11 @@
     },
     { "name": "linux-clang-debug", "inherits": ["debug", "linux-clang"] },
     { "name": "linux-clang-relwithdebinfo", "inherits": ["relwithdebinfo", "linux-clang"] },
-    { "name": "linux-clang-release", "inherits": ["release", "linux-clang"] },
+    {
+      "name": "linux-clang-release",
+      "inherits": ["release", "linux-clang"],
+      "cacheVariables": { "CF_STRIP_DEBUG_INFO": true }
+    },
     {
       "name": "macos-default",
       "inherits": "base",

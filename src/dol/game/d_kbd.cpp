@@ -741,9 +741,14 @@ BOOL Mng_c::updatePointer() {
 }
 
 BOOL Mng_c::updateKeyboard() {
+    // The phone-style keypad took no USB keyboard. On PC the host keyboard is every player's, and
+    // calcHKB has already taken it from the Wii Remote, so there it would do nothing at all: the text
+    // input library's HWKeyboard types into the phone keypad's text as it does the PC keyboard's
+#if !TARGET_PC
     if (mFlags & FLAG_CELL_PHONE) {
         return FALSE;
     }
+#endif
     if (!mListener.isKeyHeld()) {
         return FALSE;
     }

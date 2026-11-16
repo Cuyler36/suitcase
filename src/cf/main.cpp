@@ -10,7 +10,10 @@
 #include <cf/debug.h>
 
 #include <cstdlib>
+#include <cstring>
+#include <vector>
 
+#include "cf/icon_png.h"
 #include "cf/version_config.h"
 #if CF_BUILD_GAME
 #include "game/boot.hpp"
@@ -39,6 +42,34 @@ void Shutdown(bool dvdOpen) {
 #endif
     borealis::log::shutdown();
 }
+
+struct WindowIcon {
+    std::vector<unsigned char> rgba;
+    uint32_t width = 0;
+    uint32_t height = 0;
+};
+
+// The embedded res/icon.png as tightly packed RGBA8, for AuroraConfig (SDL's PNG loader needs no SDL_Init)
+WindowIcon LoadWindowIcon() {
+    WindowIcon icon;
+    SDL_Surface* png = SDL_LoadPNG_IO(SDL_IOFromConstMem(kIconPng, sizeof(kIconPng)), true);
+    SDL_Surface* rgba = png != nullptr ? SDL_ConvertSurface(png, SDL_PIXELFORMAT_RGBA32) : nullptr;
+    SDL_DestroySurface(png);
+    if (rgba == nullptr) {
+        Log.warn("Could not load the window icon: {}", SDL_GetError());
+        return icon;
+    }
+    icon.width = static_cast<uint32_t>(rgba->w);
+    icon.height = static_cast<uint32_t>(rgba->h);
+    const size_t rowSize = size_t{icon.width} * 4;
+    icon.rgba.resize(rowSize * icon.height);
+    for (uint32_t row = 0; row < icon.height; ++row) {
+        std::memcpy(icon.rgba.data() + row * rowSize, static_cast<const unsigned char*>(rgba->pixels) + row * rgba->pitch,
+                    rowSize);
+    }
+    SDL_DestroySurface(rgba);
+    return icon;
+}
 } // namespace
 
 namespace cf::sdk {
@@ -51,12 +82,16 @@ int main(int argc, char* argv[]) {
     borealis::log::init({.filePrefix = "suitcase"});
     Log.info("suitcase {} (game ID {}, revision {})", CF_VERSION_NAME, CF_GAME_ID, CF_DISC_REVISION);
 
+    WindowIcon icon = LoadWindowIcon();
     const AuroraConfig config{
         .appName = "suitcase",
         // Centred: with no position SDL put the client area at the screen's corner, so the title bar
         // was above the top edge and the window could not be moved
         .windowPosX = SDL_WINDOWPOS_CENTERED,
         .windowPosY = SDL_WINDOWPOS_CENTERED,
+        .iconRGBA8 = icon.rgba.empty() ? nullptr : icon.rgba.data(),
+        .iconWidth = icon.width,
+        .iconHeight = icon.height,
         .logCallback = borealis::log::aurora_callback(),
         // CF_GX_INLINE=1 processes GX commands on the game thread, so a GX failure has the game's stack
         .gxProcessingMode = std::getenv("CF_GX_INLINE") != nullptr ? GX_PROCESSING_INLINE : GX_PROCESSING_THREAD,
@@ -65,6 +100,10 @@ int main(int argc, char* argv[]) {
         .mem1Size = 256 * 1024 * 1024,
     };
     const AuroraInfo info = aurora_initialize(argc, argv, &config);
+    // appName is also the user directory's name, which stays lowercase (case-sensitive on Linux)
+    if (info.window != nullptr) {
+        SDL_SetWindowTitle(info.window, "Suitcase");
+    }
 
 #if CF_BUILD_GAME
     // The mouse, keyboard and gamepads on aurora's Wii Remote (src/cf/input/host_input.cpp)

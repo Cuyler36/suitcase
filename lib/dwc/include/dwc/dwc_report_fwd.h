@@ -1,5 +1,7 @@
 #pragma once
 
+#include <dwc/dwc_fwd_u32.h>
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -35,7 +37,7 @@ typedef enum DWCReportFlag
     DWC_REPORTFLAG_ALL = -1
 } DWCReportFlag;
 
-void DWC_SetReportLevel(unsigned long level);
+void DWC_SetReportLevel(DWC_FWD_U32 level);
 void DWC_Printf(DWCReportFlag level, const char* fmt, ...);
 
 #ifdef __cplusplus
